@@ -1,0 +1,28 @@
+name: Deny template changes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  deny-template-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changes under dev/templates/ai-reference
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          echo "Base SHA: $BASE_SHA"
+          # Get list of changed files between base and head
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA"...HEAD || true)
+          echo "$CHANGED_FILES"
+          if printf '%s' "$CHANGED_FILES" | grep -E '^dev/templates/ai-reference/' -q; then
+            echo "ERROR: Pull requests must not modify files under dev/templates/ai-reference (reference-only)." >&2
+            exit 1
+          fi

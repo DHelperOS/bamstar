@@ -1,0 +1,8 @@
+{
+  "scrcpy.adbPath": "/Users/deneb/Library/Android/sdk/platform-tools/adb",
+  "scrcpy.defaultDevice": "emulator-5554",
+  "scrcpy.maxSize": 800,
+  "scrcpy.videoBitRate": "2M",
+  "scrcpy.showTouches": true,
+  "scrcpy.alwaysOnTop": false
+}

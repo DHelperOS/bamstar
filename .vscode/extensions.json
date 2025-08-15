@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "Dart-Code.flutter",
+    "Dart-Code.dart-code",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "eamodio.gitlens",
+    "teabyii.ayu",
+    "alexanderzobnin.vscode-obvious",
+    "nash.awesome-flutter-snippets",
+    "marceloventura.flutter-snippets",
+    "pubspecassist.pubspec-assist",
+    "coenraads.bracket-pair-colorizer-2",
+    "ms-vscode.cpptools"
+  ]
+}

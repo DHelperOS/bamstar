@@ -1,0 +1,12 @@
+{
+  "name": "supabase-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@supabase/supabase-js": "^2.26.0"
+  }
+}

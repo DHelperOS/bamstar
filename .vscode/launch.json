@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: Launch bamstar (lib/main.dart)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Flutter: Attach to Device",
+      "request": "attach",
+      "type": "dart"
+    }
+  ]
+}
