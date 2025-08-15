@@ -176,7 +176,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-  home: const OnboardingPage(),
+  home: const OnboardingScreen(),
     );
   }
 }
