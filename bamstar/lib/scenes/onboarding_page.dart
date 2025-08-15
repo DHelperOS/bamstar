@@ -132,40 +132,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // indicators (left) and Skip (right) - place Skip near content for a more natural feel
+                // indicators (left-aligned, small dots like sample)
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: List.generate(
-                        _pages.length,
-                        (index) => buildDot(index, context),
-                      ),
-                    ),
-                    // Inline skip button next to indicators
-                    Material(
-                      color: theme.colorScheme.primary.withOpacity(0.06),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.12))),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () {
-                          final last = _pages.length - 1;
-                          _pageController.animateToPage(last, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(SolarIconsBold.mapArrowRight, size: 14, color: theme.colorScheme.primary),
-                              const SizedBox(width: 6),
-                              Text('건너뛰기', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(
+                    _pages.length,
+                    (index) => buildDot(index, context),
+                  ),
                 ),
                 const SizedBox(height: 20),
 
@@ -234,7 +207,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> with TickerProvider
           ],
           ),
 
-          
+          // Top-right Skip button
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0, right: 12.0),
+                child: Material(
+                  color: theme.colorScheme.primary.withOpacity(0.08),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: theme.colorScheme.primary.withOpacity(0.14))),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      final last = _pages.length - 1;
+                      _pageController.animateToPage(last, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(SolarIconsBold.mapArrowRight, size: 16, color: theme.colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Text('건너뛰기', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
 
         ],
         ),
