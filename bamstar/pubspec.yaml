@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   solar_icons: ^0.0.5
   animated_introduction: ^1.0.4
+  delayed_display: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -60,9 +61,34 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/onboard_one.png
-    - assets/onboard_two.png
-    - assets/onboard_three.png
+  - assets/images/onboard/onboard_one.webp
+  - assets/images/onboard/onboard_two.webp
+  - assets/images/onboard/onboard_three.webp
+
+  # Fonts: Pretendard (place Pretendard OTF/TTF files under assets/font/Pretendard/)
+  # Please add the Pretendard font files with the names below, or tell me and
+  # I can add placeholder files for testing.
+  fonts:
+    - family: Pretendard
+      fonts:
+        - asset: assets/font/Pretendard/Pretendard-Thin.ttf
+          weight: 100
+        - asset: assets/font/Pretendard/Pretendard-ExtraLight.ttf
+          weight: 200
+        - asset: assets/font/Pretendard/Pretendard-Light.ttf
+          weight: 300
+        - asset: assets/font/Pretendard/Pretendard-Regular.ttf
+          weight: 400
+        - asset: assets/font/Pretendard/Pretendard-Medium.ttf
+          weight: 500
+        - asset: assets/font/Pretendard/Pretendard-SemiBold.ttf
+          weight: 600
+        - asset: assets/font/Pretendard/Pretendard-Bold.ttf
+          weight: 700
+        - asset: assets/font/Pretendard/Pretendard-ExtraBold.ttf
+          weight: 800
+        - asset: assets/font/Pretendard/Pretendard-Black.ttf
+          weight: 900
 
   # To add assets to your application, add an assets section, like this:
   # assets:
