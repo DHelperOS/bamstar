@@ -11,8 +11,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Supabase CLI
+        shell: bash
         run: |
-          curl -sL https://supabase.com/cli/install | sh
+          set -euo pipefail
+          curl -sL https://supabase.com/cli/install | bash
 
       - name: Run migration SQL against Supabase
         env:
@@ -37,5 +39,5 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
           set -euo pipefail
-          echo 'select table_name from information_schema.tables where table_schema = "public" and table_name in ("roles","users","devices");' > /tmp/verify.sql
+          echo "select table_name from information_schema.tables where table_schema = 'public' and table_name in ('roles','users','devices');" > /tmp/verify.sql
           supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file /tmp/verify.sql
