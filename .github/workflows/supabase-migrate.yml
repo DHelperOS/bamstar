@@ -11,10 +11,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Supabase CLI
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -sL https://supabase.com/cli/install | bash
+        uses: supabase/cli-action@v1
 
       - name: Run migration SQL against Supabase
         env:
