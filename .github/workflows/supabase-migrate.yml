@@ -14,34 +14,46 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "Ensuring Node/npm are available (npx will be used to run supabase CLI)"
+          echo "Ensuring Node/npm are available (npx may be used for other tasks)"
           node --version || (echo "Node.js is not installed on runner" && exit 1)
           npm --version || (echo "npm is not installed on runner" && exit 1)
 
-      - name: Run migration SQL against Supabase
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
-          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      - name: Install psql client
+        shell: bash
         run: |
           set -euo pipefail
-          echo "Running migration: dev/supabase/migrations/20250816_init_users_roles_devices.sql"
-          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_SERVICE_ROLE:-}" ] || [ -z "${SUPABASE_PROJECT_REF:-}" ]; then
-            echo "Missing required secrets (SUPABASE_URL, SUPABASE_SERVICE_ROLE, SUPABASE_PROJECT_REF)" >&2
+          echo "Installing postgresql client (psql)"
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
+
+      - name: Run migration SQL against Supabase (psql)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PGSSLMODE: require
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Running migration via psql using SUPABASE_DB_URL secret"
+          if [ -z "${SUPABASE_DB_URL:-}" ]; then
+            echo "Missing required secret SUPABASE_DB_URL (postgres connection string)" >&2
             exit 1
           fi
 
-          # Run migration using npx to avoid global install issues
-          echo "Running migration using npx supabase"
-          npx -y supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file dev/supabase/migrations/20250816_init_users_roles_devices.sql
+          # psql accepts a full connection string, run the SQL file
+          echo "Applying: dev/supabase/migrations/20250816_init_users_roles_devices.sql"
+          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f dev/supabase/migrations/20250816_init_users_roles_devices.sql
 
-      - name: Verify tables created (optional)
+      - name: Verify tables created (psql)
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
-          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PGSSLMODE: require
+        shell: bash
         run: |
           set -euo pipefail
           echo "select table_name from information_schema.tables where table_schema = 'public' and table_name in ('roles','users','devices');" > /tmp/verify.sql
-          # Verify via npx supabase
-          npx -y supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file /tmp/verify.sql
+          if [ -z "${SUPABASE_DB_URL:-}" ]; then
+            echo "Missing required secret SUPABASE_DB_URL (postgres connection string)" >&2
+            exit 1
+          fi
+          echo "Verifying via psql"
+          psql "$SUPABASE_DB_URL" -At -f /tmp/verify.sql
