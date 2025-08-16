@@ -10,6 +10,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug repo layout (print workspace, tree, and SQL head)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "pwd: $(pwd)"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE:-<not-set>}"
+          echo "Top-level listing:" 
+          ls -la
+          echo "dev/supabase listing:"
+          ls -la dev || true
+          ls -la dev/supabase || true
+          echo "SQL head (first 20 lines) if present:" 
+          if [ -f dev/supabase/migrations/20250816_init_users_roles_devices.sql ]; then
+            sed -n '1,20p' dev/supabase/migrations/20250816_init_users_roles_devices.sql || true
+          else
+            echo "SQL file missing"
+          fi
+
       - name: Prepare Node runtime (npm available)
         shell: bash
         run: |
@@ -39,9 +57,35 @@ jobs:
             exit 1
           fi
 
-          # psql accepts a full connection string, run the SQL file
-          echo "Applying: dev/supabase/migrations/20250816_init_users_roles_devices.sql"
-          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f dev/supabase/migrations/20250816_init_users_roles_devices.sql
+          # determine SQL path and validate it exists; use GITHUB_WORKSPACE for absolute path
+          SQL_REL_PATH="dev/supabase/migrations/20250816_init_users_roles_devices.sql"
+          SQL_PATH="${GITHUB_WORKSPACE:-$PWD}/$SQL_REL_PATH"
+          echo "Working directory: $(pwd)"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE:-<not-set>}"
+          echo "Applying: $SQL_PATH"
+
+          if [ ! -f "$SQL_PATH" ]; then
+            echo "SQL file not found: $SQL_PATH" >&2
+            echo "--- Repository tree (top-level) ---" >&2
+            ls -la "${GITHUB_WORKSPACE:-$PWD}" || true
+            echo "--- dev/supabase tree ---" >&2
+            ls -la "${GITHUB_WORKSPACE:-$PWD}/dev/supabase" || true
+            echo "--- full dev tree (recursive, truncated) ---" >&2
+            ls -la "${GITHUB_WORKSPACE:-$PWD}/dev" || true
+            exit 1
+          fi
+
+          # psql accepts a full connection string; use absolute SQL path
+          echo "SQL file stat (if exists):"
+          if stat --version >/dev/null 2>&1; then
+            stat "$SQL_PATH" || true
+          else
+            ls -la "$SQL_PATH" || true
+          fi
+
+          echo "Running: cat $SQL_PATH | psql <secret> -v ON_ERROR_STOP=1"
+          # stream the SQL through psql to avoid any path resolution oddities
+          cat "$SQL_PATH" | psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1
 
       - name: Verify tables created (psql)
         env:
