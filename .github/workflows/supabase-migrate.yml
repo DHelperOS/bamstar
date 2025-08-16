@@ -1,0 +1,41 @@
+name: supabase-migrate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        run: |
+          curl -sL https://supabase.com/cli/install | sh
+
+      - name: Run migration SQL against Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          echo "Running migration: dev/supabase/migrations/20250816_init_users_roles_devices.sql"
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_SERVICE_ROLE:-}" ] || [ -z "${SUPABASE_PROJECT_REF:-}" ]; then
+            echo "Missing required secrets (SUPABASE_URL, SUPABASE_SERVICE_ROLE, SUPABASE_PROJECT_REF)" >&2
+            exit 1
+          fi
+
+          # Configure supabase CLI to use the provided project ref
+          supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file dev/supabase/migrations/20250816_init_users_roles_devices.sql
+
+      - name: Verify tables created (optional)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set -euo pipefail
+          echo 'select table_name from information_schema.tables where table_schema = "public" and table_name in ("roles","users","devices");' > /tmp/verify.sql
+          supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file /tmp/verify.sql
