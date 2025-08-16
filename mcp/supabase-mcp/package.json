@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node index.js"
+  "start": "node index.js",
+  "migrate": "node run-migration.js",
+  "migrate:users-roles-devices": "node run-migration.js dev/supabase/migrations/20250816_init_users_roles_devices.sql"
   },
   "dependencies": {
     "express": "^4.18.2",

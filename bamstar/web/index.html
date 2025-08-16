@@ -34,5 +34,18 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Register a lightweight service worker for PWA behavior during dev/testing.
+    // The file `sw.js` is added to the web/ folder by the project.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          console.log('Service worker registered:', reg);
+        }).catch((err) => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

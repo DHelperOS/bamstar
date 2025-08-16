@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Debug repo layout (print workspace, tree, and SQL head)
         shell: bash
@@ -43,6 +45,31 @@ jobs:
           echo "Installing postgresql client (psql)"
           sudo apt-get update -y
           sudo apt-get install -y postgresql-client
+
+      - name: Ensure migration SQL exists (fallback: download raw)
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          SQL_REL_PATH="dev/supabase/migrations/20250816_init_users_roles_devices.sql"
+          SQL_ABS_PATH="${GITHUB_WORKSPACE:-$PWD}/$SQL_REL_PATH"
+          echo "Checking for migration file at: $SQL_ABS_PATH"
+          if [ -f "$SQL_ABS_PATH" ]; then
+            echo "Migration file already present"
+            exit 0
+          fi
+          echo "Migration file missing in workspace; attempting to download raw file from repository"
+          mkdir -p "$(dirname "$SQL_ABS_PATH")"
+          RAW_URL="https://raw.githubusercontent.com/${{ github.repository }}/main/$SQL_REL_PATH"
+          echo "Fetching $RAW_URL"
+          # Use GITHUB_TOKEN for private repos
+          curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" -o "$SQL_ABS_PATH" "$RAW_URL" || {
+            echo "Failed to download migration SQL from $RAW_URL" >&2
+            ls -la "$(dirname "$SQL_ABS_PATH")" || true
+            exit 1
+          }
+          echo "Downloaded migration to $SQL_ABS_PATH"
 
       - name: Run migration SQL against Supabase (psql)
         env:

@@ -5,6 +5,19 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+// Load keystore properties if present (android/key.properties)
+// rootProject points to the Android project root (bamstar/android), so use "key.properties"
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
+} else {
+    println("Keystore properties file not found: ${keystorePropertiesFile.path}")
+}
+
 android {
     namespace = "co.kr.bamstar.app"
     compileSdk = flutter.compileSdkVersion
@@ -31,10 +44,30 @@ android {
     }
 
     buildTypes {
+    signingConfigs {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias") ?: "bamstar_key"
+                keyPassword = keystoreProperties.getProperty("keyPassword") ?: "p951219@"
+        // storeFile is defined relative to the Android root; resolve from rootProject
+        storeFile = rootProject.file(keystoreProperties.getProperty("storeFile") ?: "app/bamstar_keystore.jks")
+                storePassword = keystoreProperties.getProperty("storePassword") ?: "p951219@"
+            }
+        }
+
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+            // minifyEnabled false by default for debug; adjust proguard if needed
+            // Ensure resource shrinking is explicitly disabled for now to avoid
+            // the Gradle error about removing unused resources when code shrinking
+            // is not enabled.
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        debug {
+            // Use the same keystore for debug builds as requested.
+            signingConfig = signingConfigs.getByName("release")
+            isDebuggable = true
+            isShrinkResources = false
         }
     }
 }

@@ -24,5 +24,13 @@ linter:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
+# Exclude large template/reference folders from analysis. These are reference
+# templates and may contain deprecated APIs; excluding them keeps analyzer
+# output focused on the active app code.
+analyzer:
+  exclude:
+  - ../dev/templates/**
+  - ../dev/**
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

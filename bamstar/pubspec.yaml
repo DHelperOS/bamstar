@@ -13,8 +13,8 @@
 # - When adding/changing UI files, reference templates under
 #     dev/templates/ai-reference and include a `References:` line in PRs.
 # - Do not copy templates verbatim; use them as reference only.
-- Pages/screens must be designed mobile-first ( prioritize touch, layout and performance for phones ),
-  and implemented responsively so they display well on PC/web as well.
+# - Pages/screens must be designed mobile-first ( prioritize touch, layout and performance for phones ),
+#   and implemented responsively so they display well on PC/web as well.
 #
 # Place small, non-disruptive changes directly. For template updates,
 # coordinate with repository admins (templates are protected).

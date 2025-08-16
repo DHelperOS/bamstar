@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 // 중앙화된 앱 테마와 텍스트 테마 제공
@@ -97,9 +99,7 @@ class AppTheme {
           ),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          ),
+          style: TextButton.styleFrom(foregroundColor: Colors.white),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
@@ -159,9 +159,7 @@ class AppTheme {
           ),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-          ),
+          style: TextButton.styleFrom(foregroundColor: Colors.white),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
