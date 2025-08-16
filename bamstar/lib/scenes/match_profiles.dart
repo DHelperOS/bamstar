@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:solar_icons/solar_icons.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Clean, single implementation of the flat chat layout requested.
+/// Ported 1:1 from template chat_screen.dart (icons switched to solar_icons)
 class MatchProfilesPage extends StatefulWidget {
   const MatchProfilesPage({super.key});
 
@@ -9,173 +13,301 @@ class MatchProfilesPage extends StatefulWidget {
 }
 
 class _MatchProfilesPageState extends State<MatchProfilesPage> {
-  final List<_ChatMessage> _messages = [
-    _ChatMessage(text: 'How can I help you? Let me know.', isMine: false, time: '10:45 AM'),
-    _ChatMessage(text: 'I just finished it in 2 days', isMine: true, time: '10:50 AM'),
-    _ChatMessage(text: 'Wowow', isMine: true, time: '10:55 AM'),
-    _ChatMessage(text: 'Nice! 🎉', isMine: false, time: '10:56 AM'),
-  ];
-
+  final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  final List<_ChatMessage> _messages = [];
+
+  bool _sending = false;
+
+  void _handleCameraTap() {}
+
+  Future<void> _sendMessage() async {
+    final text = _messageController.text.trim();
+    if (text.isEmpty || _sending) return;
+    setState(() {
+      _messages.add(_ChatMessage.text(text, isMine: true, timestamp: _now()));
+      _sending = true;
+      _messageController.clear();
+    });
+    _autoScroll();
+
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    if (apiKey == null || apiKey.isEmpty) {
+      setState(() {
+        _messages.add(_ChatMessage.text('GEMINI_API_KEY is not set in .env', isMine: false, timestamp: _now()));
+        _sending = false;
+      });
+      _autoScroll();
+      return;
+    }
+
+    try {
+      final reply = await _geminiFlashReply(apiKey: apiKey, userText: text, history: _asHistory());
+      setState(() {
+        _messages.add(_ChatMessage.text(reply, isMine: false, timestamp: _now()));
+        _sending = false;
+      });
+      _autoScroll();
+    } catch (e) {
+      setState(() {
+        _messages.add(_ChatMessage.text('오류: $e', isMine: false, timestamp: _now()));
+        _sending = false;
+      });
+      _autoScroll();
+    }
+  }
+
+  List<Map<String, dynamic>> _asHistory() {
+    final List<Map<String, dynamic>> contents = [];
+    for (final m in _messages) {
+      if (m.type != _MsgType.text) continue;
+      contents.add({
+        'role': m.isMine ? 'user' : 'model',
+        'parts': [
+          {'text': m.text},
+        ],
+      });
+    }
+    return contents;
+  }
+
+  Future<String> _geminiFlashReply({required String apiKey, required String userText, required List<Map<String, dynamic>> history}) async {
+    final url = Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey');
+    final body = jsonEncode({
+      'contents': [
+        ...history,
+        {
+          'role': 'user',
+          'parts': [
+            {'text': userText},
+          ],
+        },
+      ],
+    });
+    final res = await http.post(url, headers: {'Content-Type': 'application/json'}, body: body).timeout(const Duration(seconds: 20));
+    if (res.statusCode != 200) {
+      throw 'HTTP ${res.statusCode}: ${res.body}';
+    }
+    final decoded = jsonDecode(res.body) as Map<String, dynamic>;
+    final candidates = decoded['candidates'] as List<dynamic>?;
+    if (candidates == null || candidates.isEmpty) throw 'No candidates';
+    final content = candidates.first['content'] as Map<String, dynamic>?
+        ?? (candidates.first['content'] == null ? {} : Map<String, dynamic>.from(candidates.first['content']));
+    final parts = content['parts'] as List<dynamic>?;
+    if (parts == null || parts.isEmpty) throw 'No parts in response';
+    final text = parts.first['text']?.toString();
+    if (text == null || text.isEmpty) throw 'Empty response text';
+    return text;
+  }
+
+  String _now() {
+    final now = DateTime.now();
+    final mm = now.minute.toString().padLeft(2, '0');
+    return '${now.hour}:$mm';
+  }
+
+  void _autoScroll() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent + 120,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _messageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final primary = cs.primary;
-    final onPrimary = cs.onPrimary;
+    final textTheme = Theme.of(context).textTheme;
+    return Scaffold(
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(SolarIconsOutline.altArrowLeft),
+          onPressed: () => Navigator.of(context).maybePop(),
+          color: Colors.black,
+        ),
+        title: Text(
+          'Annette Black',
+          style: textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(SolarIconsOutline.phone, color: Colors.black, size: 24),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(SolarIconsOutline.videocamera, color: Colors.black, size: 24),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(SolarIconsOutline.menuDots, color: Colors.black, size: 24),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 8),
+        ],
+        centerTitle: false,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              itemCount: _messages.length,
+              itemBuilder: (context, i) {
+                final m = _messages[i];
+                // No date chip rendering per user request
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: _MessageBubble(text: m.text, timestamp: m.timestamp, isSentByMe: m.isMine),
+                );
+              },
+            ),
+          ),
+          _MessageInput(
+            controller: _messageController,
+            onSend: _sendMessage,
+            onCameraTap: _handleCameraTap,
+            sending: _sending,
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
 
-        return Scaffold(
-          backgroundColor: cs.surface,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final maxWidth = constraints.maxWidth > 600 ? 600.0 : constraints.maxWidth;
-            return Center(
-              child: SizedBox(
-                width: maxWidth,
-                height: constraints.maxHeight,
-                child: Column(
-                  children: [
-                    // Curved purple header
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-                      decoration: BoxDecoration(
-                        color: primary,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundImage: const AssetImage('assets/images/icon/avatar.png'),
-                            backgroundColor: primary.withAlpha((0.18 * 255).round()),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Eleanor Pena', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: onPrimary, fontWeight: FontWeight.w600)),
-                                const SizedBox(height: 4),
-                                Text('is typing...', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: onPrimary.withAlpha((0.9 * 255).round()))),
-                              ],
-                            ),
-                          ),
-                          IconButton(onPressed: () {}, icon: Icon(Icons.call, color: onPrimary)),
-                          IconButton(onPressed: () {}, icon: Icon(Icons.videocam, color: onPrimary)),
-                        ],
-                      ),
-                    ),
+enum _MsgType { text }
 
-                    // Messages list
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: _messages.length,
-                          itemBuilder: (context, index) {
-                            final msg = _messages[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment: msg.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (!msg.isMine) ...[
-                                    CircleAvatar(radius: 12, backgroundImage: const AssetImage('assets/images/icon/avatar.png')),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  Flexible(
-                                    child: Column(
-                                      crossAxisAlignment: msg.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                          decoration: BoxDecoration(
-                                            color: msg.isMine ? primary : cs.surface,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(msg.isMine ? 12 : 4),
-                                              topRight: Radius.circular(msg.isMine ? 4 : 12),
-                                              bottomLeft: const Radius.circular(12),
-                                              bottomRight: const Radius.circular(12),
-                                            ),
-                                            boxShadow: [BoxShadow(color: Colors.black.withAlpha((0.03 * 255).round()), blurRadius: 6, offset: const Offset(0, 2))],
-                                          ),
-                                          child: Text(msg.text, style: TextStyle(color: msg.isMine ? onPrimary : Theme.of(context).textTheme.bodyMedium?.color)),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(msg.time, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color?.withAlpha((0.6 * 255).round()))),
-                                      ],
-                                    ),
-                                  ),
-                                  if (msg.isMine) ...[
-                                    const SizedBox(width: 8),
-                                    const CircleAvatar(radius: 12, backgroundImage: AssetImage('assets/images/icon/avatar.png')),
-                                  ],
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+class _ChatMessage {
+  final _MsgType type;
+  final String text;
+  final bool isMine;
+  final String timestamp;
+  const _ChatMessage._(this.type, this.text, this.isMine, this.timestamp);
+  const _ChatMessage.text(String text, {required bool isMine, required String timestamp})
+  : this._(_MsgType.text, text, isMine, timestamp);
+}
 
-                    // Input bar (non-interactive to avoid keyboard/back button behavior)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).round()),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {}, // do nothing to avoid opening keyboard
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(24)),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.emoji_emotions_outlined, size: 20, color: Colors.grey),
-                                    const SizedBox(width: 8),
-                                    Expanded(child: Text('Than', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodyMedium?.color?.withAlpha((0.9 * 255).round())))),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Container(
-                            decoration: BoxDecoration(color: primary, shape: BoxShape.circle),
-                            child: IconButton(onPressed: () {}, icon: const Icon(Icons.send, color: Colors.white)),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+// Date chip removed per user request
+
+class _MessageBubble extends StatelessWidget {
+  final String text;
+  final String timestamp;
+  final bool isSentByMe;
+  const _MessageBubble({required this.text, required this.timestamp, required this.isSentByMe});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    const Color receivedBubbleColor = Color(0xFFF4F6F7);
+
+    final bubble = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+      decoration: BoxDecoration(
+        color: isSentByMe ? primaryColor : receivedBubbleColor,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(16),
+          topRight: const Radius.circular(16),
+          bottomLeft: isSentByMe ? const Radius.circular(16) : const Radius.circular(4),
+          bottomRight: isSentByMe ? const Radius.circular(4) : const Radius.circular(16),
+        ),
+    border: isSentByMe
+      ? null
+      : Border.all(color: Colors.black.withValues(alpha: 0.06)),
+      ),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 15,
+              color: isSentByMe ? Colors.white : Colors.black,
+            ),
+      ),
+    );
+
+    final time = Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        timestamp,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 10,
+              color: isSentByMe ? Colors.white70 : Colors.grey[600],
+            ),
+      ),
+    );
+
+    return Align(
+      alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.only(top: 4.0, bottom: 4.0, left: isSentByMe ? 60.0 : 0.0, right: isSentByMe ? 0.0 : 60.0),
+        child: Column(
+          crossAxisAlignment: isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [bubble, time],
         ),
       ),
     );
   }
 }
 
-class _ChatMessage {
-  final String text;
-  final bool isMine;
-  final String time;
-  _ChatMessage({required this.text, required this.isMine, required this.time});
+
+class _MessageInput extends StatelessWidget {
+  final TextEditingController controller;
+  final VoidCallback onSend;
+  final VoidCallback onCameraTap;
+  final bool sending;
+  const _MessageInput({required this.controller, required this.onSend, required this.onCameraTap, this.sending = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      color: Colors.white,
+      child: Row(children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(color: const Color(0xFFF4F6F7), borderRadius: BorderRadius.circular(24)),
+            child: TextField(
+              controller: controller,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16, color: Colors.black),
+              decoration: InputDecoration(
+                hintText: 'Type message...',
+                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey, fontSize: 16),
+                border: InputBorder.none,
+                suffixIcon: IconButton(icon: const Icon(SolarIconsOutline.camera, color: Colors.grey), onPressed: onCameraTap),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              minLines: 1,
+              maxLines: 5,
+              keyboardType: TextInputType.multiline,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        RawMaterialButton(
+          onPressed: sending ? null : onSend,
+          fillColor: primaryColor,
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(12),
+          child: sending
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Icon(SolarIconsBold.plain, color: Colors.white, size: 24),
+        ),
+      ]),
+    );
+  }
 }

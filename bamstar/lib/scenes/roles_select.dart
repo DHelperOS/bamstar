@@ -267,6 +267,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                         radius: const Radius.circular(8),
                                         thickness: 6,
                                         child: SingleChildScrollView(
+                                          primary: false,
                                           physics:
                                               const ClampingScrollPhysics(),
                                           padding: const EdgeInsets.symmetric(
