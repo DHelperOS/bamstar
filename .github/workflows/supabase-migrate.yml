@@ -10,12 +10,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Supabase CLI
+      - name: Install Supabase CLI via npm
         shell: bash
         run: |
           set -euo pipefail
-          echo "Installing Supabase CLI from raw GitHub install script"
-          curl -fsSL https://raw.githubusercontent.com/supabase/cli/master/install/install.sh | bash
+          echo "Installing Supabase CLI via npm (global)"
+          # Ensure npm is available and install supabase CLI globally
+          node --version || (echo "Node.js is not installed on runner" && exit 1)
+          npm --version || (echo "npm is not installed on runner" && exit 1)
+          npm install -g supabase
 
       - name: Run migration SQL against Supabase
         env:
