@@ -10,15 +10,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Supabase CLI via npm
+      - name: Prepare Node runtime (npm available)
         shell: bash
         run: |
           set -euo pipefail
-          echo "Installing Supabase CLI via npm (global)"
-          # Ensure npm is available and install supabase CLI globally
+          echo "Ensuring Node/npm are available (npx will be used to run supabase CLI)"
           node --version || (echo "Node.js is not installed on runner" && exit 1)
           npm --version || (echo "npm is not installed on runner" && exit 1)
-          npm install -g supabase
 
       - name: Run migration SQL against Supabase
         env:
@@ -33,8 +31,9 @@ jobs:
             exit 1
           fi
 
-          # Configure supabase CLI to use the provided project ref
-          supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file dev/supabase/migrations/20250816_init_users_roles_devices.sql
+          # Run migration using npx to avoid global install issues
+          echo "Running migration using npx supabase"
+          npx -y supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file dev/supabase/migrations/20250816_init_users_roles_devices.sql
 
       - name: Verify tables created (optional)
         env:
@@ -44,4 +43,5 @@ jobs:
         run: |
           set -euo pipefail
           echo "select table_name from information_schema.tables where table_schema = 'public' and table_name in ('roles','users','devices');" > /tmp/verify.sql
-          supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file /tmp/verify.sql
+          # Verify via npx supabase
+          npx -y supabase db query --project-ref "$SUPABASE_PROJECT_REF" --file /tmp/verify.sql
