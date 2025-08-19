@@ -64,7 +64,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 child: _ToastContent(
                   title: '로그인 오류',
                   message: msg,
-                  icon: Icon(SolarIconsOutline.dangerTriangle, color: Colors.white),
+                  icon: Icon(
+                    SolarIconsOutline.dangerTriangle,
+                    color: Colors.white,
+                  ),
                   backgroundColor: Colors.redAccent,
                 ),
               ),
@@ -74,7 +77,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
         },
         data: (authState) {
           // If we transitioned from no-session -> session, navigate to roles selection
-          final prevSession = previous?.maybeWhen(data: (v) => v.session, orElse: () => null);
+          final prevSession = previous?.maybeWhen(
+            data: (v) => v.session,
+            orElse: () => null,
+          );
           if (authState.session != null && prevSession == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
@@ -84,12 +90,12 @@ class _LoginPageState extends ConsumerState<LoginPage>
         },
       );
     });
-  final asyncAuth = ref.watch(authControllerProvider);
+    final asyncAuth = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
     return Scaffold(
-  body: Stack(
+      body: Stack(
         children: [
           // subtle background gradient so glass effect has something to blur
           Container(
@@ -225,27 +231,35 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       const SizedBox(height: 24),
 
                       // Social buttons
-                      Consumer(builder: (context, ref, _) {
-                        final auth = ref.read(authControllerProvider.notifier);
-                        return Column(
-                          children: [
-                            SocialAuthButton.kakao(onPressed: () {
-                              auth.signInWithKakao();
-                            }),
-                            const SizedBox(height: 12),
-                            SocialAuthButton(
-                              type: ButtonType.google,
-                              onPressed: () {
-                                auth.signInWithGoogle();
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            SocialAuthButton.apple(onPressed: () {
-                              auth.signInWithApple();
-                            }),
-                          ],
-                        );
-                      }),
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final auth = ref.read(
+                            authControllerProvider.notifier,
+                          );
+                          return Column(
+                            children: [
+                              SocialAuthButton.kakao(
+                                onPressed: () {
+                                  auth.signInWithKakao();
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              SocialAuthButton(
+                                type: ButtonType.google,
+                                onPressed: () {
+                                  auth.signInWithGoogle();
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              SocialAuthButton.apple(
+                                onPressed: () {
+                                  auth.signInWithApple();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                       const SizedBox(height: 24),
                       const SizedBox(height: 24),
 
@@ -313,7 +327,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       const SizedBox(height: 8),
 
                       // Login button with simple phone validation
-                            PrimaryTextButton(
+                      PrimaryTextButton(
                         text: '휴대폰 번호 로그인',
                         onPressed: () {
                           final digitsOnly = _phoneController.text.replaceAll(
@@ -328,7 +342,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                 child: _ToastContent(
                                   title: '입력 오류',
                                   message: '전화 번호는 숫자 10~11자리여야 합니다.',
-                                  icon: Icon(SolarIconsBold.phoneCallingRounded, color: Colors.white),
+                                  icon: Icon(
+                                    SolarIconsBold.phoneCallingRounded,
+                                    color: Colors.white,
+                                  ),
                                   backgroundColor: Colors.deepOrange,
                                 ),
                               ),
@@ -403,9 +420,19 @@ class _ToastContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                Text(message, style: const TextStyle(color: Colors.white70), overflow: TextOverflow.ellipsis),
+                Text(
+                  message,
+                  style: const TextStyle(color: Colors.white70),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),

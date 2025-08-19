@@ -25,13 +25,26 @@ void showGlobalToast({
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.white24, shape: BoxShape.circle), child: icon),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  shape: BoxShape.circle,
+                ),
+                child: icon,
+              ),
               const SizedBox(width: 12),
             ],
             Flexible(
@@ -39,7 +52,13 @@ void showGlobalToast({
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Text(message, style: const TextStyle(color: Colors.white70)),
                 ],
@@ -49,6 +68,6 @@ void showGlobalToast({
         ),
       ),
     ),
-  autoDismiss: true,
+    autoDismiss: true,
   ).show(ctx);
 }

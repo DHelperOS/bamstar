@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 // State management policy: use flutter_riverpod ^2.6.1 and flutter_bloc ^9.1.1
 // This file uses Riverpod for page index state.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final onboardingPageProvider = StateProvider<int>((ref) => 0);
 
@@ -48,6 +49,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   void initState() {
     super.initState();
+
+    // Mark onboarding as seen the first time the screen is shown.
+    // This ensures that if user navigates back later, the app knows onboarding
+    // has been shown previously.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        if (!(prefs.getBool('seen_onboarding') ?? false)) {
+          await prefs.setBool('seen_onboarding', true);
+        }
+      } catch (_) {}
+    });
 
     _titleController = AnimationController(
       vsync: this,
@@ -117,9 +130,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isTablet = constraints.maxWidth >= 600 && constraints.maxWidth < 900;
+          final isTablet =
+              constraints.maxWidth >= 600 && constraints.maxWidth < 900;
           final isWide = constraints.maxWidth >= 900;
-          final maxContentWidth = isWide ? 1100.0 : (isTablet ? 800.0 : constraints.maxWidth);
+          final maxContentWidth = isWide
+              ? 1100.0
+              : (isTablet ? 800.0 : constraints.maxWidth);
           final horizontalPad = isWide ? 40.0 : (isTablet ? 32.0 : 24.0);
 
           // Scale type for desktop: bigger titles, wider spacing.
@@ -129,7 +145,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
           Widget buildRightPanel() {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: isWide ? 24.0 : 20.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPad,
+                vertical: isWide ? 24.0 : 20.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -184,7 +203,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: const StadiumBorder(),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         final isLast = currentPage == _pages.length - 1;
                         if (!isLast) {
                           _pageController.nextPage(
@@ -192,12 +211,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                             curve: Curves.easeOut,
                           );
                         } else {
-                          context.go('/login');
+                          // capture router before async gap
+                          final router = GoRouter.of(context);
+                          // mark onboarding seen
+                          try {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('seen_onboarding', true);
+                          } catch (_) {}
+                          router.go('/login');
                         }
                       },
                       child: Text(
-                        currentPage == _pages.length - 1 ? '밤스타 가입하기' : '더 알아보기',
-                        style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                        currentPage == _pages.length - 1
+                            ? '밤스타 가입하기'
+                            : '더 알아보기',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -217,13 +247,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: () => context.go('/login'),
+                onTap: () async {
+                  // capture router before async gap
+                  final router = GoRouter.of(context);
+                  try {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('seen_onboarding', true);
+                  } catch (_) {}
+                  router.go('/login');
+                },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 6.0,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(SolarIconsBold.mapArrowRight, size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        SolarIconsBold.mapArrowRight,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '건너뛰기',
@@ -270,7 +315,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   children: [
                     if (isWide) ...[
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: horizontalPad, vertical: 24.0),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPad,
+                          vertical: 24.0,
+                        ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -288,7 +336,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                                       description: _pages[i]['description']!,
                                       pageController: _pageController,
                                       index: i,
-                                      maxImageWidth: 520.0, // keep image pleasant on desktop
+                                      maxImageWidth:
+                                          520.0, // keep image pleasant on desktop
                                     ),
                                   ),
                                 ),

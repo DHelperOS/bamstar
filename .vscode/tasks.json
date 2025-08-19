@@ -1,23 +1,54 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "flutter: pub get",
-      "type": "shell",
-      "command": "flutter pub get",
-      "problemMatcher": []
-    },
-    {
-      "label": "flutter: analyze",
-      "type": "shell",
-      "command": "flutter analyze",
-      "problemMatcher": ["$dart-analyzer"]
-    },
-    {
-      "label": "flutter: run (macos)",
-      "type": "shell",
-      "command": "flutter run -d macos",
-      "problemMatcher": []
-    }
-  ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "flutter: pub get",
+			"type": "shell",
+			"command": "flutter pub get",
+			"problemMatcher": []
+		},
+		{
+			"label": "flutter: analyze",
+			"type": "shell",
+			"command": "flutter analyze",
+			"problemMatcher": [
+				"$dart-analyzer"
+			]
+		},
+		{
+			"label": "flutter: run (macos)",
+			"type": "shell",
+			"command": "flutter run -d macos",
+			"problemMatcher": []
+		},
+		{
+			"label": "flutter (bamstar): run (macos)",
+			"type": "shell",
+			"command": "cd bamstar && flutter run -d macos",
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "flutter: pub get",
+			"type": "shell",
+			"command": "flutter pub get"
+		},
+		{
+			"label": "flutter: pub get (bamstar)",
+			"type": "shell",
+			"command": "cd bamstar && flutter pub get"
+		},
+		{
+			"label": "flutter: analyze",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
+		},
+		{
+			"label": "flutter (bamstar): run (macos)",
+			"type": "shell",
+			"command": "cd bamstar && flutter run -d macos",
+			"isBackground": true,
+			"group": "build"
+		}
+	]
 }

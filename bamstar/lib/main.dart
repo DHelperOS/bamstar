@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'scenes/onboarding_page.dart';
 import 'scenes/login_page.dart';
 import 'scenes/roles_select.dart';
+import 'scenes/place_home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ import 'auth/supabase_env.dart';
 import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart'
     as kakao_common;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logging/logging.dart';
 import 'utils/global_toast.dart';
@@ -28,14 +30,16 @@ Future<void> main() async {
     // Log via dart:developer or stdout using Logger formatting
     // Use debugPrint to avoid linter avoid_print warning in production.
     // ignore: avoid_print
-    print('${rec.time.toIso8601String()} [${rec.level.name}] ${rec.loggerName}: ${rec.message}$st');
+    print(
+      '${rec.time.toIso8601String()} [${rec.level.name}] ${rec.loggerName}: ${rec.message}$st',
+    );
   });
   final log = Logger('main');
   bool supabaseInitOk = true;
   // Load environment
   await dotenv.load(fileName: '.env');
   // Initialize Kakao SDK if key provided (Android/iOS)
-    try {
+  try {
     if (kakaoNativeAppKey.isNotEmpty) {
       kakao_common.KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
       log.info('Kakao SDK initialized');
@@ -63,18 +67,46 @@ Future<void> main() async {
   }
   // If Supabase failed to initialize, pass that state into the app so we can
   // show a helpful full-screen error UI.
+  // Initialize router (reads SharedPreferences) before starting the app so
+  // initial route honors whether onboarding was seen.
+  await initRouter();
   runApp(ProviderScope(child: MyApp(supabaseInitOk: supabaseInitOk)));
 }
 
-final _router = GoRouter(
-  navigatorKey: appNavigatorKey,
-  initialLocation: '/',
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => const OnboardingScreen()),
-    GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-  GoRoute(path: '/roles', builder: (context, state) => const RoleSelectPage()),
-  ],
-);
+late final GoRouter _router;
+
+Future<void> initRouter() async {
+  final prefs = await SharedPreferences.getInstance();
+  final seen = prefs.getBool('seen_onboarding') ?? false;
+  // If onboarding seen and Supabase session exists, start at home instead of login
+  String initial;
+  try {
+    final session = Supabase.instance.client.auth.currentSession;
+    if (!seen) {
+      initial = '/';
+    } else if (session != null) {
+      initial = '/home';
+    } else {
+      initial = '/login';
+    }
+  } catch (_) {
+    // Fallback if Supabase is not initialized for any reason
+    initial = seen ? '/login' : '/';
+  }
+  _router = GoRouter(
+    navigatorKey: appNavigatorKey,
+    initialLocation: initial,
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const OnboardingScreen()),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: '/roles',
+        builder: (context, state) => const RoleSelectPage(),
+      ),
+      GoRoute(path: '/home', builder: (context, state) => const MainScreen()),
+    ],
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key, this.supabaseInitOk = true});

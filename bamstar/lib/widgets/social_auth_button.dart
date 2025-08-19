@@ -155,7 +155,7 @@ class SocialAuthButton extends StatelessWidget {
           ),
         );
       case ButtonType.facebook:
-  return const SizedBox(width: 36, height: 36); // no icon asset bundled
+        return const SizedBox(width: 36, height: 36); // no icon asset bundled
       case ButtonType.kakao:
         return Container(
           width: 36,

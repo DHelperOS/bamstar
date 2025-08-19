@@ -5,7 +5,8 @@ import 'package:logging/logging.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:bamstar/auth/supabase_env.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao_user;
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart'
+    as kakao_user;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bamstar/utils/global_toast.dart';
@@ -36,21 +37,30 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
     String? extractCode(String input) {
       final lower = input.toLowerCase();
       // JSON style: "error":"invalid_grant"
-      final jsonMatch = RegExp(r'"error"\s*[:=]\s*"?([a-z_0-9]+)"?', caseSensitive: false).firstMatch(input);
+      final jsonMatch = RegExp(
+        r'"error"\s*[:=]\s*"?([a-z_0-9]+)"?',
+        caseSensitive: false,
+      ).firstMatch(input);
       if (jsonMatch != null) return jsonMatch.group(1);
 
       // key=value style
-      final kvMatch = RegExp(r'error=([a-z_0-9]+)', caseSensitive: false).firstMatch(input);
+      final kvMatch = RegExp(
+        r'error=([a-z_0-9]+)',
+        caseSensitive: false,
+      ).firstMatch(input);
       if (kvMatch != null) return kvMatch.group(1);
 
       // explicit token names often appear directly
-      final simpleMatch = RegExp(r'\b(invalid_grant|invalid_otp|account_already_exists|already_exists|user_not_found|invalid_token|expired_token|token_revoked|unauthorized|invalid_request|rate_limited|password_strength|confirmation_required)\b', caseSensitive: false).firstMatch(lower);
+      final simpleMatch = RegExp(
+        r'\b(invalid_grant|invalid_otp|account_already_exists|already_exists|user_not_found|invalid_token|expired_token|token_revoked|unauthorized|invalid_request|rate_limited|password_strength|confirmation_required)\b',
+        caseSensitive: false,
+      ).firstMatch(lower);
       if (simpleMatch != null) return simpleMatch.group(1);
 
       return null;
     }
 
-  final code = extractCode(text);
+    final code = extractCode(text);
     final Map<String, String> codeMap = {
       'invalid_grant': '로그인 정보가 올바르지 않습니다. 이메일/비밀번호를 확인해 주세요.',
       'invalid_otp': '인증 코드가 잘못되었거나 만료되었습니다. 다시 시도해 주세요.',
@@ -74,7 +84,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
     // Fallback to safer substring checks (kept minimal)
     final s = text.toLowerCase();
     // Kakao-specific common errors
-    if (s.contains('notsupporterror') && (s.contains('kakaotalk is installed but not connected') || s.contains('not connected'))) {
+    if (s.contains('notsupporterror') &&
+        (s.contains('kakaotalk is installed but not connected') ||
+            s.contains('not connected'))) {
       return '카카오톡에 로그인되어 있지 않습니다. 카카오톡 앱에 로그인하시거나, 카카오 계정으로 로그인해 주세요.';
     }
     if (s.contains('cancel') || s.contains('canceled by user')) {
@@ -104,25 +116,36 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
     try {
       return Supabase.instance.client;
     } catch (e, st) {
-      log.severe('Attempted to access Supabase.instance.client before initialization: $e', e, st);
+      log.severe(
+        'Attempted to access Supabase.instance.client before initialization: $e',
+        e,
+        st,
+      );
       rethrow;
     }
   }
 
-  Future<void> ensureInitialized({required String url, required String anonKey}) async {
-  if (!_isInitialized()) {
+  Future<void> ensureInitialized({
+    required String url,
+    required String anonKey,
+  }) async {
+    if (!_isInitialized()) {
       try {
         await Supabase.initialize(url: url, anonKey: anonKey);
-    log.info('Supabase.initialize called from ensureInitialized');
+        log.info('Supabase.initialize called from ensureInitialized');
       } catch (e, st) {
-    log.severe('Failed to initialize Supabase in ensureInitialized: $e', e, st);
+        log.severe(
+          'Failed to initialize Supabase in ensureInitialized: $e',
+          e,
+          st,
+        );
         rethrow;
       }
     }
   }
 
   bool _isInitialized() {
-  try {
+    try {
       Supabase.instance.client.auth;
       return true;
     } catch (_) {
@@ -136,7 +159,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       // Debug: log client IDs and redirect URI to help diagnose redirect issues
       try {
         final envWeb = Uri.base.replace(path: '/').toString();
-          log.info('Google sign-in: webRedirect=$oauthRedirectUri envWeb=$envWeb');
+        log.info(
+          'Google sign-in: webRedirect=$oauthRedirectUri envWeb=$envWeb',
+        );
       } catch (_) {}
       if (kIsWeb) {
         // Web: use Supabase external provider flow
@@ -159,21 +184,29 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
           final iosClientId = googleIosClientId;
 
           String? clientIdForInit;
-          if (defaultTargetPlatform == TargetPlatform.iOS && iosClientId.isNotEmpty) {
+          if (defaultTargetPlatform == TargetPlatform.iOS &&
+              iosClientId.isNotEmpty) {
             clientIdForInit = iosClientId;
-          } else if (defaultTargetPlatform == TargetPlatform.android && androidClientId.isNotEmpty) {
+          } else if (defaultTargetPlatform == TargetPlatform.android &&
+              androidClientId.isNotEmpty) {
             clientIdForInit = androidClientId;
           } else {
             clientIdForInit = null;
           }
 
           // Guard: platform client id must be set for reliable native token issuance
-          if ((defaultTargetPlatform == TargetPlatform.android && (androidClientId.isEmpty)) ||
-              (defaultTargetPlatform == TargetPlatform.iOS && (iosClientId.isEmpty))) {
-            throw Exception('Missing platform Client ID. Set GOOGLE_ANDROID_CLIENT_ID (Android) or GOOGLE_IOS_CLIENT_ID (iOS) in .env.');
+          if ((defaultTargetPlatform == TargetPlatform.android &&
+                  (androidClientId.isEmpty)) ||
+              (defaultTargetPlatform == TargetPlatform.iOS &&
+                  (iosClientId.isEmpty))) {
+            throw Exception(
+              'Missing platform Client ID. Set GOOGLE_ANDROID_CLIENT_ID (Android) or GOOGLE_IOS_CLIENT_ID (iOS) in .env.',
+            );
           }
 
-          log.info('Initializing GoogleSignIn with clientIdForInit=${clientIdForInit ?? '<none>'} serverClientId=${webClientId.isNotEmpty ? webClientId : '<none>'} androidClientId=${androidClientId.isNotEmpty ? androidClientId : '<none>'}');
+          log.info(
+            'Initializing GoogleSignIn with clientIdForInit=${clientIdForInit ?? '<none>'} serverClientId=${webClientId.isNotEmpty ? webClientId : '<none>'} androidClientId=${androidClientId.isNotEmpty ? androidClientId : '<none>'}',
+          );
 
           // Clear any previous GoogleSignIn state to avoid reauth failures due to stale sessions
           try {
@@ -217,22 +250,32 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
           }
 
           // If exchange didn't return a session, surface as error
-          throw Exception('Supabase did not return a session after id token exchange');
+          throw Exception(
+            'Supabase did not return a session after id token exchange',
+          );
         } catch (e, st) {
           log.severe('Native Google sign-in failed: $e', e, st);
           final message = _koreanAuthMessage(e);
           try {
-            showGlobalToast(title: '로그인 실패', message: message, backgroundColor: Colors.redAccent);
+            showGlobalToast(
+              title: '로그인 실패',
+              message: message,
+              backgroundColor: Colors.redAccent,
+            );
           } catch (_) {}
           state = AsyncValue.error(e, st);
         }
       }
     } catch (e, st) {
-  log.severe('Google sign-in failed: $e', e, st);
-  try {
-    showGlobalToast(title: '로그인 오류', message: _koreanAuthMessage(e), backgroundColor: Colors.redAccent);
-  } catch (_) {}
-  state = AsyncValue.error(e, st);
+      log.severe('Google sign-in failed: $e', e, st);
+      try {
+        showGlobalToast(
+          title: '로그인 오류',
+          message: _koreanAuthMessage(e),
+          backgroundColor: Colors.redAccent,
+        );
+      } catch (_) {}
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -262,11 +305,15 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
         state = const AsyncValue.data(AuthState());
       }
     } catch (e, st) {
-  log.severe('Apple sign-in failed: $e', e, st);
-  try {
-    showGlobalToast(title: '로그인 오류', message: _koreanAuthMessage(e), backgroundColor: Colors.redAccent);
-  } catch (_) {}
-  state = AsyncValue.error(e, st);
+      log.severe('Apple sign-in failed: $e', e, st);
+      try {
+        showGlobalToast(
+          title: '로그인 오류',
+          message: _koreanAuthMessage(e),
+          backgroundColor: Colors.redAccent,
+        );
+      } catch (_) {}
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -293,9 +340,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       // exchange it with Supabase. This provides native SSO via KaKaoTalk app.
       try {
         // prefer KakaoTalk SSO if available
-  late kakao_user.OAuthToken token;
+        late kakao_user.OAuthToken token;
         final bool hasKakaoTalk = await kakao_user.isKakaoTalkInstalled();
-    log.info('Kakao login: kakaoTalkInstalled=$hasKakaoTalk');
+        log.info('Kakao login: kakaoTalkInstalled=$hasKakaoTalk');
         if (hasKakaoTalk) {
           try {
             token = await kakao_user.UserApi.instance.loginWithKakaoTalk();
@@ -303,8 +350,11 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
           } catch (loginErr, loginSt) {
             log.warning('KakaoTalk login failed: $loginErr', loginErr, loginSt);
             // Prefer robust code-based detection first
-            if (loginErr is PlatformException && loginErr.code == 'NotSupportError') {
-              log.info('KakaoTalk not connected. Prompting user to open KakaoTalk and login, no web fallback.');
+            if (loginErr is PlatformException &&
+                loginErr.code == 'NotSupportError') {
+              log.info(
+                'KakaoTalk not connected. Prompting user to open KakaoTalk and login, no web fallback.',
+              );
               try {
                 showGlobalToast(
                   title: '카카오톡 로그인 필요',
@@ -316,8 +366,11 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
               return;
             } else {
               final msg = loginErr.toString().toLowerCase();
-              if (msg.contains('notsupporterror') && msg.contains('not connected')) {
-                log.info('Detected not-connected via message. Informing user to login in KakaoTalk; no web fallback.');
+              if (msg.contains('notsupporterror') &&
+                  msg.contains('not connected')) {
+                log.info(
+                  'Detected not-connected via message. Informing user to login in KakaoTalk; no web fallback.',
+                );
                 try {
                   showGlobalToast(
                     title: '카카오톡 로그인 필요',
@@ -327,9 +380,15 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
                 } catch (_) {}
                 state = const AsyncValue.data(AuthState());
                 return;
-              } else if (msg.contains('cancel') || msg.contains('canceled') || msg.contains('cancelled')) {
+              } else if (msg.contains('cancel') ||
+                  msg.contains('canceled') ||
+                  msg.contains('cancelled')) {
                 try {
-                  showGlobalToast(title: '로그인 취소', message: '카카오 로그인이 취소되었습니다.', backgroundColor: Colors.orangeAccent);
+                  showGlobalToast(
+                    title: '로그인 취소',
+                    message: '카카오 로그인이 취소되었습니다.',
+                    backgroundColor: Colors.orangeAccent,
+                  );
                 } catch (_) {}
                 state = const AsyncValue.data(AuthState());
                 return;
@@ -340,7 +399,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
           }
         } else {
           // KakaoTalk not installed: enforce native-only policy (no web fallback)
-          log.info('KakaoTalk not installed. Enforcing native-only: no web login fallback.');
+          log.info(
+            'KakaoTalk not installed. Enforcing native-only: no web login fallback.',
+          );
           try {
             showGlobalToast(
               title: '카카오톡 설치 필요',
@@ -352,15 +413,18 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
           return;
         }
 
-
         final accessToken = token.accessToken;
         final expiresAt = token.expiresAt;
-  String mask(String? v) {
+        String mask(String? v) {
           if (v == null || v.isEmpty) return '<empty>';
-          if (v.length <= 12) return '${v.substring(0, 3)}...${v.substring(v.length - 3)}';
+          if (v.length <= 12)
+            return '${v.substring(0, 3)}...${v.substring(v.length - 3)}';
           return '${v.substring(0, 6)}...${v.substring(v.length - 6)}';
         }
-  log.info('Kakao token obtained: accessToken=${mask(accessToken)} expiresAt=$expiresAt');
+
+        log.info(
+          'Kakao token obtained: accessToken=${mask(accessToken)} expiresAt=$expiresAt',
+        );
 
         // Try exchanging the Kakao token with Supabase. The supabase_flutter
         // package supports signInWithIdToken for some providers; use provider
@@ -372,24 +436,34 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
             idToken: accessToken,
           );
 
-          log.fine('Supabase signInWithIdToken (kakao) response: session=${authRes.session != null}');
+          log.fine(
+            'Supabase signInWithIdToken (kakao) response: session=${authRes.session != null}',
+          );
 
           final session = authRes.session ?? _supabase.auth.currentSession;
           if (session != null) {
             final user = session.user;
-            log.info('Kakao -> Supabase exchange succeeded: user=${user.email ?? user.id}');
+            log.info(
+              'Kakao -> Supabase exchange succeeded: user=${user.email ?? user.id}',
+            );
             await _persistSession(session);
             await _postSignIn(session);
             state = AsyncValue.data(AuthState(session: session));
             return;
           }
         } catch (exchangeErr, exchangeSt) {
-          log.warning('Supabase token exchange for Kakao failed: $exchangeErr', exchangeErr, exchangeSt);
+          log.warning(
+            'Supabase token exchange for Kakao failed: $exchangeErr',
+            exchangeErr,
+            exchangeSt,
+          );
           // continue to fallback behavior below
         }
 
         // Native-only policy: do not fall back to external OAuth on mobile.
-  log.warning('Kakao token exchange did not yield session. Native-only policy: not falling back to web.');
+        log.warning(
+          'Kakao token exchange did not yield session. Native-only policy: not falling back to web.',
+        );
         try {
           showGlobalToast(
             title: '로그인 오류',
@@ -400,16 +474,24 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
         state = const AsyncValue.data(AuthState());
         return;
       } catch (e, st) {
-  log.severe('Native Kakao login or token exchange failed: $e', e, st);
+        log.severe('Native Kakao login or token exchange failed: $e', e, st);
         try {
-          showGlobalToast(title: '로그인 오류', message: _koreanAuthMessage(e), backgroundColor: Colors.redAccent);
+          showGlobalToast(
+            title: '로그인 오류',
+            message: _koreanAuthMessage(e),
+            backgroundColor: Colors.redAccent,
+          );
         } catch (_) {}
         state = AsyncValue.error(e, st);
       }
     } catch (e, st) {
-  log.severe('Kakao sign-in failed: $e', e, st);
+      log.severe('Kakao sign-in failed: $e', e, st);
       try {
-        showGlobalToast(title: '로그인 오류', message: _koreanAuthMessage(e), backgroundColor: Colors.redAccent);
+        showGlobalToast(
+          title: '로그인 오류',
+          message: _koreanAuthMessage(e),
+          backgroundColor: Colors.redAccent,
+        );
       } catch (_) {}
       state = AsyncValue.error(e, st);
     }
@@ -421,23 +503,23 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       await storage.deleteAll();
       state = const AsyncValue.data(AuthState());
     } catch (e, st) {
-  log.severe('Sign out failed: $e', e, st);
-  state = AsyncValue.error(e, st);
+      log.severe('Sign out failed: $e', e, st);
+      state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> _persistSession(Session session) async {
-  await storage.write(key: 'sb_access_token', value: session.accessToken);
-  await storage.write(key: 'sb_refresh_token', value: session.refreshToken);
+    await storage.write(key: 'sb_access_token', value: session.accessToken);
+    await storage.write(key: 'sb_refresh_token', value: session.refreshToken);
   }
 
   // Helpers for post sign-in provisioning
   Future<String> _getOrCreateDeviceUuid() async {
     const key = 'device_uuid';
-  var v = await storage.read(key: key);
+    var v = await storage.read(key: key);
     if (v == null || v.isEmpty) {
       v = const Uuid().v4();
-  await storage.write(key: key, value: v);
+      await storage.write(key: key, value: v);
     }
     return v;
   }
@@ -476,7 +558,7 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       await _supabase.from('users').upsert(userPayload, onConflict: 'id');
 
       // Upsert device info for this user
-  final duuid = await _getOrCreateDeviceUuid();
+      final duuid = await _getOrCreateDeviceUuid();
       final os = _deviceOs();
       final devicePayload = {
         'user_id': uid,
@@ -484,11 +566,15 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
         'device_os': os,
         'last_login_at': DateTime.now().toUtc().toIso8601String(),
       };
-  await _supabase.from('devices').upsert(devicePayload, onConflict: 'user_id,device_uuid');
+      await _supabase
+          .from('devices')
+          .upsert(devicePayload, onConflict: 'user_id,device_uuid');
 
-  log.fine('Post sign-in provisioning completed for user=$uid device=$duuid');
+      log.fine(
+        'Post sign-in provisioning completed for user=$uid device=$duuid',
+      );
     } catch (e, st) {
-  log.severe('Post sign-in provisioning failed: $e', e, st);
+      log.severe('Post sign-in provisioning failed: $e', e, st);
       // Non-fatal: do not break the signed-in flow
     }
   }
@@ -496,6 +582,7 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
   // web redirect getter is now managed from supabase_env.oauthRedirectUri
 }
 
-final authControllerProvider = StateNotifierProvider<AuthController, AsyncValue<AuthState>>(
-  (ref) => AuthController(ref.read(secureStorageProvider)),
-);
+final authControllerProvider =
+    StateNotifierProvider<AuthController, AsyncValue<AuthState>>(
+      (ref) => AuthController(ref.read(secureStorageProvider)),
+    );

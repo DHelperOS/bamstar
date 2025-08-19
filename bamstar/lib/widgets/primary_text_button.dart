@@ -4,7 +4,11 @@ class PrimaryTextButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  const PrimaryTextButton({super.key, required this.text, required this.onPressed});
+  const PrimaryTextButton({
+    super.key,
+    required this.text,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {

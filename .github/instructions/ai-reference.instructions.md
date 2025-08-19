@@ -40,6 +40,16 @@ Icon usage rule (추가 규칙):
 - 템플릿은 `REFERENCE_ONLY.md`로 표기되어 있으므로 자동화된 복사/병합(예: CI에서 자동 적용)은 금지합니다.
 - 템플릿 내 의존성이나 코드가 오래되어 문제가 있을 경우(예: deprecated 패키지, 보안 이슈) PR에 반드시 근거와 대체안을 명시해야 합니다.
 
+색상 불투명도 처리 권장 (추가 규칙)
+---------------------------------
+- 이유: Flutter에서 `Color.withOpacity(...)` 사용은 정밀도 손실 및 deprecation 경고가 보고되고 있으므로, 새로운 코드 생성이나 수정 시 권장되지 않습니다.
+- 규칙: UI 또는 색상 관련 코드를 생성·수정할 때는 가능한 경우 `.withValues(alpha: <int>)` 사용을 권장합니다. `alpha`는 0~255 범위의 정수이며, 기존 opacity(double, 0.0~1.0)을 정수 alpha로 변환하려면 `(opacity * 255).round()`를 사용하세요.
+- 예시:
+  - 권장: `Color(0xFF000000).withValues(alpha: (0.6 * 255).round())`  // 60% 불투명도
+  - 간단한 대체: `Color.fromRGBO(0, 0, 0, 0.6)` (opacity를 소수로 전달)
+- PR 요건: 색상 불투명도 처리를 변경한 PR에는 `Used color opacity API: withValues` 또는 `Used color opacity API: fromRGBO` 중 사용한 방식을 PR 본문에 명시하세요.
+- 예외: `dev/templates/ai-reference` 하위 템플릿 파일은 자동 수정 금지 대상입니다. 템플릿 내 `withOpacity` 교체가 필요하면 저장소 관리자 승인 후 별도 PR로 진행하세요.
+
 간단한 명령어(로컬 확인용):
 ```bash
 ls -R dev/templates/ai-reference

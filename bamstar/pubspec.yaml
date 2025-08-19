@@ -67,8 +67,10 @@ dependencies:
   flutter_dotenv: ^5.1.0
   logging: ^1.3.0
   delightful_toast: ^1.1.0
+  shared_preferences: ^2.5.3
   # font_awesome_flutter removed — project standard requires using solar_icons
   supabase_flutter: ^2.5.6
+  choice: ^2.3.2
   sign_in_with_apple: ^7.0.1
   kakao_flutter_sdk_user: ^1.9.7+3
   kakao_flutter_sdk_common: ^1.9.7+3
@@ -77,6 +79,9 @@ dependencies:
   animations: ^2.0.11
   flutter_gemini_bot: ^0.0.4
   http: ^1.2.2
+  wolt_modal_sheet: ^0.11.0
+  salomon_bottom_bar: ^3.3.2
+  image_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -107,6 +112,7 @@ flutter:
   - assets/images/onboard/onboard_two.webp
   - assets/images/onboard/onboard_three.webp
   - assets/images/icon/
+  - assets/images/avatar/
 
   # Fonts: Pretendard (place Pretendard OTF/TTF files under assets/font/Pretendard/)
   # Please add the Pretendard font files with the names below, or tell me and
@@ -114,23 +120,23 @@ flutter:
   fonts:
     - family: Pretendard
       fonts:
-        - asset: assets/font/Pretendard/Pretendard-Thin.ttf
+        - asset: assets/font/Pretendard/Pretendard-Thin.otf
           weight: 100
-        - asset: assets/font/Pretendard/Pretendard-ExtraLight.ttf
+        - asset: assets/font/Pretendard/Pretendard-ExtraLight.otf
           weight: 200
-        - asset: assets/font/Pretendard/Pretendard-Light.ttf
+        - asset: assets/font/Pretendard/Pretendard-Light.otf
           weight: 300
-        - asset: assets/font/Pretendard/Pretendard-Regular.ttf
+        - asset: assets/font/Pretendard/Pretendard-Regular.otf
           weight: 400
-        - asset: assets/font/Pretendard/Pretendard-Medium.ttf
+        - asset: assets/font/Pretendard/Pretendard-Medium.otf
           weight: 500
-        - asset: assets/font/Pretendard/Pretendard-SemiBold.ttf
+        - asset: assets/font/Pretendard/Pretendard-SemiBold.otf
           weight: 600
-        - asset: assets/font/Pretendard/Pretendard-Bold.ttf
+        - asset: assets/font/Pretendard/Pretendard-Bold.otf
           weight: 700
-        - asset: assets/font/Pretendard/Pretendard-ExtraBold.ttf
+        - asset: assets/font/Pretendard/Pretendard-ExtraBold.otf
           weight: 800
-        - asset: assets/font/Pretendard/Pretendard-Black.ttf
+        - asset: assets/font/Pretendard/Pretendard-Black.otf
           weight: 900
 
 # Launcher icon generation config

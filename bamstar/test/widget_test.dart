@@ -11,7 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bamstar/main.dart';
 
 void main() {
-  testWidgets('Onboarding renders and can navigate to Login via Skip', (WidgetTester tester) async {
+  testWidgets('Onboarding renders and can navigate to Login via Skip', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const ProviderScope(child: MyApp()));
     await tester.pumpAndSettle();
 

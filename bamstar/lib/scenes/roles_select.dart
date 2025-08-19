@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:animated_emoji/animated_emoji.dart';
 import 'package:bamstar/widgets/bs_alert_dialog.dart';
 import 'package:bamstar/scenes/match_profiles.dart';
+import 'package:go_router/go_router.dart';
 // animations package no longer needed after local pop-forward effect
 
 typedef RoleSelectCallback = void Function(String role);
@@ -605,7 +606,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
           try {
             final bool? confirmed = await showBsAlert<bool>(
               context,
-              header: role == 'STAR' ? '프로필 완성하고, 주인공 되기.' : '프로필 완성하고, 스타 섭외하기.',
+              header: role == 'STAR'
+                  ? '프로필 완성하고, 주인공 되기.'
+                  : '프로필 완성하고, 스타 섭외하기.',
               body: role == 'STAR'
                   ? '프로필을 완성하면, AI가 회원님에게 꼭 맞는 플레이스를 추천하고, 플레이스로부터 먼저 연결 제안을 받을 확률이 크게 올라가요.'
                   : '상세 프로필은 AI 추천과 검색 결과에 모두 반영되어, 더 많은 스타들에게 당신의 플레이스가 노출될 기회를 만듭니다.',
@@ -616,13 +619,8 @@ class _RoleSelectPageState extends State<RoleSelectPage>
             );
 
             if (confirmed == true) {
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(
-                    role == 'STAR' ? '프로필을 작성하러 이동합니다.' : '자세한 정보로 정확도를 올려보세요.',
-                  ),
-                ),
-              );
+              // After role confirmation, send to home per requirement
+              if (mounted) context.go('/home');
             }
           } finally {
             _isDialogOpen = false;
@@ -635,6 +633,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
         }
         if (mounted && navigator.canPop()) {
           navigator.pop(role);
+        } else if (mounted) {
+          // If cannot pop (e.g., entry route), go to home to continue
+          context.go('/home');
         }
 
         // clear saved UI state after a short moment
@@ -666,8 +667,8 @@ class _RoleSelectPageState extends State<RoleSelectPage>
         _savingIndex = null;
       });
 
-  // remember last saved role to avoid redundant DB updates
-  _lastSavedRole = role;
+      // remember last saved role to avoid redundant DB updates
+      _lastSavedRole = role;
 
       // Optional: ambient feedback removed per request
 
