@@ -49,6 +49,36 @@
 			"command": "cd bamstar && flutter run -d macos",
 			"isBackground": true,
 			"group": "build"
+		},
+		{
+			"label": "flutter: pub get (bamstar)",
+			"type": "shell",
+			"command": "cd bamstar && flutter pub get"
+		},
+		{
+			"label": "flutter: analyze",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
+		},
+		{
+			"label": "flutter: analyze",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
+		},
+		{
+			"label": "flutter: pub get (bamstar)",
+			"type": "shell",
+			"command": "cd bamstar && flutter pub get"
+		},
+		{
+			"label": "flutter: analyze (bamstar)",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
+		},
+		{
+			"label": "flutter: analyze (bamstar)",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
 		}
 	]
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppUser {
@@ -24,6 +25,22 @@ class AppUser {
       data: Map<String, dynamic>.from(m),
     );
   }
+}
+
+/// Convert a stored `profile_img` value into an ImageProvider.
+/// If [profileImg] is an asset path (starts with 'assets/'), returns AssetImage.
+/// If it is an http(s) URL, returns NetworkImage. Otherwise returns a
+/// pseudo-random local asset ImageProvider using the app's avatar pool.
+ImageProvider profileImageProviderFromProfileImg(String? profileImg) {
+  if (profileImg != null && profileImg.isNotEmpty) {
+    if (profileImg.startsWith('assets/')) return AssetImage(profileImg);
+    if (profileImg.startsWith('http://') || profileImg.startsWith('https://')) {
+      return CachedNetworkImageProvider(profileImg);
+    }
+  }
+  // Fallback: pick a random local avatar filename and return its AssetImage.
+  final fname = UserService.instance.pickRandomLocalAvatar();
+  return AssetImage('assets/images/avatar/$fname');
 }
 
 class UserService extends ChangeNotifier {
@@ -258,17 +275,67 @@ class UserService extends ChangeNotifier {
         }
       }
 
-      if (imgUrl != null &&
-          (imgUrl.startsWith('http://') || imgUrl.startsWith('https://'))) {
-        await sp.remove(key);
-        return NetworkImage(imgUrl);
+      if (imgUrl != null) {
+        // If DB contains a network URL, return NetworkImage.
+        if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
+          await sp.remove(key);
+          debugPrint('[UserService] returning NetworkImage from DB profile_img');
+          return CachedNetworkImageProvider(imgUrl);
+        }
+
+        // If DB contains an asset path (e.g. assets/images/avatar/...), use it
+        // directly as AssetImage and sync SharedPreferences to the filename.
+        if (imgUrl.startsWith('assets/')) {
+          try {
+            final filename = imgUrl.split('/').last;
+            await sp.setString(key, filename);
+          } catch (_) {
+            // ignore
+          }
+          debugPrint('[UserService] returning AssetImage from DB profile_img: $imgUrl');
+          return AssetImage(imgUrl);
+        }
+        // Unknown format: fall through to local choice.
       }
 
       String saved = sp.getString(key) ?? pickRandomLocalAvatar();
       await sp.setString(key, saved);
+
+      // Persist the chosen local asset path into users.profile_img so that
+      // subsequent loads can read the same asset path from the DB.
+      try {
+        if (uid != null) {
+          final assetPath = 'assets/images/avatar/$saved';
+          await client
+              .from('users')
+              .update({'profile_img': assetPath})
+              .eq('id', uid);
+          debugPrint(
+              '[UserService] persisted local profile_img asset for uid=$uid -> $assetPath');
+        }
+      } catch (e) {
+        debugPrint('[UserService] failed to persist profile_img asset path: $e');
+      }
+
       return AssetImage('assets/images/avatar/$saved');
     } catch (_) {
       final saved = pickRandomLocalAvatar();
+      // Best-effort: persist chosen local asset to SharedPreferences and DB so
+      // future loads remain consistent.
+      try {
+        final client = Supabase.instance.client;
+        final uid = client.auth.currentUser?.id;
+        final sp = await SharedPreferences.getInstance();
+        final key = uid != null ? '${avatarPrefKey}_$uid' : avatarPrefKey;
+        await sp.setString(key, saved);
+        if (uid != null) {
+          final assetPath = 'assets/images/avatar/$saved';
+          await client.from('users').update({'profile_img': assetPath}).eq('id', uid);
+          debugPrint('[UserService] (catch) persisted local profile_img asset for uid=$uid -> $assetPath');
+        }
+      } catch (e) {
+        debugPrint('[UserService] (catch) failed to persist profile_img asset path: $e');
+      }
       return AssetImage('assets/images/avatar/$saved');
     }
   }

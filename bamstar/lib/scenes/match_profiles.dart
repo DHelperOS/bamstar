@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -134,13 +134,14 @@ class _MatchProfilesPageState extends State<MatchProfilesPage> {
         },
       ],
     });
-    final res = await http
-        .post(url, headers: {'Content-Type': 'application/json'}, body: body)
-        .timeout(const Duration(seconds: 20));
+    final dio = Dio();
+  final res = await dio
+    .post(url.toString(), data: body, options: Options(headers: {'Content-Type': 'application/json'}))
+    .timeout(const Duration(seconds: 20));
     if (res.statusCode != 200) {
-      throw 'HTTP ${res.statusCode}: ${res.body}';
+      throw 'HTTP ${res.statusCode}: ${res.data}';
     }
-    final decoded = jsonDecode(res.body) as Map<String, dynamic>;
+    final decoded = jsonDecode(res.data is String ? res.data : jsonEncode(res.data)) as Map<String, dynamic>;
     final candidates = decoded['candidates'] as List<dynamic>?;
     if (candidates == null || candidates.isEmpty) throw 'No candidates';
     final content =

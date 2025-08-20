@@ -305,17 +305,19 @@ class _PostHtmlCard extends StatelessWidget {
                       future: _getAuthor(post.authorId),
                       builder: (context, snap) {
                         final user = snap.data;
-                        final avatarUrl = post.isAnonymous
+                        final avatarPath = post.isAnonymous
                             ? null
                             : (user?.data['profile_img'] as String?) ?? post.authorAvatarUrl;
+                        ImageProvider? avatarImage;
+                        if (!post.isAnonymous && avatarPath != null) {
+                          avatarImage = us.profileImageProviderFromProfileImg(avatarPath);
+                        }
                         return CircleAvatar(
                           radius: CommunitySizes.avatarBase / 2 * 1.4,
                           backgroundColor: post.isAnonymous
                               ? cs.secondaryContainer
                               : null,
-                          backgroundImage: post.isAnonymous || avatarUrl == null
-                              ? null
-                              : NetworkImage(avatarUrl),
+                          backgroundImage: avatarImage,
                           child: post.isAnonymous
                               ? Icon(
                                   SolarIconsOutline.incognito,

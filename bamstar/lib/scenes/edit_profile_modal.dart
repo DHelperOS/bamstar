@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bamstar/services/user_service.dart';
+import 'package:bamstar/services/cloudinary.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 // ...existing code... (removed unused solar_icons import)
 
 /// Show the edit profile modal (photo + name/email). Calls [onImagePicked]
@@ -97,6 +99,12 @@ Future<void> showEditProfileModal(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Local helper: pick from gallery, upload to Cloudinary, update DB + preview
+                      // Note: shows immediate local preview, then swaps to cached network image after upload
+                      FutureBuilder<void>(
+                        future: Future.value(),
+                        builder: (ctx, _) => const SizedBox.shrink(),
+                      ),
                       // Avatar with subtle border and elevation + semi-circular overlay with edit icon
                       Material(
                         elevation: 2,
@@ -143,25 +151,16 @@ Future<void> showEditProfileModal(
                                 right: 6,
                                 child: GestureDetector(
                                   onTap: () async {
-                                    try {
-                                      final XFile? f = await picker.pickImage(
-                                        source: ImageSource.gallery,
-                                        imageQuality: 85,
-                                      );
-                                      if (f == null) return;
-                                      final bytes = await f.readAsBytes();
-                                      final b64 = base64Encode(bytes);
-                                      final sp =
-                                          await SharedPreferences.getInstance();
-                                      await sp.setString('avatar_b64', b64);
-                                      final img = MemoryImage(bytes);
-                                      preview = img;
-                                      if (modalCtx.mounted &&
-                                          onImagePicked != null)
-                                        onImagePicked(preview);
-                                    } catch (e) {
-                                      debugPrint('pick image error: $e');
-                                    }
+                                    await _pickAndUpload(
+                                      modalCtx: modalCtx,
+                                      picker: picker,
+                                      onPreview: (img) {
+                                        preview = img;
+                                        if (modalCtx.mounted && onImagePicked != null) {
+                                          onImagePicked(preview);
+                                        }
+                                      },
+                                    );
                                   },
                                   child: Container(
                                     width: 28,
@@ -204,25 +203,16 @@ Future<void> showEditProfileModal(
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(50),
                                     onTap: () async {
-                                      try {
-                                        final XFile? f = await picker.pickImage(
-                                          source: ImageSource.gallery,
-                                          imageQuality: 85,
-                                        );
-                                        if (f == null) return;
-                                        final bytes = await f.readAsBytes();
-                                        final b64 = base64Encode(bytes);
-                                        final sp =
-                                            await SharedPreferences.getInstance();
-                                        await sp.setString('avatar_b64', b64);
-                                        final img = MemoryImage(bytes);
-                                        preview = img;
-                                        if (modalCtx.mounted &&
-                                            onImagePicked != null)
-                                          onImagePicked(preview);
-                                      } catch (e) {
-                                        debugPrint('pick image error: $e');
-                                      }
+                                      await _pickAndUpload(
+                                        modalCtx: modalCtx,
+                                        picker: picker,
+                                        onPreview: (img) {
+                                          preview = img;
+                                          if (modalCtx.mounted && onImagePicked != null) {
+                                            onImagePicked(preview);
+                                          }
+                                        },
+                                      );
                                     },
                                   ),
                                 ),
@@ -349,4 +339,75 @@ Future<void> showEditProfileModal(
     ],
     modalTypeBuilder: (ctx) => WoltModalType.bottomSheet(),
   );
+}
+
+// Pick an image, upload to Cloudinary, then update users.profile_img and preview.
+Future<void> _pickAndUpload({
+  required BuildContext modalCtx,
+  required ImagePicker picker,
+  required ValueChanged<ImageProvider> onPreview,
+}) async {
+  try {
+    final XFile? f = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (f == null) return;
+    final bytes = await f.readAsBytes();
+
+    // Immediate local preview for snappy UX
+    onPreview(MemoryImage(bytes));
+
+    final client = Supabase.instance.client;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) return;
+
+    // Upload to Cloudinary (signed via Supabase Edge Function)
+    final cloud = CloudinaryService.fromEnv();
+    final secureUrl = await cloud.uploadImageFromBytes(
+      bytes,
+      fileName: f.name.isNotEmpty ? f.name : 'avatar.jpg',
+      folder: 'user_avatars',
+      publicId: 'users/$uid',
+      context: {'app': 'bamstar', 'kind': 'avatar'},
+    );
+
+    // Inject default transformations for delivery
+    final deliveryUrl = cloud.transformedUrlFromSecureUrl(
+      secureUrl,
+      width: 256,
+      height: 256,
+      crop: 'fill',
+      gravity: 'auto',
+      autoFormat: true,
+      autoQuality: true,
+    );
+
+    // Persist to DB
+    await client.from('users').update({'profile_img': deliveryUrl}).eq('id', uid);
+
+    // Clear any local avatar placeholders and temp b64
+    final sp = await SharedPreferences.getInstance();
+    await sp.remove('avatar_b64');
+    await sp.remove('${UserService.avatarPrefKey}_$uid');
+
+    // Switch preview to cached network image
+    onPreview(CachedNetworkImageProvider(deliveryUrl));
+
+    if (modalCtx.mounted) {
+      ScaffoldMessenger.of(modalCtx).showSnackBar(
+        const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')),
+      );
+    }
+  } catch (e) {
+    debugPrint('pick/upload image error: $e');
+    if (modalCtx.mounted) {
+      final msg = e.toString().contains('UnsafeImageException')
+          ? '부적절한 이미지로 업로드할 수 없습니다'
+          : '이미지 업로드 중 오류가 발생했습니다';
+      ScaffoldMessenger.of(modalCtx).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    }
+  }
 }
