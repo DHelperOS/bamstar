@@ -256,15 +256,31 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                     child: TextFormField(
                       controller: _phoneCtl,
-                      style: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                      style: Theme.of(modalSheetContext).textTheme.bodyMedium
+                          ?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                       keyboardType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         labelText: '휴대폰 번호',
-                        labelStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                        labelStyle: Theme.of(modalSheetContext)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                            ),
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         hintText: '예: 010-1234-5678',
-                        hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                        hintStyle: Theme.of(modalSheetContext)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                            ),
                         prefixIcon: Icon(
                           SolarIconsOutline.phone,
                           size: 20,
@@ -318,7 +334,10 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                             style: Theme.of(modalSheetContext)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                                ?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                ),
                             items: const [
                               DropdownMenuItem(
                                 value: '카카오톡',
@@ -380,15 +399,33 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                               final enabled = val.isNotEmpty;
                               return TextFormField(
                                 controller: _snsHandleCtl,
-                                style: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                                style: Theme.of(modalSheetContext)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                    ),
                                 enabled: enabled,
                                 decoration: InputDecoration(
                                   labelText: enabled ? 'SNS 아이디/핸들' : 'SNS 미선택',
-                                  labelStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                                  labelStyle: Theme.of(modalSheetContext)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                      ),
                                   floatingLabelBehavior:
                                       FloatingLabelBehavior.always,
                                   hintText: enabled ? '예: your_handle' : '',
-                                  hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                                  hintStyle: Theme.of(modalSheetContext)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal,
+                                      ),
                                   prefixIcon: Icon(
                                     SolarIconsOutline.userCircle,
                                     size: 20,
@@ -548,7 +585,10 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                           textStyle: Theme.of(modalSheetContext)
                               .textTheme
                               .bodyMedium
-                              ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                              ?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                              ),
                           elevation: 6,
                           shadowColor: Color.fromRGBO(0, 0, 0, 0.12),
                           shape: RoundedRectangleBorder(
@@ -574,7 +614,10 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                           textStyle: Theme.of(modalSheetContext)
                               .textTheme
                               .bodyMedium
-                              ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                              ?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.normal,
+                              ),
                           elevation: 6,
                           shadowColor: Color.fromRGBO(0, 0, 0, 0.12),
                           shape: RoundedRectangleBorder(
@@ -713,7 +756,7 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
         visualDensity: VisualDensity.compact,
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(),
-  icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
+        icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
         onPressed: WoltModalSheet.of(modalSheetContext).showPrevious,
       ),
       trailingNavBarWidget: _buildTrailingWithProgress(
@@ -757,13 +800,26 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                   // 이름 (Material 3 테마로 복원)
                   TextFormField(
                     controller: _nameCtl,
-                    style: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                    style: Theme.of(modalSheetContext).textTheme.bodyMedium
+                        ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: '이름',
-                      labelStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                      labelStyle: Theme.of(modalSheetContext)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                       hintText: '이름을 입력해주세요',
-                      hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                      hintStyle: Theme.of(modalSheetContext)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                       helperText: '실명 또는 예명을 입력해주세요',
                       prefixIcon: Icon(
                         SolarIconsOutline.userCircle,
@@ -799,14 +855,27 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                   // 나이 (Material 3 테마로 복원)
                   TextFormField(
                     controller: _ageCtl,
-                    style: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                    style: Theme.of(modalSheetContext).textTheme.bodyMedium
+                        ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       labelText: '나이',
-                      labelStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                      labelStyle: Theme.of(modalSheetContext)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                       hintText: '숫자만 입력',
-                      hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                      hintStyle: Theme.of(modalSheetContext)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                       helperText: '만 나이 기준으로 입력해주세요',
                       prefixIcon: Icon(
                         SolarIconsOutline.calendarMinimalistic,
@@ -898,10 +967,14 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                                       : FontWeight.normal,
                                 );
                               }),
-                           foregroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-                             if (states.contains(MaterialState.selected)) return Colors.white;
-                             return Theme.of(context).colorScheme.onSurface;
-                           }),
+                          foregroundColor:
+                              MaterialStateProperty.resolveWith<Color?>((
+                                states,
+                              ) {
+                                if (states.contains(MaterialState.selected))
+                                  return Colors.white;
+                                return Theme.of(context).colorScheme.onSurface;
+                              }),
                         ),
                       );
                     },
@@ -934,7 +1007,7 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
         visualDensity: VisualDensity.compact,
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(),
-  icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
+        icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
         onPressed: WoltModalSheet.of(modalSheetContext).showPrevious,
       ),
       trailingNavBarWidget: _buildTrailingWithProgress(
@@ -954,8 +1027,8 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
         ),
       ),
       child: _SwipeToPaginate(
-  onNext: null,
-  onPrevious: WoltModalSheet.of(modalSheetContext).showPrevious,
+        onNext: null,
+        onPrevious: WoltModalSheet.of(modalSheetContext).showPrevious,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(_kPad, _kPad, _kPad, _kBottomPad),
           child: Column(
@@ -964,12 +1037,14 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
               const SizedBox(height: 12),
               TextField(
                 controller: _introCtl,
-                style: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                style: Theme.of(modalSheetContext).textTheme.bodyMedium
+                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
                 maxLength: 140,
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: '취미, 관심사, 하고 싶은 것 등 자유롭게 적어주세요.',
-                  hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                  hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium
+                      ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
                   // no filled background: rely on outline border only
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -995,8 +1070,6 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
       ),
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {

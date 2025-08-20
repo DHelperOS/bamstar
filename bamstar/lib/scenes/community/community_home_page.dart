@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
-import 'package:bamstar/scenes/community/post_detail_page.dart';
 import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
@@ -169,11 +168,7 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
                     final post = _posts[index];
                     return _PostHtmlCard(
                       post: post,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => CommunityPostDetailPage(post: post),
-                        ),
-                      ),
+                      onTap: null,
                     );
                   }
                   // loading footer
@@ -223,7 +218,7 @@ class _PostHtmlCard extends StatelessWidget {
       elevation: 0,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
+        onTap: null,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(
@@ -295,7 +290,7 @@ class _PostHtmlCard extends StatelessWidget {
               // Title (only when short or explicitly provided)
               if (displayTitle.isNotEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.only(top: 16, left: 24, right: 24),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 340),
                     child: Text(
@@ -324,7 +319,7 @@ class _PostHtmlCard extends StatelessWidget {
               // Body
               if (body.isNotEmpty) ...[
                 Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 24, right: 24),
+                  padding: EdgeInsets.only(left: 24, right: 24),
                   child: Text(
                     displayBody,
                     style: tt.bodyMedium?.copyWith(color: cs.onSurface),

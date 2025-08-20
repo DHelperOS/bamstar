@@ -549,13 +549,12 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       final email = user.email;
       final phone = user.phone;
 
-      // Upsert user profile (role defaults to GUEST via trigger if null)
-      final userPayload = <String, dynamic>{
-        'id': uid,
-        if (email != null && email.isNotEmpty) 'email': email,
-        if (phone != null && phone.isNotEmpty) 'phone': phone,
-      };
-      await _supabase.from('users').upsert(userPayload, onConflict: 'id');
+      // NOTE: Per product requirement, do NOT write nickname/email/phone
+      // to the users table automatically here. The user must explicitly
+      // update nickname/email via the Edit Profile flow (edit_profile_modal).
+      log.fine(
+        'Skipping automatic users.upsert for uid=$uid (email/phone suppressed)',
+      );
 
       // Upsert device info for this user
       final duuid = await _getOrCreateDeviceUuid();

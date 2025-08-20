@@ -406,7 +406,7 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
             ),
           ),
         ),
-  const SizedBox(height: 10),
+        const SizedBox(height: 10),
         Expanded(
           child: ValueListenableBuilder<List<AreaGroup>>(
             valueListenable: widget.selected,
@@ -452,8 +452,9 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
                                 color: isSelected
                                     ? csLocal.onPrimaryContainer
                                     : csLocal.onSurface,
-                                fontWeight:
-                                    isSelected ? FontWeight.w600 : FontWeight.normal,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
                                 fontSize: 13,
                               ),
                               padding: const EdgeInsets.symmetric(

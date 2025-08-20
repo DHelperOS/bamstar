@@ -18,7 +18,8 @@ class _EditInfoPageState extends State<EditInfoPage> {
   void initState() {
     super.initState();
     _controllers = {
-      for (final e in widget.fields.entries) e.key: TextEditingController(text: e.value),
+      for (final e in widget.fields.entries)
+        e.key: TextEditingController(text: e.value),
     };
   }
 
@@ -33,7 +34,11 @@ class _EditInfoPageState extends State<EditInfoPage> {
   void _save() {
     final result = _controllers.map((k, v) => MapEntry(k, v.text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('저장 완료: ${result.entries.map((e) => '${e.key}: ${e.value}').join(', ')}')),
+      SnackBar(
+        content: Text(
+          '저장 완료: ${result.entries.map((e) => '${e.key}: ${e.value}').join(', ')}',
+        ),
+      ),
     );
     Navigator.pop(context, result);
   }
@@ -62,7 +67,9 @@ class _EditInfoPageState extends State<EditInfoPage> {
                       controller: controller,
                       decoration: InputDecoration(
                         labelText: key,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     );
                   },
@@ -71,7 +78,10 @@ class _EditInfoPageState extends State<EditInfoPage> {
               ElevatedButton(
                 onPressed: _save,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0,
+                    vertical: 12.0,
+                  ),
                   child: Text('저장', style: context.buttonText),
                 ),
               ),

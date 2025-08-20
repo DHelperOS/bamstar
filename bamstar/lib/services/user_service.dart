@@ -33,11 +33,21 @@ class UserService extends ChangeNotifier {
   static final UserService instance = UserService._private();
 
   static const String avatarPrefKey = 'local_avatar_filename';
-  static const String demoNickname = 'John Henry';
-  static const String demoEmail = 'johnhenry99@gmail.com';
+  static const Set<String> demoNicknames = {'밤스타', 'John Henry'};
+  static const String demoNicknameSeed = '밤스타';
+  static const String demoEmail = 'bamstar.help@gmail.com';
 
   AppUser? _user;
   AppUser? get user => _user;
+  String? _displayName;
+
+  /// Public display name that UI should read. Computed from nickname or role.kor_name#index
+  String get displayName {
+    if (_displayName != null) return _displayName!;
+    final nick = _user?.nickname.trim() ?? '';
+    if (nick.isNotEmpty && !demoNicknames.contains(nick)) return nick;
+    return '이름 없음';
+  }
 
   Future<void> loadCurrentUser() async {
     try {
@@ -48,10 +58,20 @@ class UserService extends ChangeNotifier {
         notifyListeners();
         return;
       }
-      final res = await client.from('users').select('*').eq('id', uid).maybeSingle();
+      final res = await client
+          .from('users')
+          .select('*')
+          .eq('id', uid)
+          .maybeSingle();
       if (res != null) {
         final row = Map<String, dynamic>.from(res as Map);
         _user = AppUser.fromMap(row);
+        debugPrint('[UserService] loadCurrentUser fetched row: ${row}');
+        debugPrint(
+          '[UserService] loadCurrentUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
+        );
+        // compute display name after loading full row
+        await _computeAndCacheDisplayName();
         notifyListeners();
       }
     } catch (_) {
@@ -77,7 +97,10 @@ class UserService extends ChangeNotifier {
   }
 
   /// Upsert values into users table (nickname, email).
-  Future<void> upsertUser({required String nickname, required String email}) async {
+  Future<void> upsertUser({
+    required String nickname,
+    required String email,
+  }) async {
     final client = Supabase.instance.client;
     final uid = client.auth.currentUser?.id;
     if (uid == null) return;
@@ -88,41 +111,116 @@ class UserService extends ChangeNotifier {
     }, onConflict: 'id');
 
     // Fetch full row after upsert to populate all columns
-    final res = await client.from('users').select('*').eq('id', uid).maybeSingle();
+    final res = await client
+        .from('users')
+        .select('*')
+        .eq('id', uid)
+        .maybeSingle();
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       _user = AppUser.fromMap(row);
+      debugPrint('[UserService] upsertUser fetched after upsert row: ${row}');
+      debugPrint(
+        '[UserService] upsertUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
+      );
     } else {
-      _user = AppUser(id: uid, nickname: nickname, email: email, data: {
-        'id': uid,
-        'nickname': nickname,
-        'email': email,
-      });
+      _user = AppUser(
+        id: uid,
+        nickname: nickname,
+        email: email,
+        data: {'id': uid, 'nickname': nickname, 'email': email},
+      );
+      debugPrint(
+        '[UserService] upsertUser created local struct nickname=${_user?.nickname} email=${_user?.email}',
+      );
     }
+    // compute display name after upsert
+    await _computeAndCacheDisplayName();
     notifyListeners();
+  }
+
+  /// Compute display name and cache in this service.
+  Future<void> _computeAndCacheDisplayName() async {
+    final u = _user;
+    if (u == null) {
+      _displayName = '이름 없음';
+      return;
+    }
+    final nick = (u.nickname).trim();
+    // Treat demo nicknames as placeholders — prefer computed role#index when
+    // nickname is empty or one of demoNicknames.
+    if (nick.isNotEmpty && !demoNicknames.contains(nick)) {
+      _displayName = nick;
+      return;
+    }
+
+    try {
+      final client = Supabase.instance.client;
+      dynamic idx = u.data['index'];
+      dynamic roleId = u.data['role_id'];
+      if (idx == null || roleId == null) {
+        final res = await client
+            .from('users')
+            .select('index, role_id')
+            .eq('id', u.id)
+            .maybeSingle();
+        if (res != null) {
+          idx = idx ?? res['index'];
+          roleId = roleId ?? res['role_id'];
+          // merge into cached row data for future
+          u.data['index'] = u.data['index'] ?? res['index'];
+          u.data['role_id'] = u.data['role_id'] ?? res['role_id'];
+        }
+      }
+
+      String roleKor = '회원';
+      if (roleId != null) {
+        final r = await client
+            .from('roles')
+            .select('kor_name')
+            .eq('id', roleId)
+            .maybeSingle();
+        if (r != null &&
+            r['kor_name'] is String &&
+            (r['kor_name'] as String).trim().isNotEmpty) {
+          roleKor = r['kor_name'] as String;
+        }
+      }
+
+      final idxStr = (idx != null) ? idx.toString() : '0';
+      final computedName = '$roleKor#${idxStr}';
+      _displayName = computedName;
+
+      // If user's nickname is empty or a demo placeholder, persist computed
+      // nickname to the users table so future loads will reflect it.
+      try {
+        final existingNick = (u.nickname).trim();
+        if (existingNick.isEmpty || demoNicknames.contains(existingNick)) {
+          await client
+              .from('users')
+              .update({'nickname': computedName})
+              .eq('id', u.id);
+          // update local cache
+          u.data['nickname'] = computedName;
+          _user = AppUser.fromMap(Map<String, dynamic>.from(u.data));
+          debugPrint(
+            '[UserService] _computeAndCacheDisplayName -> wrote nickname=${computedName} for uid=${u.id}',
+          );
+        }
+      } catch (e) {
+        debugPrint('[UserService] failed to persist computed nickname: $e');
+      }
+    } catch (_) {
+      _displayName = '이름 없음';
+    }
   }
 
   /// Convenience helper to seed the current authenticated user's row with
   /// the demo nickname/email. Calls [upsertUser]. No-op if no auth user.
   Future<void> seedDemoUser() async {
-    final client = Supabase.instance.client;
-    final uid = client.auth.currentUser?.id;
-    if (uid == null) return;
-    try {
-      // If user already has nickname and email, don't overwrite
-      final res = await client.from('users').select('nickname,email').eq('id', uid).maybeSingle();
-      if (res != null) {
-        final existingNick = (res['nickname'] as String?) ?? '';
-        final existingEmail = (res['email'] as String?) ?? '';
-        if (existingNick.trim().isNotEmpty && existingEmail.trim().isNotEmpty) {
-          return;
-        }
-      }
-
-      await upsertUser(nickname: demoNickname, email: demoEmail);
-    } catch (_) {
-      // ignore
-    }
+    // seedDemoUser disabled: do not modify DB automatically. Users must
+    // explicitly update their profile via the Edit Profile modal.
+    return;
   }
 
   /// Return a pseudo-random local avatar filename from assets.
@@ -146,7 +244,11 @@ class UserService extends ChangeNotifier {
 
       String? imgUrl;
       if (uid != null) {
-        final res = await client.from('users').select('profile_img').eq('id', uid).maybeSingle();
+        final res = await client
+            .from('users')
+            .select('profile_img')
+            .eq('id', uid)
+            .maybeSingle();
         if (res != null) {
           final v = res['profile_img'];
           if (v is String) {
@@ -156,7 +258,8 @@ class UserService extends ChangeNotifier {
         }
       }
 
-      if (imgUrl != null && (imgUrl.startsWith('http://') || imgUrl.startsWith('https://'))) {
+      if (imgUrl != null &&
+          (imgUrl.startsWith('http://') || imgUrl.startsWith('https://'))) {
         await sp.remove(key);
         return NetworkImage(imgUrl);
       }

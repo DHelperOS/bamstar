@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/theme/typography.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/user_settings_page.dart';
+import 'package:bamstar/scenes/community/community_home_page.dart';
 
 // Main widget (UI only; no navigation routes)
 class MainScreen extends StatefulWidget {
@@ -16,10 +21,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _tabs = const [
+  late final List<Widget> _tabs = [
     HomeScreen(), // Place (Home)
     _SearchTab(),
-    _CommunityTab(),
+    // Community tab is embedded so the bottom bar persists
+    CommunityHomePage(),
     _ChatTab(),
     UserSettingsPage(), // Settings
   ];
@@ -35,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.black.withOpacity(0.06),
               blurRadius: 12,
               offset: const Offset(0, -2),
             ),
@@ -92,16 +98,7 @@ class _SearchTab extends StatelessWidget {
   }
 }
 
-class _CommunityTab extends StatelessWidget {
-  const _CommunityTab();
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: Text('커뮤니티')),
-    );
-  }
-}
+// Removed embedded Community tab; now uses GoRouter '/community'
 
 class _ChatTab extends StatelessWidget {
   const _ChatTab();
@@ -122,13 +119,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        await UserService.instance.seedDemoUser();
+        // Disabled demo seeding to avoid overwriting real user data during development.
+        // await UserService.instance.seedDemoUser();
         await UserService.instance.loadCurrentUser();
+        // simple loading state: hide skeleton after load
+        setState(() => _isLoading = false);
       } catch (_) {
         // ignore errors (e.g., no auth session)
       }
@@ -137,37 +138,260 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text('Home', style: context.h1)),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        titleSpacing: 16,
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text('플레이스', style: context.h1),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(SolarIconsOutline.magnifier, color: cs.onSurface),
+            tooltip: '검색',
+            onPressed: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('검색을 실행합니다.')));
+            },
+          ),
+          badges.Badge(
+            position: badges.BadgePosition.topEnd(top: -4, end: -6),
+            badgeContent: const Text(
+              '3',
+              style: TextStyle(color: Colors.white, fontSize: 10),
+            ),
+            child: IconButton(
+              icon: Icon(SolarIconsOutline.bell, color: cs.onSurface),
+              tooltip: '알림',
+              onPressed: () {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('알림을 확인합니다.')));
+              },
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: _SectionHeader(title: 'Continue Learning'),
+        // remove top padding so banner is flush under AppBar
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Skeletonizer(
+          enabled: _isLoading,
+          // animate the switch between skeleton and real content
+          enableSwitchAnimation: true,
+          switchAnimationConfig: SwitchAnimationConfig(
+            duration: const Duration(milliseconds: 300),
+          ),
+          effect: ShimmerEffect(
+            // use app primary color with subtle opacities so shimmer matches brand
+            baseColor: (Theme.of(context).brightness == Brightness.dark
+                ? cs.primary.withOpacity(0.08)
+                : cs.primary.withOpacity(0.12)),
+            highlightColor: (Theme.of(context).brightness == Brightness.dark
+                ? cs.primary.withOpacity(0.18)
+                : cs.primary.withOpacity(0.24)),
+            duration: const Duration(milliseconds: 900),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Banner carousel inserted at the top of the home screen
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 80,
+                  child: _isLoading
+                      ? _BannerSkeleton(height: 80)
+                      : _FullWidthBannerCarousel(
+                          banners: const [
+                            'assets/images/banner/banner_01.png',
+                            'assets/images/banner/banner_02.png',
+                            'assets/images/banner/banner_03.png',
+                            'assets/images/banner/banner_04.png',
+                            'assets/images/banner/banner_05.png',
+                          ],
+                          height: 80,
+                        ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: _SectionHeader(title: 'Continue Learning'),
+              ),
+              SizedBox(height: 12),
+              _isLoading ? _ListSkeleton() : _ContinueLearningList(),
+              SizedBox(height: 24),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: _SectionHeader(title: 'Popular Mentors'),
+              ),
+              SizedBox(height: 12),
+              _isLoading ? _ListSkeleton() : _PopularMentorsList(),
+              SizedBox(height: 24),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: _SectionHeader(title: 'Popular Course 🔥'),
+              ),
+              SizedBox(height: 12),
+              _isLoading ? _ListSkeleton() : _PopularCourseList(),
+              SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// A simple full-width banner carousel implemented with PageView.
+class _FullWidthBannerCarousel extends StatefulWidget {
+  final List<String> banners;
+  final double height;
+
+  const _FullWidthBannerCarousel({
+    Key? key,
+    required this.banners,
+    required this.height,
+  }) : super(key: key);
+
+  @override
+  State<_FullWidthBannerCarousel> createState() =>
+      _FullWidthBannerCarouselState();
+}
+
+class _FullWidthBannerCarouselState extends State<_FullWidthBannerCarousel> {
+  late final PageController _controller = PageController(viewportFraction: 1);
+  int _currentPage = 0;
+  Timer? _autoTimer;
+
+  @override
+  void dispose() {
+    _autoTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // start auto-scroll
+    _autoTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+      final next = (_currentPage + 1) % widget.banners.length;
+      _controller.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: widget.height,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          children: [
+            PageView.builder(
+              controller: _controller,
+              itemCount: widget.banners.length,
+              itemBuilder: (context, index) {
+                final path = widget.banners[index];
+                return Image.asset(
+                  path,
+                  width: double.infinity,
+                  height: widget.height,
+                  fit: BoxFit.fill,
+                );
+              },
             ),
-            SizedBox(height: 12),
-            _ContinueLearningList(),
-            SizedBox(height: 24),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: _SectionHeader(title: 'Popular Mentors'),
+            Positioned(
+              right: 12,
+              bottom: 8,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: SmoothPageIndicator(
+                  controller: _controller,
+                  count: widget.banners.length,
+                  effect: ExpandingDotsEffect(
+                    dotHeight: 8,
+                    dotWidth: 8,
+                    expansionFactor: 2.0,
+                    activeDotColor: cs.primary,
+                    dotColor: Color.fromRGBO(255, 255, 255, 0.6),
+                    paintStyle: PaintingStyle.fill,
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 12),
-            _PopularMentorsList(),
-            SizedBox(height: 24),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: _SectionHeader(title: 'Popular Course 🔥'),
-            ),
-            SizedBox(height: 12),
-            _PopularCourseList(),
-            SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Simple banner skeleton placeholder
+class _BannerSkeleton extends StatelessWidget {
+  final double height;
+  const _BannerSkeleton({required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: height,
+        color: cs.surfaceVariant,
+        child: Center(
+          child: Icon(Icons.image, color: cs.onSurfaceVariant, size: 32),
+        ),
+      ),
+    );
+  }
+}
+
+// Simple list skeleton for horizontal lists
+class _ListSkeleton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        itemCount: 3,
+        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        itemBuilder: (context, index) {
+          return Container(
+            width: 300,
+            decoration: BoxDecoration(
+              color: cs.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          );
+        },
       ),
     );
   }
@@ -183,7 +407,7 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: context.h2),
+        Text(title, style: context.h4),
         TextButton(
           onPressed: () {}, // UI only
           child: Text(
@@ -256,11 +480,15 @@ class _ContinueLearningList extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        it['image'] as String,
-                        height: 80,
+                      child: Skeleton.replace(
                         width: 100,
-                        fit: BoxFit.cover,
+                        height: 80,
+                        child: Image.network(
+                          it['image'] as String,
+                          height: 80,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -278,7 +506,7 @@ class _ContinueLearningList extends StatelessWidget {
                           const SizedBox(height: 8),
                           LinearProgressIndicator(
                             value: it['progress'] as double,
-                            backgroundColor: Colors.grey[200],
+                            backgroundColor: cs.surfaceVariant,
                             valueColor: AlwaysStoppedAnimation(cs.primary),
                             minHeight: 6,
                             borderRadius: BorderRadius.circular(3),
@@ -327,11 +555,15 @@ class _PopularMentorsList extends StatelessWidget {
           return Column(
             children: [
               ClipOval(
-                child: Image.network(
-                  m['image']!,
+                child: Skeleton.replace(
                   width: 80,
                   height: 80,
-                  fit: BoxFit.cover,
+                  child: Image.network(
+                    m['image']!,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -423,11 +655,15 @@ class _PopularCourseList extends StatelessWidget {
                         ),
                         child: Stack(
                           children: [
-                            Image.network(
-                              c['image'] as String,
-                              height: 120,
+                            Skeleton.replace(
                               width: double.infinity,
-                              fit: BoxFit.cover,
+                              height: 120,
+                              child: Image.network(
+                                c['image'] as String,
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                             Positioned(
                               top: 12,
@@ -511,7 +747,7 @@ class _PopularCourseList extends StatelessWidget {
                                 Text(
                                   '${c['rating']} (${c['reviews']} reviews)',
                                   style: textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
+                                    color: cs.onSurface.withOpacity(0.7),
                                   ),
                                 ),
                               ],
@@ -679,12 +915,22 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                         top: 8,
                         bottom: 8,
                       ),
-                      child: Icon(Icons.search, color: Colors.grey[600]),
+                      child: Icon(
+                        Icons.search,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
+                      ),
                     ),
                     suffixIcon: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.grey[600]),
+                        icon: Icon(
+                          Icons.close,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
+                        ),
                         onPressed: () {
                           _searchController.clear();
                           // Perform search clear logic
@@ -697,7 +943,9 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.white, // White background for the input
@@ -801,7 +1049,11 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                     topLeft: Radius.circular(16.0),
                     bottomLeft: Radius.circular(16.0),
                   ),
-                  child: Image.network(course['image']!, fit: BoxFit.cover),
+                  child: Skeleton.replace(
+                    width: 120,
+                    height: 120,
+                    child: Image.network(course['image']!, fit: BoxFit.cover),
+                  ),
                 ),
               ),
               // Right Text Area
@@ -843,7 +1095,9 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                                   : Icons.favorite_border,
                               color: _wishlistCourses[index]['isFavorited']
                                   ? Colors.red
-                                  : Colors.grey[600],
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
                               size: 18,
                             ),
                           ),
@@ -868,7 +1122,9 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                           Text(
                             '${course['rating']} • (${course['reviews']})',
                             style: textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
                               fontSize: 12,
                             ),
                           ),
@@ -881,7 +1137,9 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                             child: Text(
                               course['author']!,
                               style: textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[600],
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.7),
                                 fontSize: 12,
                               ),
                               maxLines: 1,
@@ -1193,7 +1451,7 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
               width: 0.5,
-              color: Colors.grey.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
           child: InkWell(
@@ -1253,7 +1511,9 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
                                   child: Text(
                                     '${course['members']} Members',
                                     style: textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[600],
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.7),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

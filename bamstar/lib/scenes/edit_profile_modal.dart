@@ -245,19 +245,32 @@ Future<void> showEditProfileModal(
                         decoration: InputDecoration(
                           labelText: '닉네임',
                           labelStyle: Theme.of(modalCtx).textTheme.labelSmall,
-                          floatingLabelStyle: Theme.of(modalCtx).textTheme.labelSmall,
+                          floatingLabelStyle: Theme.of(
+                            modalCtx,
+                          ).textTheme.labelSmall,
                           floatingLabelBehavior: FloatingLabelBehavior.auto,
                           isDense: true,
                           alignLabelWithHint: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
                           border: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                           enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                           focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                         ),
                         validator: (v) {
@@ -275,33 +288,52 @@ Future<void> showEditProfileModal(
                           label: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('이메일', style: Theme.of(modalCtx).textTheme.labelSmall),
+                              Text(
+                                '이메일',
+                                style: Theme.of(modalCtx).textTheme.labelSmall,
+                              ),
                               const SizedBox(width: 6),
                               Text(
                                 '(이메일은 공개되지 않습니다)',
-                                style: Theme.of(modalCtx).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                                style: Theme.of(modalCtx).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey),
                               ),
                             ],
                           ),
-                          floatingLabelStyle: Theme.of(modalCtx).textTheme.labelSmall,
+                          floatingLabelStyle: Theme.of(
+                            modalCtx,
+                          ).textTheme.labelSmall,
                           floatingLabelBehavior: FloatingLabelBehavior.auto,
                           isDense: true,
                           alignLabelWithHint: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
                           border: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                           enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                           focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.black, width: 0.2),
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
                           ),
                         ),
                         validator: (v) {
                           final s = v?.trim() ?? '';
                           if (s.isEmpty) return '이메일을 입력하세요';
-                          final emailRegex = RegExp(r"^[\w\-\.]+@([\w\-]+\.)+[A-Za-z]{2,}");
+                          final emailRegex = RegExp(
+                            r"^[\w\-\.]+@([\w\-]+\.)+[A-Za-z]{2,}",
+                          );
                           if (!emailRegex.hasMatch(s)) return '유효한 이메일을 입력하세요';
                           return null;
                         },

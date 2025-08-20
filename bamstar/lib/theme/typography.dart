@@ -36,6 +36,13 @@ class AppTypography {
     color: cs.onSurface,
   );
 
+  static TextStyle h4(ColorScheme cs, {String? fontFamily}) => TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: cs.onSurface,
+  );
+
   static TextStyle body(ColorScheme cs, {String? fontFamily}) => TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
@@ -77,6 +84,8 @@ extension AppTypographyX on BuildContext {
       AppTypography.h2(Theme.of(this).colorScheme, fontFamily: _appFontFamily);
   TextStyle get h3 =>
       AppTypography.h3(Theme.of(this).colorScheme, fontFamily: _appFontFamily);
+  TextStyle get h4 =>
+      AppTypography.h4(Theme.of(this).colorScheme, fontFamily: _appFontFamily);
   TextStyle get bodyText => AppTypography.body(
     Theme.of(this).colorScheme,
     fontFamily: _appFontFamily,

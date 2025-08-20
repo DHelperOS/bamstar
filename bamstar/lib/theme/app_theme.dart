@@ -98,9 +98,9 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-  backgroundColor: lightPrimaryVariantColor,
-  // 모든 ElevatedButton의 텍스트/아이콘 색상을 흰색으로 일관되게 유지
-  foregroundColor: Colors.white,
+        backgroundColor: lightPrimaryVariantColor,
+        // 모든 ElevatedButton의 텍스트/아이콘 색상을 흰색으로 일관되게 유지
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),
@@ -164,9 +164,9 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-  backgroundColor: darkPrimaryVariantColor,
-  // 다크 테마에서도 버튼 텍스트/아이콘은 흰색으로 고정
-  foregroundColor: Colors.white,
+        backgroundColor: darkPrimaryVariantColor,
+        // 다크 테마에서도 버튼 텍스트/아이콘은 흰색으로 고정
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),

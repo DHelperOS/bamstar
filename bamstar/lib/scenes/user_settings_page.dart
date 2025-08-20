@@ -7,6 +7,7 @@ import 'package:bamstar/scenes/basic_info_sheet_flow.dart';
 import 'package:bamstar/scenes/region_preference_sheet.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/edit_profile_modal.dart';
+import 'package:bamstar/scenes/device_settings_page.dart';
 
 // Settings page adapted from the reference profile_screen template
 // - Uses Material 3
@@ -20,8 +21,7 @@ class UserSettingsPage extends StatefulWidget {
 }
 
 class _UserSettingsPageState extends State<UserSettingsPage> {
-  bool _notifications = true;
-  bool _darkMode = false;
+  // moved device-specific settings to DeviceSettingsPage
   ImageProvider? _profileImage;
 
   @override
@@ -46,10 +46,12 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     _loadProfileImage();
   }
 
+  // displayName logic moved to UserService (UserService.instance.displayName)
+
   Future<void> _loadProfileImage() async {
-  final img = await UserService.instance.getProfileImageProvider();
-  if (!mounted) return;
-  setState(() => _profileImage = img);
+    final img = await UserService.instance.getProfileImageProvider();
+    if (!mounted) return;
+    setState(() => _profileImage = img);
   }
 
   // Local avatar selection delegated to UserService.pickRandomLocalAvatar
@@ -64,6 +66,18 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.white, // 유지: 사용자 요구
         title: Text('프로필', style: context.h1),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const DeviceSettingsPage()),
+            ),
+            icon: Icon(
+              SolarIconsOutline.settings,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            tooltip: '설정',
+          ),
+        ],
       ),
       body: SafeArea(
         top: false,
@@ -87,19 +101,32 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(UserService.instance.user?.nickname ?? '이름 없음', style: context.h3),
+                        Text(
+                          UserService.instance.displayName,
+                          style: context.h3,
+                        ),
                         const SizedBox(height: 6),
-                        Text(UserService.instance.user?.email ?? '이메일 없음', style: context.lead),
+                        Text(
+                          UserService.instance.user?.email ?? '이메일 없음',
+                          style: context.lead,
+                        ),
                       ],
                     ),
                   ),
                   OutlinedButton(
-                    onPressed: () => showEditProfileModal(context, _profileImage, onImagePicked: (img) {
-                      if (!mounted) return;
-                      setState(() => _profileImage = img);
-                    }),
+                    onPressed: () => showEditProfileModal(
+                      context,
+                      _profileImage,
+                      onImagePicked: (img) {
+                        if (!mounted) return;
+                        setState(() => _profileImage = img);
+                      },
+                    ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       visualDensity: VisualDensity.compact,
                       minimumSize: const Size(0, 36),
                       shape: const StadiumBorder(),
@@ -319,40 +346,6 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               ),
 
               const SizedBox(height: 16),
-
-              Text('일반', style: context.h2),
-              const SizedBox(height: 16),
-              _tile(
-                context,
-                icon: Icon(SolarIconsOutline.magnifier),
-                title: '언어',
-                trailing: Icon(SolarIconsOutline.arrowRight, size: 18),
-                onTap: () => _toast(context, '언어 설정'),
-              ),
-              const SizedBox(height: 8),
-              _tile(
-                context,
-                icon: Icon(SolarIconsOutline.bell),
-                title: '알림',
-                trailing: Switch.adaptive(
-                  value: _notifications,
-                  onChanged: (v) => setState(() => _notifications = v),
-                ),
-                onTap: () => setState(() => _notifications = !_notifications),
-              ),
-              const SizedBox(height: 8),
-              _tile(
-                context,
-                icon: Icon(SolarIconsOutline.moon),
-                title: '다크 모드',
-                trailing: Switch.adaptive(
-                  value: _darkMode,
-                  onChanged: (v) => setState(() => _darkMode = v),
-                ),
-                onTap: () => setState(() => _darkMode = !_darkMode),
-              ),
-
-              const SizedBox(height: 32),
               Text('기타', style: context.h2),
               const SizedBox(height: 16),
               _tile(
@@ -436,7 +429,6 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   }
 
   // modal trailing helper moved to edit_profile_modal.dart
-  
 }
 
 // ...infoRow removed per user request (fields deleted)

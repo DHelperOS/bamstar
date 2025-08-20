@@ -8,6 +8,7 @@ import 'scenes/onboarding_page.dart';
 import 'scenes/login_page.dart';
 import 'scenes/roles_select.dart';
 import 'scenes/place_home_page.dart';
+import 'scenes/community/community_home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
@@ -104,6 +105,10 @@ Future<void> initRouter() async {
         builder: (context, state) => const RoleSelectPage(),
       ),
       GoRoute(path: '/home', builder: (context, state) => const MainScreen()),
+      GoRoute(
+        path: '/community',
+        builder: (context, state) => const CommunityHomePage(),
+      ),
     ],
   );
 }
