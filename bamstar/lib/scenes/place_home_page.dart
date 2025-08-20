@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, -2),
             ),
@@ -190,12 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           effect: ShimmerEffect(
             // use app primary color with subtle opacities so shimmer matches brand
-            baseColor: (Theme.of(context).brightness == Brightness.dark
-                ? cs.primary.withOpacity(0.08)
-                : cs.primary.withOpacity(0.12)),
-            highlightColor: (Theme.of(context).brightness == Brightness.dark
-                ? cs.primary.withOpacity(0.18)
-                : cs.primary.withOpacity(0.24)),
+      baseColor: (Theme.of(context).brightness == Brightness.dark
+        ? cs.primary.withValues(alpha: 0.08)
+        : cs.primary.withValues(alpha: 0.12)),
+      highlightColor: (Theme.of(context).brightness == Brightness.dark
+        ? cs.primary.withValues(alpha: 0.18)
+        : cs.primary.withValues(alpha: 0.24)),
             duration: const Duration(milliseconds: 900),
           ),
           child: Column(
@@ -323,7 +323,7 @@ class _FullWidthBannerCarouselState extends State<_FullWidthBannerCarousel> {
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -747,7 +747,7 @@ class _PopularCourseList extends StatelessWidget {
                                 Text(
                                   '${c['rating']} (${c['reviews']} reviews)',
                                   style: textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurface.withOpacity(0.7),
+                                    color: cs.onSurface.withValues(alpha: 0.7),
                                   ),
                                 ),
                               ],
@@ -919,7 +919,7 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                         Icons.search,
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.7),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     suffixIcon: Padding(
@@ -929,7 +929,7 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                           Icons.close,
                           color: Theme.of(
                             context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                         onPressed: () {
                           _searchController.clear();
@@ -1097,7 +1097,7 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                                   ? Colors.red
                                   : Theme.of(
                                       context,
-                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                               size: 18,
                             ),
                           ),
@@ -1124,7 +1124,7 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                             style: textTheme.bodySmall?.copyWith(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.7),
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                               fontSize: 12,
                             ),
                           ),
@@ -1139,7 +1139,7 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                               style: textTheme.bodySmall?.copyWith(
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onSurface.withOpacity(0.7),
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
                                 fontSize: 12,
                               ),
                               maxLines: 1,
@@ -1451,7 +1451,7 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
               width: 0.5,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           child: InkWell(
@@ -1513,7 +1513,7 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
                                     style: textTheme.bodySmall?.copyWith(
                                       color: Theme.of(
                                         context,
-                                      ).colorScheme.onSurface.withOpacity(0.7),
+                                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

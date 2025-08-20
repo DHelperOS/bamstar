@@ -79,6 +79,11 @@
 			"label": "flutter: analyze (bamstar)",
 			"type": "shell",
 			"command": "cd bamstar && flutter analyze"
+		},
+		{
+			"label": "flutter: run (macos)",
+			"type": "shell",
+			"command": "cd bamstar && flutter analyze"
 		}
 	]
 }

@@ -35,16 +35,22 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   void _addTagFromInput() {
     final raw = _tagController.text.trim();
-    if (raw.isEmpty) return;
+    if (raw.isEmpty) {
+      return;
+    }
     final t = raw.startsWith('#') ? raw.substring(1) : raw;
-    if (!_tags.contains(t)) setState(() => _tags.add(t));
+    if (!_tags.contains(t)) {
+      setState(() => _tags.add(t));
+    }
     _tagController.clear();
     setState(() => _suggestions = const []);
   }
 
   Future<void> _submit() async {
     final content = _controller.text.trim();
-    if (content.isEmpty) return;
+    if (content.isEmpty) {
+      return;
+    }
     // append tags inline for server-side hashtag parsing trigger
     final suffix = _tags.map((t) => '#$t').join(' ');
     final full = suffix.isEmpty ? content : '$content\n\n$suffix';
@@ -66,7 +72,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
         isAnonymous: _anonymous,
         imageUrls: uploaded,
       );
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) {
@@ -89,12 +97,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
     final picker = ImagePicker();
     try {
       final pics = await picker.pickMultiImage(imageQuality: 85);
-      if (pics.isEmpty) return;
+      if (pics.isEmpty) {
+        return;
+      }
       final List<Uint8List> bytes = [];
       for (final x in pics) {
         bytes.add(await x.readAsBytes());
       }
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _images.addAll(pics);
         _imageBytes.addAll(bytes);
@@ -105,9 +117,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
         source: ImageSource.gallery,
         imageQuality: 85,
       );
-      if (one == null) return;
+      if (one == null) {
+        return;
+      }
       final b = await one.readAsBytes();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _images.add(one);
         _imageBytes.add(b);

@@ -64,7 +64,9 @@ Future<void> showEditProfileModal(
                   email: email,
                 );
                 await UserService.instance.loadCurrentUser();
-                if (onImagePicked != null) onImagePicked(preview);
+                if (onImagePicked != null) {
+                  onImagePicked(preview);
+                }
                 if (modalCtx.mounted) {
                   ScaffoldMessenger.of(
                     modalCtx,
@@ -73,10 +75,11 @@ Future<void> showEditProfileModal(
                 }
               } catch (e) {
                 debugPrint('save profile error: $e');
-                if (modalCtx.mounted)
+                if (modalCtx.mounted) {
                   ScaffoldMessenger.of(modalCtx).showSnackBar(
                     const SnackBar(content: Text('저장 중 오류가 발생했습니다')),
                   );
+                }
               }
             },
             child: const SizedBox(
@@ -171,13 +174,13 @@ Future<void> showEditProfileModal(
                                       boxShadow: [
                                         // subtle inner shadow
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
+                                          color: Colors.black.withValues(alpha: 0.08),
                                           blurRadius: 4,
                                           offset: const Offset(0, 1),
                                         ),
                                         // larger soft shadow to lift the button
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.10),
+                                          color: Colors.black.withValues(alpha: 0.10),
                                           blurRadius: 8,
                                           spreadRadius: 1,
                                           offset: const Offset(0, 3),

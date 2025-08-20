@@ -2,7 +2,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 import 'dart:convert' show base64Encode;
 import 'dart:io';
 
@@ -217,21 +217,20 @@ class CloudinaryService {
       final f = File('${tmpDir.path}/check.jpg');
       await f.writeAsBytes(bytes, flush: true);
 
-      final visionImage = GoogleVisionImage.fromFile(f);
-      final labeler = GoogleVision.instance.imageLabeler(
-        const ImageLabelerOptions(confidenceThreshold: 0.5),
-      );
-      final labels = await labeler.processImage(visionImage);
-      await labeler.close();
+  final input = InputImage.fromFilePath(f.path);
+  final options = ImageLabelerOptions(confidenceThreshold: 0.5);
+  final labeler = ImageLabeler(options: options);
+  final labels = await labeler.processImage(input);
+  await labeler.close();
 
       final matched = <String>[];
       for (final l in labels) {
-        final text = (l.text ?? '').toLowerCase();
-        final conf = l.confidence ?? 0.0;
+  final text = (l.label).toLowerCase();
+  final conf = l.confidence;
         if (conf < _blockConfidence) continue;
         for (final kw in _blockKeywords) {
           if (text.contains(kw)) {
-            matched.add('${l.text} (${(conf * 100).toStringAsFixed(0)}%)');
+            matched.add('${l.label} (${(conf * 100).toStringAsFixed(0)}%)');
             break;
           }
         }

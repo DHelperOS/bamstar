@@ -83,7 +83,7 @@ class UserService extends ChangeNotifier {
       if (res != null) {
         final row = Map<String, dynamic>.from(res as Map);
         _user = AppUser.fromMap(row);
-        debugPrint('[UserService] loadCurrentUser fetched row: ${row}');
+  debugPrint('[UserService] loadCurrentUser fetched row: $row');
         debugPrint(
           '[UserService] loadCurrentUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
         );
@@ -136,7 +136,7 @@ class UserService extends ChangeNotifier {
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       _user = AppUser.fromMap(row);
-      debugPrint('[UserService] upsertUser fetched after upsert row: ${row}');
+  debugPrint('[UserService] upsertUser fetched after upsert row: $row');
       debugPrint(
         '[UserService] upsertUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
       );
@@ -205,7 +205,7 @@ class UserService extends ChangeNotifier {
       }
 
       final idxStr = (idx != null) ? idx.toString() : '0';
-      final computedName = '$roleKor#${idxStr}';
+  final computedName = '$roleKor#$idxStr';
       _displayName = computedName;
 
       // If user's nickname is empty or a demo placeholder, persist computed
@@ -221,7 +221,7 @@ class UserService extends ChangeNotifier {
           u.data['nickname'] = computedName;
           _user = AppUser.fromMap(Map<String, dynamic>.from(u.data));
           debugPrint(
-            '[UserService] _computeAndCacheDisplayName -> wrote nickname=${computedName} for uid=${u.id}',
+            '[UserService] _computeAndCacheDisplayName -> wrote nickname=$computedName for uid=${u.id}',
           );
         }
       } catch (e) {

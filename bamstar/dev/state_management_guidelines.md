@@ -75,3 +75,5 @@ Notes
 -----
 - If you need to bump package versions, update `pubspec.yaml` first, run `flutter pub get`, then update examples/docs to match.
 - Keep `dev/state_management_guidelines.md` as documentation; treat `pubspec.yaml` as the single source of truth for package versions.
+
+- Ensure key user actions (login, logout, signup, purchase, profile_update) are recorded to Firebase Analytics; add events using `AnalyticsService.logEvent(...)` so QA and analytics teams can validate flows.

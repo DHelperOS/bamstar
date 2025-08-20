@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:bamstar/utils/global_toast.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+import 'package:bamstar/services/analytics.dart';
 // material and toasts are used in UI layer; this service doesn't need them
 
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
@@ -245,6 +246,14 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
             await _persistSession(session);
             // Post sign-in: ensure profile/device rows
             await _postSignIn(session);
+            // Analytics: record successful sign-in
+            try {
+              await AnalyticsService.logEvent('login', params: {
+                'method': 'google',
+                'user_id': session.user.id,
+              });
+              await AnalyticsService.setUserId(session.user.id);
+            } catch (_) {}
             state = AsyncValue.data(AuthState(session: session));
             return;
           }
@@ -416,9 +425,12 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
         final accessToken = token.accessToken;
         final expiresAt = token.expiresAt;
         String mask(String? v) {
-          if (v == null || v.isEmpty) return '<empty>';
-          if (v.length <= 12)
+          if (v == null || v.isEmpty) {
+            return '<empty>';
+          }
+          if (v.length <= 12) {
             return '${v.substring(0, 3)}...${v.substring(v.length - 3)}';
+          }
           return '${v.substring(0, 6)}...${v.substring(v.length - 6)}';
         }
 
@@ -501,6 +513,10 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
     try {
       await _supabase.auth.signOut();
       await storage.deleteAll();
+      try {
+        await AnalyticsService.logEvent('logout', params: {'method': 'manual'});
+        await AnalyticsService.setUserId('');
+      } catch (_) {}
       state = const AsyncValue.data(AuthState());
     } catch (e, st) {
       log.severe('Sign out failed: $e', e, st);
@@ -525,7 +541,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
   }
 
   String _deviceOs() {
-    if (kIsWeb) return 'Web';
+    if (kIsWeb) {
+      return 'Web';
+    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return 'Android';
@@ -546,8 +564,6 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
     try {
       final user = session.user;
       final uid = user.id;
-      final email = user.email;
-      final phone = user.phone;
 
       // NOTE: Per product requirement, do NOT write nickname/email/phone
       // to the users table automatically here. The user must explicitly
@@ -572,6 +588,13 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       log.fine(
         'Post sign-in provisioning completed for user=$uid device=$duuid',
       );
+      try {
+        await AnalyticsService.logEvent('post_sign_in', params: {
+          'user_id': uid,
+          'device_uuid': duuid,
+          'device_os': os,
+        });
+      } catch (_) {}
     } catch (e, st) {
       log.severe('Post sign-in provisioning failed: $e', e, st);
       // Non-fatal: do not break the signed-in flow

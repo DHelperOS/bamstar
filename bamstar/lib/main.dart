@@ -20,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logging/logging.dart';
 import 'utils/global_toast.dart';
+import 'services/analytics.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +67,10 @@ Future<void> main() async {
     log.severe('Error initializing Supabase: $e', e, st);
     supabaseInitOk = false;
   }
+  // Initialize Firebase Analytics (best-effort)
+  try {
+    await AnalyticsService.ensureInitialized();
+  } catch (_) {}
   // If Supabase failed to initialize, pass that state into the app so we can
   // show a helpful full-screen error UI.
   // Initialize router (reads SharedPreferences) before starting the app so

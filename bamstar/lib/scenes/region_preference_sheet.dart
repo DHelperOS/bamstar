@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:delightful_toast/delight_toast.dart';
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:choice/choice.dart';
+import 'package:logging/logging.dart';
 
 // Data models
 class MainCategory {
@@ -61,6 +62,7 @@ class _RegionPreferenceSheetLauncherState
   }
 
   Future<void> _fetchAndOpen() async {
+    final log = Logger('region_preference_sheet');
     setState(() {
       _loading = true;
       _error = null;
@@ -112,12 +114,9 @@ class _RegionPreferenceSheetLauncherState
         (map[g.mainCategoryId] ??= []).add(g);
       }
 
-      // Debug
-      // ignore: avoid_print
-      print('[region] main_categories rows=${cats.length}');
-      // ignore: avoid_print
-      print('[region] area_groups rows=${groups.length}');
-
+  // Debug
+  log.fine('[region] main_categories rows=${cats.length}');
+  log.fine('[region] area_groups rows=${groups.length}');
       if (!mounted) return;
 
       setState(() {
@@ -149,9 +148,7 @@ class _RegionPreferenceSheetLauncherState
         nav.maybePop(value);
       });
     } catch (e, st) {
-      // ignore: avoid_print
-      print('[region] fetch error: $e\n$st');
-      if (!mounted) return;
+      log.warning('[region] fetch error: $e', e, st);
       setState(() {
         _loading = false;
         _error = '지역 정보를 불러오지 못했습니다.';
@@ -333,7 +330,8 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
     final len = _effectiveCategories.isEmpty ? 1 : _effectiveCategories.length;
     // debug
     // ignore: avoid_print
-    print(
+    final log = Logger('region_preference_sheet');
+    log.fine(
       '[region] effective categories: ${_effectiveCategories.map((c) => c.name).toList()}',
     );
     _tabController = TabController(length: len, vsync: this);
