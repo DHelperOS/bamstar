@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "333694384981",
+    "project_id": "bamstar-136f3",
+    "storage_bucket": "bamstar-136f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333694384981:android:08e92d0178a736873e0ddc",
+        "android_client_info": {
+          "package_name": "co.kr.bamstar.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333694384981-dg91orej3ilej945qsotbs2mv75luntg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.kr.bamstar.app",
+            "certificate_hash": "b56f7401a478ca202070bc751a2bed32b303c2b2"
+          }
+        },
+        {
+          "client_id": "333694384981-b76kgbjmtr06qvsmv1cd5jq3t4pv6gad.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVxz0-ajeZGrFBYfP1Y4b_DQupO7OyPLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333694384981-b76kgbjmtr06qvsmv1cd5jq3t4pv6gad.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "333694384981-6o7ubbfkmv3boembjip858n4of48575q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.kr.bamstar.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

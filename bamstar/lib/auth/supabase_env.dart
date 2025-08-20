@@ -24,14 +24,21 @@ String get supabaseAnonKey =>
 // required for native SDK features or native login flows.
 String get kakaoNativeAppKey => dotenv.maybeGet('KAKAO_NATIVE_APP_KEY') ?? '';
 
-// Google OAuth client IDs (web/android/ios). iOS may be empty until you add it.
+// Google OAuth client IDs (web/android/ios).
+// NOTE: This project now uses Firebase configuration files for native
+// client IDs. Keep these getters for backward compatibility and for web
+// usage, but prefer using the platform-specific firebase files:
+//  - iOS:  ios/Runner/GoogleService-Info.plist
+//  - Android: android/app/google-services.json
+// If the env var is empty, native client IDs will be provided by the
+// Firebase config at runtime (no env change required).
 String get googleWebClientId =>
-    dotenv.maybeGet('NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID') ??
-    dotenv.maybeGet('GOOGLE_WEB_CLIENT_ID') ??
-    '';
+  dotenv.maybeGet('NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID') ??
+  dotenv.maybeGet('GOOGLE_WEB_CLIENT_ID') ??
+  '';
 
 String get googleAndroidClientId =>
-    dotenv.maybeGet('GOOGLE_ANDROID_CLIENT_ID') ?? '';
+  dotenv.maybeGet('GOOGLE_ANDROID_CLIENT_ID') ?? '';
 
 String get googleIosClientId => dotenv.maybeGet('GOOGLE_IOS_CLIENT_ID') ?? '';
 
