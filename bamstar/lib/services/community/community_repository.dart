@@ -6,6 +6,7 @@ class CommunityPost {
   final int id;
   final String content;
   final bool isAnonymous;
+  final String? authorId;
   final String authorName; // anonymized label when isAnonymous=true
   final String? authorAvatarUrl; // null for anonymous
   final List<String> imageUrls;
@@ -17,6 +18,7 @@ class CommunityPost {
     required this.id,
     required this.content,
     required this.isAnonymous,
+  required this.authorId,
     required this.authorName,
     required this.authorAvatarUrl,
     required this.imageUrls,
@@ -83,9 +85,9 @@ class CommunityRepository {
   int? offset,
   }) async {
     try {
-      dynamic q = _client
-          .from('community_posts')
-          .select('id, content, is_anonymous, created_at, image_urls');
+    dynamic q = _client
+      .from('community_posts')
+      .select('id, content, is_anonymous, created_at, image_urls, author_id');
       if (filterTag != null && filterTag.trim().isNotEmpty) {
         final ft = filterTag.toLowerCase();
         // DB에 hashtags 컬럼이 없으므로 내용에서 태그 텍스트를 검색합니다.
@@ -105,6 +107,7 @@ class CommunityRepository {
           id: id,
           content: content,
           isAnonymous: row['is_anonymous'] as bool? ?? false,
+          authorId: row['author_id'] as String?,
           authorName: (row['is_anonymous'] as bool? ?? false)
               ? '익명의 스타'
               : '스타 ${id % 97}',
@@ -296,8 +299,9 @@ class CommunityRepository {
           ? '익명 고민: 채용 과정에서 이런 질문 받아보신 분? #강남후기 #커리어'
           : '오늘의 팁: 단축키만 잘 써도 작업 속도 2배! #업무노하우',
       isAnonymous: isAnon,
-      authorName: isAnon ? '익명의 스타' : '스타 ${i + 17}',
-      authorAvatarUrl: isAnon ? null : 'https://picsum.photos/seed/u$i/100/100',
+  authorId: 'user-${i + 1}',
+  authorName: isAnon ? '익명의 스타' : '스타 ${i + 17}',
+  authorAvatarUrl: isAnon ? null : 'https://picsum.photos/seed/u$i/100/100',
       imageUrls: i % 5 == 0
           ? ['https://picsum.photos/seed/p$i/800/400']
           : const [],
