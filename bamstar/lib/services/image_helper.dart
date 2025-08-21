@@ -69,14 +69,65 @@ class CloudinaryImage extends StatelessWidget {
       return placeholder ?? Container(color: Colors.grey[300], width: width, height: height);
     }
 
-    // Use CachedNetworkImage for built-in placeholder/error behavior but prefer
-    // Cloudinary-transformed URL where possible.
-    try {
-      final provider = imageProviderFromUrl(url, width: width?.toInt(), height: height?.toInt());
-      return Image(image: provider, width: width, height: height, fit: fit);
-    } catch (_) {
-      return errorWidget ?? Container(color: Colors.grey[200], width: width, height: height);
-    }
+    final cloud = CloudinaryService.instanceOrNull;
+    final effectiveUrl = (cloud != null)
+        ? cloud.transformedUrlFromSecureUrl(url!, width: width?.toInt(), height: height?.toInt())
+        : url!;
+
+    return CachedNetworkImage(
+      imageUrl: effectiveUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      placeholder: (context, url) => placeholder ?? Container(color: Colors.grey[300], width: width, height: height),
+      errorWidget: (context, url, error) => errorWidget ?? _ErrorRetry(width: width, height: height, imageUrl: effectiveUrl),
+    );
+  }
+}
+
+class _ErrorRetry extends StatefulWidget {
+  final double? width;
+  final double? height;
+  final String imageUrl;
+  const _ErrorRetry({this.width, this.height, required this.imageUrl});
+
+  @override
+  State<_ErrorRetry> createState() => _ErrorRetryState();
+}
+
+class _ErrorRetryState extends State<_ErrorRetry> {
+  int _attempt = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      color: Colors.grey[200],
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.broken_image, size: 36, color: Colors.grey),
+            const SizedBox(height: 8),
+            Text('이미지 로드 실패', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                setState(() => _attempt++);
+              },
+              child: const Text('다시 시도'),
+            ),
+            // Invisible image to trigger retry when _attempt changes
+            SizedBox(
+              width: 0,
+              height: 0,
+              child: _attempt == 0 ? null : Image.network(widget.imageUrl),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

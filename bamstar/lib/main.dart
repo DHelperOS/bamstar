@@ -72,24 +72,24 @@ Future<void> main() async {
   try {
     await AnalyticsService.ensureInitialized();
   } catch (_) {}
-  // Initialize Cloudinary singleton if env present. This is best-effort; if
-  // env vars are missing we'll log and continue so app can still run.
+  // Force Cloudinary initialization at startup. If required env vars are
+  // missing we'll treat this as a fatal initialization error so the app
+  // surfaces a helpful message to the operator.
+  var cloudinaryInitOk = true;
   try {
-    final cloud = CloudinaryService.instanceOrNull;
-    if (cloud != null) {
-      log.info('Cloudinary initialized (cloud=${cloud.cloudName})');
-    } else {
-      log.info('Cloudinary not configured (CLOUDINARY_CLOUD_NAME/CLOUDINARY_UPLOAD_PRESET). Skipping.');
-    }
+    // This will throw if env vars are missing.
+    final cloud = CloudinaryService.instance;
+    log.info('Cloudinary initialized (cloud=${cloud.cloudName})');
   } catch (e, st) {
-    log.warning('Cloudinary initialization failed: $e', e, st);
+    cloudinaryInitOk = false;
+    log.severe('Cloudinary initialization failed: $e', e, st);
   }
   // If Supabase failed to initialize, pass that state into the app so we can
   // show a helpful full-screen error UI.
   // Initialize router (reads SharedPreferences) before starting the app so
   // initial route honors whether onboarding was seen.
   await initRouter();
-  runApp(ProviderScope(child: MyApp(supabaseInitOk: supabaseInitOk)));
+  runApp(ProviderScope(child: MyApp(supabaseInitOk: supabaseInitOk, cloudinaryInitOk: cloudinaryInitOk)));
 }
 
 late final GoRouter _router;
@@ -132,9 +132,10 @@ Future<void> initRouter() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.supabaseInitOk = true});
+  const MyApp({super.key, this.supabaseInitOk = true, this.cloudinaryInitOk = true});
 
   final bool supabaseInitOk;
+  final bool cloudinaryInitOk;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +155,32 @@ class MyApp extends StatelessWidget {
                   SizedBox(height: 16),
                   Text(
                     '앱 초기화에 실패했습니다. 환경 변수(SUPABASE_URL, SUPABASE_ANON_KEY)를 확인하세요.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!cloudinaryInitOk) {
+      return MaterialApp(
+        title: 'BamStar - Error',
+        theme: AppTheme.lightTheme,
+        home: Scaffold(
+          appBar: AppBar(title: const Text('초기화 오류')),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text(
+                    '앱 초기화에 실패했습니다. 환경 변수(CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET)를 확인하세요.',
                     textAlign: TextAlign.center,
                   ),
                 ],
