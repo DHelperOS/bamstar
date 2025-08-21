@@ -57,6 +57,7 @@ CREATE TABLE public.community_posts (
   content TEXT NOT NULL,
   is_anonymous BOOLEAN NOT NULL DEFAULT false,
   image_urls TEXT[],
+  view_count BIGINT NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ
 );
@@ -119,7 +120,7 @@ CREATE TABLE public.community_likes (
 ```sql
 -- 댓글 작성자 프로필 스택 조회를 위한 DB 함수 (users 테이블 직접 조회)
 CREATE OR REPLACE FUNCTION public.get_post_commenter_avatars(post_id_in BIGINT, limit_in INT)
-RETURNS TABLE (profile_image_url TEXT) LANGUAGE sql STABLE AS $$
+RETURNS TABLE (profile_img TEXT) LANGUAGE sql STABLE AS $$
   WITH recent_commenters AS (
     SELECT author_id, MAX(created_at) AS last_comment_time
     FROM public.community_comments
@@ -128,10 +129,50 @@ RETURNS TABLE (profile_image_url TEXT) LANGUAGE sql STABLE AS $$
     ORDER BY last_comment_time DESC
     LIMIT limit_in
   )
-  SELECT u.profile_image_url
+  SELECT u.profile_img
   FROM public.users u
   JOIN recent_commenters rc ON u.id = rc.author_id
   ORDER BY rc.last_comment_time DESC;
+$$;
+
+-- Server-side aggregation RPC: return per-post counts for likes and comments
+CREATE OR REPLACE FUNCTION public.get_post_counts(post_ids_in BIGINT[])
+RETURNS TABLE(post_id BIGINT, likes_count INT, comments_count INT) LANGUAGE sql STABLE AS $$
+  SELECT p.id::bigint as post_id,
+    COALESCE(l.likes_count, 0) AS likes_count,
+    COALESCE(c.comments_count, 0) AS comments_count
+  FROM (
+    SELECT unnest(post_ids_in) AS id
+  ) p
+  LEFT JOIN (
+    SELECT post_id, COUNT(*)::int AS comments_count
+    FROM public.community_comments
+    WHERE post_id = ANY(post_ids_in)
+    GROUP BY post_id
+  ) c ON c.post_id = p.id
+  LEFT JOIN (
+    SELECT post_id, COUNT(*)::int AS likes_count
+    FROM public.community_likes
+    WHERE post_id = ANY(post_ids_in)
+    GROUP BY post_id
+  ) l ON l.post_id = p.id;
+$$;
+
+-- Returns post_ids the current authenticated user has liked from the provided list
+CREATE OR REPLACE FUNCTION public.get_user_liked_posts(post_ids_in BIGINT[])
+RETURNS TABLE(post_id BIGINT) LANGUAGE sql STABLE AS $$
+  SELECT post_id
+  FROM public.community_likes
+  WHERE user_id = auth.uid() AND post_id = ANY(post_ids_in);
+$$;
+
+-- Increment view_count for a post and return the new count
+CREATE OR REPLACE FUNCTION public.increment_post_view(post_id_in BIGINT)
+RETURNS TABLE(new_count BIGINT) LANGUAGE sql VOLATILE AS $$
+  UPDATE public.community_posts
+  SET view_count = view_count + 1
+  WHERE id = post_id_in
+  RETURNING view_count AS new_count;
 $$;
 4. 보안 (Row Level Security)
 4.1. RLS 정책 SQL
@@ -160,3 +201,37 @@ CREATE POLICY "Allow users to manage their own subscriptions" ON public.communit
 -- #해시태그 테이블 (읽기 전용)
 ALTER TABLE public.community_hashtags ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow read access to all users" ON public.community_hashtags FOR SELECT USING (true);
+
+-- 1. 트리거가 호출할 '함수'를 먼저 생성합니다.
+--    이 함수의 역할은 오직 '기본 채널 구독' 정보를 추가하는 것 하나뿐입니다.
+CREATE OR REPLACE FUNCTION public.subscribe_default_channels_on_signup()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- 신규 사용자(NEW.id)가 '8번' 채널을 구독하도록 INSERT
+  INSERT INTO public.community_subscriptions (subscriber_id, target_hashtag_id)
+  VALUES (NEW.id, 8);
+  
+  -- (만약 9번 채널도 기본 구독시키고 싶다면 아래 줄의 주석을 푸세요)
+  -- INSERT INTO public.community_subscriptions (subscriber_id, target_hashtag_id)
+  -- VALUES (NEW.id, 9);
+
+  RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.subscribe_default_channels_on_signup() IS '신규 가입 시, 사용자를 미리 지정된 기본 커뮤니티 채널에 자동으로 구독시킵니다.';
+
+
+-- 2. '트리거'를 생성하여 위 함수와 Supabase 인증 시스템을 연결합니다.
+--    이 트리거는 'auth.users' 테이블에 새로운 행이 추가될 때마다 작동합니다.
+
+-- (혹시 모를 충돌을 방지하기 위해, 같은 이름의 기존 트리거가 있다면 먼저 삭제합니다)
+DROP TRIGGER IF EXISTS on_auth_user_created_subscribe_default ON auth.users;
+
+CREATE TRIGGER on_auth_user_created_subscribe_default
+  AFTER INSERT ON auth.users -- 'auth.users' 테이블에
+  FOR EACH ROW               -- 새로운 행이 추가될 때마다
+  EXECUTE PROCEDURE public.subscribe_default_channels_on_signup(); -- 위에서 만든 함수를 실행시켜라.

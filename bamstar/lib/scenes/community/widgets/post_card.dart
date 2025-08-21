@@ -76,11 +76,19 @@ class PostCard extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                  local.AvatarStack(
-                    avatarUrls: post.recentCommenterAvatarUrls,
-                    // default to centralized community size
-                    avatarSize: CommunitySizes.avatarBase,
-                    overlapFactor: 0.5,
+                FutureBuilder<List<String>>(
+                  future: CommunityRepository.instance.getPostCommenterAvatars(post.id, limit: 3),
+                  builder: (context, snap) {
+                    final avatars = (snap.hasData && (snap.data?.isNotEmpty == true))
+                        ? snap.data!
+                        : post.recentCommenterAvatarUrls;
+                    return local.AvatarStack(
+                      avatarUrls: avatars,
+                      // default to centralized community size
+                      avatarSize: CommunitySizes.avatarBase,
+                      overlapFactor: 0.5,
+                    );
+                  },
                 ),
                 const SizedBox(width: 8),
                 Text(

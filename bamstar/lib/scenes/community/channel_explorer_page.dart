@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/widgets/pull_refresh_indicator.dart';
@@ -21,6 +22,11 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
   // pull-to-refresh state
   double _pullPixels = 0.0; // current overscroll pixels (>= 0)
   bool _refreshing = false;
+  // search input visibility
+  bool _showSearch = false;
+  final TextEditingController _searchController = TextEditingController();
+  final SuggestionsBoxController _suggestionsController =
+      SuggestionsBoxController();
 
   @override
   void initState() {
@@ -28,12 +34,18 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     setState(() => _loading = true);
-    final res = await CommunityRepository.instance.fetchAllHashtags(
-      query: _q,
-      limit: 24,
-    );
+    final hasQuery = _q.trim().isNotEmpty;
+    final res = hasQuery
+        ? await CommunityRepository.instance.searchHashtags(_q, limit: 24)
+        : await CommunityRepository.instance.fetchAllHashtags(limit: 24);
     if (!mounted) return;
     setState(() {
       _channels = res;
@@ -46,7 +58,10 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
       final list = set.toList()..sort();
       final newCats = ['📂 전체', ...list];
       _categories = newCats;
-      if (_selectedCategoryIndex >= _categories.length) {
+      // When searching, default to 전체 to avoid over-filtering by stale category
+      if (_q.trim().isNotEmpty) {
+        _selectedCategoryIndex = 0;
+      } else if (_selectedCategoryIndex >= _categories.length) {
         _selectedCategoryIndex = 0;
       }
     });
@@ -64,11 +79,12 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
       // small delay for UX polish
       await Future.delayed(const Duration(milliseconds: 200));
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _refreshing = false;
-        _pullPixels = 0.0;
-      });
+      if (mounted) {
+        setState(() {
+          _refreshing = false;
+          _pullPixels = 0.0;
+        });
+      }
     }
   }
 
@@ -117,6 +133,26 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
       appBar: AppBar(
         title: const Text('채널 탐색'),
         actions: [
+          // Search toggle button
+          IconButton(
+            onPressed: () {
+              final next = !_showSearch;
+              setState(() => _showSearch = next);
+              if (next) {
+                // Attempt to open suggestions shortly after reveal
+                Future.delayed(const Duration(milliseconds: 50), () {
+                  try {
+                    if (_searchController.text.trim().isNotEmpty) {
+                      _suggestionsController.open();
+                    } else {
+                      _suggestionsController.resize();
+                    }
+                  } catch (_) {}
+                });
+              }
+            },
+            icon: const Icon(SolarIconsOutline.magnifier),
+          ),
           IconButton(
             onPressed: _load,
             icon: const Icon(SolarIconsOutline.refresh),
@@ -125,19 +161,159 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: '채널 검색 (#없이 입력)',
-                prefixIcon: Icon(SolarIconsOutline.magnifier),
+          // Animated search input: hidden by default, toggled by AppBar button
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DropDownSearchField(
+                      suggestionsBoxController: _suggestionsController,
+                      displayAllSuggestionWhenTap: true,
+                      isMultiSelectDropdown: false,
+                      textFieldConfiguration: TextFieldConfiguration(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: '채널 검색 (#없이 입력)',
+                          prefixIcon: const Icon(SolarIconsOutline.magnifier),
+                          // visible oval border
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(999),
+                            borderSide: BorderSide(
+                              color: cs.outlineVariant.withValues(alpha: 0.12),
+                              width: 1,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(999),
+                            borderSide: BorderSide(
+                              color: cs.outlineVariant.withValues(alpha: 0.10),
+                              width: 1,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: cs.surface,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                        ),
+                        onChanged: (v) {
+                          // sanitize query: strip '#'
+                          final sanitized = v.replaceAll('#', '').trim();
+                          setState(() => _q = sanitized);
+                          if (v.trim().isNotEmpty) {
+                            try {
+                              _suggestionsController.open();
+                            } catch (_) {}
+                          } else {
+                            try {
+                              _suggestionsController.close();
+                            } catch (_) {}
+                          }
+                        },
+                        onTap: () {
+                          // ensure suggestions open when user taps the field
+                          try {
+                            _suggestionsController.open();
+                          } catch (_) {}
+                        },
+                      ),
+                      debounceDuration: const Duration(milliseconds: 250),
+                      suggestionsBoxVerticalOffset: 6,
+                      suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                        elevation: 6,
+                        borderRadius: BorderRadius.circular(12),
+                        color: cs.surfaceVariant,
+                      ),
+                      suggestionsCallback: (pattern) async {
+                        final key = pattern
+                            .toString()
+                            .replaceAll('#', '')
+                            .trim();
+                        if (key.isEmpty) return const <String>[];
+                        try {
+                          final res = await CommunityRepository.instance
+                              .searchHashtags(key, limit: 10);
+                          return res.map((c) => c.name).toList();
+                        } catch (_) {
+                          return const <String>[];
+                        }
+                      },
+                      itemBuilder: (context, suggestion) {
+                        return ListTile(
+                          title: Text(
+                            '#$suggestion',
+                            style: TextStyle(color: cs.onSurface),
+                          ),
+                          dense: true,
+                          visualDensity: VisualDensity.compact,
+                        );
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        final text = suggestion.toString();
+                        _searchController.text = text; // keep as-is for UX
+                        final sanitized = text.replaceAll('#', '').trim();
+                        setState(() {
+                          _q = sanitized;
+                          _selectedCategoryIndex =
+                              0; // show all matched results
+                        });
+                        _load();
+                      },
+                      noItemsFoundBuilder: (context) => Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          '결과가 없습니다',
+                          style: TextStyle(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Search button on the right — triggers server search using current input
+                  SizedBox(
+                    height: 44,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final text = _searchController.text.trim();
+                        final sanitized = text.replaceAll('#', '').trim();
+                        setState(() {
+                          _q = sanitized;
+                          _selectedCategoryIndex =
+                              0; // show all matched results
+                        });
+                        // close keyboard and suggestions for clearer UX
+                        FocusScope.of(context).unfocus();
+                        try {
+                          _suggestionsController.close();
+                        } catch (_) {}
+                        _load();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        elevation: 0,
+                      ),
+                      child: const Text('검색'),
+                    ),
+                  ),
+                ],
               ),
-              onChanged: (v) {
-                setState(() => _q = v.trim());
-                _load();
-              },
             ),
+            crossFadeState: _showSearch
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 260),
           ),
+          // 안내 카드 (탭바 상단)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _EmptyGuideCard(),
+          ),
+          const SizedBox(height: 8),
           // Category TabBar
           DefaultTabController(
             length: _categories.length,
@@ -439,20 +615,25 @@ class _ChannelCardState extends State<_ChannelCard> {
                   isModal: false,
                   backgroundColor: cs.primary,
                   margin: const EdgeInsets.only(left: 4),
-                  content: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 220),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      child: Text(
-                        (c.description?.isNotEmpty == true)
-                            ? c.description!
-                            : '설명이 없습니다.',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                  content: _PopIn(
+                    duration: const Duration(milliseconds: 200),
+                    beginScale: 0.86,
+                    curve: Curves.easeOutBack,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 220),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          (c.description?.isNotEmpty == true)
+                              ? c.description!
+                              : '설명이 없습니다.',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -674,3 +855,138 @@ class _AsyncToggleSwitchState extends State<_AsyncToggleSwitch> {
 }
 
 // _PullRefreshIndicator and _SparkleDot removed; use AppPullRefreshIndicator from widgets
+
+// Pop-in animation wrapper for tooltip content (scale + fade)
+class _PopIn extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+  final double beginScale;
+  final Curve curve;
+
+  const _PopIn({
+    required this.child,
+    this.duration = const Duration(milliseconds: 200),
+    this.beginScale = 0.86,
+    this.curve = Curves.easeOutBack,
+  });
+
+  @override
+  State<_PopIn> createState() => _PopInState();
+}
+
+class _PopInState extends State<_PopIn> with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    duration: widget.duration,
+    vsync: this,
+  );
+  late final Animation<double> _scale = Tween<double>(
+    begin: widget.beginScale,
+    end: 1.0,
+  ).animate(CurvedAnimation(parent: _ctrl, curve: widget.curve));
+  late final Animation<double> _opacity = Tween<double>(
+    begin: 0.0,
+    end: 1.0,
+  ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+
+  @override
+  void initState() {
+    super.initState();
+    // Play forward on mount (when tooltip shows)
+    _ctrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: ScaleTransition(scale: _scale, child: widget.child),
+    );
+  }
+}
+
+// 안내용 가이드 카드 (탭바 상단에 위치)
+class _EmptyGuideCard extends StatelessWidget {
+  const _EmptyGuideCard({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      // very light gray background (~w100). blend surface and onSurface slightly.
+      // Previously used 0.96 (resulted in a much darker tint). Use a very small
+      // blend factor so the card stays near the surface color and appears very
+      // light across themes.
+      color: Color.lerp(cs.surface, cs.onSurface, 0.05),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // text block with icon in the header line
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        SolarIconsOutline.volumeLoud,
+                        color: cs.primary,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      // title as h4 (headlineSmall)
+                      Text(
+                        '찾으시는 채널이 없나요?',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '커뮤니티에 글을 쓸 때 ',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                        TextSpan(
+                          text: '#새로운주제',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: cs.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        TextSpan(
+                          text: ' 태그를 달아\n이야기의 첫 번째 주인공이 되어보세요!',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // informational only
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,6 +1,13 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data' show Uint8List;
 
+// Simple in-memory cache entry for avatars with fetch timestamp.
+class _AvatarsCacheEntry {
+  final List<String> avatars;
+  final DateTime fetchedAt;
+  _AvatarsCacheEntry(this.avatars, this.fetchedAt);
+}
+
 /// Data models
 class CommunityPost {
   final int id;
@@ -13,18 +20,26 @@ class CommunityPost {
   final DateTime createdAt;
   final List<String> hashtags; // without '#'
   final List<String> recentCommenterAvatarUrls; // for avatar stack
+  final int likesCount;
+  final int viewCount;
+  final int commentCount;
+  final bool isLiked;
 
   const CommunityPost({
     required this.id,
     required this.content,
     required this.isAnonymous,
-  required this.authorId,
+    required this.authorId,
     required this.authorName,
     required this.authorAvatarUrl,
     required this.imageUrls,
     required this.createdAt,
     required this.hashtags,
     required this.recentCommenterAvatarUrls,
+    this.likesCount = 0,
+    this.viewCount = 0,
+    this.commentCount = 0,
+  this.isLiked = false,
   });
 }
 
@@ -53,6 +68,15 @@ class CommunityRepository {
   CommunityRepository._();
   static final instance = CommunityRepository._();
   final _client = Supabase.instance.client;
+  // In-memory cache: postId -> avatars entry
+  final Map<int, _AvatarsCacheEntry> _avatarsCache = {};
+  // Default TTL for avatars cache (can be tuned at runtime)
+  Duration avatarsCacheTtl = const Duration(seconds: 60);
+
+  /// Adjust avatars cache TTL at runtime (useful for dev vs prod).
+  void setAvatarsCacheTtl(Duration ttl) {
+    avatarsCacheTtl = ttl;
+  }
 
   Future<List<HashtagChannel>> fetchSubscribedChannels({int limit = 12}) async {
     try {
@@ -87,18 +111,22 @@ class CommunityRepository {
 
   Future<List<CommunityPost>> fetchFeed({
     String? filterTag,
+  String? contentQuery,
   int limit = 20,
   int? offset,
   }) async {
     try {
     dynamic q = _client
       .from('community_posts')
-      .select('id, content, is_anonymous, created_at, image_urls, author_id');
+      .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count');
       if (filterTag != null && filterTag.trim().isNotEmpty) {
         final ft = filterTag.toLowerCase();
-        // DB에 hashtags 컬럼이 없으므로 내용에서 태그 텍스트를 검색합니다.
-        // 예: "#tag" 포함 여부로 서버측 1차 필터링
+        // Filter by hashtag-like token in content
         q = q.ilike('content', '%#$ft%');
+      } else if (contentQuery != null && contentQuery.trim().isNotEmpty) {
+        final cq = contentQuery.trim();
+        // Search posts by content
+        q = q.ilike('content', '%$cq%');
       }
       if (offset != null) {
         q = q.range(offset, offset + limit - 1);
@@ -106,7 +134,49 @@ class CommunityRepository {
         q = q.limit(limit);
       }
       final List data = await q.order('created_at', ascending: false);
-      return data.map((row) {
+      // collect post ids for aggregated counts
+      final postIds = data.map((r) => r['id'] as int).toList();
+      Map<int, int> commentCounts = {};
+      Map<int, int> likeCounts = {};
+      try {
+        if (postIds.isNotEmpty) {
+          // Prefer server-side RPC to fetch per-post counts in one call
+          try {
+            final rpcRes = await getPostCounts(postIds);
+            for (final e in rpcRes.entries) {
+              likeCounts[e.key] = e.value['likes_count'] ?? 0;
+              commentCounts[e.key] = e.value['comments_count'] ?? 0;
+            }
+          } catch (_) {
+            // Fallback: client-side grouped reads (previous behavior)
+            final idsCsv = postIds.join(',');
+            final commentsRes = await _client
+                .from('community_comments')
+                .select('post_id')
+                .filter('post_id', 'in', '($idsCsv)');
+            for (final row in (commentsRes as List? ?? [])) {
+              final pid = row['post_id'] as int?;
+              if (pid == null) continue;
+              commentCounts[pid] = (commentCounts[pid] ?? 0) + 1;
+            }
+
+            final likesRes = await _client
+                .from('community_likes')
+                .select('post_id')
+                .filter('post_id', 'in', '($idsCsv)');
+            for (final row in (likesRes as List? ?? [])) {
+              final pid = row['post_id'] as int?;
+              if (pid == null) continue;
+              likeCounts[pid] = (likeCounts[pid] ?? 0) + 1;
+            }
+          }
+        }
+      } catch (_) {
+        // ignore aggregation errors and fallback to defaults
+      }
+      // Build posts first (with fallback avatars). Then fetch commenter avatars
+      // for all posts in a batched manner and replace the placeholder lists.
+  final posts = data.map((row) {
         final id = row['id'] as int;
         final content = (row['content'] as String?) ?? '';
         return CommunityPost(
@@ -126,14 +196,257 @@ class CommunityRepository {
               DateTime.now(),
           // 서버 컬럼이 없으므로 내용에서 해시태그를 파싱합니다.
           hashtags: _extractHashtags(content),
-          recentCommenterAvatarUrls: List.generate(
-            3,
-            (i) => 'https://picsum.photos/seed/c${id}_$i/40/40',
-          ),
+          // Start with empty commenter avatars; will be filled by
+          // fetchCommenterAvatarsForPosts if any real commenters exist.
+          recentCommenterAvatarUrls: const [],
+          likesCount: likeCounts[id] ?? 0,
+          viewCount: (row['view_count'] as int?) ?? 0,
+          commentCount: commentCounts[id] ?? 0,
         );
       }).toList();
+
+      // Determine which posts the current user has liked (if authenticated)
+      Map<int, bool> likedMap = {};
+      try {
+        if (postIds.isNotEmpty) {
+          final liked = await getUserLikedPosts(postIds);
+          for (final pid in liked) likedMap[pid] = true;
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Batch-fetch commenter avatars for the posts we just built. Limit
+      // concurrency to avoid hammering the RPC.
+      try {
+        final ids = posts.map((p) => p.id).toList();
+        final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+        // Replace placeholders when data is available.
+        return posts.map((p) {
+          final avatars = avatarsMap[p.id];
+          final liked = likedMap[p.id] == true;
+          return CommunityPost(
+            id: p.id,
+            content: p.content,
+            isAnonymous: p.isAnonymous,
+            authorId: p.authorId,
+            authorName: p.authorName,
+            authorAvatarUrl: p.authorAvatarUrl,
+            imageUrls: p.imageUrls,
+            createdAt: p.createdAt,
+            hashtags: p.hashtags,
+            recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+            likesCount: p.likesCount,
+            viewCount: p.viewCount,
+            commentCount: p.commentCount,
+            isLiked: liked,
+          );
+        }).toList();
+      } catch (_) {
+        return posts;
+      }
     } catch (_) {
       return _mockPosts(limit: limit);
+    }
+  }
+
+  /// Server RPC wrapper: returns map postId -> {likes_count, comments_count}
+  Future<Map<int, Map<String, int>>> getPostCounts(List<int> postIds) async {
+    final out = <int, Map<String, int>>{};
+    if (postIds.isEmpty) return out;
+    try {
+      final res = await _client.rpc('get_post_counts', params: {
+        'post_ids_in': postIds,
+      });
+      final List data = res as List? ?? [];
+      for (final row in data) {
+        if (row is Map && row['post_id'] != null) {
+          final pid = (row['post_id'] as num).toInt();
+          final lc = (row['likes_count'] as num?)?.toInt() ?? 0;
+          final cc = (row['comments_count'] as num?)?.toInt() ?? 0;
+          out[pid] = {'likes_count': lc, 'comments_count': cc};
+        }
+      }
+      return out;
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// RPC: returns list of post ids liked by current user (from provided list)
+  Future<List<int>> getUserLikedPosts(List<int> postIds) async {
+    if (postIds.isEmpty) return [];
+    try {
+      final res = await _client.rpc('get_user_liked_posts', params: {
+        'post_ids_in': postIds,
+      });
+      final List data = res as List? ?? [];
+      final out = <int>[];
+      for (final row in data) {
+        if (row is Map && row['post_id'] != null) {
+          out.add((row['post_id'] as num).toInt());
+        } else if (row is num) {
+          out.add(row.toInt());
+        }
+      }
+      return out;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// RPC: increment view count and return new value
+  Future<int?> incrementPostView(int postId) async {
+    try {
+      final res = await _client.rpc('increment_post_view', params: {'post_id_in': postId});
+      final List data = res as List? ?? [];
+      if (data.isNotEmpty) {
+        final row = data.first;
+        if (row is Map && row['new_count'] != null) {
+          return (row['new_count'] as num).toInt();
+        } else if (row is num) {
+          return row.toInt();
+        }
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Toggle like for a post (optimistic update supported on client side).
+  Future<bool> likePost({required int postId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client.from('community_likes').insert({
+        'user_id': user.id,
+        'post_id': postId,
+      });
+      // Invalidate caches as likes changed
+      invalidateAvatarsCacheForPost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> unlikePost({required int postId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client.from('community_likes').delete().eq('user_id', user.id).eq('post_id', postId);
+      invalidateAvatarsCacheForPost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Fetch commenter avatars for multiple posts with limited concurrency.
+  /// Returns a map postId -> list of avatar URLs.
+  Future<Map<int, List<String>>> fetchCommenterAvatarsForPosts(
+    List<int> postIds, {
+    int limitPerPost = 3,
+    int concurrency = 6,
+  }) async {
+    // First try server-side batch RPC for efficiency.
+    try {
+      final batch = await getPostCommenterAvatarsBatch(postIds, limit: limitPerPost);
+      if (batch.isNotEmpty) return batch;
+    } catch (_) {
+      // ignore and fallback
+    }
+
+    final Map<int, List<String>> out = {};
+    if (postIds.isEmpty) return out;
+    // Process ids in chunks of size `concurrency` to limit parallel RPC calls.
+    for (var i = 0; i < postIds.length; i += concurrency) {
+      final chunk = postIds.sublist(i, (i + concurrency).clamp(0, postIds.length));
+      final futures = <Future<List<String>>>[];
+      final idsInChunk = <int>[];
+      for (final id in chunk) {
+        idsInChunk.add(id);
+        futures.add(getPostCommenterAvatars(id, limit: limitPerPost));
+      }
+      try {
+        final results = await Future.wait(futures);
+        for (var j = 0; j < idsInChunk.length; j++) {
+          out[idsInChunk[j]] = results[j];
+        }
+      } catch (_) {
+        // ignore chunk errors and continue with next chunk
+      }
+    }
+    return out;
+  }
+
+  // --- Comment CRUD helpers (client-side) ---
+  /// Create a comment for a post and invalidate avatar cache for that post.
+  Future<bool> createComment({
+    required int postId,
+    required String content,
+    required bool isAnonymous,
+  }) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client.from('community_comments').insert({
+        'post_id': postId,
+        'author_id': user.id,
+        'content': content,
+        'is_anonymous': isAnonymous,
+      });
+      // Invalidate cache so UI shows updated avatars
+      invalidateAvatarsCacheForPost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Delete a comment by id and invalidate cache for its post.
+  Future<bool> deleteComment({required int commentId, required int postId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client
+          .from('community_comments')
+          .delete()
+          .eq('id', commentId)
+          .eq('author_id', user.id);
+      invalidateAvatarsCacheForPost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // --- Server batch RPC wrapper ---
+  /// Prefer batch RPC if available on server. Returns map postId->avatars.
+  Future<Map<int, List<String>>> getPostCommenterAvatarsBatch(List<int> postIds, {int limit = 3}) async {
+    final out = <int, List<String>>{};
+    if (postIds.isEmpty) return out;
+    try {
+  // Attempt server-side batch RPC which should return rows with
+  // { post_id: bigint, profile_img: text }
+      final res = await _client.rpc('get_post_commenter_avatars_batch', params: {
+        'post_ids_in': postIds,
+        'limit_in': limit,
+      });
+      final List data = res as List? ?? [];
+      for (final row in data) {
+        if (row is Map && row['post_id'] != null) {
+          final pid = (row['post_id'] as num).toInt();
+          final url = row['profile_img'] as String?;
+          if (url == null || url.isEmpty) continue;
+          out.putIfAbsent(pid, () => []).add(url);
+        }
+      }
+      return out;
+    } catch (_) {
+      // rpc not available or failed — caller should fallback to per-post requests
+      return {}; 
     }
   }
 
@@ -366,6 +679,53 @@ class CommunityRepository {
     }
   }
 
+  /// RPC wrapper for `public.get_post_commenter_avatars(post_id_in BIGINT, limit_in INT)`
+  /// Returns a list of profile image URLs for recent non-anonymous commenters.
+  Future<List<String>> getPostCommenterAvatars(int postId, {int limit = 3}) async {
+    final now = DateTime.now();
+    final cached = _avatarsCache[postId];
+    if (cached != null) {
+      if (now.difference(cached.fetchedAt) <= avatarsCacheTtl) {
+        return cached.avatars;
+      } else {
+        _avatarsCache.remove(postId);
+      }
+    }
+
+    try {
+      final res = await _client.rpc('get_post_commenter_avatars', params: {
+        'post_id_in': postId,
+        'limit_in': limit,
+      });
+      // Expecting a list of rows like { 'profile_img': 'https://...' }
+      final List data = res as List? ?? [];
+      final out = <String>[];
+      for (final row in data) {
+        if (row is Map && row['profile_img'] != null) {
+          final v = row['profile_img'] as String;
+          if (v.isNotEmpty) out.add(v);
+        } else if (row is String) {
+          // some RPC responses can be a plain list of strings
+          if (row.isNotEmpty) out.add(row);
+        }
+      }
+      _avatarsCache[postId] = _AvatarsCacheEntry(out, DateTime.now());
+      return out;
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Invalidate cached avatars for a single post (call when comments change).
+  void invalidateAvatarsCacheForPost(int postId) {
+    _avatarsCache.remove(postId);
+  }
+
+  /// Clear the entire avatars cache.
+  void clearAvatarsCache() {
+    _avatarsCache.clear();
+  }
+
   /// Fetch subscriber counts for a list of hashtag ids in one grouped query.
   /// Returns a map of hashtagId -> count. Falls back to the subscriber_count
   /// stored on the hashtag row when the grouped query fails.
@@ -501,4 +861,20 @@ class CommunityRepository {
       ),
     );
   });
-}
+  
+  /// Search posts by content. Returns a list of post maps (id, content).
+  Future<List<Map<String, dynamic>>> searchPostsByContent(String q, {int limit = 12}) async {
+    if (q.trim().isEmpty) return [];
+    try {
+      final res = await _client
+          .from('community_posts')
+          .select('id, content')
+          .ilike('content', '%${q.trim()}%')
+          .limit(limit)
+          .order('created_at', ascending: false);
+      final List data = res as List? ?? [];
+      return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    } catch (_) {
+      return [];
+    }
+  }

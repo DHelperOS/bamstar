@@ -4,6 +4,8 @@ import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:visibility_detector/visibility_detector.dart';
+import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
@@ -27,6 +29,11 @@ class _CommunityHomePageState extends State<CommunityHomePage>
   String? _selectedTag;
   bool _hasMore = true;
   final JustTheController _tooltipController = JustTheController();
+  // Search field (toggled by AppBar search button)
+  bool _showSearch = false;
+  final TextEditingController _searchController = TextEditingController();
+  final SuggestionsBoxController _suggestionsController = SuggestionsBoxController();
+  String? _contentQuery;
   late TabController _tabController;
   int _selectedTabIndex = 0; // 0은 "전체"를 의미
   bool _tabControllerInitialized = false;
@@ -67,6 +74,10 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         // 이미 dispose된 경우 무시
       }
     }
+    // dispose search controller
+    try {
+      _searchController.dispose();
+    } catch (_) {}
     super.dispose();
   }
 
@@ -88,7 +99,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     });
     try {
       final items = await CommunityRepository.instance.fetchFeed(
-        filterTag: _selectedTag,
+  filterTag: _selectedTag,
+  contentQuery: _contentQuery,
         limit: _pageSize,
         offset: 0,
       );
@@ -107,7 +119,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     setState(() => _isLoadingMore = true);
     try {
       final items = await CommunityRepository.instance.fetchFeed(
-        filterTag: _selectedTag,
+  filterTag: _selectedTag,
+  contentQuery: _contentQuery,
         limit: _pageSize,
         offset: _posts.length,
       );
@@ -139,7 +152,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       // "전체"
       setState(() {
         _selectedTabIndex = 0;
-        _selectedTag = null;
+  _selectedTag = null;
+  _contentQuery = null;
       });
       _loadInitial();
       return;
@@ -150,6 +164,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       setState(() {
         _selectedTabIndex = index;
         _selectedTag = _channels[chanIdx].name;
+  _contentQuery = null;
       });
       _loadInitial();
       return;
@@ -256,9 +271,24 @@ class _CommunityHomePageState extends State<CommunityHomePage>
           ),
           IconButton(
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('검색 기능은 준비 중입니다.')));
+              final next = !_showSearch;
+              setState(() => _showSearch = next);
+              if (next) {
+                // open suggestions shortly after showing for UX
+                Future.delayed(const Duration(milliseconds: 50), () {
+                  try {
+                    if (_searchController.text.trim().isNotEmpty) {
+                      _suggestionsController.open();
+                    } else {
+                      _suggestionsController.resize();
+                    }
+                  } catch (_) {}
+                });
+              } else {
+                try {
+                  _suggestionsController.close();
+                } catch (_) {}
+              }
             },
             icon: const Icon(SolarIconsOutline.magnifier),
             tooltip: '검색',
@@ -285,6 +315,143 @@ class _CommunityHomePageState extends State<CommunityHomePage>
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
+              // Search input (togglable) - moved above the tab bar so it appears
+              // visually above tabs as requested.
+              SliverToBoxAdapter(
+                child: AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: DropDownSearchField(
+                            suggestionsBoxController: _suggestionsController,
+                            displayAllSuggestionWhenTap: true,
+                            isMultiSelectDropdown: false,
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: '게시물 내용으로 검색',
+                                prefixIcon: const Icon(SolarIconsOutline.magnifier),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(999),
+                                  borderSide: BorderSide(
+                                    color: cs.outlineVariant.withValues(alpha: 0.12),
+                                    width: 1,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(999),
+                                  borderSide: BorderSide(
+                                    color: cs.outlineVariant.withValues(alpha: 0.10),
+                                    width: 1,
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: cs.surface,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                              ),
+                              onChanged: (v) {
+                                setState(() => _searchController.text = v);
+                                if (v.trim().isNotEmpty) {
+                                  try {
+                                    _suggestionsController.open();
+                                  } catch (_) {}
+                                } else {
+                                  try {
+                                    _suggestionsController.close();
+                                  } catch (_) {}
+                                }
+                              },
+                              onTap: () {
+                                try {
+                                  _suggestionsController.open();
+                                } catch (_) {}
+                              },
+                            ),
+                            debounceDuration: const Duration(milliseconds: 250),
+                            suggestionsBoxVerticalOffset: 6,
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              elevation: 6,
+                              borderRadius: BorderRadius.circular(12),
+                              color: cs.surfaceVariant,
+                            ),
+                            suggestionsCallback: (pattern) async {
+                              final key = pattern.toString().trim();
+                              if (key.isEmpty) return const <String>[];
+                              try {
+                                final res = await CommunityRepository.instance.searchPostsByContent(key, limit: 10);
+                                // Return short preview snippets as suggestion labels
+                                return res.map((m) {
+                                  final content = (m['content'] as String?) ?? '';
+                                  return content.length > 60 ? content.substring(0, 60) + '…' : content;
+                                }).toList();
+                              } catch (_) {
+                                return const <String>[];
+                              }
+                            },
+                            itemBuilder: (context, suggestion) {
+                              return ListTile(
+                                title: Text(suggestion.toString(), style: TextStyle(color: cs.onSurface)),
+                                dense: true,
+                                visualDensity: VisualDensity.compact,
+                              );
+                            },
+                            onSuggestionSelected: (suggestion) {
+                              final text = suggestion.toString();
+                              setState(() {
+                                _contentQuery = text;
+                                _selectedTag = null;
+                                _selectedTabIndex = 0; // show all matched
+                                _showSearch = false;
+                              });
+                              _searchController.text = text;
+                              _loadInitial();
+                            },
+                            noItemsFoundBuilder: (context) => Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Text('결과가 없습니다', style: TextStyle(color: cs.onSurfaceVariant)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(
+                          height: 44,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final text = _searchController.text.trim();
+                              setState(() {
+                                _contentQuery = text.isEmpty ? null : text;
+                                _selectedTag = null;
+                                _selectedTabIndex = 0;
+                                _showSearch = false;
+                              });
+                              FocusScope.of(context).unfocus();
+                              try {
+                                _suggestionsController.close();
+                              } catch (_) {}
+                              _loadInitial();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder(),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              elevation: 0,
+                            ),
+                            child: const Text('검색'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  crossFadeState: _showSearch ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 260),
+                ),
+              ),
+              // Tab bar moved below search
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -396,10 +563,94 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
   }
 }
 
-class _PostHtmlCard extends StatelessWidget {
+class _PostHtmlCard extends StatefulWidget {
   final CommunityPost post;
   final VoidCallback? onTap;
   const _PostHtmlCard({required this.post, this.onTap});
+
+  @override
+  State<_PostHtmlCard> createState() => _PostHtmlCardState();
+}
+
+class _PostHtmlCardState extends State<_PostHtmlCard> {
+  late CommunityPost post;
+  bool _isLiking = false;
+  // VisibilityDetector will manage per-card visibility; use a unique key per card
+  bool _didIncrementView = false;
+
+  @override
+  void initState() {
+    super.initState();
+    post = widget.post;
+    // schedule a post-frame visibility check
+  // VisibilityDetector will trigger view increment when appropriate.
+  }
+
+  Future<void> _toggleLike() async {
+    if (_isLiking) return;
+    setState(() => _isLiking = true);
+    final wasLiked = post.isLiked;
+    final oldLikes = post.likesCount;
+    // optimistic update
+    setState(() => post = CommunityPost(
+          id: post.id,
+          content: post.content,
+          isAnonymous: post.isAnonymous,
+          authorId: post.authorId,
+          authorName: post.authorName,
+          authorAvatarUrl: post.authorAvatarUrl,
+          imageUrls: post.imageUrls,
+          createdAt: post.createdAt,
+          hashtags: post.hashtags,
+          recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+          likesCount: wasLiked ? (post.likesCount - 1) : (post.likesCount + 1),
+          viewCount: post.viewCount,
+          commentCount: post.commentCount,
+          isLiked: !wasLiked,
+                ));
+
+    bool success;
+    if (!wasLiked) {
+      success = await CommunityRepository.instance.likePost(postId: post.id);
+    } else {
+      success = await CommunityRepository.instance.unlikePost(postId: post.id);
+    }
+
+    if (!success) {
+      // rollback
+      setState(() => post = CommunityPost(
+            id: post.id,
+            content: post.content,
+            isAnonymous: post.isAnonymous,
+            authorId: post.authorId,
+            authorName: post.authorName,
+            authorAvatarUrl: post.authorAvatarUrl,
+            imageUrls: post.imageUrls,
+            createdAt: post.createdAt,
+            hashtags: post.hashtags,
+            recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+            likesCount: oldLikes,
+            viewCount: post.viewCount,
+            commentCount: post.commentCount,
+            isLiked: wasLiked,
+          ));
+    }
+
+    if (mounted) setState(() => _isLiking = false);
+  }
+
+  // Visibility is handled by VisibilityDetector per-card below.
+
+  @override
+  void didUpdateWidget(covariant _PostHtmlCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // if the parent supplied a new post, adopt it
+    if (widget.post.id != post.id) {
+      post = widget.post;
+  // reset per-card increment flag for the new post
+  _didIncrementView = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -418,12 +669,12 @@ class _PostHtmlCard extends StatelessWidget {
     }
     final twoThumbs = post.imageUrls.length >= 2;
 
-    final card = Card(
+  final card = Card(
       margin: const EdgeInsets.symmetric(vertical: 5),
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
-      child: InkWell(
+  child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: null,
         child: Padding(
@@ -564,15 +815,22 @@ class _PostHtmlCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12, left: 24, right: 24),
                 child: Row(
                   children: [
-                    const Icon(
-                      SolarIconsOutline.heart,
-                      size: 18,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${(post.id % 50) + 5}',
-                      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                    GestureDetector(
+                      onTap: _toggleLike,
+                      child: Row(
+                        children: [
+                          Icon(
+                            post.isLiked ? SolarIconsBold.heart : SolarIconsOutline.heart,
+                            size: 18,
+                            color: post.isLiked ? Colors.red : Colors.grey,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${post.likesCount}',
+                            style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Icon(
@@ -582,7 +840,7 @@ class _PostHtmlCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${(post.id % 200) + 50}',
+                      '${post.viewCount}',
                       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                     ),
                     const SizedBox(width: 12),
@@ -593,15 +851,16 @@ class _PostHtmlCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${post.recentCommenterAvatarUrls.length}',
+                      '${post.commentCount}',
                       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                     ),
                     const Spacer(),
-                    local.AvatarStack(
-                      avatarUrls: post.recentCommenterAvatarUrls,
-                      avatarSize: CommunitySizes.avatarBase,
-                      overlapFactor: 0.5,
-                    ),
+                    if (post.recentCommenterAvatarUrls.isNotEmpty)
+                      local.AvatarStack(
+                        avatarUrls: post.recentCommenterAvatarUrls,
+                        avatarSize: CommunitySizes.avatarBase,
+                        overlapFactor: 0.5,
+                      ),
                   ],
                 ),
               ),
@@ -662,11 +921,48 @@ class _PostHtmlCard extends StatelessWidget {
       ),
     );
 
-    // 익명 글 좌측 표시 바
+    // Wrap card in VisibilityDetector to increment view once when >=50% visible.
+    final vdKey = Key('post-vd-${post.id}');
+    final wrapped = VisibilityDetector(
+      key: vdKey,
+      onVisibilityChanged: (info) {
+        final visibleFraction = info.visibleFraction; // 0.0 ~ 1.0
+        if (!_didIncrementView && visibleFraction >= 0.5) {
+          _didIncrementView = true;
+          // Schedule forget to avoid modifying internal VisibilityDetector map during iteration
+          Future.microtask(() => VisibilityDetectorController.instance.forget(vdKey));
+          CommunityRepository.instance.incrementPostView(post.id).then((newCount) {
+            if (newCount != null && mounted) {
+              setState(() {
+                post = CommunityPost(
+                  id: post.id,
+                  content: post.content,
+                  isAnonymous: post.isAnonymous,
+                  authorId: post.authorId,
+                  authorName: post.authorName,
+                  authorAvatarUrl: post.authorAvatarUrl,
+                  imageUrls: post.imageUrls,
+                  createdAt: post.createdAt,
+                  hashtags: post.hashtags,
+                  recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+                  likesCount: post.likesCount,
+                  viewCount: newCount,
+                  commentCount: post.commentCount,
+                  isLiked: post.isLiked,
+                );
+              });
+            }
+          }).catchError((_) {
+            // On failure, do not reset _didIncrementView to avoid duplicate attempts in flaky network
+          });
+        }
+      },
+      child: card,
+    );
     if (post.isAnonymous) {
       return Stack(
         children: [
-          card,
+          wrapped,
           Positioned.fill(
             child: Row(
               children: [
@@ -688,7 +984,7 @@ class _PostHtmlCard extends StatelessWidget {
         ],
       );
     }
-    return card;
+    return wrapped;
   }
 
   String _deriveTitle(String content) {
