@@ -65,11 +65,17 @@ class CommunityPostDetailPage extends StatelessWidget {
                                 ClipOval(
                                   child: ImageFiltered(
                                     imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                                    child: Image.network(
-                                      'https://picsum.photos/seed/anon${post.id}/200/200',
+                                    child: Container(
                                       width: CommunitySizes.avatarBase * 2.8,
                                       height: CommunitySizes.avatarBase * 2.8,
-                                      fit: BoxFit.cover,
+                                      color: cs.secondaryContainer,
+                                      child: Center(
+                                        child: Icon(
+                                          SolarIconsOutline.incognito,
+                                          size: CommunitySizes.avatarBase * 1.4,
+                                          color: cs.onSurfaceVariant,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -191,7 +197,7 @@ class CommunityPostDetailPage extends StatelessWidget {
                       child: Column(
                         children: [
                           _Comment(
-                            avatarUrl: 'https://picsum.photos/seed/c1/44/44',
+                            avatarUrl: '',
                             name: 'Mitchell',
                             time: '25 minutes ago',
                             text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.',
@@ -199,7 +205,7 @@ class CommunityPostDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           _Comment(
-                            avatarUrl: 'https://picsum.photos/seed/c2/44/44',
+                            avatarUrl: '',
                             name: 'Robert Fox',
                             time: '3 minutes ago',
                             text: 'Dolor sit ameteiusmod consectetur adipiscing elit.',
@@ -265,7 +271,6 @@ class _Comment extends StatelessWidget {
   final String? imageUrl;
   final int likes;
   final bool withInlineBox;
-  final bool isAnonymous;
   const _Comment({
     required this.avatarUrl,
     required this.name,
@@ -274,7 +279,6 @@ class _Comment extends StatelessWidget {
     this.imageUrl,
     required this.likes,
     this.withInlineBox = false,
-    this.isAnonymous = false,
   });
 
   @override
@@ -282,6 +286,8 @@ class _Comment extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final tt = theme.textTheme;
+  // Determine anonymity from the avatarUrl being empty (local mock comments pass empty string)
+  final bool isAnonymous = avatarUrl.trim().isEmpty;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

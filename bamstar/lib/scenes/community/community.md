@@ -174,6 +174,25 @@ RETURNS TABLE(new_count BIGINT) LANGUAGE sql VOLATILE AS $$
   WHERE id = post_id_in
   RETURNING view_count AS new_count;
 $$;
+
+-- -----------------------------------------------------------------------------
+-- Server-side ranking RPC: get_top_posts_by_metric
+-- -----------------------------------------------------------------------------
+-- 설명:
+-- "인기 순"(comments 기준) 또는 "좋아요 순"(likes 기준) 정렬을 클라이언트에서
+-- 페이지네이션하면서 정확하게 구현하려면 DB에서 집계·정렬된 결과를 직접 받아야 합니다.
+-- 아래 RPC는 주어진 최근 윈도우(예: 7일) 내의 게시글을 metric( 'comments' | 'likes' ) 으로
+-- 정렬하여 반환합니다. 반환값에는 likes_count, comments_count 필드가 포함되어 있습니다.
+-- 사용 예:
+-- SELECT * FROM public.get_top_posts_by_metric(7, 'comments', 20, 0);
+-- SELECT * FROM public.get_top_posts_by_metric(7, 'likes', 20, 0);
+
+-- 권장 인덱스:
+-- - community_comments(post_id, created_at)
+-- - community_likes(post_id, created_at)
+-- - community_posts(created_at)
+-- 이러한 인덱스들은 윈도우 기반 필터링(최근 N일)과 집계 쿼리를 가속화합니다.
+
 4. 보안 (Row Level Security)
 4.1. RLS 정책 SQL
 code

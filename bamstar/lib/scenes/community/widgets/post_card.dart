@@ -51,15 +51,22 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   if (post.isAnonymous && post.authorAvatarUrl == null)
-                    // Show a seeded placeholder image and blur it instead of an icon
+                    // Local blurred placeholder for anonymous users to avoid
+                    // external mock image requests.
                     ClipOval(
                       child: ImageFiltered(
                         imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                        child: Image.network(
-                          'https://picsum.photos/seed/anon${post.id}/100/100',
+                        child: Container(
                           width: CommunitySizes.avatarBase,
                           height: CommunitySizes.avatarBase,
-                          fit: BoxFit.cover,
+                          color: cs.secondaryContainer,
+                          child: Center(
+                            child: Icon(
+                              SolarIconsOutline.incognito,
+                              size: CommunitySizes.avatarBase * 0.9,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
                         ),
                       ),
                     ),

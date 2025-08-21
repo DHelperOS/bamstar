@@ -113,4 +113,86 @@ AS $$
   WHERE u.profile_img IS NOT NULL;
 $$;
 
+-- 8) RPC: get_top_posts_by_metric(window_days integer, metric text, limit_val integer, offset_val integer)
+-- Returns posts ordered by `metric` ("comments" or "likes") within the recent window (days).
+-- Use this RPC from clients when showing "인기 순" / "좋아요 순" to get correct top-N pagination.
+-- If a previous version of this function exists with a different
+-- OUT/RETURN type, CREATE OR REPLACE cannot change the row type.
+-- Drop the function first to allow recreation (safe if no dependent
+-- objects rely on the exact row type). The line below makes the
+-- SQL idempotent for redeploys.
+DROP FUNCTION IF EXISTS public.get_top_posts_by_metric(integer, text, integer, integer);
+
+CREATE OR REPLACE FUNCTION public.get_top_posts_by_metric(
+  window_days integer DEFAULT 7,
+  metric text DEFAULT 'comments',
+  limit_val integer DEFAULT 20,
+  offset_val integer DEFAULT 0
+) RETURNS TABLE(
+  id bigint,
+  author_id uuid,
+  content text,
+  is_anonymous boolean,
+  image_urls text[],
+  view_count bigint,
+  created_at timestamptz,
+  likes_count bigint,
+  comments_count bigint
+) LANGUAGE sql STABLE
+AS $$
+WITH windowed_posts AS (
+  SELECT p.*, p.id AS post_id
+  FROM public.community_posts p
+  WHERE (window_days IS NULL) OR (p.created_at >= now() - (window_days || ' days')::interval)
+),
+agg AS (
+  Slower(metric) = 'comments' THEN a.comments_count
+       ELSE a.comments_count END DESC,
+  a.created_at DESC
+LIMIT GREATEST(1, COALESCE(limit_val, 20))
+OFFSET GREATEST(0, COALESCE(offset_val, 0));
+$$;
+
+-- Recommended indexes to accelerate metric/time-window queries
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename = 'community_comments' AND indexname = 'idx_community_comments_post_created_at') THEN
+    CREATE INDEX idx_community_comments_post_created_at ON public.community_comments (post_id, created_at);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename = 'community_likes' AND indexname = 'idx_community_likes_post_created_at') THEN
+    CREATE INDEX idx_community_likes_post_created_at ON public.community_likes (post_id, created_at);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE tablename = 'community_posts' AND indexname = 'idx_community_posts_created_at') THEN
+    CREATE INDEX idx_community_posts_created_at ON public.community_posts (created_at);
+  END IF;
+END$$;
+ELECT wp.id AS id,
+         wp.author_id,
+         wp.content,
+         wp.is_anonymous,
+         wp.image_urls,
+         wp.view_count,
+         wp.created_at,
+         COALESCE(l.likes_count, 0)::bigint AS likes_count,
+         COALESCE(c.comments_count, 0)::bigint AS comments_count
+  FROM windowed_posts wp
+  LEFT JOIN (
+    SELECT post_id, COUNT(*)::bigint AS likes_count
+    FROM public.community_likes
+    WHERE post_id IS NOT NULL
+    GROUP BY post_id
+  ) l ON l.post_id = wp.id
+  LEFT JOIN (
+    SELECT post_id, COUNT(*)::bigint AS comments_count
+    FROM public.community_comments
+    WHERE post_id IS NOT NULL
+    GROUP BY post_id
+  ) c ON c.post_id = wp.id
+)
+SELECT a.id, a.author_id, a.content, a.is_anonymous, a.image_urls, a.view_count, a.created_at,
+       a.likes_count, a.comments_count
+FROM agg a
+ORDER BY
+  CASE WHEN lower(metric) = 'likes' THEN a.likes_count
+       WHEN 
 -- End of script

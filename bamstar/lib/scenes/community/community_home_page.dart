@@ -3,6 +3,7 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'dart:ui';
 import 'package:bamstar/services/avatar_helper.dart';
+// 'choice' package no longer needed here; chips are rendered manually.
 import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
@@ -33,14 +34,19 @@ class _CommunityHomePageState extends State<CommunityHomePage>
   final JustTheController _tooltipController = JustTheController();
   // Search field (toggled by AppBar search button)
   bool _showSearch = false;
+  bool _showSort = false;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   String? _contentQuery;
   late TabController _tabController;
   int _selectedTabIndex = 0; // 0은 "전체"를 의미
   bool _tabControllerInitialized = false;
+  SortMode _selectedSort = SortMode.latest;
 
   int get _totalTabCount => 1 + _channels.length + 1; // "전체" + 채널들 + "+"
+
+  // Sort window for popularity/likes (1 week)
+  static final Duration _oneWeek = const Duration(days: 7);
 
   @override
   void initState() {
@@ -111,6 +117,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         filterTag: _selectedTag,
         contentQuery: _contentQuery,
         limit: _pageSize,
+        sortMode: _selectedSort,
+        window: (_selectedSort == SortMode.latest) ? null : _oneWeek,
         offset: 0,
       );
       _posts = items;
@@ -132,6 +140,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         contentQuery: _contentQuery,
         limit: _pageSize,
         offset: _posts.length,
+        sortMode: _selectedSort,
+        window: (_selectedSort == SortMode.latest) ? null : _oneWeek,
       );
       _posts = List.of(_posts)..addAll(items);
       _hasMore = items.length == _pageSize;
@@ -293,6 +303,17 @@ class _CommunityHomePageState extends State<CommunityHomePage>
             icon: const Icon(SolarIconsOutline.magnifier),
             tooltip: '검색',
           ),
+          IconButton(
+            onPressed: () {
+              final next = !_showSort;
+              setState(() => _showSort = next);
+            },
+            icon: const Icon(Icons.sort),
+            tooltip: '정렬',
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
           const SizedBox(width: 12),
         ],
       ),
@@ -340,8 +361,13 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                                     ? null
                                     : IconButton(
                                         visualDensity: VisualDensity.compact,
-                                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                                        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 28,
+                                          minHeight: 28,
+                                        ),
                                         icon: const Icon(Icons.clear, size: 16),
                                         onPressed: () {
                                           _searchController.clear();
@@ -435,6 +461,79 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                     channels: _channels,
                     onTap: _onTabChanged,
                   ),
+                ),
+              ),
+              // Sort choice chips: 최신 순(default), 인기 순(주간 댓글수), 좋아요 순(주간 좋아요수)
+              SliverToBoxAdapter(
+                child: AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: List.generate(3, (i) {
+                          final labels = ['최신 순', '인기 순', '좋아요순'];
+                          final csLocal = Theme.of(context).colorScheme;
+                          final double smallFont = 12.0;
+                          final SortMode mode = (i == 0)
+                              ? SortMode.latest
+                              : (i == 1 ? SortMode.popular : SortMode.liked);
+                          final bool isSelected = _selectedSort == mode;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              selected: false,
+                              onSelected: (_) {
+                                if (mode != _selectedSort) {
+                                  setState(() {
+                                    _selectedSort = mode;
+                                  });
+                                  _loadInitial();
+                                }
+                              },
+                              label: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (isSelected) ...[
+                                    Icon(
+                                      Icons.check,
+                                      size: (smallFont - 2).clamp(8.0, 12.0),
+                                      color: csLocal.onPrimary,
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Text(labels[i]),
+                                ],
+                              ),
+                              selectedColor: csLocal.primary,
+                              backgroundColor: isSelected
+                                  ? csLocal.primary
+                                  : csLocal.surface.withValues(alpha: 0.06),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              labelStyle: TextStyle(
+                                fontSize: smallFont,
+                                color: isSelected
+                                    ? csLocal.onPrimary
+                                    : csLocal.onSurface.withOpacity(0.8),
+                              ),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? csLocal.primary
+                                    : csLocal.outlineVariant.withValues(alpha: 0.06),
+                              ),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                  crossFadeState: _showSort ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 260),
                 ),
               ),
               // Removed the empty-subscriptions helper message per request.
@@ -565,7 +664,9 @@ Widget _buildContentWithHashtags(
   int lastEnd = 0;
   for (final match in regex.allMatches(text)) {
     if (match.start > lastEnd) {
-      parts.add(TextSpan(text: text.substring(lastEnd, match.start), style: tStyle));
+      parts.add(
+        TextSpan(text: text.substring(lastEnd, match.start), style: tStyle),
+      );
     }
     final tag = match.group(0)!;
 
@@ -612,7 +713,9 @@ Widget _buildContentWithHashtags(
     parts.add(TextSpan(text: text.substring(lastEnd), style: tStyle));
   }
 
-  return RichText(text: TextSpan(children: parts, style: tStyle));
+  return RichText(
+    text: TextSpan(children: parts, style: tStyle),
+  );
 }
 
 class _PostHtmlCard extends StatefulWidget {
@@ -756,21 +859,31 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                         // render it blurred instead of replacing with an icon.
                         String? candidateUrl;
                         if (user != null) {
-                          final p = (user.data['profile_img'] as String?)?.trim();
+                          final p = (user.data['profile_img'] as String?)
+                              ?.trim();
                           if (p != null && p.isNotEmpty) candidateUrl = p;
                         }
                         candidateUrl ??= post.authorAvatarUrl;
-                        // For anonymous posts with no avatar, use a seeded picsum
-                        // placeholder so we can blur it for anonymity.
-                        if (post.isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) {
-                          candidateUrl = 'https://picsum.photos/seed/anon${post.id}/100/100';
+                        // For anonymous posts we avoid fetching external placeholder
+                        // images (picsum) because they can fail or be blocked.
+                        // Instead, if no avatar URL is available we will render a
+                        // locally colored circle with an icon and blur it so the
+                        // UI still conveys anonymity without network requests.
+                        if (post.isAnonymous &&
+                            (candidateUrl == null || candidateUrl.isEmpty)) {
+                          candidateUrl =
+                              null; // explicit: do not fetch external placeholder
                         }
 
                         ImageProvider? avatarImage;
                         if (candidateUrl != null && candidateUrl.isNotEmpty) {
                           // Use centralized helper which handles Cloudinary and
                           // network images uniformly.
-                          avatarImage = avatarImageProviderFromUrl(candidateUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt());
+                          avatarImage = avatarImageProviderFromUrl(
+                            candidateUrl,
+                            width: (CommunitySizes.avatarBase * 2.8).toInt(),
+                            height: (CommunitySizes.avatarBase * 2.8).toInt(),
+                          );
                         }
 
                         // If anonymous and we have an image, render it blurred.
@@ -780,11 +893,16 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                             height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
                             child: ClipOval(
                               child: ImageFiltered(
-                                imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 8,
+                                  sigmaY: 8,
+                                ),
                                 child: Image(
                                   image: avatarImage,
-                                  width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
-                                  height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  width:
+                                      CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  height:
+                                      CommunitySizes.avatarBase / 2 * 1.4 * 2,
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -792,17 +910,51 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                           );
                         }
 
-                        // Fallback: non-anonymous or no network image available
+                        // If anonymous and no remote image is available, render a
+                        // locally colored circle with an icon and blur it. This
+                        // avoids external mock network calls while keeping the
+                        // anonymized visual treatment.
+                        if (post.isAnonymous && avatarImage == null) {
+                          return SizedBox(
+                            width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                            height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                            child: ClipOval(
+                              child: ImageFiltered(
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 8,
+                                  sigmaY: 8,
+                                ),
+                                child: Container(
+                                  width:
+                                      CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  height:
+                                      CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  color: cs.secondaryContainer,
+                                  child: Center(
+                                    child: Icon(
+                                      SolarIconsOutline.incognito,
+                                      size: CommunitySizes.avatarBase * 0.9,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        // Fallback: non-anonymous or image available — use CircleAvatar
                         return CircleAvatar(
                           radius: CommunitySizes.avatarBase / 2 * 1.4,
-                          backgroundColor: post.isAnonymous ? cs.secondaryContainer : null,
-                          backgroundImage: avatarImage,
-                          child: (post.isAnonymous && avatarImage == null)
-                              ? Icon(
-                                  SolarIconsOutline.incognito,
-                                  size: CommunitySizes.avatarBase * 0.9,
-                                )
+                          backgroundColor: post.isAnonymous
+                              ? cs.secondaryContainer
                               : null,
+                          backgroundImage: avatarImage,
+                          child: (!post.isAnonymous && avatarImage == null)
+                              ? null
+                              : (post.isAnonymous && avatarImage == null
+                                    ? null
+                                    : null),
                         );
                       },
                     ),
@@ -834,14 +986,28 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   if (post.isAnonymous) ...[
                                     const SizedBox(width: 8),
                                     Container(
-                                      constraints: const BoxConstraints(minWidth: 36),
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 36,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: cs.primary, width: 1.5),
+                                        border: Border.all(
+                                          color: cs.primary,
+                                          width: 1.5,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       alignment: Alignment.center,
-                                      child: Text('익명', style: tt.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w500)),
+                                      child: Text(
+                                        '익명',
+                                        style: tt.bodySmall?.copyWith(
+                                          color: cs.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -1079,8 +1245,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       },
       child: card,
     );
-  // Left indicator removed per design request — always return the card as-is
-  return wrapped;
+    // Left indicator removed per design request — always return the card as-is
+    return wrapped;
   }
 
   String _deriveTitle(String content) {
@@ -1151,7 +1317,7 @@ class _ChannelTabBar extends StatelessWidget {
       controller: (controller.length == tabsCount) ? controller : null,
       isScrollable: true,
       padding: EdgeInsets.zero,
-  labelPadding: const EdgeInsets.only(left: 8, right: 8),
+      labelPadding: const EdgeInsets.only(left: 8, right: 8),
       indicatorPadding: EdgeInsets.zero,
       // show primary-colored underline for the selected tab
       indicator: UnderlineTabIndicator(

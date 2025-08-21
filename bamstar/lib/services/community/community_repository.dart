@@ -63,6 +63,9 @@ class HashtagChannel {
   });
 }
 
+/// Sorting modes for feed requests.
+enum SortMode { latest, popular, liked }
+
 /// Repository for community data. Minimal supabase wiring + mock fallbacks.
 class CommunityRepository {
   CommunityRepository._();
@@ -114,11 +117,256 @@ class CommunityRepository {
   String? contentQuery,
   int limit = 20,
   int? offset,
+    SortMode sortMode = SortMode.latest,
+    Duration? window,
   }) async {
     try {
-    dynamic q = _client
+      // If caller requested popularity/likes sorting, do a two-phase fetch:
+      // 1) fetch candidate post ids within the timeframe (window) up to
+      //    offset+limit items, 2) fetch aggregated counts via RPC, sort ids
+      //    by counts, then 3) fetch full post rows for the selected ids in
+      //    that order. This avoids client-side sorting on paginated pages
+      //    which can show misleading results.
+      if (sortMode == SortMode.popular || sortMode == SortMode.liked) {
+        // Prefer server-side ranking RPC if available (deployed to DB).
+        final int effectiveWindowDays = window?.inDays ?? 7;
+        final String metric = (sortMode == SortMode.popular) ? 'comments' : 'likes';
+        try {
+          final res = await _client.rpc('get_top_posts_by_metric', params: {
+            'window_days': effectiveWindowDays,
+            'metric': metric,
+            'limit_val': limit,
+            'offset_val': offset ?? 0,
+          });
+          final List data = res as List? ?? [];
+          if (data.isEmpty) return <CommunityPost>[];
+
+          final posts = <CommunityPost>[];
+          final ids = <int>[];
+          for (final row in data) {
+            if (row is! Map) continue;
+            try {
+              final id = (row['id'] as num).toInt();
+              ids.add(id);
+              final content = (row['content'] as String?) ?? '';
+              final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
+              final imageUrls = (row['image_urls'] as List?)?.cast<String>() ?? const [];
+              final createdAt = DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now();
+              final likesCount = (row['likes_count'] as num?)?.toInt() ?? 0;
+              final commentsCount = (row['comments_count'] as num?)?.toInt() ?? 0;
+              final viewCount = (row['view_count'] as num?)?.toInt() ?? 0;
+
+              posts.add(CommunityPost(
+                id: id,
+                content: content,
+                isAnonymous: _isAnon,
+                authorId: row['author_id'] as String?,
+                authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
+                // RPC does not return author avatar by default; keep null for anonymous protection
+                authorAvatarUrl: _isAnon ? null : null,
+                imageUrls: imageUrls,
+                createdAt: createdAt,
+                hashtags: _extractHashtags(content),
+                recentCommenterAvatarUrls: const [],
+                likesCount: likesCount,
+                viewCount: viewCount,
+                commentCount: commentsCount,
+              ));
+            } catch (_) {
+              // skip row parsing errors
+            }
+          }
+
+          // Determine which posts the current user has liked
+          Map<int, bool> likedMap = {};
+          try {
+            if (ids.isNotEmpty) {
+              final liked = await getUserLikedPosts(ids);
+              for (final pid in liked) likedMap[pid] = true;
+            }
+          } catch (_) {}
+
+          // Batch-fetch commenter avatars for the posts we just built.
+          try {
+            final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+            return posts.map((p) {
+              final avatars = avatarsMap[p.id];
+              final liked = likedMap[p.id] == true;
+              return CommunityPost(
+                id: p.id,
+                content: p.content,
+                isAnonymous: p.isAnonymous,
+                authorId: p.authorId,
+                authorName: p.authorName,
+                authorAvatarUrl: p.authorAvatarUrl,
+                imageUrls: p.imageUrls,
+                createdAt: p.createdAt,
+                hashtags: p.hashtags,
+                recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+                likesCount: p.likesCount,
+                viewCount: p.viewCount,
+                commentCount: p.commentCount,
+                isLiked: liked,
+              );
+            }).toList();
+          } catch (_) {
+            return posts;
+          }
+        } catch (_) {
+          // RPC failed or not available — fall back to previous candidate-id approach
+        }
+
+        // FALLBACK: previous client-side candidate fetch (kept for compatibility)
+        // Ensure we have a window for popularity/liked modes. Default to 7 days.
+        final Duration effectiveWindow = window ?? const Duration(days: 7);
+        final cutoff = DateTime.now().subtract(effectiveWindow).toIso8601String();
+
+        // Determine how many candidate ids we need to fetch to satisfy
+        // pagination after sorting: offset+limit (if offset absent, offset=0).
+        final int start = offset ?? 0;
+        final int need = start + limit;
+
+        // Step 1: fetch candidate ids within the window ordered by created_at
+        final List idRows = await _client
+            .from('community_posts')
+            .select('id')
+            .gte('created_at', cutoff)
+            .order('created_at', ascending: false)
+            .limit(need);
+        final List<int> candidateIds = (idRows as List? ?? []).map((r) => (r['id'] as num).toInt()).toList();
+
+        if (candidateIds.isEmpty) return <CommunityPost>[];
+
+        // Step 2: obtain aggregated counts for these candidate ids
+        Map<int, Map<String, int>> counts = {};
+        try {
+          counts = await getPostCounts(candidateIds);
+        } catch (_) {
+          // Fallback to client-side grouped reads (less efficient)
+          final idsCsv = candidateIds.join(',');
+          final commentsRes = await _client
+              .from('community_comments')
+              .select('post_id')
+              .filter('post_id', 'in', '($idsCsv)');
+          final Map<int, int> commentCounts = {};
+          for (final row in (commentsRes as List? ?? [])) {
+            final pid = row['post_id'] as int?;
+            if (pid == null) continue;
+            commentCounts[pid] = (commentCounts[pid] ?? 0) + 1;
+          }
+
+          final likesRes = await _client
+              .from('community_likes')
+              .select('post_id')
+              .filter('post_id', 'in', '($idsCsv)');
+          final Map<int, int> likeCountsMap = {};
+          for (final row in (likesRes as List? ?? [])) {
+            final pid = row['post_id'] as int?;
+            if (pid == null) continue;
+            likeCountsMap[pid] = (likeCountsMap[pid] ?? 0) + 1;
+          }
+
+          for (final id in candidateIds) {
+            counts[id] = {
+              'likes_count': likeCountsMap[id] ?? 0,
+              'comments_count': commentCounts[id] ?? 0,
+            };
+          }
+        }
+
+        // Step 3: sort candidate ids by the requested metric
+        candidateIds.sort((a, b) {
+          final aCount = (sortMode == SortMode.popular)
+              ? (counts[a]?['comments_count'] ?? 0)
+              : (counts[a]?['likes_count'] ?? 0);
+          final bCount = (sortMode == SortMode.popular)
+              ? (counts[b]?['comments_count'] ?? 0)
+              : (counts[b]?['likes_count'] ?? 0);
+          return bCount.compareTo(aCount);
+        });
+
+        // Apply pagination to sorted ids
+        final pagedIds = candidateIds.skip(start).take(limit).toList();
+        if (pagedIds.isEmpty) return <CommunityPost>[];
+
+        // Step 4: fetch full post rows for pagedIds and preserve order
+        final idsCsvFetch = pagedIds.join(',');
+    final List rows = await _client
       .from('community_posts')
-      .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count');
+      .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count, author_avatar_url')
+      .filter('id', 'in', '($idsCsvFetch)');
+        final Map<int, Map> mapById = {};
+        for (final r in (rows as List? ?? [])) {
+          try {
+            mapById[(r['id'] as num).toInt()] = Map<String, dynamic>.from(r as Map);
+          } catch (_) {}
+        }
+
+        // Build CommunityPost list preserving pagedIds order and attach counts
+        final posts = <CommunityPost>[];
+        for (final id in pagedIds) {
+          final row = mapById[id];
+          if (row == null) continue; // skip missing
+          final content = (row['content'] as String?) ?? '';
+          final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
+          final String? _dbAvatar = (row['author_avatar_url'] as String?);
+          posts.add(CommunityPost(
+            id: id,
+            content: content,
+            isAnonymous: _isAnon,
+            authorId: row['author_id'] as String?,
+            authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
+            authorAvatarUrl: _isAnon ? null : _dbAvatar,
+            imageUrls: (row['image_urls'] as List?)?.cast<String>() ?? const [],
+            createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now(),
+            hashtags: _extractHashtags(content),
+            recentCommenterAvatarUrls: const [],
+            likesCount: counts[id]?['likes_count'] ?? 0,
+            viewCount: (row['view_count'] as int?) ?? 0,
+            commentCount: counts[id]?['comments_count'] ?? 0,
+          ));
+        }
+
+        // Determine which posts the current user has liked
+        Map<int, bool> likedMap = {};
+        try {
+          final liked = await getUserLikedPosts(pagedIds);
+          for (final pid in liked) likedMap[pid] = true;
+        } catch (_) {}
+
+        // Batch-fetch commenter avatars for the posts we just built.
+        try {
+          final ids = posts.map((p) => p.id).toList();
+          final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+          return posts.map((p) {
+            final avatars = avatarsMap[p.id];
+            final liked = likedMap[p.id] == true;
+            return CommunityPost(
+              id: p.id,
+              content: p.content,
+              isAnonymous: p.isAnonymous,
+              authorId: p.authorId,
+              authorName: p.authorName,
+              authorAvatarUrl: p.authorAvatarUrl,
+              imageUrls: p.imageUrls,
+              createdAt: p.createdAt,
+              hashtags: p.hashtags,
+              recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+              likesCount: p.likesCount,
+              viewCount: p.viewCount,
+              commentCount: p.commentCount,
+              isLiked: liked,
+            );
+          }).toList();
+        } catch (_) {
+          return posts;
+        }
+      }
+
+      // Default/latest flow
+      dynamic q = _client
+        .from('community_posts')
+        .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count');
       if (filterTag != null && filterTag.trim().isNotEmpty) {
         final ft = filterTag.toLowerCase();
         // Filter by hashtag-like token in content
@@ -133,7 +381,13 @@ class CommunityRepository {
       } else {
         q = q.limit(limit);
       }
-      final List data = await q.order('created_at', ascending: false);
+      // Apply timeframe window when requested (e.g., last 7 days)
+      if (window != null) {
+        final cutoff = DateTime.now().subtract(window);
+        q = q.gte('created_at', cutoff.toIso8601String());
+      }
+
+  final List data = await q.order('created_at', ascending: false);
       // collect post ids for aggregated counts
       final postIds = data.map((r) => r['id'] as int).toList();
       Map<int, int> commentCounts = {};
@@ -174,13 +428,13 @@ class CommunityRepository {
       } catch (_) {
         // ignore aggregation errors and fallback to defaults
       }
-      // Build posts first (with fallback avatars). Then fetch commenter avatars
+  // Build posts first (with fallback avatars). Then fetch commenter avatars
       // for all posts in a batched manner and replace the placeholder lists.
       final posts = data.map((row) {
         final id = row['id'] as int;
         final content = (row['content'] as String?) ?? '';
         final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
-        final String? _dbAvatar = (row['author_avatar'] as String?) ?? (row['author_avatar_url'] as String?);
+  final String? _dbAvatar = (row['author_avatar_url'] as String?);
         return CommunityPost(
           id: id,
           content: content,
@@ -202,6 +456,15 @@ class CommunityRepository {
           commentCount: commentCounts[id] ?? 0,
         );
       }).toList();
+
+      // If sorting by popularity or likes is requested, we already fetched
+      // aggregated counts above (commentCounts, likeCounts). Use those to
+      // sort posts client-side while preserving pagination.
+      if (sortMode == SortMode.popular) {
+        posts.sort((a, b) => (commentCounts[b.id] ?? 0).compareTo(commentCounts[a.id] ?? 0));
+      } else if (sortMode == SortMode.liked) {
+        posts.sort((a, b) => (likeCounts[b.id] ?? 0).compareTo(likeCounts[a.id] ?? 0));
+      }
 
       // Determine which posts the current user has liked (if authenticated)
       Map<int, bool> likedMap = {};
@@ -244,6 +507,13 @@ class CommunityRepository {
         return posts;
       }
     } catch (_) {
+      // If the server call fails, do NOT return mock posts when the caller
+      // specifically requested popularity/likes sorting — returning fake
+      // mock data for those modes is misleading. For those cases return an
+      // empty list so the UI can show an appropriate empty state.
+      if (sortMode == SortMode.popular || sortMode == SortMode.liked) {
+        return <CommunityPost>[];
+      }
       return _mockPosts(limit: limit);
     }
   }
@@ -845,18 +1115,14 @@ class CommunityRepository {
           ? '익명 고민: 채용 과정에서 이런 질문 받아보신 분? #강남후기 #커리어'
           : '오늘의 팁: 단축키만 잘 써도 작업 속도 2배! #업무노하우',
       isAnonymous: isAnon,
-  authorId: 'user-${i + 1}',
-  authorName: isAnon ? '익명의 스타' : '스타 ${i + 17}',
-  authorAvatarUrl: isAnon ? null : 'https://picsum.photos/seed/u$i/100/100',
-      imageUrls: i % 5 == 0
-          ? ['https://picsum.photos/seed/p$i/800/400']
-          : const [],
+      // For mock data avoid fabricating author IDs that trigger DB queries.
+      authorId: null,
+      authorName: isAnon ? '익명의 스타' : '스타 ${i + 17}',
+      authorAvatarUrl: null,
+      imageUrls: const [],
       createdAt: DateTime.now().subtract(Duration(minutes: i * 13)),
       hashtags: ['강남후기', '업무노하우', '자유'].sublist(0, (i % 3) + 1),
-      recentCommenterAvatarUrls: List.generate(
-        (i % 3) + 1,
-        (j) => 'https://picsum.photos/seed/c${i}_$j/40/40',
-      ),
+      recentCommenterAvatarUrls: const [],
     );
   });
   
