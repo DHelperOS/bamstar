@@ -196,13 +196,11 @@ class _Thumb extends StatelessWidget {
         height: 101,
         child: imageUrl == null
             ? Container(color: Colors.grey[300])
-            : Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: imageProviderFromUrl(imageUrl, width: 800, height: 600),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+            : CloudinaryImage(
+                imageUrl,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: Container(color: Colors.grey[300], height: 101),
               ),
       ),
     );
@@ -254,15 +252,12 @@ class _Comment extends StatelessWidget {
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Container(
+                  child: CloudinaryImage(
+                    imageUrl,
                     height: 192,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: imageProviderFromUrl(imageUrl, width: 1200, height: 800),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    fit: BoxFit.cover,
+                    placeholder: Container(color: Colors.grey[300], height: 192),
                   ),
                 ),
               ],

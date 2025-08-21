@@ -19,6 +19,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logging/logging.dart';
+import 'services/cloudinary.dart';
 import 'utils/global_toast.dart';
 import 'services/analytics.dart';
 
@@ -71,6 +72,18 @@ Future<void> main() async {
   try {
     await AnalyticsService.ensureInitialized();
   } catch (_) {}
+  // Initialize Cloudinary singleton if env present. This is best-effort; if
+  // env vars are missing we'll log and continue so app can still run.
+  try {
+    final cloud = CloudinaryService.instanceOrNull;
+    if (cloud != null) {
+      log.info('Cloudinary initialized (cloud=${cloud.cloudName})');
+    } else {
+      log.info('Cloudinary not configured (CLOUDINARY_CLOUD_NAME/CLOUDINARY_UPLOAD_PRESET). Skipping.');
+    }
+  } catch (e, st) {
+    log.warning('Cloudinary initialization failed: $e', e, st);
+  }
   // If Supabase failed to initialize, pass that state into the app so we can
   // show a helpful full-screen error UI.
   // Initialize router (reads SharedPreferences) before starting the app so
