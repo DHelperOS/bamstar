@@ -5,7 +5,7 @@ Provide project context and coding guidelines that AI should follow when generat
 
 AI UI-참조 지침 (필수)
 ----------------------
-- 목적: AI가 UI 변경/생성 작업을 수행할 때 `dev/templates/ai-reference`의 두 템플릿(`social_media_ui_kit_share`, `study_platform_ui_kit`)을 반드시 참조하도록 합니다. 템플릿은 "참고 전용"이며 그대로 복사/배포하지 않습니다.
+
 - 적용 범위: `lib/` 내부 UI 관련 변경(위젯 추가/수정), 디자인 시스템/테마 업데이트, 화면 레이아웃 생성 등 모든 UI 작업.
 
 모바일 우선(필수): 모든 페이지 및 화면을 만들 때는 모바일 최적화를 최우선으로 합니다. 터치 친화적 레이아웃, 작은 화면에서의 성능과 가시성을 우선 고려하되, 동일한 UI는 반응형으로 구현하여 데스크톱/웹 환경에서도 자연스럽게 동작해야 합니다. (예: SafeArea, 적절한 Breakpoints, Flexible/Expanded 사용, 폰트/버튼 최소 크기 확보 등)

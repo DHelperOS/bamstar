@@ -397,7 +397,7 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
               tabAlignment: TabAlignment.start,
               labelColor: cs.primary,
               unselectedLabelColor: cs.onSurfaceVariant,
-              indicatorColor: cs.primary,
+              indicatorColor: Colors.transparent,
               tabs: categories.isEmpty
                   ? [const Tab(text: '지역')]
                   : categories.map((c) => Tab(text: c.name)).toList(),

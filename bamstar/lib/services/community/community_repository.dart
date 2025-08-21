@@ -31,6 +31,8 @@ class CommunityPost {
 class HashtagChannel {
   final int id;
   final String name; // lower-case
+  final String? description;
+  final String? category;
   final int postCount;
   final int subscriberCount;
   final DateTime? lastUsedAt;
@@ -38,6 +40,8 @@ class HashtagChannel {
   const HashtagChannel({
     required this.id,
     required this.name,
+    this.description,
+    this.category,
     required this.postCount,
     required this.subscriberCount,
     required this.lastUsedAt,
@@ -57,7 +61,7 @@ class CommunityRepository {
       final res = await _client
           .from('community_subscriptions')
           .select(
-            'target_hashtag_id, community_hashtags(id, name, post_count, subscriber_count, last_used_at)',
+            'target_hashtag_id, community_hashtags(id, name, description, category, post_count, subscriber_count, last_used_at)',
           )
           .eq('subscriber_id', uid)
           .limit(limit);
@@ -67,6 +71,8 @@ class CommunityRepository {
         return HashtagChannel(
           id: tag['id'] as int,
           name: (tag['name'] as String).toLowerCase(),
+          description: tag['description'] as String?,
+          category: tag['category'] as String?,
           postCount: tag['post_count'] as int? ?? 0,
           subscriberCount: tag['subscriber_count'] as int? ?? 0,
           lastUsedAt: tag['last_used_at'] == null
@@ -160,6 +166,19 @@ class CommunityRepository {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) return false;
     try {
+      // Idempotent without requiring a DB unique constraint:
+      // 1) Check if subscription exists
+      final existing = await _client
+          .from('community_subscriptions')
+          .select('target_hashtag_id')
+          .eq('subscriber_id', uid)
+          .eq('target_hashtag_id', hashtagId)
+          .maybeSingle();
+      if (existing != null) {
+        // Already subscribed; treat as success
+        return true;
+      }
+      // 2) Not found → insert
       await _client.from('community_subscriptions').insert({
         'subscriber_id': uid,
         'target_hashtag_id': hashtagId,
@@ -210,7 +229,7 @@ class CommunityRepository {
     try {
       final res = await _client
           .from('community_hashtags')
-          .select('id, name, post_count, subscriber_count, last_used_at')
+          .select('id, name, description, category, post_count, subscriber_count, last_used_at')
           .ilike('name', '%$query%')
           .order('subscriber_count', ascending: false)
           .limit(limit);
@@ -220,6 +239,8 @@ class CommunityRepository {
             (tag) => HashtagChannel(
               id: tag['id'] as int,
               name: (tag['name'] as String).toLowerCase(),
+                  description: tag['description'] as String?,
+                  category: tag['category'] as String?,
               postCount: tag['post_count'] as int? ?? 0,
               subscriberCount: tag['subscriber_count'] as int? ?? 0,
               lastUsedAt: tag['last_used_at'] == null
@@ -231,6 +252,173 @@ class CommunityRepository {
     } catch (_) {
       // fallback: filter mock
       return _mockChannels(limit).where((c) => c.name.contains(query)).toList();
+    }
+  }
+
+  // Fetch hashtags the current user has NOT subscribed to, optionally filtered by query.
+  Future<List<HashtagChannel>> fetchUnsubscribedHashtags({
+    String? query,
+    int limit = 24,
+  }) async {
+    try {
+      final uid = _client.auth.currentUser?.id;
+      // If unauthenticated, just return top hashtags as a discovery list
+      // (no exclusion possible without uid).
+      final Set<int> subscribedIds = <int>{};
+      if (uid != null) {
+        try {
+          final sub = await _client
+              .from('community_subscriptions')
+              .select('target_hashtag_id')
+              .eq('subscriber_id', uid);
+          final List subData = sub as List? ?? [];
+          for (final row in subData) {
+            final hid = row['target_hashtag_id'] as int?;
+            if (hid != null) subscribedIds.add(hid);
+          }
+        } catch (_) {
+          // ignore subscription fetch errors and proceed with empty set
+        }
+      }
+
+      dynamic req = _client
+          .from('community_hashtags')
+          .select('id, name, description, category, post_count, subscriber_count, last_used_at')
+          .order('subscriber_count', ascending: false)
+          .limit(limit * 3); // overfetch then filter client-side
+
+      final q = query?.trim().toLowerCase() ?? '';
+      if (q.isNotEmpty) {
+        req = req.ilike('name', '%$q%');
+      }
+
+      final List data = await req;
+      final result = <HashtagChannel>[];
+      for (final tag in data) {
+        final id = tag['id'] as int;
+        if (subscribedIds.contains(id)) continue;
+        result.add(
+          HashtagChannel(
+            id: id,
+            name: (tag['name'] as String).toLowerCase(),
+            description: tag['description'] as String?,
+            category: tag['category'] as String?,
+            postCount: tag['post_count'] as int? ?? 0,
+            subscriberCount: tag['subscriber_count'] as int? ?? 0,
+            lastUsedAt: tag['last_used_at'] == null
+                ? null
+                : DateTime.tryParse(tag['last_used_at'] as String),
+          ),
+        );
+        if (result.length >= limit) break;
+      }
+      return result;
+    } catch (_) {
+      // Fallback to mock and pretend none are subscribed.
+      final base = _mockChannels(limit * 2);
+      final q = query?.trim().toLowerCase() ?? '';
+      final filtered = q.isEmpty
+          ? base
+          : base.where((c) => c.name.contains(q)).toList();
+      return filtered.take(limit).toList();
+    }
+  }
+
+  // Fetch hashtags regardless of subscription, optionally filtered by query.
+  Future<List<HashtagChannel>> fetchAllHashtags({
+    String? query,
+    int limit = 24,
+    bool orderByPopularity = true,
+  }) async {
+    try {
+      dynamic req = _client
+          .from('community_hashtags')
+          .select('id, name, description, category, post_count, subscriber_count, last_used_at');
+      if (orderByPopularity) {
+        req = req.order('subscriber_count', ascending: false);
+      }
+      final q = query?.trim().toLowerCase() ?? '';
+      if (q.isNotEmpty) {
+        req = req.ilike('name', '%$q%');
+      }
+      req = req.limit(limit);
+      final List data = await req;
+      return data.map((tag) {
+        return HashtagChannel(
+          id: tag['id'] as int,
+          name: (tag['name'] as String).toLowerCase(),
+          description: tag['description'] as String?,
+          category: tag['category'] as String?,
+          postCount: tag['post_count'] as int? ?? 0,
+          subscriberCount: tag['subscriber_count'] as int? ?? 0,
+          lastUsedAt: tag['last_used_at'] == null
+              ? null
+              : DateTime.tryParse(tag['last_used_at'] as String),
+        );
+      }).toList();
+    } catch (_) {
+      final base = _mockChannels(limit * 2);
+      final q = query?.trim().toLowerCase() ?? '';
+      final filtered = q.isEmpty
+          ? base
+          : base.where((c) => c.name.contains(q)).toList();
+      return filtered.take(limit).toList();
+    }
+  }
+
+  /// Fetch subscriber counts for a list of hashtag ids in one grouped query.
+  /// Returns a map of hashtagId -> count. Falls back to the subscriber_count
+  /// stored on the hashtag row when the grouped query fails.
+  Future<Map<int, int>> fetchSubscriberCountsForHashtags(List<int> ids) async {
+    if (ids.isEmpty) return {};
+    try {
+      // Use a grouped select on community_subscriptions to count per target_hashtag_id
+      // Fetch matching subscription rows and count client-side.
+      final idsCsv = ids.join(',');
+      final res = await _client
+          .from('community_subscriptions')
+          .select('target_hashtag_id')
+          .filter('target_hashtag_id', 'in', '($idsCsv)');
+      final List data = res as List? ?? [];
+      final Map<int, int> out = {};
+      for (final row in data) {
+        final hid = row['target_hashtag_id'] as int?;
+        if (hid == null) continue;
+        out[hid] = (out[hid] ?? 0) + 1;
+      }
+      // For any ids not returned by the grouped query, try reading subscriber_count from community_hashtags
+      final missing = ids.where((i) => !out.containsKey(i)).toList();
+      if (missing.isNotEmpty) {
+    final missingCsv = missing.join(',');
+    final tags = await _client
+      .from('community_hashtags')
+      .select('id, subscriber_count')
+      .filter('id', 'in', '($missingCsv)');
+        for (final t in (tags as List? ?? [])) {
+          final id = t['id'] as int?;
+          final sc = t['subscriber_count'] as int? ?? 0;
+          if (id != null && !out.containsKey(id)) out[id] = sc;
+        }
+      }
+      return out;
+    } catch (_) {
+      // best-effort fallback: fetch stored subscriber_count from hashtag rows
+      try {
+    final idsCsv = ids.join(',');
+    final tags = await _client
+      .from('community_hashtags')
+      .select('id, subscriber_count')
+      .filter('id', 'in', '($idsCsv)');
+        final Map<int, int> out = {};
+        for (final t in (tags as List? ?? [])) {
+          final id = t['id'] as int?;
+          final sc = t['subscriber_count'] as int? ?? 0;
+          if (id != null) out[id] = sc;
+        }
+        return out;
+      } catch (_) {
+        return {};
+      }
     }
   }
 

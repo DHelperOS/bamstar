@@ -9,7 +9,8 @@ class AppTheme {
   static const String fontFamily = 'Pretendard';
 
   // Light colors
-  static const Color lightBackgroundColor = Color(0xFFF6F6FA);
+  // Use pure white for light mode backgrounds to ensure consistent white background
+  static const Color lightBackgroundColor = Color(0xFFFFFFFF);
   static const Color lightSurfaceColor = Color(0xFFFFFFFF);
   static const Color lightPrimaryColor = Color(0xFFC4A8FF);
   static const Color lightPrimaryVariantColor = Color(0xFF9479EA);
@@ -66,7 +67,8 @@ class AppTheme {
       ),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: lightBackgroundColor,
+      // Force AppBar background to pure white in light mode
+      backgroundColor: Colors.white,
       foregroundColor: lightTextColorPrimary,
       elevation: 0,
     ),
@@ -114,6 +116,21 @@ class AppTheme {
         side: BorderSide(color: lightPrimaryColor.withAlpha(31)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    ),
+    // TabBar: remove default underline indicator and ensure selected label
+    // color matches the app primary color.
+    tabBarTheme: TabBarThemeData(
+      // Explicitly hide the underline indicator by using a transparent
+      // UnderlineTabIndicator which is stable across SDK versions.
+      indicator: const UnderlineTabIndicator(
+        borderSide: BorderSide(color: Colors.transparent, width: 0),
+      ),
+      indicatorSize: TabBarIndicatorSize.tab,
+      // Use the ColorScheme primary so selected tabs reflect the theme color
+      labelColor: lightColorScheme.primary,
+      unselectedLabelColor: lightTextColorSecondary,
+      labelStyle: _buildAppTextTheme(lightColorScheme).bodyMedium,
+      unselectedLabelStyle: _buildAppTextTheme(lightColorScheme).bodyMedium,
     ),
   );
 
@@ -180,6 +197,16 @@ class AppTheme {
         side: BorderSide(color: darkPrimaryColor.withAlpha(31)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+    ),
+    tabBarTheme: TabBarThemeData(
+      indicator: const UnderlineTabIndicator(
+        borderSide: BorderSide(color: Colors.transparent, width: 0),
+      ),
+      indicatorSize: TabBarIndicatorSize.tab,
+      labelColor: darkColorScheme.primary,
+      unselectedLabelColor: darkTextColorSecondary,
+      labelStyle: _buildAppTextTheme(darkColorScheme).bodyMedium,
+      unselectedLabelStyle: _buildAppTextTheme(darkColorScheme).bodyMedium,
     ),
   );
 

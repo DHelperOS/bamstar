@@ -3,10 +3,10 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
-import 'package:choice/choice.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
 
 class CommunityHomePage extends StatefulWidget {
@@ -16,68 +16,94 @@ class CommunityHomePage extends StatefulWidget {
   State<CommunityHomePage> createState() => _CommunityHomePageState();
 }
 
-class _CommunityHomePageState extends State<CommunityHomePage> {
+class _CommunityHomePageState extends State<CommunityHomePage>
+    with SingleTickerProviderStateMixin {
   static const _pageSize = 20;
   final ScrollController _scrollController = ScrollController();
   List<CommunityPost> _posts = <CommunityPost>[];
   bool _isLoading = false;
   bool _isLoadingMore = false;
-  bool _hasMore = true;
   List<HashtagChannel> _channels = const [];
-  String? _selectedTag; // null = 전체
+  String? _selectedTag;
+  bool _hasMore = true;
+  final JustTheController _tooltipController = JustTheController();
+  late TabController _tabController;
+  int _selectedTabIndex = 0; // 0은 "전체"를 의미
+  bool _tabControllerInitialized = false;
+  
+  int get _totalTabCount => 1 + _channels.length + 1; // "전체" + 채널들 + "+"
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
+    // 채널 개수 + "전체" + "+" 탭으로 TabController 초기화
+    _tabController = TabController(
+      length: 2, // 기본적으로 "전체" + "+"로 시작 (채널은 로드 후 갱신)
+      vsync: this,
+      initialIndex: 0, // "전체"가 기본 선택
+    );
+    _tabControllerInitialized = true;
     _loadChannels();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        if (!_isLoadingMore && _hasMore && !_isLoading) {
-          _fetchMore();
-        }
-      }
-    });
     _loadInitial();
+    // Auto-show tooltip after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // show with a tiny delay to ensure layout is ready
+      Future.delayed(const Duration(milliseconds: 50), () {
+        _tooltipController.showTooltip();
+      });
+    });
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    // TabController가 초기화되었고 아직 dispose되지 않았다면 dispose
+    if (_tabControllerInitialized) {
+      try {
+        _tabController.dispose();
+      } catch (_) {
+        // 이미 dispose된 경우 무시
+      }
+    }
     super.dispose();
   }
 
-  Future<void> _refresh() async {
-    await _loadInitial();
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoadingMore &&
+        _hasMore &&
+        !_isLoading) {
+      _fetchMore();
+    }
   }
 
   Future<void> _loadInitial() async {
-    _isLoading = true;
-    _hasMore = true;
+    setState(() {
+      _isLoading = true;
+      _posts = [];
+      _hasMore = true;
+    });
     try {
       final items = await CommunityRepository.instance.fetchFeed(
         filterTag: _selectedTag,
         limit: _pageSize,
         offset: 0,
       );
-      if (!mounted) return;
-      setState(() {
-        _posts = items;
-        _hasMore = items.length == _pageSize;
-      });
-  // Prefetch author info for displayed posts
-  await _prefetchAuthors(items);
-  // Ensure UI picks up cached author rows after prefetch
-  if (mounted) setState(() {});
+      _posts = items;
+      _hasMore = items.length == _pageSize;
+      await _prefetchAuthors(items);
     } catch (_) {
-      // ignore errors for now
+      // ignore
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _fetchMore() async {
-    if (!_hasMore) return;
+    if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
     try {
       final items = await CommunityRepository.instance.fetchFeed(
@@ -85,15 +111,10 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
         limit: _pageSize,
         offset: _posts.length,
       );
-      if (!mounted) return;
-      setState(() {
-        _posts.addAll(items);
-        _hasMore = items.length == _pageSize;
-      });
-  // Prefetch author info for newly loaded posts
-  await _prefetchAuthors(items);
-  // Trigger a rebuild so FutureBuilders read from the populated cache
-  if (mounted) setState(() {});
+      _posts = List.of(_posts)..addAll(items);
+      _hasMore = items.length == _pageSize;
+      await _prefetchAuthors(items);
+      if (mounted) setState(() {});
     } catch (_) {
       // ignore
     } finally {
@@ -101,13 +122,85 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
     }
   }
 
+  void _onTabChanged(int index) {
+    // If the '+' tab was tapped, navigate to ChannelExplorer.
+    if (index == _totalTabCount - 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ChannelExplorerPage()),
+      );
+      return;
+    }
+
+    // Defensive guards: ignore invalid indices.
+    if (index < 0) return;
+
+    if (index == 0) {
+      // "전체"
+      setState(() {
+        _selectedTabIndex = 0;
+        _selectedTag = null;
+      });
+      _loadInitial();
+      return;
+    }
+
+    final chanIdx = index - 1;
+    if (chanIdx >= 0 && chanIdx < _channels.length) {
+      setState(() {
+        _selectedTabIndex = index;
+        _selectedTag = _channels[chanIdx].name;
+      });
+      _loadInitial();
+      return;
+    }
+
+    // Index didn't match any valid tab (race condition), ignore.
+  }
+
+  Future<void> _refresh() async {
+    await _loadInitial();
+  }
+
   Future<void> _loadChannels() async {
     try {
       final res = await CommunityRepository.instance.fetchSubscribedChannels();
       if (!mounted) return;
-      setState(() => _channels = res);
+      setState(() {
+        _channels = res;
+        // 채널이 변경되면 TabController를 완전히 재생성
+        _recreateTabController();
+      });
     } catch (_) {
       // ignore
+    }
+  }
+  
+  void _recreateTabController() {
+    if (_tabControllerInitialized) {
+      final oldController = _tabController;
+      // 새로운 TabController 생성
+      // Ensure length is at least 1 (there is always the "전체" tab)
+      final newLength = _totalTabCount <= 0 ? 1 : _totalTabCount;
+      // Safely clamp the selected index to [0, newLength - 1]
+      int newIndex = _selectedTabIndex;
+      final maxIndex = newLength - 1;
+      if (newIndex < 0) newIndex = 0;
+      if (newIndex > maxIndex) newIndex = maxIndex;
+
+      _tabController = TabController(
+        length: newLength,
+        vsync: this,
+        initialIndex: newIndex,
+      );
+      // 다음 프레임에서 이전 컨트롤러 dispose
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          oldController.dispose();
+        } catch (_) {
+          // 이미 dispose된 경우 무시
+        }
+      });
     }
   }
 
@@ -122,19 +215,55 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
         foregroundColor: cs.onSurface,
         elevation: 0,
         title: const Text('커뮤니티'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ChannelExplorerPage()),
-              );
-              // 돌아오면 채널/피드 새로고침
-              _loadChannels();
-              _refresh();
-            },
-            icon: const Icon(SolarIconsOutline.map),
-            tooltip: '채널 탐색',
+        actions: <Widget>[
+          JustTheTooltip(
+            controller: _tooltipController,
+            preferredDirection: AxisDirection.down,
+            isModal: false,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            tailLength: 10,
+            tailBaseWidth: 14,
+            margin: const EdgeInsets.only(right: 8),
+            content: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 140),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Text(
+                  '채널을 구독하고'
+                  '\n 스타들과 소통해요 ',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                ),
+              ),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ChannelExplorerPage(),
+                  ),
+                );
+                _loadChannels();
+                _refresh();
+              },
+              icon: const Icon(SolarIconsOutline.pin),
+              tooltip: '채널 탐색',
+            ),
           ),
+          IconButton(
+            onPressed: () {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('검색 기능은 준비 중입니다.')));
+            },
+            icon: const Icon(SolarIconsOutline.magnifier),
+            tooltip: '검색',
+          ),
+          const SizedBox(width: 12),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -154,18 +283,19 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
         child: RefreshIndicator(
           onRefresh: _refresh,
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               SliverToBoxAdapter(
-                child: _ChannelChips(
-                  channels: _channels,
-                  selectedTag: _selectedTag,
-                  onSelected: (tag) {
-                    _selectedTag = tag;
-                    // refresh paging controller on filter change
-                    _loadInitial();
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: _ChannelTabBar(
+                    controller: _tabController,
+                    channels: _channels,
+                    onTap: _onTabChanged,
+                  ),
                 ),
               ),
+              // Removed the empty-subscriptions helper message per request.
               if (_isLoading)
                 SliverToBoxAdapter(
                   child: Column(
@@ -176,10 +306,7 @@ class _CommunityHomePageState extends State<CommunityHomePage> {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   if (index < _posts.length) {
                     final post = _posts[index];
-                    return _PostHtmlCard(
-                      post: post,
-                      onTap: null,
-                    );
+                    return _PostHtmlCard(post: post, onTap: null);
                   }
                   // loading footer
                   if (_isLoadingMore) {
@@ -208,11 +335,17 @@ Future<us.AppUser?> _getAuthor(String? id) async {
   try {
     debugPrint('[community] _getAuthor: fetching user id=$id');
     final client = Supabase.instance.client;
-    final res = await client.from('users').select('*').eq('id', id).maybeSingle();
+    final res = await client
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
-      debugPrint('[community] _getAuthor: fetched user id=${u.id} nickname=${u.nickname}');
+      debugPrint(
+        '[community] _getAuthor: fetched user id=${u.id} nickname=${u.nickname}',
+      );
       _authorCache[id] = u;
       return u;
     }
@@ -236,12 +369,15 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .where((id) => !_authorCache.containsKey(id))
         .toList();
     if (ids.isEmpty) return;
-  debugPrint('[community] _prefetchAuthors: will fetch ids=${ids.join(',')}');
+    debugPrint('[community] _prefetchAuthors: will fetch ids=${ids.join(',')}');
     final client = Supabase.instance.client;
-  final idsCsv = ids.map((s) => '"$s"').join(',');
-  final res = await client.from('users').select('*').filter('id', 'in', '($idsCsv)');
+    final idsCsv = ids.map((s) => '"$s"').join(',');
+    final res = await client
+        .from('users')
+        .select('*')
+        .filter('id', 'in', '($idsCsv)');
     final List data = res as List? ?? [];
-  debugPrint('[community] _prefetchAuthors: fetched ${data.length} rows');
+    debugPrint('[community] _prefetchAuthors: fetched ${data.length} rows');
     for (final row in data) {
       try {
         final m = Map<String, dynamic>.from(row as Map);
@@ -307,10 +443,13 @@ class _PostHtmlCard extends StatelessWidget {
                         final user = snap.data;
                         final avatarPath = post.isAnonymous
                             ? null
-                            : (user?.data['profile_img'] as String?) ?? post.authorAvatarUrl;
+                            : (user?.data['profile_img'] as String?) ??
+                                  post.authorAvatarUrl;
                         ImageProvider? avatarImage;
                         if (!post.isAnonymous && avatarPath != null) {
-                          avatarImage = us.profileImageProviderFromProfileImg(avatarPath);
+                          avatarImage = us.profileImageProviderFromProfileImg(
+                            avatarPath,
+                          );
                         }
                         return CircleAvatar(
                           radius: CommunitySizes.avatarBase / 2 * 1.4,
@@ -339,11 +478,13 @@ class _PostHtmlCard extends StatelessWidget {
                               final name = post.isAnonymous
                                   ? post.authorName
                                   : (user?.nickname.isNotEmpty == true
-                                      ? user!.nickname
-                                      : post.authorName);
+                                        ? user!.nickname
+                                        : post.authorName);
                               return Text(
                                 name,
-                                style: tt.titleSmall?.copyWith(color: cs.onSurface),
+                                style: tt.titleSmall?.copyWith(
+                                  color: cs.onSurface,
+                                ),
                               );
                             },
                           ),
@@ -576,86 +717,92 @@ class _PostHtmlCard extends StatelessWidget {
   }
 }
 
-class _ChannelChips extends StatelessWidget {
+class _ChannelTabBar extends StatelessWidget {
+  final TabController controller;
   final List<HashtagChannel> channels;
-  final String? selectedTag;
-  final ValueChanged<String?> onSelected; // null = 전체
-  const _ChannelChips({
+  final ValueChanged<int> onTap;
+
+  const _ChannelTabBar({
+    required this.controller,
     required this.channels,
-    required this.selectedTag,
-    required this.onSelected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-
-    // Use a sentinel id for the "전체" option so Choice (which expects a non-null
-    // value) can represent it. Map the sentinel back to null when calling onSelected.
-    const allId = '__ALL__';
-    final currentValue = selectedTag ?? allId;
-
-    // If there are no channels, keep original empty message layout.
-    if (channels.isEmpty) {
-      return SizedBox(
-        height: 56,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Text(
-            '구독 채널이 없습니다. 우측 상단 🗺 아이콘으로 탐색해보세요.',
-            style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+    // Build list of tabs ("전체" + channels)
+    final tabWidgets = <Widget>[
+      const Tab(text: '전체'),
+      ...channels.map((channel) => Tab(text: '#${channel.name}')),
+      // "+" tab as circular icon
+      Tab(
+        child: Container(
+          width: 17,
+          height: 17,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: cs.primary, width: 0.7),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.add,
+              size: 9,
+              color: cs.primary,
+            ),
           ),
         ),
+      ),
+    ];
+
+    final tabsCount = tabWidgets.length;
+
+    // If the provided controller already matches the number of tabs, use it.
+    // Otherwise wrap TabBar with a DefaultTabController to avoid assertion
+    // failures during controller length changes.
+    final tabBar = TabBar(
+      controller: (controller.length == tabsCount) ? controller : null,
+      isScrollable: true,
+      padding: EdgeInsets.zero,
+      labelPadding: const EdgeInsets.only(left: 16, right: 12),
+      indicatorPadding: EdgeInsets.zero,
+      // show primary-colored underline for the selected tab
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(color: cs.primary, width: 2),
+        insets: const EdgeInsets.symmetric(horizontal: 12),
+      ),
+      dividerColor: Colors.transparent,
+      tabAlignment: TabAlignment.start,
+      labelColor: cs.primary,
+      unselectedLabelColor: cs.onSurfaceVariant,
+      // indicatorColor is ignored when 'indicator' is provided, keep clean
+      labelStyle: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: tt.bodyMedium?.copyWith(fontWeight: FontWeight.normal),
+      tabs: tabWidgets,
+      onTap: onTap,
+    );
+
+    if (controller.length == tabsCount) {
+      return SizedBox(
+        height: 46,
+        child: Align(alignment: Alignment.centerLeft, child: tabBar),
       );
     }
 
+    // Controller length mismatch: create a DefaultTabController for this
+    // build so TabBar has a matching controller. Use a safe initialIndex
+    // clamped into range.
+    int initIndex = controller.index;
+    if (initIndex < 0) initIndex = 0;
+    if (initIndex > tabsCount - 1) initIndex = tabsCount - 1;
+
     return SizedBox(
-      height: 56,
-      child: Choice<String>.inline(
-        multiple: true,
-        value: [currentValue],
-        onChanged: (vals) {
-          final val = vals.isEmpty ? null : vals.first;
-          onSelected(val == allId ? null : val);
-        },
-        itemCount: channels.length + 1, // first item is '전체'
-        itemBuilder: (state, i) {
-          final id = i == 0 ? allId : channels[i - 1].name;
-          final label = i == 0 ? '전체' : '#${channels[i - 1].name}';
-          final isSelected = state.selected(id);
-          final csLocal = Theme.of(context).colorScheme;
-          return ChoiceChip(
-            selected: isSelected,
-            onSelected: state.onSelected(id),
-            label: Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? csLocal.onPrimaryContainer
-                    : csLocal.onSurface,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-            selectedColor: csLocal.primaryContainer,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            visualDensity: VisualDensity.compact,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            backgroundColor: csLocal.surface,
-            side: BorderSide(
-              color: csLocal.outline.withValues(alpha: 28 / 255),
-              width: 1,
-            ),
-          );
-        },
-        listBuilder: ChoiceList.createWrapped(
-          spacing: 8,
-          runSpacing: 8,
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        ),
+      height: 46,
+      child: DefaultTabController(
+        length: tabsCount,
+        initialIndex: initIndex,
+        child: Align(alignment: Alignment.centerLeft, child: tabBar),
       ),
     );
   }
