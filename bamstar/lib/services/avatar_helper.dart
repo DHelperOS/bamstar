@@ -24,21 +24,23 @@ ImageProvider avatarImageProviderFromUrl(
   // For network URLs, try to use Cloudinary transform when possible.
   if (url.startsWith('http://') || url.startsWith('https://')) {
     try {
-      final cloud = CloudinaryService.fromEnv();
-      final transformed = cloud.transformedUrlFromSecureUrl(
-        url,
-        width: width,
-        height: height,
-        crop: crop,
-        gravity: gravity,
-        autoFormat: true,
-        autoQuality: true,
-      );
-      return CachedNetworkImageProvider(transformed);
+      final cloud = CloudinaryService.instanceOrNull;
+      if (cloud != null) {
+        final transformed = cloud.transformedUrlFromSecureUrl(
+          url,
+          width: width,
+          height: height,
+          crop: crop,
+          gravity: gravity,
+          autoFormat: true,
+          autoQuality: true,
+        );
+        return CachedNetworkImageProvider(transformed);
+      }
     } catch (_) {
-      // Cloudinary not configured or transform failed — fall back.
-      return CachedNetworkImageProvider(url);
+      // ignore and fall back to original URL
     }
+    return CachedNetworkImageProvider(url);
   }
 
   // Unknown format, use network provider as last resort.

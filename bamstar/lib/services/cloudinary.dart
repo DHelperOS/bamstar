@@ -13,6 +13,31 @@ import 'dart:io';
 /// - CLOUDINARY_CLOUD_NAME
 /// - CLOUDINARY_UPLOAD_PRESET (unsigned preset name used in your account)
 class CloudinaryService {
+  // Lazy singleton to avoid repeated environment parsing and Dio/Supabase client
+  // construction. Use `CloudinaryService.instance` when you are sure env vars
+  // exist (this will throw if they don't). Use `CloudinaryService.instanceOrNull`
+  // when you want a safe, non-throwing attempt that returns null when Cloudinary
+  // is not configured.
+  static CloudinaryService? _instance;
+
+  /// Returns a singleton instance, creating it from env if necessary.
+  /// Throws if required environment variables are missing.
+  static CloudinaryService get instance => _instance ??= CloudinaryService.fromEnv();
+
+  /// Attempts to return a singleton instance created from env. If env is not
+  /// configured or creation fails, returns null instead of throwing.
+  static CloudinaryService? get instanceOrNull {
+    if (_instance != null) return _instance;
+    try {
+      _instance = CloudinaryService.fromEnv();
+      return _instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Manually override the singleton (useful for tests or custom wiring).
+  static void setInstance(CloudinaryService? svc) => _instance = svc;
   CloudinaryService({
     required String cloudName,
     required String uploadPreset,
