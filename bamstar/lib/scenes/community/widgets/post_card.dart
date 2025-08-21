@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
+import 'package:bamstar/services/avatar_helper.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 
@@ -22,19 +23,18 @@ class PostCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: CommunitySizes.avatarBase / 2,
-                  backgroundColor: post.isAnonymous
-                      ? cs.secondaryContainer
-                      : Colors.transparent,
-                  backgroundImage:
-                      post.isAnonymous || post.authorAvatarUrl == null
-                      ? null
-                      : NetworkImage(post.authorAvatarUrl!),
-                  child: post.isAnonymous
-                      ? Icon(SolarIconsOutline.incognito, size: CommunitySizes.avatarBase * 0.9)
-                      : null,
-                ),
+        CircleAvatar(
+          radius: CommunitySizes.avatarBase / 2,
+          backgroundColor: post.isAnonymous
+            ? cs.secondaryContainer
+            : Colors.transparent,
+          backgroundImage: post.isAnonymous || post.authorAvatarUrl == null
+            ? null
+            : avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase).toInt(), height: (CommunitySizes.avatarBase).toInt()),
+          child: post.isAnonymous
+            ? Icon(SolarIconsOutline.incognito, size: CommunitySizes.avatarBase * 0.9)
+            : null,
+        ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(

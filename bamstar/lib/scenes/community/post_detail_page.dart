@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
+import 'package:bamstar/services/avatar_helper.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
 
 class CommunityPostDetailPage extends StatelessWidget {
@@ -39,7 +40,7 @@ class CommunityPostDetailPage extends StatelessWidget {
                           radius: CommunitySizes.avatarBase * 1.4,
                           backgroundImage: post.isAnonymous || post.authorAvatarUrl == null
                               ? null
-                              : NetworkImage(post.authorAvatarUrl!),
+                              : avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt()),
                           backgroundColor: post.isAnonymous ? cs.secondaryContainer : null,
                           child: post.isAnonymous ? const Icon(SolarIconsOutline.incognito, size: 22) : null,
                         ),
@@ -226,7 +227,7 @@ class _Comment extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-                        CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: NetworkImage(avatarUrl)),
+                        CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: avatarImageProviderFromUrl(avatarUrl, width: (CommunitySizes.avatarBase * 3.2).toInt(), height: (CommunitySizes.avatarBase * 3.2).toInt())),
         const SizedBox(width: 10),
         Expanded(
           child: Column(

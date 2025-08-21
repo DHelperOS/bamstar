@@ -4,6 +4,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/services/cloudinary.dart';
+import 'package:bamstar/services/avatar_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 // ...existing code... (removed unused solar_icons import)
@@ -394,8 +395,9 @@ Future<void> _pickAndUpload({
     await sp.remove('avatar_b64');
     await sp.remove('${UserService.avatarPrefKey}_$uid');
 
-    // Switch preview to cached network image
-    onPreview(CachedNetworkImageProvider(deliveryUrl));
+  // Switch preview to cached network image (via avatar helper which will
+  // attempt to inject Cloudinary transforms when possible).
+  onPreview(avatarImageProviderFromUrl(deliveryUrl, width: 256, height: 256));
 
     if (modalCtx.mounted) {
       ScaffoldMessenger.of(modalCtx).showSnackBar(

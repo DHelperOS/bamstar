@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:avatar_stack/animated_avatar_stack.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
+import 'package:bamstar/services/avatar_helper.dart';
 
 /// Adapter that preserves the old local API (`avatarUrls`, `size`, `maxDisplay`)
 /// while delegating rendering to the external `avatar_stack` package.
@@ -31,7 +32,7 @@ class AvatarStack extends StatelessWidget {
     if (toShow.isEmpty) return SizedBox(height: renderSize, width: renderSize);
 
     // The package accepts ImageProvider items (NetworkImage works).
-    final avatars = toShow.map<ImageProvider>((u) => NetworkImage(u)).toList();
+  final avatars = toShow.map<ImageProvider>((u) => avatarImageProviderFromUrl(u, width: renderSize.toInt(), height: renderSize.toInt())).toList();
 
     // Calculate a finite width to avoid LayoutBuilder receiving infinite constraints
     // (the package expects a bounded width to compute stacking). This mirrors the

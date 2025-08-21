@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:bamstar/services/avatar_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppUser {
@@ -33,10 +33,7 @@ class AppUser {
 /// pseudo-random local asset ImageProvider using the app's avatar pool.
 ImageProvider profileImageProviderFromProfileImg(String? profileImg) {
   if (profileImg != null && profileImg.isNotEmpty) {
-    if (profileImg.startsWith('assets/')) return AssetImage(profileImg);
-    if (profileImg.startsWith('http://') || profileImg.startsWith('https://')) {
-      return CachedNetworkImageProvider(profileImg);
-    }
+    return avatarImageProviderFromUrl(profileImg, width: 128, height: 128);
   }
   // Fallback: pick a random local avatar filename and return its AssetImage.
   final fname = UserService.instance.pickRandomLocalAvatar();
@@ -279,8 +276,8 @@ class UserService extends ChangeNotifier {
         // If DB contains a network URL, return NetworkImage.
         if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
           await sp.remove(key);
-          debugPrint('[UserService] returning NetworkImage from DB profile_img');
-          return CachedNetworkImageProvider(imgUrl);
+          debugPrint('[UserService] returning NetworkImage from DB profile_img (via avatar helper)');
+          return avatarImageProviderFromUrl(imgUrl, width: 256, height: 256);
         }
 
         // If DB contains an asset path (e.g. assets/images/avatar/...), use it

@@ -878,3 +878,4 @@ class CommunityRepository {
       return [];
     }
   }
+}

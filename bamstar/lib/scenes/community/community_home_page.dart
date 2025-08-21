@@ -5,7 +5,7 @@ import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:drop_down_search_field/drop_down_search_field.dart';
+// removed drop_down_search_field dependency: use plain TextField for search
 import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
@@ -32,12 +32,12 @@ class _CommunityHomePageState extends State<CommunityHomePage>
   // Search field (toggled by AppBar search button)
   bool _showSearch = false;
   final TextEditingController _searchController = TextEditingController();
-  final SuggestionsBoxController _suggestionsController = SuggestionsBoxController();
+  final FocusNode _searchFocusNode = FocusNode();
   String? _contentQuery;
   late TabController _tabController;
   int _selectedTabIndex = 0; // 0은 "전체"를 의미
   bool _tabControllerInitialized = false;
-  
+
   int get _totalTabCount => 1 + _channels.length + 1; // "전체" + 채널들 + "+"
 
   @override
@@ -53,6 +53,10 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     _tabControllerInitialized = true;
     _loadChannels();
     _loadInitial();
+    // update UI when search text changes so suffixIcon (clear) shows/hides
+    _searchController.addListener(() {
+      if (mounted) setState(() {});
+    });
     // Auto-show tooltip after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // show with a tiny delay to ensure layout is ready
@@ -74,9 +78,12 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         // 이미 dispose된 경우 무시
       }
     }
-    // dispose search controller
+    // dispose search controller and focus node
     try {
       _searchController.dispose();
+    } catch (_) {}
+    try {
+      _searchFocusNode.dispose();
     } catch (_) {}
     super.dispose();
   }
@@ -99,8 +106,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     });
     try {
       final items = await CommunityRepository.instance.fetchFeed(
-  filterTag: _selectedTag,
-  contentQuery: _contentQuery,
+        filterTag: _selectedTag,
+        contentQuery: _contentQuery,
         limit: _pageSize,
         offset: 0,
       );
@@ -119,8 +126,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     setState(() => _isLoadingMore = true);
     try {
       final items = await CommunityRepository.instance.fetchFeed(
-  filterTag: _selectedTag,
-  contentQuery: _contentQuery,
+        filterTag: _selectedTag,
+        contentQuery: _contentQuery,
         limit: _pageSize,
         offset: _posts.length,
       );
@@ -152,8 +159,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       // "전체"
       setState(() {
         _selectedTabIndex = 0;
-  _selectedTag = null;
-  _contentQuery = null;
+        _selectedTag = null;
+        _contentQuery = null;
       });
       _loadInitial();
       return;
@@ -164,7 +171,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       setState(() {
         _selectedTabIndex = index;
         _selectedTag = _channels[chanIdx].name;
-  _contentQuery = null;
+        _contentQuery = null;
       });
       _loadInitial();
       return;
@@ -190,7 +197,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       // ignore
     }
   }
-  
+
   void _recreateTabController() {
     if (_tabControllerInitialized) {
       final oldController = _tabController;
@@ -274,20 +281,11 @@ class _CommunityHomePageState extends State<CommunityHomePage>
               final next = !_showSearch;
               setState(() => _showSearch = next);
               if (next) {
-                // open suggestions shortly after showing for UX
                 Future.delayed(const Duration(milliseconds: 50), () {
                   try {
-                    if (_searchController.text.trim().isNotEmpty) {
-                      _suggestionsController.open();
-                    } else {
-                      _suggestionsController.resize();
-                    }
+                    FocusScope.of(context).requestFocus(_searchFocusNode);
                   } catch (_) {}
                 });
-              } else {
-                try {
-                  _suggestionsController.close();
-                } catch (_) {}
               }
             },
             icon: const Icon(SolarIconsOutline.magnifier),
@@ -325,102 +323,75 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                     child: Row(
                       children: [
                         Expanded(
-                          child: DropDownSearchField(
-                            suggestionsBoxController: _suggestionsController,
-                            displayAllSuggestionWhenTap: true,
-                            isMultiSelectDropdown: false,
-                            textFieldConfiguration: TextFieldConfiguration(
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              focusNode: _searchFocusNode,
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: '게시물 내용으로 검색',
-                                prefixIcon: const Icon(SolarIconsOutline.magnifier),
+                                prefixIcon: const Icon(
+                                  SolarIconsOutline.magnifier,
+                                  size: 20,
+                                ),
+                                suffixIcon: _searchController.text.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        visualDensity: VisualDensity.compact,
+                                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                                        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                        icon: const Icon(Icons.clear, size: 16),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {
+                                            _contentQuery = null;
+                                          });
+                                        },
+                                      ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(999),
                                   borderSide: BorderSide(
-                                    color: cs.outlineVariant.withValues(alpha: 0.12),
+                                    color: cs.outlineVariant.withValues(
+                                      alpha: 0.12,
+                                    ),
                                     width: 1,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(999),
                                   borderSide: BorderSide(
-                                    color: cs.outlineVariant.withValues(alpha: 0.10),
+                                    color: cs.outlineVariant.withValues(
+                                      alpha: 0.10,
+                                    ),
                                     width: 1,
                                   ),
                                 ),
                                 filled: true,
                                 fillColor: cs.surface,
                                 contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 16,
+                                  vertical: 6,
+                                  horizontal: 12,
                                 ),
                               ),
-                              onChanged: (v) {
-                                setState(() => _searchController.text = v);
-                                if (v.trim().isNotEmpty) {
-                                  try {
-                                    _suggestionsController.open();
-                                  } catch (_) {}
-                                } else {
-                                  try {
-                                    _suggestionsController.close();
-                                  } catch (_) {}
-                                }
+                              textInputAction: TextInputAction.search,
+                              onSubmitted: (v) {
+                                final text = v.trim();
+                                setState(() {
+                                  _contentQuery = text.isEmpty ? null : text;
+                                  _selectedTag = null;
+                                  _selectedTabIndex = 0;
+                                  _showSearch = false;
+                                });
+                                FocusScope.of(context).unfocus();
+                                _loadInitial();
                               },
-                              onTap: () {
-                                try {
-                                  _suggestionsController.open();
-                                } catch (_) {}
-                              },
-                            ),
-                            debounceDuration: const Duration(milliseconds: 250),
-                            suggestionsBoxVerticalOffset: 6,
-                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                              elevation: 6,
-                              borderRadius: BorderRadius.circular(12),
-                              color: cs.surfaceVariant,
-                            ),
-                            suggestionsCallback: (pattern) async {
-                              final key = pattern.toString().trim();
-                              if (key.isEmpty) return const <String>[];
-                              try {
-                                final res = await CommunityRepository.instance.searchPostsByContent(key, limit: 10);
-                                // Return short preview snippets as suggestion labels
-                                return res.map((m) {
-                                  final content = (m['content'] as String?) ?? '';
-                                  return content.length > 60 ? content.substring(0, 60) + '…' : content;
-                                }).toList();
-                              } catch (_) {
-                                return const <String>[];
-                              }
-                            },
-                            itemBuilder: (context, suggestion) {
-                              return ListTile(
-                                title: Text(suggestion.toString(), style: TextStyle(color: cs.onSurface)),
-                                dense: true,
-                                visualDensity: VisualDensity.compact,
-                              );
-                            },
-                            onSuggestionSelected: (suggestion) {
-                              final text = suggestion.toString();
-                              setState(() {
-                                _contentQuery = text;
-                                _selectedTag = null;
-                                _selectedTabIndex = 0; // show all matched
-                                _showSearch = false;
-                              });
-                              _searchController.text = text;
-                              _loadInitial();
-                            },
-                            noItemsFoundBuilder: (context) => Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Text('결과가 없습니다', style: TextStyle(color: cs.onSurfaceVariant)),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
+                        // search button sized to match input height
                         SizedBox(
-                          height: 44,
+                          height: 40,
                           child: ElevatedButton(
                             onPressed: () {
                               final text = _searchController.text.trim();
@@ -431,14 +402,14 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                                 _showSearch = false;
                               });
                               FocusScope.of(context).unfocus();
-                              try {
-                                _suggestionsController.close();
-                              } catch (_) {}
                               _loadInitial();
                             },
                             style: ElevatedButton.styleFrom(
                               shape: const StadiumBorder(),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
+                              ),
                               elevation: 0,
                             ),
                             child: const Text('검색'),
@@ -447,7 +418,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                       ],
                     ),
                   ),
-                  crossFadeState: _showSearch ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  crossFadeState: _showSearch
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
                   duration: const Duration(milliseconds: 260),
                 ),
               ),
@@ -473,7 +446,21 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 delegate: SliverChildBuilderDelegate((context, index) {
                   if (index < _posts.length) {
                     final post = _posts[index];
-                    return _PostHtmlCard(post: post, onTap: null);
+                    return _PostHtmlCard(
+                      post: post,
+                      onTap: null,
+                      onHashtagTap: (tag) {
+                        // parent handles hashtag taps: set as content query and reload
+                        setState(() {
+                          _contentQuery = tag;
+                          _selectedTag = null;
+                          _selectedTabIndex = 0;
+                          _showSearch = false;
+                        });
+                        _searchController.text = tag;
+                        _loadInitial();
+                      },
+                    );
                   }
                   // loading footer
                   if (_isLoadingMore) {
@@ -563,10 +550,74 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
   }
 }
 
+// Build a widget that renders text and turns hashtags into subtle tappable chips
+Widget _buildContentWithHashtags(
+  String text,
+  TextStyle? style,
+  ColorScheme cs,
+  ValueChanged<String>? onHashtagTap,
+) {
+  final tStyle = style ?? const TextStyle();
+  final regex = RegExp(r'(#[^\s#]+)');
+  final parts = <InlineSpan>[];
+  int lastEnd = 0;
+  for (final match in regex.allMatches(text)) {
+    if (match.start > lastEnd) {
+      parts.add(TextSpan(text: text.substring(lastEnd, match.start), style: tStyle));
+    }
+    final tag = match.group(0)!;
+
+    // make chips slightly larger than before for readability while staying subtle
+    final double baseFont = tStyle.fontSize ?? 14.0;
+    final tagStyle = tStyle.copyWith(
+      fontSize: (baseFont - 2).clamp(11.0, baseFont),
+      color: cs.onSurface, // clearer on the surface
+      fontWeight: FontWeight.normal,
+    );
+
+    parts.add(
+      WidgetSpan(
+        alignment: PlaceholderAlignment.middle,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 6, left: 2),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cs.surface.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.08),
+                width: 1,
+              ),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: onHashtagTap == null ? null : () => onHashtagTap(tag),
+              splashFactory: InkRipple.splashFactory,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                child: Text(tag, style: tagStyle),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    lastEnd = match.end;
+  }
+
+  if (lastEnd < text.length) {
+    parts.add(TextSpan(text: text.substring(lastEnd), style: tStyle));
+  }
+
+  return RichText(text: TextSpan(children: parts, style: tStyle));
+}
+
 class _PostHtmlCard extends StatefulWidget {
   final CommunityPost post;
   final VoidCallback? onTap;
-  const _PostHtmlCard({required this.post, this.onTap});
+  final ValueChanged<String>? onHashtagTap;
+  const _PostHtmlCard({required this.post, this.onTap, this.onHashtagTap});
 
   @override
   State<_PostHtmlCard> createState() => _PostHtmlCardState();
@@ -583,7 +634,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     super.initState();
     post = widget.post;
     // schedule a post-frame visibility check
-  // VisibilityDetector will trigger view increment when appropriate.
+    // VisibilityDetector will trigger view increment when appropriate.
   }
 
   Future<void> _toggleLike() async {
@@ -592,22 +643,24 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     final wasLiked = post.isLiked;
     final oldLikes = post.likesCount;
     // optimistic update
-    setState(() => post = CommunityPost(
-          id: post.id,
-          content: post.content,
-          isAnonymous: post.isAnonymous,
-          authorId: post.authorId,
-          authorName: post.authorName,
-          authorAvatarUrl: post.authorAvatarUrl,
-          imageUrls: post.imageUrls,
-          createdAt: post.createdAt,
-          hashtags: post.hashtags,
-          recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
-          likesCount: wasLiked ? (post.likesCount - 1) : (post.likesCount + 1),
-          viewCount: post.viewCount,
-          commentCount: post.commentCount,
-          isLiked: !wasLiked,
-                ));
+    setState(
+      () => post = CommunityPost(
+        id: post.id,
+        content: post.content,
+        isAnonymous: post.isAnonymous,
+        authorId: post.authorId,
+        authorName: post.authorName,
+        authorAvatarUrl: post.authorAvatarUrl,
+        imageUrls: post.imageUrls,
+        createdAt: post.createdAt,
+        hashtags: post.hashtags,
+        recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+        likesCount: wasLiked ? (post.likesCount - 1) : (post.likesCount + 1),
+        viewCount: post.viewCount,
+        commentCount: post.commentCount,
+        isLiked: !wasLiked,
+      ),
+    );
 
     bool success;
     if (!wasLiked) {
@@ -618,22 +671,24 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
 
     if (!success) {
       // rollback
-      setState(() => post = CommunityPost(
-            id: post.id,
-            content: post.content,
-            isAnonymous: post.isAnonymous,
-            authorId: post.authorId,
-            authorName: post.authorName,
-            authorAvatarUrl: post.authorAvatarUrl,
-            imageUrls: post.imageUrls,
-            createdAt: post.createdAt,
-            hashtags: post.hashtags,
-            recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
-            likesCount: oldLikes,
-            viewCount: post.viewCount,
-            commentCount: post.commentCount,
-            isLiked: wasLiked,
-          ));
+      setState(
+        () => post = CommunityPost(
+          id: post.id,
+          content: post.content,
+          isAnonymous: post.isAnonymous,
+          authorId: post.authorId,
+          authorName: post.authorName,
+          authorAvatarUrl: post.authorAvatarUrl,
+          imageUrls: post.imageUrls,
+          createdAt: post.createdAt,
+          hashtags: post.hashtags,
+          recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+          likesCount: oldLikes,
+          viewCount: post.viewCount,
+          commentCount: post.commentCount,
+          isLiked: wasLiked,
+        ),
+      );
     }
 
     if (mounted) setState(() => _isLiking = false);
@@ -647,8 +702,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     // if the parent supplied a new post, adopt it
     if (widget.post.id != post.id) {
       post = widget.post;
-  // reset per-card increment flag for the new post
-  _didIncrementView = false;
+      // reset per-card increment flag for the new post
+      _didIncrementView = false;
     }
   }
 
@@ -669,12 +724,12 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     }
     final twoThumbs = post.imageUrls.length >= 2;
 
-  final card = Card(
+    final card = Card(
       margin: const EdgeInsets.symmetric(vertical: 5),
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
-  child: InkWell(
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: null,
         child: Padding(
@@ -692,10 +747,16 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       future: _getAuthor(post.authorId),
                       builder: (context, snap) {
                         final user = snap.data;
-                        final avatarPath = post.isAnonymous
+                        var avatarPath = post.isAnonymous
                             ? null
                             : (user?.data['profile_img'] as String?) ??
                                   post.authorAvatarUrl;
+                        // Ignore remote/mockup URLs that start with http/https
+                        if (avatarPath != null &&
+                            (avatarPath.startsWith('http://') ||
+                                avatarPath.startsWith('https://'))) {
+                          avatarPath = null;
+                        }
                         ImageProvider? avatarImage;
                         if (!post.isAnonymous && avatarPath != null) {
                           avatarImage = us.profileImageProviderFromProfileImg(
@@ -777,9 +838,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   padding: const EdgeInsets.only(top: 16, left: 24, right: 24),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 340),
-                    child: Text(
+                    child: _buildContentWithHashtags(
                       displayTitle,
-                      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                      tt.bodyMedium?.copyWith(color: cs.onSurface),
+                      cs,
+                      widget.onHashtagTap,
                     ),
                   ),
                 ),
@@ -804,9 +867,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               if (body.isNotEmpty) ...[
                 Padding(
                   padding: EdgeInsets.only(left: 24, right: 24),
-                  child: Text(
+                  child: _buildContentWithHashtags(
                     displayBody,
-                    style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                    tt.bodyMedium?.copyWith(color: cs.onSurface),
+                    cs,
+                    widget.onHashtagTap,
                   ),
                 ),
               ],
@@ -820,7 +885,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       child: Row(
                         children: [
                           Icon(
-                            post.isLiked ? SolarIconsBold.heart : SolarIconsOutline.heart,
+                            post.isLiked
+                                ? SolarIconsBold.heart
+                                : SolarIconsOutline.heart,
                             size: 18,
                             color: post.isLiked ? Colors.red : Colors.grey,
                           ),
@@ -930,31 +997,36 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
         if (!_didIncrementView && visibleFraction >= 0.5) {
           _didIncrementView = true;
           // Schedule forget to avoid modifying internal VisibilityDetector map during iteration
-          Future.microtask(() => VisibilityDetectorController.instance.forget(vdKey));
-          CommunityRepository.instance.incrementPostView(post.id).then((newCount) {
-            if (newCount != null && mounted) {
-              setState(() {
-                post = CommunityPost(
-                  id: post.id,
-                  content: post.content,
-                  isAnonymous: post.isAnonymous,
-                  authorId: post.authorId,
-                  authorName: post.authorName,
-                  authorAvatarUrl: post.authorAvatarUrl,
-                  imageUrls: post.imageUrls,
-                  createdAt: post.createdAt,
-                  hashtags: post.hashtags,
-                  recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
-                  likesCount: post.likesCount,
-                  viewCount: newCount,
-                  commentCount: post.commentCount,
-                  isLiked: post.isLiked,
-                );
+          Future.microtask(
+            () => VisibilityDetectorController.instance.forget(vdKey),
+          );
+          CommunityRepository.instance
+              .incrementPostView(post.id)
+              .then((newCount) {
+                if (newCount != null && mounted) {
+                  setState(() {
+                    post = CommunityPost(
+                      id: post.id,
+                      content: post.content,
+                      isAnonymous: post.isAnonymous,
+                      authorId: post.authorId,
+                      authorName: post.authorName,
+                      authorAvatarUrl: post.authorAvatarUrl,
+                      imageUrls: post.imageUrls,
+                      createdAt: post.createdAt,
+                      hashtags: post.hashtags,
+                      recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+                      likesCount: post.likesCount,
+                      viewCount: newCount,
+                      commentCount: post.commentCount,
+                      isLiked: post.isLiked,
+                    );
+                  });
+                }
+              })
+              .catchError((_) {
+                // On failure, do not reset _didIncrementView to avoid duplicate attempts in flaky network
               });
-            }
-          }).catchError((_) {
-            // On failure, do not reset _didIncrementView to avoid duplicate attempts in flaky network
-          });
         }
       },
       child: card,
@@ -1041,13 +1113,7 @@ class _ChannelTabBar extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: cs.primary, width: 0.7),
           ),
-          child: Center(
-            child: Icon(
-              Icons.add,
-              size: 9,
-              color: cs.primary,
-            ),
-          ),
+          child: Center(child: Icon(Icons.add, size: 9, color: cs.primary)),
         ),
       ),
     ];
@@ -1061,7 +1127,7 @@ class _ChannelTabBar extends StatelessWidget {
       controller: (controller.length == tabsCount) ? controller : null,
       isScrollable: true,
       padding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.only(left: 16, right: 12),
+  labelPadding: const EdgeInsets.only(left: 8, right: 8),
       indicatorPadding: EdgeInsets.zero,
       // show primary-colored underline for the selected tab
       indicator: UnderlineTabIndicator(
@@ -1074,7 +1140,9 @@ class _ChannelTabBar extends StatelessWidget {
       unselectedLabelColor: cs.onSurfaceVariant,
       // indicatorColor is ignored when 'indicator' is provided, keep clean
       labelStyle: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-      unselectedLabelStyle: tt.bodyMedium?.copyWith(fontWeight: FontWeight.normal),
+      unselectedLabelStyle: tt.bodyMedium?.copyWith(
+        fontWeight: FontWeight.normal,
+      ),
       tabs: tabWidgets,
       onTap: onTap,
     );

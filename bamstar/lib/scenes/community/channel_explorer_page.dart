@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
-import 'package:drop_down_search_field/drop_down_search_field.dart';
+// removed drop_down_search_field dependency: use simple TextField for search
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/widgets/pull_refresh_indicator.dart';
@@ -25,8 +25,7 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
   // search input visibility
   bool _showSearch = false;
   final TextEditingController _searchController = TextEditingController();
-  final SuggestionsBoxController _suggestionsController =
-      SuggestionsBoxController();
+  // simple controller for search input
 
   @override
   void initState() {
@@ -136,20 +135,7 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
           // Search toggle button
           IconButton(
             onPressed: () {
-              final next = !_showSearch;
-              setState(() => _showSearch = next);
-              if (next) {
-                // Attempt to open suggestions shortly after reveal
-                Future.delayed(const Duration(milliseconds: 50), () {
-                  try {
-                    if (_searchController.text.trim().isNotEmpty) {
-                      _suggestionsController.open();
-                    } else {
-                      _suggestionsController.resize();
-                    }
-                  } catch (_) {}
-                });
-              }
+              setState(() => _showSearch = !_showSearch);
             },
             icon: const Icon(SolarIconsOutline.magnifier),
           ),
@@ -169,107 +155,51 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: DropDownSearchField(
-                      suggestionsBoxController: _suggestionsController,
-                      displayAllSuggestionWhenTap: true,
-                      isMultiSelectDropdown: false,
-                      textFieldConfiguration: TextFieldConfiguration(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: '채널 검색 (#없이 입력)',
-                          prefixIcon: const Icon(SolarIconsOutline.magnifier),
-                          // visible oval border
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(999),
-                            borderSide: BorderSide(
-                              color: cs.outlineVariant.withValues(alpha: 0.12),
-                              width: 1,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(999),
-                            borderSide: BorderSide(
-                              color: cs.outlineVariant.withValues(alpha: 0.10),
-                              width: 1,
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: cs.surface,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: '채널 검색 (#없이 입력)',
+                        prefixIcon: const Icon(SolarIconsOutline.magnifier),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(999),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: 0.12),
+                            width: 1,
                           ),
                         ),
-                        onChanged: (v) {
-                          // sanitize query: strip '#'
-                          final sanitized = v.replaceAll('#', '').trim();
-                          setState(() => _q = sanitized);
-                          if (v.trim().isNotEmpty) {
-                            try {
-                              _suggestionsController.open();
-                            } catch (_) {}
-                          } else {
-                            try {
-                              _suggestionsController.close();
-                            } catch (_) {}
-                          }
-                        },
-                        onTap: () {
-                          // ensure suggestions open when user taps the field
-                          try {
-                            _suggestionsController.open();
-                          } catch (_) {}
-                        },
-                      ),
-                      debounceDuration: const Duration(milliseconds: 250),
-                      suggestionsBoxVerticalOffset: 6,
-                      suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                        elevation: 6,
-                        borderRadius: BorderRadius.circular(12),
-                        color: cs.surfaceVariant,
-                      ),
-                      suggestionsCallback: (pattern) async {
-                        final key = pattern
-                            .toString()
-                            .replaceAll('#', '')
-                            .trim();
-                        if (key.isEmpty) return const <String>[];
-                        try {
-                          final res = await CommunityRepository.instance
-                              .searchHashtags(key, limit: 10);
-                          return res.map((c) => c.name).toList();
-                        } catch (_) {
-                          return const <String>[];
-                        }
-                      },
-                      itemBuilder: (context, suggestion) {
-                        return ListTile(
-                          title: Text(
-                            '#$suggestion',
-                            style: TextStyle(color: cs.onSurface),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(999),
+                          borderSide: BorderSide(
+                            color: cs.outlineVariant.withValues(alpha: 0.10),
+                            width: 1,
                           ),
-                          dense: true,
-                          visualDensity: VisualDensity.compact,
-                        );
-                      },
-                      onSuggestionSelected: (suggestion) {
-                        final text = suggestion.toString();
-                        _searchController.text = text; // keep as-is for UX
-                        final sanitized = text.replaceAll('#', '').trim();
-                        setState(() {
-                          _q = sanitized;
-                          _selectedCategoryIndex =
-                              0; // show all matched results
-                        });
+                        ),
+                        filled: true,
+                        fillColor: cs.surface,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        suffixIcon: _searchController.text.trim().isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(SolarIconsOutline.closeCircle),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _q = '';
+                                  });
+                                  _load();
+                                },
+                              )
+                            : null,
+                      ),
+                      onChanged: (v) {
+                        final sanitized = v.replaceAll('#', '').trim();
+                        setState(() => _q = sanitized);
+                        // live-search as user types
                         _load();
                       },
-                      noItemsFoundBuilder: (context) => Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(
-                          '결과가 없습니다',
-                          style: TextStyle(color: cs.onSurfaceVariant),
-                        ),
-                      ),
+                      onSubmitted: (_) => _load(),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -282,14 +212,9 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
                         final sanitized = text.replaceAll('#', '').trim();
                         setState(() {
                           _q = sanitized;
-                          _selectedCategoryIndex =
-                              0; // show all matched results
+                          _selectedCategoryIndex = 0; // show all matched results
                         });
-                        // close keyboard and suggestions for clearer UX
                         FocusScope.of(context).unfocus();
-                        try {
-                          _suggestionsController.close();
-                        } catch (_) {}
                         _load();
                       },
                       style: ElevatedButton.styleFrom(
