@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/services/avatar_helper.dart';
@@ -23,28 +24,77 @@ class PostCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: [
-        CircleAvatar(
-          radius: CommunitySizes.avatarBase / 2,
-          backgroundColor: post.isAnonymous
-            ? cs.secondaryContainer
-            : Colors.transparent,
-          backgroundImage: post.isAnonymous || post.authorAvatarUrl == null
-            ? null
-            : avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase).toInt(), height: (CommunitySizes.avatarBase).toInt()),
-          child: post.isAnonymous
-            ? Icon(SolarIconsOutline.incognito, size: CommunitySizes.avatarBase * 0.9)
-            : null,
-        ),
+                  children: [
+            // Avatar: if anonymous, show blurred avatar (if available) or placeholder with incognito icon
+            SizedBox(
+              width: CommunitySizes.avatarBase,
+              height: CommunitySizes.avatarBase,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (!post.isAnonymous && post.authorAvatarUrl != null)
+                    CircleAvatar(
+                      radius: CommunitySizes.avatarBase / 2,
+                      backgroundImage: avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase).toInt(), height: (CommunitySizes.avatarBase).toInt()),
+                    ),
+                  if (post.isAnonymous && post.authorAvatarUrl != null)
+                    // show blurred avatar image when anonymous
+                    ClipOval(
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        child: Image(
+                          image: avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase).toInt(), height: (CommunitySizes.avatarBase).toInt()),
+                          width: CommunitySizes.avatarBase,
+                          height: CommunitySizes.avatarBase,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  if (post.isAnonymous && post.authorAvatarUrl == null)
+                    // Show a seeded placeholder image and blur it instead of an icon
+                    ClipOval(
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        child: Image.network(
+                          'https://picsum.photos/seed/anon${post.id}/100/100',
+                          width: CommunitySizes.avatarBase,
+                          height: CommunitySizes.avatarBase,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        post.authorName,
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  post.isAnonymous ? '익명의 스타' : post.authorName,
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (post.isAnonymous) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  constraints: const BoxConstraints(minWidth: 36),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: cs.primary, width: 1.5),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text('익명', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w500)),
+                                ),
+                              ],
+                            ],
+                          ),
                       Text(
                         _timeAgo(post.createdAt),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -114,16 +164,7 @@ class PostCard extends StatelessWidget {
                 ),
               ],
             ),
-            if (post.isAnonymous)
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                height: 4,
-                width: 48,
-                decoration: BoxDecoration(
-                  color: cs.secondary,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+            // anonymous indicator bar removed per design request
           ],
         ),
       ),

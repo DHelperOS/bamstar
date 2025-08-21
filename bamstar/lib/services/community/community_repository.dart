@@ -176,24 +176,22 @@ class CommunityRepository {
       }
       // Build posts first (with fallback avatars). Then fetch commenter avatars
       // for all posts in a batched manner and replace the placeholder lists.
-  final posts = data.map((row) {
+      final posts = data.map((row) {
         final id = row['id'] as int;
         final content = (row['content'] as String?) ?? '';
+        final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
+        final String? _dbAvatar = (row['author_avatar'] as String?) ?? (row['author_avatar_url'] as String?);
         return CommunityPost(
           id: id,
           content: content,
-          isAnonymous: row['is_anonymous'] as bool? ?? false,
+          isAnonymous: _isAnon,
           authorId: row['author_id'] as String?,
-          authorName: (row['is_anonymous'] as bool? ?? false)
-              ? '익명의 스타'
-              : '스타 ${id % 97}',
-          authorAvatarUrl: (row['is_anonymous'] as bool? ?? false)
-              ? null
-              : 'https://picsum.photos/seed/u$id/100/100',
+          authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
+          // Do not provide avatar URL when anonymous to avoid leaking real
+          // profile images; UI will render a blurred placeholder and label.
+          authorAvatarUrl: _isAnon ? null : _dbAvatar,
           imageUrls: (row['image_urls'] as List?)?.cast<String>() ?? const [],
-          createdAt:
-              DateTime.tryParse(row['created_at'] as String? ?? '') ??
-              DateTime.now(),
+          createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now(),
           // 서버 컬럼이 없으므로 내용에서 해시태그를 파싱합니다.
           hashtags: _extractHashtags(content),
           // Start with empty commenter avatars; will be filled by

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
+import 'dart:ui';
+import 'package:bamstar/services/avatar_helper.dart';
 import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
@@ -747,29 +749,55 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       future: _getAuthor(post.authorId),
                       builder: (context, snap) {
                         final user = snap.data;
-                        var avatarPath = post.isAnonymous
-                            ? null
-                            : (user?.data['profile_img'] as String?) ??
-                                  post.authorAvatarUrl;
-                        // Ignore remote/mockup URLs that start with http/https
-                        if (avatarPath != null &&
-                            (avatarPath.startsWith('http://') ||
-                                avatarPath.startsWith('https://'))) {
-                          avatarPath = null;
+                        // Determine an ImageProvider for the avatar. Prefer user's
+                        // stored profile image when available; otherwise fallback to
+                        // the post.authorAvatarUrl. For anonymous posts we still
+                        // want a network image (seeded placeholder) so the UI can
+                        // render it blurred instead of replacing with an icon.
+                        String? candidateUrl;
+                        if (user != null) {
+                          final p = (user.data['profile_img'] as String?)?.trim();
+                          if (p != null && p.isNotEmpty) candidateUrl = p;
                         }
+                        candidateUrl ??= post.authorAvatarUrl;
+                        // For anonymous posts with no avatar, use a seeded picsum
+                        // placeholder so we can blur it for anonymity.
+                        if (post.isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) {
+                          candidateUrl = 'https://picsum.photos/seed/anon${post.id}/100/100';
+                        }
+
                         ImageProvider? avatarImage;
-                        if (!post.isAnonymous && avatarPath != null) {
-                          avatarImage = us.profileImageProviderFromProfileImg(
-                            avatarPath,
+                        if (candidateUrl != null && candidateUrl.isNotEmpty) {
+                          // Use centralized helper which handles Cloudinary and
+                          // network images uniformly.
+                          avatarImage = avatarImageProviderFromUrl(candidateUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt());
+                        }
+
+                        // If anonymous and we have an image, render it blurred.
+                        if (post.isAnonymous && avatarImage != null) {
+                          return SizedBox(
+                            width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                            height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                            child: ClipOval(
+                              child: ImageFiltered(
+                                imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                child: Image(
+                                  image: avatarImage,
+                                  width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                           );
                         }
+
+                        // Fallback: non-anonymous or no network image available
                         return CircleAvatar(
                           radius: CommunitySizes.avatarBase / 2 * 1.4,
-                          backgroundColor: post.isAnonymous
-                              ? cs.secondaryContainer
-                              : null,
+                          backgroundColor: post.isAnonymous ? cs.secondaryContainer : null,
                           backgroundImage: avatarImage,
-                          child: post.isAnonymous
+                          child: (post.isAnonymous && avatarImage == null)
                               ? Icon(
                                   SolarIconsOutline.incognito,
                                   size: CommunitySizes.avatarBase * 0.9,
@@ -792,11 +820,31 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   : (user?.nickname.isNotEmpty == true
                                         ? user!.nickname
                                         : post.authorName);
-                              return Text(
-                                name,
-                                style: tt.titleSmall?.copyWith(
-                                  color: cs.onSurface,
-                                ),
+                              return Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      name,
+                                      style: tt.titleSmall?.copyWith(
+                                        color: cs.onSurface,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (post.isAnonymous) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      constraints: const BoxConstraints(minWidth: 36),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: cs.primary, width: 1.5),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text('익명', style: tt.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w500)),
+                                    ),
+                                  ],
+                                ],
                               );
                             },
                           ),
@@ -1031,32 +1079,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       },
       child: card,
     );
-    if (post.isAnonymous) {
-      return Stack(
-        children: [
-          wrapped,
-          Positioned.fill(
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: cs.secondary,
-                    borderRadius: const BorderRadius.horizontal(
-                      left: Radius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 0),
-                Expanded(child: Container()),
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-    return wrapped;
+  // Left indicator removed per design request — always return the card as-is
+  return wrapped;
   }
 
   String _deriveTitle(String content) {

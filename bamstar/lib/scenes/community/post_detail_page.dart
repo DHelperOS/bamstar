@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/services/avatar_helper.dart';
@@ -37,20 +38,69 @@ class CommunityPostDetailPage extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: CommunitySizes.avatarBase * 1.4,
-                          backgroundImage: post.isAnonymous || post.authorAvatarUrl == null
-                              ? null
-                              : avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt()),
-                          backgroundColor: post.isAnonymous ? cs.secondaryContainer : null,
-                          child: post.isAnonymous ? const Icon(SolarIconsOutline.incognito, size: 22) : null,
+                        SizedBox(
+                          width: CommunitySizes.avatarBase * 2.8,
+                          height: CommunitySizes.avatarBase * 2.8,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (!post.isAnonymous && post.authorAvatarUrl != null)
+                                CircleAvatar(
+                                  radius: CommunitySizes.avatarBase * 1.4,
+                                  backgroundImage: avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt()),
+                                ),
+                              if (post.isAnonymous && post.authorAvatarUrl != null)
+                                ClipOval(
+                                  child: ImageFiltered(
+                                    imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                    child: Image(
+                                      image: avatarImageProviderFromUrl(post.authorAvatarUrl, width: (CommunitySizes.avatarBase * 2.8).toInt(), height: (CommunitySizes.avatarBase * 2.8).toInt()),
+                                      width: CommunitySizes.avatarBase * 2.8,
+                                      height: CommunitySizes.avatarBase * 2.8,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              if (post.isAnonymous && post.authorAvatarUrl == null)
+                                ClipOval(
+                                  child: ImageFiltered(
+                                    imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                    child: Image.network(
+                                      'https://picsum.photos/seed/anon${post.id}/200/200',
+                                      width: CommunitySizes.avatarBase * 2.8,
+                                      height: CommunitySizes.avatarBase * 2.8,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 10),
         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-          Text(post.authorName, style: tt.titleSmall?.copyWith(color: cs.onSurface)),
+          Row(
+            children: [
+              Flexible(
+                child: Text(post.isAnonymous ? '익명의 스타' : post.authorName, style: tt.titleSmall?.copyWith(color: cs.onSurface), overflow: TextOverflow.ellipsis),
+              ),
+              if (post.isAnonymous) ...[
+                const SizedBox(width: 8),
+                Container(
+                  constraints: const BoxConstraints(minWidth: 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: cs.primary, width: 1.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text('익명', style: tt.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w500)),
+                ),
+              ],
+            ],
+          ),
                               const SizedBox(height: 3),
           Text('Johnson & Johnson', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                             ],
@@ -215,6 +265,7 @@ class _Comment extends StatelessWidget {
   final String? imageUrl;
   final int likes;
   final bool withInlineBox;
+  final bool isAnonymous;
   const _Comment({
     required this.avatarUrl,
     required this.name,
@@ -223,6 +274,7 @@ class _Comment extends StatelessWidget {
     this.imageUrl,
     required this.likes,
     this.withInlineBox = false,
+    this.isAnonymous = false,
   });
 
   @override
@@ -233,16 +285,53 @@ class _Comment extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-                        CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: avatarImageProviderFromUrl(avatarUrl, width: (CommunitySizes.avatarBase * 3.2).toInt(), height: (CommunitySizes.avatarBase * 3.2).toInt())),
+                        // commenter avatar: blur if anonymous
+                        SizedBox(
+                          width: CommunitySizes.avatarBase * 3.2,
+                          height: CommunitySizes.avatarBase * 3.2,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (!isAnonymous)
+                                CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: avatarImageProviderFromUrl(avatarUrl, width: (CommunitySizes.avatarBase * 3.2).toInt(), height: (CommunitySizes.avatarBase * 3.2).toInt())),
+                              if (isAnonymous)
+                                ClipOval(
+                                  child: ImageFiltered(
+                                    imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                    child: Image(
+                                      image: avatarImageProviderFromUrl(avatarUrl, width: (CommunitySizes.avatarBase * 3.2).toInt(), height: (CommunitySizes.avatarBase * 3.2).toInt()),
+                                      width: CommunitySizes.avatarBase * 3.2,
+                                      height: CommunitySizes.avatarBase * 3.2,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+                  Row(
                 children: [
-                  Text(name, style: tt.titleSmall?.copyWith(color: cs.onSurface)),
-                  const SizedBox(width: 13),
+                  Flexible(child: Text(isAnonymous ? '익명의 스타' : name, style: tt.titleSmall?.copyWith(color: cs.onSurface), overflow: TextOverflow.ellipsis)),
+                  if (isAnonymous) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      constraints: const BoxConstraints(minWidth: 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: cs.primary, width: 1.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text('익명', style: tt.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w500)),
+                    ),
+                    const SizedBox(width: 13),
+                  ] else
+                    const SizedBox(width: 13),
                   Text(time, style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),

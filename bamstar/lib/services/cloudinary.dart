@@ -51,11 +51,10 @@ class CloudinaryService {
   factory CloudinaryService.fromEnv({SupabaseClient? supabase}) {
     final cloud = dotenv.maybeGet('CLOUDINARY_CLOUD_NAME') ?? '';
     final preset = dotenv.maybeGet('CLOUDINARY_UPLOAD_PRESET') ?? '';
-    if (cloud.isEmpty || preset.isEmpty) {
-      throw StateError(
-        'Missing CLOUDINARY_CLOUD_NAME or CLOUDINARY_UPLOAD_PRESET in .env',
-      );
+    if (cloud.isEmpty) {
+      throw StateError('Missing CLOUDINARY_CLOUD_NAME in .env');
     }
+    // upload preset is optional for signed upload flows; allow empty but keep value if present.
     return CloudinaryService(
       cloudName: cloud,
       uploadPreset: preset,
@@ -84,7 +83,7 @@ class CloudinaryService {
     // Do NOT include resource_type, file, or api_key in the signature payload.
     final paramsToSign = <String, dynamic>{
       'timestamp': timestamp,
-      'upload_preset': _uploadPreset,
+  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
@@ -142,7 +141,7 @@ class CloudinaryService {
   'timestamp': sig.timestamp.toString(),
       'signature': sig.signature,
       // include preset if your signature generation expects it
-      'upload_preset': _uploadPreset,
+  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
@@ -197,7 +196,7 @@ class CloudinaryService {
       'api_key': sig.apiKey,
   'timestamp': sig.timestamp.toString(),
       'signature': sig.signature,
-      'upload_preset': _uploadPreset,
+  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
