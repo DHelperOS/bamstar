@@ -673,6 +673,22 @@ class CommunityRepository {
     }
   }
 
+  /// Fetch recent comments for a post (non-threaded flat list, newest first)
+  Future<List<Map<String, dynamic>>> fetchCommentsForPost(int postId, {int limit = 3}) async {
+    try {
+      final res = await _client
+          .from('community_comments')
+          .select('id, author_id, content, image_url, is_anonymous, created_at')
+          .eq('post_id', postId)
+          .order('created_at', ascending: false)
+          .limit(limit);
+      final List data = res as List? ?? [];
+      return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   /// Delete a comment by id and invalidate cache for its post.
   Future<bool> deleteComment({required int commentId, required int postId}) async {
     try {

@@ -254,3 +254,65 @@ CREATE TRIGGER on_auth_user_created_subscribe_default
   AFTER INSERT ON auth.users -- 'auth.users' 테이블에
   FOR EACH ROW               -- 새로운 행이 추가될 때마다
   EXECUTE PROCEDURE public.subscribe_default_channels_on_signup(); -- 위에서 만든 함수를 실행시켜라.
+
+
+
+
+  -- 1단계: 기존의 복합 기본키(Primary Key) 제약조건을 먼저 제거합니다.
+-- (Supabase가 자동으로 생성한 이름은 보통 'community_likes_pkey' 입니다.)
+ALTER TABLE public.community_likes
+  DROP CONSTRAINT IF EXISTS community_likes_pkey;
+
+
+-- 2단계: 각 '좋아요' 행위를 위한 고유 ID 컬럼(id)을 추가하고, 이를 새로운 기본키로 설정합니다.
+-- (IF NOT EXISTS 구문으로, 컬럼이 이미 존재하면 오류 없이 넘어갑니다.)
+ALTER TABLE public.community_likes
+  ADD COLUMN IF NOT EXISTS id BIGSERIAL PRIMARY KEY;
+
+
+-- 3단계: 댓글을 참조할 수 있는 comment_id 컬럼을 추가합니다.
+ALTER TABLE public.community_likes
+  ADD COLUMN IF NOT EXISTS comment_id BIGINT REFERENCES public.community_comments(id) ON DELETE CASCADE;
+
+
+-- 4단계: post_id 컬럼이 더 이상 항상 값이 있을 필요가 없으므로, NOT NULL 제약조건을 제거합니다.
+ALTER TABLE public.community_likes
+  ALTER COLUMN post_id DROP NOT NULL;
+
+
+-- 5단계: 새로운 규칙을 적용하기 위한 제약조건(Constraint)들을 추가합니다.
+-- (오류 방지를 위해, 기존에 같은 이름의 제약조건이 있다면 먼저 삭제합니다.)
+ALTER TABLE public.community_likes
+  DROP CONSTRAINT IF EXISTS unique_post_like,
+  DROP CONSTRAINT IF EXISTS unique_comment_like,
+  DROP CONSTRAINT IF EXISTS target_like_check;
+
+-- 제약조건 5.1: 한 사람이 같은 '게시글'에 중복으로 좋아요 누르는 것을 방지
+ALTER TABLE public.community_likes
+  ADD CONSTRAINT unique_post_like UNIQUE (user_id, post_id);
+
+-- 제약조건 5.2: 한 사람이 같은 '댓글'에 중복으로 좋아요 누르는 것을 방지
+ALTER TABLE public.community_likes
+  ADD CONSTRAINT unique_comment_like UNIQUE (user_id, comment_id);
+
+-- 제약조건 5.3: '좋아요'의 대상은 게시글 또는 댓글, 둘 중 하나여야 함을 강제
+ALTER TABLE public.community_likes
+  ADD CONSTRAINT target_like_check CHECK (num_nonnulls(post_id, comment_id) = 1);
+
+
+-- 6단계: RLS 정책을 새로운 구조에 맞게 다시 정의합니다.
+-- (기존 정책들을 안전하게 삭제하고, 올바른 문법으로 다시 생성합니다.)
+DROP POLICY IF EXISTS "Allow read access to authenticated users" ON public.community_likes;
+DROP POLICY IF EXISTS "Allow users to manage their own likes" ON public.community_likes;
+DROP POLICY IF EXISTS "Allow users to insert their own likes" ON public.community_likes;
+DROP POLICY IF EXISTS "Allow users to delete their own likes" ON public.community_likes;
+
+CREATE POLICY "Allow read access to authenticated users" ON public.community_likes FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow users to insert their own likes" ON public.community_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Allow users to delete their own likes" ON public.community_likes FOR DELETE USING (auth.uid() = user_id);
+
+
+-- 7단계: 테이블과 컬럼에 대한 주석(Comment)을 업데이트하여, 새로운 구조를 명확히 설명합니다.
+COMMENT ON TABLE public.community_likes IS '멤버가 게시글 또는 댓글에 누른 공감(좋아요) 정보. (댓글 좋아요 지원)';
+COMMENT ON COLUMN public.community_likes.post_id IS '좋아요 대상 (게시글 ID). 댓글에 좋아요를 누른 경우 NULL.';
+COMMENT ON COLUMN public.community_likes.comment_id IS '좋아요 대상 (댓글 ID). 게시글에 좋아요를 누른 경우 NULL.';

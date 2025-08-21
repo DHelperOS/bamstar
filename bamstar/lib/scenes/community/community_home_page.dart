@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:bamstar/services/avatar_helper.dart';
 // 'choice' package no longer needed here; chips are rendered manually.
 import 'package:bamstar/services/user_service.dart' as us;
+import 'package:bamstar/scenes/community/post_comment_page.dart';
+import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -513,7 +515,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                                   ? csLocal.primary
                                   : csLocal.surface.withValues(alpha: 0.06),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               labelStyle: TextStyle(
                                 fontSize: smallFont,
                                 color: isSelected
@@ -523,7 +527,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                               side: BorderSide(
                                 color: isSelected
                                     ? csLocal.primary
-                                    : csLocal.outlineVariant.withValues(alpha: 0.06),
+                                    : csLocal.outlineVariant.withValues(
+                                        alpha: 0.06,
+                                      ),
                               ),
                               visualDensity: VisualDensity.compact,
                             ),
@@ -532,7 +538,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                       ),
                     ),
                   ),
-                  crossFadeState: _showSort ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  crossFadeState: _showSort
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
                   duration: const Duration(milliseconds: 260),
                 ),
               ),
@@ -733,13 +741,141 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   bool _isLiking = false;
   // VisibilityDetector will manage per-card visibility; use a unique key per card
   bool _didIncrementView = false;
+  // Comment input controller and posting state
+  final TextEditingController _commentController = TextEditingController();
+  bool _isPostingComment = false;
+  late Future<List<Map<String, dynamic>>> _commentsFuture;
 
   @override
   void initState() {
     super.initState();
     post = widget.post;
+    _commentsFuture = CommunityRepository.instance
+        .fetchCommentsForPost(post.id, limit: 3)
+        .then((comments) async {
+      await _prefetchCommentAuthors(comments);
+      return comments;
+    });
     // schedule a post-frame visibility check
     // VisibilityDetector will trigger view increment when appropriate.
+  }
+
+  @override
+  void dispose() {
+    try {
+      _commentController.dispose();
+    } catch (_) {}
+    super.dispose();
+  }
+
+  Future<void> _submitComment() async {
+    final text = _commentController.text.trim();
+    if (text.isEmpty) return;
+    if (_isPostingComment) return;
+    setState(() => _isPostingComment = true);
+    final success = await CommunityRepository.instance.createComment(
+      postId: post.id,
+      content: text,
+      isAnonymous: false,
+    );
+    if (success) {
+      // refresh commenter avatars for this post and bump comment count
+      try {
+        final avatars = await CommunityRepository.instance
+            .getPostCommenterAvatars(post.id, limit: 3);
+        setState(() {
+          post = CommunityPost(
+            id: post.id,
+            content: post.content,
+            isAnonymous: post.isAnonymous,
+            authorId: post.authorId,
+            authorName: post.authorName,
+            authorAvatarUrl: post.authorAvatarUrl,
+            imageUrls: post.imageUrls,
+            createdAt: post.createdAt,
+            hashtags: post.hashtags,
+            recentCommenterAvatarUrls: avatars,
+            likesCount: post.likesCount,
+            viewCount: post.viewCount,
+            commentCount: post.commentCount + 1,
+            isLiked: post.isLiked,
+          );
+        });
+      } catch (_) {
+        setState(() {
+          post = CommunityPost(
+            id: post.id,
+            content: post.content,
+            isAnonymous: post.isAnonymous,
+            authorId: post.authorId,
+            authorName: post.authorName,
+            authorAvatarUrl: post.authorAvatarUrl,
+            imageUrls: post.imageUrls,
+            createdAt: post.createdAt,
+            hashtags: post.hashtags,
+            recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+            likesCount: post.likesCount,
+            viewCount: post.viewCount,
+            commentCount: post.commentCount + 1,
+            isLiked: post.isLiked,
+          );
+        });
+      }
+      _commentController.clear();
+      // refresh inline preview
+      try {
+        setState(() {
+          _commentsFuture = CommunityRepository.instance
+              .fetchCommentsForPost(post.id, limit: 3)
+              .then((comments) async {
+            await _prefetchCommentAuthors(comments);
+            return comments;
+          });
+        });
+      } catch (_) {}
+    } else {
+      // show error
+      try {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+      } catch (_) {}
+    }
+    if (mounted) setState(() => _isPostingComment = false);
+  }
+
+  /// Prefetch comment authors for the provided comments list and populate the
+  /// top-level `_authorCache` so `_getAuthor` hits the cache and avoids
+  /// individual network calls per comment.
+  Future<void> _prefetchCommentAuthors(List<Map<String, dynamic>> comments) async {
+    try {
+      final ids = comments
+          .map((c) => c['author_id'] as String?)
+          .where((id) => id != null)
+          .cast<String>()
+          .toSet()
+          .where((id) => !_authorCache.containsKey(id))
+          .toList();
+      if (ids.isEmpty) return;
+      final client = Supabase.instance.client;
+      final idsCsv = ids.map((s) => '"$s"').join(',');
+      final res = await client.from('users').select('*').filter('id', 'in', '($idsCsv)');
+      final List data = res as List? ?? [];
+      for (final row in data) {
+        try {
+          final m = Map<String, dynamic>.from(row as Map);
+          final u = us.AppUser.fromMap(m);
+          _authorCache[u.id] = u;
+        } catch (_) {
+          // ignore malformed rows
+        }
+      }
+      for (final id in ids) {
+        if (!_authorCache.containsKey(id)) _authorCache[id] = null;
+      }
+    } catch (_) {
+      // ignore errors; fallback to per-comment fetch
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -829,11 +965,12 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     }
     final twoThumbs = post.imageUrls.length >= 2;
 
-    final card = Card(
-      margin: const EdgeInsets.symmetric(vertical: 5),
+    final _cardInner = Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
+      elevation: 6,
+      shadowColor: Color.fromRGBO(0, 0, 0, 0.25),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: null,
@@ -1125,15 +1262,41 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       style: tt.bodyMedium?.copyWith(color: cs.onSurface),
                     ),
                     const SizedBox(width: 12),
-                    const Icon(
-                      SolarIconsOutline.chatRound,
-                      size: 18,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${post.commentCount}',
-                      style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                    GestureDetector(
+                      onTap: () {
+                        // Open the dedicated comment page for this post as a modal when possible.
+                        try {
+                          WoltModalSheet.show(
+                            context: context,
+                            pageListBuilder: (modalContext) => [
+                              PostCommentPage.woltPage(modalContext, post),
+                            ],
+                            modalTypeBuilder: (ctx) =>
+                                WoltModalType.bottomSheet(),
+                          );
+                        } catch (_) {
+                          // Fallback to Navigator if modal API isn't available or errors
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PostCommentPage(post: post),
+                            ),
+                          );
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(
+                            SolarIconsOutline.chatRound,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${post.commentCount}',
+                            style: tt.bodyMedium?.copyWith(color: cs.onSurface),
+                          ),
+                        ],
+                      ),
                     ),
                     const Spacer(),
                     if (post.recentCommenterAvatarUrls.isNotEmpty)
@@ -1166,6 +1329,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
+                          controller: _commentController,
+                          onSubmitted: (_) => _submitComment(),
                           decoration: InputDecoration(
                             hintText: '댓글 남기기',
                             hintStyle: tt.bodyMedium?.copyWith(
@@ -1187,12 +1352,217 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                         color: Colors.grey[500],
                       ),
                       const SizedBox(width: 8),
-                      Icon(
-                        SolarIconsOutline.arrowRight,
-                        size: 24,
-                        color: Colors.grey[500],
+                      GestureDetector(
+                        onTap: _isPostingComment ? null : _submitComment,
+                        child: Icon(
+                          SolarIconsOutline.arrowRight,
+                          size: 24,
+                          color: _isPostingComment
+                              ? Colors.grey[400]
+                              : Colors.grey[500],
+                        ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+              // Inline comments preview under the comment input (data-driven)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+                child: InkWell(
+                  onTap: () {
+                    try {
+                      WoltModalSheet.show(
+                        context: context,
+                        pageListBuilder: (modalContext) => [
+                          PostCommentPage.woltPage(modalContext, post),
+                        ],
+                        modalTypeBuilder: (ctx) => WoltModalType.bottomSheet(),
+                      );
+                    } catch (_) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PostCommentPage(post: post),
+                        ),
+                      );
+                    }
+                  },
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _commentsFuture,
+                    builder: (context, snap) {
+                      final comments = snap.data ?? [];
+                      if (comments.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        children: [
+                          Column(
+                            children: List.generate(comments.length, (i) {
+                              final c = comments[i];
+                              final content = (c['content'] as String?) ?? '';
+                              final createdAt = DateTime.tryParse(
+                                    c['created_at'] as String? ?? '',
+                                  ) ??
+                                  DateTime.now();
+                              final isAnonymous = (c['is_anonymous'] as bool? ?? false);
+                              final authorId = c['author_id'] as String?;
+                              final fallbackName = (c['author_name'] as String?) ?? '스타';
+                              final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: FutureBuilder<us.AppUser?>(
+                                  future: _getAuthor(authorId),
+                                  builder: (context, snap) {
+                                    final user = snap.data;
+
+                                    // Resolve display name (respect anonymity)
+                  final authorName = isAnonymous
+                    ? '익명의 스타'
+                    : ((user != null && (user.nickname.isNotEmpty == true))
+                      ? user.nickname
+                      : fallbackName);
+
+                                    // Determine avatar URL similarly to post header
+                                    String? candidateUrl;
+                                    if (user != null) {
+                                      final p = (user.data['profile_img'] as String?)?.trim();
+                                      if (p != null && p.isNotEmpty) candidateUrl = p;
+                                    }
+                                    if ((candidateUrl == null || candidateUrl.isEmpty) &&
+                                        fallbackAvatar.isNotEmpty) {
+                                      candidateUrl = fallbackAvatar;
+                                    }
+                                    if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) {
+                                      candidateUrl = null; // explicit: don't fetch external placeholder
+                                    }
+
+                                    ImageProvider? avatarImage;
+                                    if (candidateUrl != null && candidateUrl.isNotEmpty) {
+                                      avatarImage = avatarImageProviderFromUrl(
+                                        candidateUrl,
+                                        width: (CommunitySizes.avatarBase * 2.8).toInt(),
+                                        height: (CommunitySizes.avatarBase * 2.8).toInt(),
+                                      );
+                                    }
+
+                                    Widget avatarWidget;
+                                    if (isAnonymous && avatarImage != null) {
+                                      avatarWidget = SizedBox(
+                                        width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        child: ClipOval(
+                                          child: ImageFiltered(
+                                            imageFilter: ImageFilter.blur(
+                                              sigmaX: 8,
+                                              sigmaY: 8,
+                                            ),
+                                            child: Image(
+                                              image: avatarImage,
+                                              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else if (isAnonymous && avatarImage == null) {
+                                      avatarWidget = SizedBox(
+                                        width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        child: ClipOval(
+                                          child: ImageFiltered(
+                                            imageFilter: ImageFilter.blur(
+                                              sigmaX: 8,
+                                              sigmaY: 8,
+                                            ),
+                                            child: Container(
+                                              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              color: cs.secondaryContainer,
+                                              child: Center(
+                                                child: Icon(
+                                                  SolarIconsOutline.incognito,
+                                                  size: CommunitySizes.avatarBase * 0.9,
+                                                  color: cs.onSurfaceVariant,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      avatarWidget = CircleAvatar(
+                                        radius: CommunitySizes.avatarBase / 2,
+                                        backgroundColor: isAnonymous ? cs.secondaryContainer : null,
+                                        backgroundImage: avatarImage,
+                                        child: (!isAnonymous && avatarImage == null) ? Icon(
+                                          Icons.person,
+                                          size: 12,
+                                          color: cs.onSurfaceVariant,
+                                        ) : null,
+                                      );
+                                    }
+
+                                    return Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        avatarWidget,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      authorName,
+                                                      style: tt.titleSmall,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    _timeAgo(createdAt),
+                                                    style: tt.bodySmall?.copyWith(
+                                                      color: cs.onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(content, style: tt.bodyMedium),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              );
+                            }),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '댓글 더보기',
+                                  style: tt.bodySmall?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -1200,6 +1570,37 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           ),
         ),
       ),
+    );
+
+    // Create a stacked card with a subtle top highlight to give a lit-top 3D effect
+    final card = Stack(
+      children: [
+        _cardInner,
+        // thin gradient at the top to simulate light hitting the top edge
+        Positioned(
+          left: 12,
+          right: 12,
+          top: 8,
+          child: IgnorePointer(
+            child: Container(
+              height: 12,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).brightness == Brightness.light
+                        ? Colors.white.withOpacity(0.60)
+                        : Colors.white.withOpacity(0.06),
+                    Colors.white.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
 
     // Wrap card in VisibilityDetector to increment view once when >=50% visible.
@@ -1386,7 +1787,8 @@ class _PostSkeleton extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
+      elevation: 6,
+      shadowColor: Color.fromRGBO(0, 0, 0, 0.18),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
