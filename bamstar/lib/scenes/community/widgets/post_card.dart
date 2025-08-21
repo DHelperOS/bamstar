@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/services/avatar_helper.dart';
+import 'package:bamstar/services/image_helper.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 
@@ -65,11 +66,15 @@ class PostCard extends StatelessWidget {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  post.imageUrls.first,
-                  fit: BoxFit.cover,
+                child: Container(
                   height: 180,
                   width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imageProviderFromUrl(post.imageUrls.first, width: 800, height: 600),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             ],

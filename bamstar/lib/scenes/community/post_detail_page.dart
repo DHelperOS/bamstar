@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/services/avatar_helper.dart';
+import 'package:bamstar/services/image_helper.dart';
 import 'package:bamstar/scenes/community/community_constants.dart';
 
 class CommunityPostDetailPage extends StatelessWidget {
@@ -195,7 +196,14 @@ class _Thumb extends StatelessWidget {
         height: 101,
         child: imageUrl == null
             ? Container(color: Colors.grey[300])
-            : Image.network(imageUrl!, fit: BoxFit.cover),
+            : Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: imageProviderFromUrl(imageUrl, width: 800, height: 600),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -246,7 +254,16 @@ class _Comment extends StatelessWidget {
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(imageUrl!, height: 192, width: double.infinity, fit: BoxFit.cover),
+                  child: Container(
+                    height: 192,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: imageProviderFromUrl(imageUrl, width: 1200, height: 800),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                 ),
               ],
               Padding(
@@ -266,7 +283,7 @@ class _Comment extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: NetworkImage(avatarUrl)),
+                    CircleAvatar(radius: CommunitySizes.avatarBase * 1.6, backgroundImage: avatarImageProviderFromUrl(avatarUrl, width: (CommunitySizes.avatarBase * 3.2).toInt(), height: (CommunitySizes.avatarBase * 3.2).toInt())),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Container(
