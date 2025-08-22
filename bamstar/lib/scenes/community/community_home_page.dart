@@ -1296,64 +1296,71 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       ((!isReply) &&
                           ((_replyingToCommentId ?? -1) ==
                               ((c['id'] as int?) ?? -1)))
-                      ? Container(
-                          key: ValueKey('reply-input-${c['id']}'),
-                          margin: const EdgeInsets.only(top: 8),
-                          decoration: BoxDecoration(
-                            color: cs.surface,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: cs.outline.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 7,
-                            horizontal: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  controller: _replyController,
-                                  focusNode: _replyFocusNode,
-                                  textInputAction: TextInputAction.send,
-                                  onSubmitted: (_) => _submitReply(
-                                    parentCommentId: (c['id'] as int?) ?? -1,
+                      ? Align(
+                          alignment: Alignment.centerRight,
+                          child: FractionallySizedBox(
+                            widthFactor: 0.9,
+                            child: Container(
+                              key: ValueKey('reply-input-${c['id']}'),
+                              margin: const EdgeInsets.only(top: 8),
+                              decoration: BoxDecoration(
+                                color: cs.surface,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: cs.outline.withValues(alpha: 0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 7,
+                                horizontal: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _replyController,
+                                      focusNode: _replyFocusNode,
+                                      textInputAction: TextInputAction.send,
+                                      onSubmitted: (_) => _submitReply(
+                                        parentCommentId:
+                                            (c['id'] as int?) ?? -1,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: '댓글 작성',
+                                        hintStyle: tt.bodyMedium?.copyWith(
+                                          color: Colors.grey[500],
+                                        ),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                        border: InputBorder.none,
+                                      ),
+                                      style: tt.bodyMedium?.copyWith(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
                                   ),
-                                  decoration: InputDecoration(
-                                    hintText: '댓글 작성',
-                                    hintStyle: tt.bodyMedium?.copyWith(
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    SolarIconsOutline.paperclip,
+                                    size: 21,
+                                    color: Colors.grey[500],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => _submitReply(
+                                      parentCommentId: (c['id'] as int?) ?? -1,
+                                    ),
+                                    child: Icon(
+                                      SolarIconsOutline.arrowRight,
+                                      size: 24,
                                       color: Colors.grey[500],
                                     ),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    border: InputBorder.none,
                                   ),
-                                  style: tt.bodyMedium?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  ),
-                                ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                SolarIconsOutline.paperclip,
-                                size: 21,
-                                color: Colors.grey[500],
-                              ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () => _submitReply(
-                                  parentCommentId: (c['id'] as int?) ?? -1,
-                                ),
-                                child: Icon(
-                                  SolarIconsOutline.arrowRight,
-                                  size: 24,
-                                  color: cs.primary,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         )
                       : const SizedBox.shrink(),
