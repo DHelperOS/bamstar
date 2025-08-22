@@ -9,6 +9,13 @@ import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
+import 'package:delightful_toast/delight_toast.dart';
+import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:delightful_toast/toast/utils/enums.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:bamstar/services/cloudinary.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 // Simple in-memory cache for author lookups to avoid refetching repeatedly.
 final Map<String, us.AppUser?> _authorCache = {};
@@ -85,7 +92,7 @@ class VerticalDashedLine extends StatelessWidget {
     this.dashGap = 4.0,
   }) : super(key: key);
 
-  @override
+  
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -115,7 +122,7 @@ class _VerticalDashedLinePainter extends CustomPainter {
     required this.dashGap,
   });
 
-  @override
+  
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
@@ -133,7 +140,7 @@ class _VerticalDashedLinePainter extends CustomPainter {
     }
   }
 
-  @override
+  
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
@@ -204,7 +211,7 @@ class PostCommentPage extends StatefulWidget {
     );
   }
 
-  @override
+  
   State<PostCommentPage> createState() => _PostCommentPageState();
 }
 
@@ -217,8 +224,14 @@ class _PostCommentPageState extends State<PostCommentPage> {
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
+  
+  // 이미지 업로드 관련 필드들
+  List<XFile> _selectedImages = [];
+  List<XFile> _selectedReplyImages = [];
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploadingImages = false;
 
-  @override
+  
   void initState() {
     super.initState();
     _commentsFuture = CommunityRepository.instance
@@ -757,7 +770,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
     return '${d.inDays}일 전';
   }
 
-  @override
+  
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -776,6 +789,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
         },
         child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -955,12 +969,223 @@ class _PostCommentPageState extends State<PostCommentPage> {
           ),
         ),
         // bottom input removed per request
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // 댓글 작성 모달 열기
+            WoltModalSheet.show(
+              context: context,
+              pageListBuilder: (context) => [
+                WoltModalSheetPage(
+                  hasSabGradient: false,
+                  topBarTitle: Text('댓글 쓰기', style: tt.titleLarge),
+                  isTopBarLayerAlwaysVisible: true,
+                  trailingNavBarWidget: IconButton(
+                    padding: const EdgeInsets.all(8),
+                    icon: const Icon(SolarIconsOutline.closeCircle, size: 24),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: _PostCommentModalChild(post: widget.post),
+                  ),
+                ),
+              ],
+            );
+          },
+          child: const Icon(SolarIconsOutline.pen),
+        ),
         ),
       ),
     );
   }
 
-  @override
+  // 댓글용 이미지 선택
+  Future<void> _pickImagesForComment() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        // 최대 4개까지만 선택 가능
+        final remainingSlots = 4 - _selectedImages.length;
+        final imagesToAdd = images.take(remainingSlots).toList();
+        
+        setState(() {
+          _selectedImages.addAll(imagesToAdd);
+        });
+        
+        if (images.length > remainingSlots) {
+          DelightToastBar(
+            builder: (context) => ToastCard(
+              color: Theme.of(context).colorScheme.primary,
+              leading: const Icon(
+                SolarIconsOutline.infoCircle,
+                size: 28,
+                color: Colors.white,
+              ),
+              title: Text(
+                '최대 4개까지만 선택할 수 있습니다',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            position: DelightSnackbarPosition.top,
+            autoDismiss: true,
+            snackbarDuration: const Duration(seconds: 3),
+          ).show(context);
+        }
+      }
+    } catch (e) {
+      DelightToastBar(
+        builder: (context) => ToastCard(
+          color: Theme.of(context).colorScheme.primary,
+          leading: const Icon(
+            SolarIconsOutline.dangerCircle,
+            size: 28,
+            color: Colors.white,
+          ),
+          title: Text(
+            '이미지 선택 중 오류가 발생했습니다',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        position: DelightSnackbarPosition.top,
+        autoDismiss: true,
+        snackbarDuration: const Duration(seconds: 3),
+      ).show(context);
+    }
+  }
+
+  // 답글용 이미지 선택
+  Future<void> _pickImagesForReply() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        // 최대 4개까지만 선택 가능
+        final remainingSlots = 4 - _selectedReplyImages.length;
+        final imagesToAdd = images.take(remainingSlots).toList();
+        
+        setState(() {
+          _selectedReplyImages.addAll(imagesToAdd);
+        });
+        
+        if (images.length > remainingSlots) {
+          DelightToastBar(
+            builder: (context) => ToastCard(
+              color: Theme.of(context).colorScheme.primary,
+              leading: const Icon(
+                SolarIconsOutline.infoCircle,
+                size: 28,
+                color: Colors.white,
+              ),
+              title: Text(
+                '최대 4개까지만 선택할 수 있습니다',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            position: DelightSnackbarPosition.top,
+            autoDismiss: true,
+            snackbarDuration: const Duration(seconds: 3),
+          ).show(context);
+        }
+      }
+    } catch (e) {
+      DelightToastBar(
+        builder: (context) => ToastCard(
+          color: Theme.of(context).colorScheme.primary,
+          leading: const Icon(
+            SolarIconsOutline.dangerCircle,
+            size: 28,
+            color: Colors.white,
+          ),
+          title: Text(
+            '이미지 선택 중 오류가 발생했습니다',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        position: DelightSnackbarPosition.top,
+        autoDismiss: true,
+        snackbarDuration: const Duration(seconds: 3),
+      ).show(context);
+    }
+  }
+
+  // 댓글용 이미지 제거
+  void _removeImageFromComment(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  // 답글용 이미지 제거
+  void _removeImageFromReply(int index) {
+    setState(() {
+      _selectedReplyImages.removeAt(index);
+    });
+  }
+
+  // 이미지 업로드
+  Future<List<String>> _uploadImages(List<XFile> images) async {
+    final List<String> uploadedUrls = [];
+    
+    for (final image in images) {
+      try {
+        final bytes = await image.readAsBytes();
+        final url = await CloudinaryService.instance.uploadImageFromBytes(
+          bytes,
+          fileName: image.name,
+          folder: 'comments',
+        );
+        uploadedUrls.add(url);
+      } catch (e) {
+        // 개별 이미지 업로드 실패는 무시하고 계속 진행
+        continue;
+      }
+    }
+    
+    return uploadedUrls;
+  }
+
+  
+  // 댓글 작성 제출
+  Future<void> _submitComment() async {
+    final text = _commentCtl.text.trim();
+    if (text.isEmpty) return;
+    // 기본 댓글 제출 로직
+    try {
+      final success = await CommunityRepository.instance.createComment(
+        postId: widget.post.id,
+        content: text,
+        isAnonymous: false,
+        imageUrls: [],
+      );
+      if (success) {
+        _commentCtl.clear();
+        _reload();
+      }
+    } catch (e) {
+      // 오류 처리
+    }
+  }
   void dispose() {
     try {
       _commentCtl.dispose();
@@ -984,7 +1209,7 @@ class _PostCommentModalChild extends StatefulWidget {
   const _PostCommentModalChild({Key? key, required this.post})
     : super(key: key);
 
-  @override
+  
   State<_PostCommentModalChild> createState() => _PostCommentModalChildState();
 }
 
@@ -997,8 +1222,14 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
+  
+  // 이미지 업로드 관련 필드들
+  List<XFile> _selectedImages = [];
+  List<XFile> _selectedReplyImages = [];
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploadingImages = false;
 
-  @override
+  
   void initState() {
     super.initState();
     _commentsFuture = CommunityRepository.instance
@@ -1463,10 +1694,13 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                   const EdgeInsets.symmetric(
                                                     horizontal: 8,
                                                   ),
-                                              child: Icon(
-                                                SolarIconsOutline.paperclip,
-                                                size: 21,
-                                                color: Colors.grey[500],
+                                              child: GestureDetector(
+                                                onTap: _pickImagesForReply,
+                                                child: Icon(
+                                                  SolarIconsOutline.paperclip,
+                                                  size: 21,
+                                                  color: Colors.grey[500],
+                                                ),
                                               ),
                                             ),
                                             IconButton(
@@ -1515,7 +1749,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     return '${d.inDays}일 전';
   }
 
-  @override
+  
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -1574,13 +1808,301 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
               },
             ),
           ),
-          // bottom input removed from modal per request
+          // 댓글 입력 UI (community_home_page 스타일)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cs.surface,
+                border: Border(
+                  top: BorderSide(
+                    color: cs.outline.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: cs.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: cs.outline.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 7,
+                  horizontal: 12,
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _commentCtl,
+                        onSubmitted: (_) => _submitComment(),
+                        decoration: InputDecoration(
+                          hintText: '댓글 남기기',
+                          hintStyle: tt.bodyMedium?.copyWith(
+                            color: Colors.grey[500],
+                          ),
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                        ),
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: _pickImagesForComment,
+                      child: Icon(
+                        SolarIconsOutline.paperclip,
+                        size: 21,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: (_isUploadingImages) ? null : _submitComment,
+                      child: _isUploadingImages
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              SolarIconsOutline.arrowRight,
+                              size: 21,
+                              color: (_commentCtl.text.trim().isEmpty && _selectedImages.isEmpty)
+                                  ? Colors.grey[400]
+                                  : cs.primary,
+                            ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  @override
+  // 댓글용 이미지 선택
+  Future<void> _pickImagesForComment() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        // 최대 4개까지만 선택 가능
+        final remainingSlots = 4 - _selectedImages.length;
+        final imagesToAdd = images.take(remainingSlots).toList();
+        
+        setState(() {
+          _selectedImages.addAll(imagesToAdd);
+        });
+        
+        if (images.length > remainingSlots) {
+          DelightToastBar(
+            builder: (context) => ToastCard(
+              color: Theme.of(context).colorScheme.primary,
+              leading: const Icon(
+                SolarIconsOutline.infoCircle,
+                size: 28,
+                color: Colors.white,
+              ),
+              title: Text(
+                '최대 4개까지만 선택할 수 있습니다',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            position: DelightSnackbarPosition.top,
+            autoDismiss: true,
+            snackbarDuration: const Duration(seconds: 3),
+          ).show(context);
+        }
+      }
+    } catch (e) {
+      DelightToastBar(
+        builder: (context) => ToastCard(
+          color: Theme.of(context).colorScheme.primary,
+          leading: const Icon(
+            SolarIconsOutline.dangerCircle,
+            size: 28,
+            color: Colors.white,
+          ),
+          title: Text(
+            '이미지 선택 중 오류가 발생했습니다',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        position: DelightSnackbarPosition.top,
+        autoDismiss: true,
+        snackbarDuration: const Duration(seconds: 3),
+      ).show(context);
+    }
+  }
+
+  // 답글용 이미지 선택
+  Future<void> _pickImagesForReply() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      
+      if (images.isNotEmpty) {
+        // 최대 4개까지만 선택 가능
+        final remainingSlots = 4 - _selectedReplyImages.length;
+        final imagesToAdd = images.take(remainingSlots).toList();
+        
+        setState(() {
+          _selectedReplyImages.addAll(imagesToAdd);
+        });
+        
+        if (images.length > remainingSlots) {
+          DelightToastBar(
+            builder: (context) => ToastCard(
+              color: Theme.of(context).colorScheme.primary,
+              leading: const Icon(
+                SolarIconsOutline.infoCircle,
+                size: 28,
+                color: Colors.white,
+              ),
+              title: Text(
+                '최대 4개까지만 선택할 수 있습니다',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            position: DelightSnackbarPosition.top,
+            autoDismiss: true,
+            snackbarDuration: const Duration(seconds: 3),
+          ).show(context);
+        }
+      }
+    } catch (e) {
+      DelightToastBar(
+        builder: (context) => ToastCard(
+          color: Theme.of(context).colorScheme.primary,
+          leading: const Icon(
+            SolarIconsOutline.dangerCircle,
+            size: 28,
+            color: Colors.white,
+          ),
+          title: Text(
+            '이미지 선택 중 오류가 발생했습니다',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        position: DelightSnackbarPosition.top,
+        autoDismiss: true,
+        snackbarDuration: const Duration(seconds: 3),
+      ).show(context);
+    }
+  }
+
+  // 댓글용 이미지 제거
+  void _removeImageFromComment(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  // 답글용 이미지 제거
+  void _removeImageFromReply(int index) {
+    setState(() {
+      _selectedReplyImages.removeAt(index);
+    });
+  }
+
+  // 이미지 업로드
+  Future<List<String>> _uploadImages(List<XFile> images) async {
+    final List<String> uploadedUrls = [];
+    
+    for (final image in images) {
+      try {
+        final bytes = await image.readAsBytes();
+        final url = await CloudinaryService.instance.uploadImageFromBytes(
+          bytes,
+          fileName: image.name,
+          folder: 'comments',
+        );
+        uploadedUrls.add(url);
+      } catch (e) {
+        // 개별 이미지 업로드 실패는 무시하고 계속 진행
+        continue;
+      }
+    }
+    
+    return uploadedUrls;
+  }
+
+  
+  // 댓글 작성 제출
+  Future<void> _submitComment() async {
+    final text = _commentCtl.text.trim();
+    if (text.isEmpty) return;
+    // 기본 댓글 제출 로직
+    try {
+      final success = await CommunityRepository.instance.createComment(
+        postId: widget.post.id,
+        content: text,
+        isAnonymous: false,
+        imageUrls: [],
+      );
+      if (success) {
+        _commentCtl.clear();
+        _reload();
+      }
+    } catch (e) {
+      // 오류 처리
+    }
+
+  // 댓글 작성 제출
+  Future<void> _submitComment() async {
+    final text = _commentCtl.text.trim();
+    if (text.isEmpty) return;
+    
+    try {
+      final success = await CommunityRepository.instance.createComment(
+        postId: widget.post.id,
+        content: text,
+        isAnonymous: false,
+        imageUrls: [],
+      );
+      if (success) {
+        _commentCtl.clear();
+        _reload();
+      }
+    } catch (e) {
+      // 오류 처리
+    }
+  }
+  }
   void dispose() {
     try {
       _commentCtl.dispose();
