@@ -1126,25 +1126,26 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () {
-                                final cid = (c['id'] as int?) ?? -1;
-                                if (cid < 0) return;
-                                if (_replyingToCommentId == cid) {
-                                  setState(() => _replyingToCommentId = null);
-                                  _replyController.clear();
-                                  FocusScope.of(context).unfocus();
-                                } else {
-                                  setState(() => _replyingToCommentId = cid);
-                                  Future.delayed(const Duration(milliseconds: 50), () {
-                                    try {
-                                      FocusScope.of(context).requestFocus(_replyFocusNode);
-                                    } catch (_) {}
-                                  });
-                                }
-                              },
-                              child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                            ),
+                            if (!isReply)
+                              GestureDetector(
+                                onTap: () {
+                                  final cid = (c['id'] as int?) ?? -1;
+                                  if (cid < 0) return;
+                                  if (_replyingToCommentId == cid) {
+                                    setState(() => _replyingToCommentId = null);
+                                    _replyController.clear();
+                                    FocusScope.of(context).unfocus();
+                                  } else {
+                                    setState(() => _replyingToCommentId = cid);
+                                    Future.delayed(const Duration(milliseconds: 50), () {
+                                      try {
+                                        FocusScope.of(context).requestFocus(_replyFocusNode);
+                                      } catch (_) {}
+                                    });
+                                  }
+                                },
+                                child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                              ),
                           ],
                         ),
                       ],
@@ -1153,12 +1154,12 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 ],
               ),
               ClipRect(
-                child: AnimatedSwitcher(
+                  child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 260),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
                   transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
-                  child: ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1))
+                  child: ((!isReply) && ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1)))
                       ? Container(
                           key: ValueKey('reply-input-${c['id']}'),
                           margin: const EdgeInsets.only(top: 8),
