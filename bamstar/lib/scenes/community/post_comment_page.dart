@@ -803,54 +803,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
             ),
           ),
         ),
-        bottomSheet: Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: Row(
-            children: [
-              Expanded(
-                child: Transform.scale(
-                  scale: 0.7,
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: cs.surface,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _commentCtl,
-                            decoration: const InputDecoration.collapsed(
-                              hintText: '댓글 내용을 작성해주세요',
-                            ),
-                            textInputAction: TextInputAction.send,
-                            onSubmitted: (_) => _submit(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          onPressed: _isPosting ? null : _submit,
-                          icon: Icon(
-                            Icons.send,
-                            color: _isPosting
-                                ? cs.onSurfaceVariant
-                                : cs.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+  // bottom input removed per request
       ),
     );
   }
@@ -1416,64 +1369,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
               },
             ),
           ),
-          // Bottom input (sticky)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Transform.scale(
-                      scale: 0.7,
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: cs.surface,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: cs.outline.withOpacity(0.06),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _commentCtl,
-                                decoration: const InputDecoration.collapsed(
-                                  hintText: '댓글 내용을 작성해주세요',
-                                ),
-                                textInputAction: TextInputAction.send,
-                                onSubmitted: (_) => _submit(),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: cs.primary,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: IconButton(
-                                onPressed: _isPosting ? null : _submit,
-                                icon: Icon(Icons.send, color: cs.onPrimary),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // bottom input removed from modal per request
         ],
       ),
     );
