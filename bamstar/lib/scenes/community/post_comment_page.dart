@@ -187,6 +187,9 @@ class PostCommentPage extends StatefulWidget {
 class _PostCommentPageState extends State<PostCommentPage> {
   final TextEditingController _commentCtl = TextEditingController();
   bool _isPosting = false;
+  int? _replyingToCommentId;
+  final TextEditingController _replyController = TextEditingController();
+  final FocusNode _replyFocusNode = FocusNode();
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
@@ -217,6 +220,17 @@ class _PostCommentPageState extends State<PostCommentPage> {
           } catch (_) {}
           return comments;
         });
+    // reply focus listener: hide reply input on focus loss
+    _replyFocusNode.addListener(() {
+      if (!_replyFocusNode.hasFocus && mounted) {
+        setState(() {
+          _replyingToCommentId = null;
+        });
+        try {
+          _replyController.clear();
+        } catch (_) {}
+      }
+    });
   }
 
   void _reload() {
@@ -228,6 +242,31 @@ class _PostCommentPageState extends State<PostCommentPage> {
             return comments;
           });
     });
+  }
+
+  Future<void> _submitReply({required int parentId}) async {
+    final text = _replyController.text.trim();
+    if (text.isEmpty) return;
+    final ok = await CommunityRepository.instance.createComment(
+      postId: widget.post.id,
+      content: text,
+      parentCommentId: parentId,
+      isAnonymous: false,
+    );
+    if (ok) {
+      try {
+        _replyController.clear();
+      } catch (_) {}
+      try {
+        _replyFocusNode.unfocus();
+      } catch (_) {}
+      _reload();
+    } else {
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+      } catch (_) {}
+    }
   }
 
   Future<void> _submit() async {
@@ -382,93 +421,146 @@ class _PostCommentPageState extends State<PostCommentPage> {
                           const SizedBox(height: 6),
                           Text(content, style: tt.bodyMedium),
                           const SizedBox(height: 8),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  final cid = (c['id'] as int?) ?? -1;
-                                  if (cid < 0) return;
-                                  setState(() {
-                                    final cur = _commentLikeCounts[cid] ?? 0;
-                                    if (_likedCommentIds.contains(cid)) {
-                                      _likedCommentIds.remove(cid);
-                                      _commentLikeCounts[cid] = (cur - 1).clamp(
-                                        0,
-                                        999999,
-                                      );
-                                    } else {
-                                      _likedCommentIds.add(cid);
-                                      _commentLikeCounts[cid] = cur + 1;
-                                    }
-                                  });
-                                  try {
-                                    if (_likedCommentIds.contains(cid)) {
-                                      final ok = await CommunityRepository
-                                          .instance
-                                          .likeComment(commentId: cid);
-                                      if (!ok) {
-                                        setState(() {
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final cid = (c['id'] as int?) ?? -1;
+                                      if (cid < 0) return;
+                                      setState(() {
+                                        final cur = _commentLikeCounts[cid] ?? 0;
+                                        if (_likedCommentIds.contains(cid)) {
                                           _likedCommentIds.remove(cid);
-                                          _commentLikeCounts[cid] =
-                                              (_commentLikeCounts[cid] ?? 1) -
-                                              1;
-                                        });
-                                      }
-                                    } else {
-                                      final ok = await CommunityRepository
-                                          .instance
-                                          .unlikeComment(commentId: cid);
-                                      if (!ok) {
-                                        setState(() {
+                                          _commentLikeCounts[cid] = (cur - 1)
+                                              .clamp(0, 999999);
+                                        } else {
                                           _likedCommentIds.add(cid);
-                                          _commentLikeCounts[cid] =
-                                              (_commentLikeCounts[cid] ?? 0) +
-                                              1;
-                                        });
-                                      }
-                                    }
-                                  } catch (_) {}
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: cs.surface,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        _likedCommentIds.contains(
-                                              (c['id'] as int?) ?? -1,
-                                            )
-                                            ? SolarIconsBold.heart
-                                            : SolarIconsOutline.heart,
-                                        color:
+                                          _commentLikeCounts[cid] = cur + 1;
+                                        }
+                                      });
+                                      try {
+                                        if (_likedCommentIds.contains(cid)) {
+                                          final ok = await CommunityRepository
+                                              .instance
+                                              .likeComment(commentId: cid);
+                                          if (!ok) {
+                                            setState(() {
+                                              _likedCommentIds.remove(cid);
+                                              _commentLikeCounts[cid] =
+                                                  (_commentLikeCounts[cid] ?? 1) -
+                                                  1;
+                                            });
+                                          }
+                                        } else {
+                                          final ok = await CommunityRepository
+                                              .instance
+                                              .unlikeComment(commentId: cid);
+                                          if (!ok) {
+                                            setState(() {
+                                              _likedCommentIds.add(cid);
+                                              _commentLikeCounts[cid] =
+                                                  (_commentLikeCounts[cid] ?? 0) +
+                                                  1;
+                                            });
+                                          }
+                                        }
+                                      } catch (_) {}
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: cs.surface,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
                                             _likedCommentIds.contains(
-                                              (c['id'] as int?) ?? -1,
-                                            )
-                                            ? Colors.red
-                                            : Colors.grey,
-                                        size: 14,
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? SolarIconsBold.heart
+                                                : SolarIconsOutline.heart,
+                                            color:
+                                                _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? Colors.red
+                                                : Colors.grey,
+                                            size: 14,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                            style: tt.bodySmall,
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
-                                        style: tt.bodySmall,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  // Only allow replies to top-level comments
+                                  GestureDetector(
+                                    onTap: () {
+                                      final cid = (c['id'] as int?) ?? -1;
+                                      if (cid < 0) return;
+                                      // if this comment is itself a reply, don't open reply
+                                      if ((c['parent_comment_id'] as int?) != null) return;
+                                      debugPrint('[post_comment] reply tap cid=$cid');
+                                      setState(() {
+                                        _replyingToCommentId =
+                                            _replyingToCommentId == cid ? null : cid;
+                                      });
+                                      if (_replyingToCommentId == cid) {
+                                        Future.delayed(const Duration(milliseconds: 50), () {
+                                          if (mounted) _replyFocusNode.requestFocus();
+                                        });
+                                      } else {
+                                        _replyFocusNode.unfocus();
+                                      }
+                                    },
+                                    child: Text(
+                                      '댓글 쓰기',
+                                      style: tt.bodySmall?.copyWith(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                '댓글 쓰기',
-                                style: tt.bodySmall?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 180),
+                                child: _replyingToCommentId == (c['id'] as int?)
+                                    ? Padding(
+                                        key: ValueKey('reply-input-${c['id']}'),
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                controller: _replyController,
+                                                focusNode: _replyFocusNode,
+                                                decoration: const InputDecoration(
+                                                  hintText: '답글을 작성하세요',
+                                                ),
+                                                textInputAction: TextInputAction.send,
+                                                onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            IconButton(
+                                              onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                              icon: const Icon(Icons.send),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
                             ],
                           ),
@@ -685,6 +777,9 @@ class _PostCommentModalChild extends StatefulWidget {
 class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   final TextEditingController _commentCtl = TextEditingController();
   bool _isPosting = false;
+  int? _replyingToCommentId;
+  final TextEditingController _replyController = TextEditingController();
+  final FocusNode _replyFocusNode = FocusNode();
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
@@ -715,6 +810,16 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
           } catch (_) {}
           return comments;
         });
+    _replyFocusNode.addListener(() {
+      if (!_replyFocusNode.hasFocus && mounted) {
+        setState(() {
+          _replyingToCommentId = null;
+        });
+        try {
+          _replyController.clear();
+        } catch (_) {}
+      }
+    });
   }
 
   void _reload() {
@@ -726,6 +831,31 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             return comments;
           });
     });
+  }
+
+  Future<void> _submitReply({required int parentId}) async {
+    final text = _replyController.text.trim();
+    if (text.isEmpty) return;
+    final ok = await CommunityRepository.instance.createComment(
+      postId: widget.post.id,
+      content: text,
+      parentCommentId: parentId,
+      isAnonymous: false,
+    );
+    if (ok) {
+      try {
+        _replyController.clear();
+      } catch (_) {}
+      try {
+        _replyFocusNode.unfocus();
+      } catch (_) {}
+      _reload();
+    } else {
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+      } catch (_) {}
+    }
   }
 
   Future<void> _submit() async {
@@ -878,106 +1008,156 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                           const SizedBox(height: 6),
                           Text(content, style: tt.bodyMedium),
                           const SizedBox(height: 8),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  final cid = (c['id'] as int?) ?? -1;
-                                  if (cid < 0) return;
-                                  setState(() {
-                                    final cur = _commentLikeCounts[cid] ?? 0;
-                                    if (_likedCommentIds.contains(cid)) {
-                                      _likedCommentIds.remove(cid);
-                                      _commentLikeCounts[cid] = (cur - 1).clamp(
-                                        0,
-                                        999999,
-                                      );
-                                    } else {
-                                      _likedCommentIds.add(cid);
-                                      _commentLikeCounts[cid] = cur + 1;
-                                    }
-                                  });
-                                  try {
-                                    if (_likedCommentIds.contains(cid)) {
-                                      final ok = await CommunityRepository
-                                          .instance
-                                          .likeComment(commentId: cid);
-                                      if (!ok) {
-                                        setState(() {
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final cid = (c['id'] as int?) ?? -1;
+                                      if (cid < 0) return;
+                                      setState(() {
+                                        final cur = _commentLikeCounts[cid] ?? 0;
+                                        if (_likedCommentIds.contains(cid)) {
                                           _likedCommentIds.remove(cid);
-                                          _commentLikeCounts[cid] =
-                                              (_commentLikeCounts[cid] ?? 1) -
-                                              1;
-                                        });
-                                      }
-                                    } else {
-                                      final ok = await CommunityRepository
-                                          .instance
-                                          .unlikeComment(commentId: cid);
-                                      if (!ok) {
-                                        setState(() {
+                                          _commentLikeCounts[cid] = (cur - 1)
+                                              .clamp(0, 999999);
+                                        } else {
                                           _likedCommentIds.add(cid);
-                                          _commentLikeCounts[cid] =
-                                              (_commentLikeCounts[cid] ?? 0) +
-                                              1;
+                                          _commentLikeCounts[cid] = cur + 1;
+                                        }
+                                      });
+                                      try {
+                                        if (_likedCommentIds.contains(cid)) {
+                                          final ok = await CommunityRepository
+                                              .instance
+                                              .likeComment(commentId: cid);
+                                          if (!ok) {
+                                            setState(() {
+                                              _likedCommentIds.remove(cid);
+                                              _commentLikeCounts[cid] =
+                                                  (_commentLikeCounts[cid] ?? 1) -
+                                                  1;
+                                            });
+                                          }
+                                        } else {
+                                          final ok = await CommunityRepository
+                                              .instance
+                                              .unlikeComment(commentId: cid);
+                                          if (!ok) {
+                                            setState(() {
+                                              _likedCommentIds.add(cid);
+                                              _commentLikeCounts[cid] =
+                                                  (_commentLikeCounts[cid] ?? 0) +
+                                                  1;
+                                            });
+                                          }
+                                        }
+                                      } catch (_) {
+                                        setState(() {
+                                          if (_likedCommentIds.contains(cid)) {
+                                            _likedCommentIds.remove(cid);
+                                            _commentLikeCounts[cid] =
+                                                (_commentLikeCounts[cid] ?? 1) - 1;
+                                          } else {
+                                            _likedCommentIds.add(cid);
+                                            _commentLikeCounts[cid] =
+                                                (_commentLikeCounts[cid] ?? 0) + 1;
+                                          }
                                         });
                                       }
-                                    }
-                                  } catch (_) {
-                                    // network error: best-effort rollback
-                                    setState(() {
-                                      if (_likedCommentIds.contains(cid)) {
-                                        _likedCommentIds.remove(cid);
-                                        _commentLikeCounts[cid] =
-                                            (_commentLikeCounts[cid] ?? 1) - 1;
-                                      } else {
-                                        _likedCommentIds.add(cid);
-                                        _commentLikeCounts[cid] =
-                                            (_commentLikeCounts[cid] ?? 0) + 1;
-                                      }
-                                    });
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: cs.surface,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        _likedCommentIds.contains(
-                                              (c['id'] as int?) ?? -1,
-                                            )
-                                            ? SolarIconsBold.heart
-                                            : SolarIconsOutline.heart,
-                                        color:
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: cs.surface,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
                                             _likedCommentIds.contains(
-                                              (c['id'] as int?) ?? -1,
-                                            )
-                                            ? Colors.red
-                                            : Colors.grey,
-                                        size: 14,
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? SolarIconsBold.heart
+                                                : SolarIconsOutline.heart,
+                                            color:
+                                                _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? Colors.red
+                                                : Colors.grey,
+                                            size: 14,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                            style: tt.bodySmall,
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
-                                        style: tt.bodySmall,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      final cid = (c['id'] as int?) ?? -1;
+                                      if (cid < 0) return;
+                                      if ((c['parent_comment_id'] as int?) != null) return;
+                                      debugPrint('[post_comment_modal] reply tap cid=$cid');
+                                      setState(() {
+                                        _replyingToCommentId =
+                                            _replyingToCommentId == cid ? null : cid;
+                                      });
+                                      if (_replyingToCommentId == cid) {
+                                        Future.delayed(const Duration(milliseconds: 50), () {
+                                          if (mounted) _replyFocusNode.requestFocus();
+                                        });
+                                      } else {
+                                        _replyFocusNode.unfocus();
+                                      }
+                                    },
+                                    child: Text(
+                                      '댓글 쓰기',
+                                      style: tt.bodySmall?.copyWith(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                '댓글 쓰기',
-                                style: tt.bodySmall?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 180),
+                                child: _replyingToCommentId == (c['id'] as int?)
+                                    ? Padding(
+                                        key: ValueKey('reply-input-modal-${c['id']}'),
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                controller: _replyController,
+                                                focusNode: _replyFocusNode,
+                                                decoration: const InputDecoration(
+                                                  hintText: '답글을 작성하세요',
+                                                ),
+                                                textInputAction: TextInputAction.send,
+                                                onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            IconButton(
+                                              onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                              icon: const Icon(Icons.send),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : const SizedBox.shrink(),
                               ),
                             ],
                           ),

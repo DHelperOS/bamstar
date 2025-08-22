@@ -1724,29 +1724,30 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       final comments = snap.data ?? [];
                       if (comments.isEmpty) return const SizedBox.shrink();
                       final roots = _buildCommentTree(comments);
+                      // Build a flattened preview list (preserve parent->child order)
+                      // but show at most 3 items total (including replies).
+                      final List<Widget> previewItems = [];
+                      int remaining = 3;
+                      for (final root in roots) {
+                        if (remaining <= 0) break;
+                        previewItems.add(_buildCommentRow(root, cs, tt));
+                        remaining -= 1;
+                        if (remaining <= 0) break;
+                        final rootChildren = (root['children'] as List<Map<String, dynamic>>?) ?? [];
+                        for (final child in rootChildren) {
+                          if (remaining <= 0) break;
+                          previewItems.add(Padding(
+                            padding: const EdgeInsets.only(left: 44, top: 8),
+                            child: _buildCommentRow(child, cs, tt, isReply: true),
+                          ));
+                          remaining -= 1;
+                        }
+                      }
+
                       return Column(
                         children: [
                           Column(
-                            children: List.generate(roots.length, (ri) {
-                              final root = roots[ri];
-                              final rootChildren = (root['children'] as List<Map<String, dynamic>>?) ?? [];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildCommentRow(root, cs, tt),
-                                  if (rootChildren.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 44, top: 8),
-                                      child: Column(
-                                        children: List.generate(rootChildren.length, (ci) {
-                                          final child = rootChildren[ci];
-                                          return _buildCommentRow(child, cs, tt, isReply: true);
-                                        }),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            }),
+                            children: previewItems,
                           ),
                           GestureDetector(
                             onTap: () {
