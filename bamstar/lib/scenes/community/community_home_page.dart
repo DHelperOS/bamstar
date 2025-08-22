@@ -252,6 +252,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         forceMaterialTransparency: true,
@@ -330,27 +331,18 @@ class _CommunityHomePageState extends State<CommunityHomePage>
           const SizedBox(width: 12),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final created = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (_) => const CreatePostPage()),
-          );
-          if (created == true) {
-            // Refresh after posting
-            // ignore: use_build_context_synchronously
-            _refresh();
-          }
-        },
-        child: const Icon(SolarIconsOutline.chatRound),
-      ),
-      body: SafeArea(
-        child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: RefreshIndicator(
-            color: Colors.grey, // neutral spinner instead of primary (purple)
-            backgroundColor: Colors.white,
-            onRefresh: _refresh,
-            child: NotificationListener<OverscrollIndicatorNotification>(
+      floatingActionButton: null,
+      floatingActionButtonLocation: null,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: RefreshIndicator(
+                color: Colors.grey, // neutral spinner instead of primary (purple)
+                backgroundColor: Colors.white,
+                onRefresh: _refresh,
+                child: NotificationListener<OverscrollIndicatorNotification>(
               onNotification: (overscroll) {
                 // Suppress default glow (we already provide a neutral one globally)
                 overscroll.disallowIndicator();
@@ -623,7 +615,27 @@ class _CommunityHomePageState extends State<CommunityHomePage>
               ),
             ),
           ),
-        ),
+            ),
+          ),
+          // 고정 위치의 FloatingActionButton
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: () async {
+                final created = await Navigator.of(context).push<bool>(
+                  MaterialPageRoute(builder: (_) => const CreatePostPage()),
+                );
+                if (created == true) {
+                  // Refresh after posting
+                  // ignore: use_build_context_synchronously
+                  _refresh();
+                }
+              },
+              child: const Icon(SolarIconsOutline.pen),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -877,12 +889,51 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
-            backgroundColor: Colors.red,
+        DelightToastBar(
+          autoDismiss: true,
+          animationDuration: const Duration(milliseconds: 300),
+          snackbarDuration: const Duration(seconds: 5),
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 8,
+              bottom: 8,
+            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsOutline.dangerCircle,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '이미지 선택 중 오류가 발생했습니다: $e',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
+        ).show(context);
       }
     }
   }
@@ -902,12 +953,51 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
-            backgroundColor: Colors.red,
+        DelightToastBar(
+          autoDismiss: true,
+          animationDuration: const Duration(milliseconds: 300),
+          snackbarDuration: const Duration(seconds: 5),
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 8,
+              bottom: 8,
+            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsOutline.dangerCircle,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '이미지 선택 중 오류가 발생했습니다: $e',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
+        ).show(context);
       }
     }
   }
@@ -947,12 +1037,51 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           uploadedUrls.add(url);
         } catch (e) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('이미지 업로드 실패: ${image.name}'),
-                backgroundColor: Colors.red,
+            DelightToastBar(
+              autoDismiss: true,
+              animationDuration: const Duration(milliseconds: 300),
+              snackbarDuration: const Duration(seconds: 5),
+              builder: (context) => Container(
+                margin: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 8,
+                  bottom: 8,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      SolarIconsOutline.dangerCircle,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '이미지 업로드 실패: ${image.name}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
+            ).show(context);
           }
           // 개별 이미지 업로드 실패 시에도 다른 이미지들은 계속 업로드
         }
@@ -973,7 +1102,57 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     FocusScope.of(context).unfocus();
     
     final text = _commentController.text.trim();
-    if (text.isEmpty && _selectedImages.isEmpty) return;
+    // 텍스트가 비어있으면 이미지가 있어도 업로드 안됨
+    if (text.isEmpty) {
+      if (mounted) {
+        DelightToastBar(
+          autoDismiss: true,
+          animationDuration: const Duration(milliseconds: 300),
+          snackbarDuration: const Duration(seconds: 5),
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 8,
+              bottom: 8,
+            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsOutline.infoCircle,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '댓글 내용을 입력해주세요.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ).show(context);
+      }
+      return;
+    }
     if (_isPostingComment) return;
     setState(() => _isPostingComment = true);
 
@@ -986,23 +1165,101 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           // 이미지 업로드가 모두 실패한 경우 - 텍스트가 있으면 텍스트만 게시
           if (text.isEmpty) {
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('이미지 업로드 실패. 텍스트를 입력해주세요.'),
-                  backgroundColor: Colors.orange,
+              DelightToastBar(
+                autoDismiss: true,
+                animationDuration: const Duration(milliseconds: 300),
+                snackbarDuration: const Duration(seconds: 5),
+                builder: (context) => Container(
+                  margin: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        SolarIconsOutline.infoCircle,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '이미지 업로드 실패. 텍스트를 입력해주세요.',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
+              ).show(context);
             }
             return;
           } else {
             // 텍스트가 있으면 텍스트만 게시하고 계속 진행
             if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('이미지 업로드 실패. 텍스트만 게시합니다.'),
-                  backgroundColor: Colors.orange,
+              DelightToastBar(
+                autoDismiss: true,
+                animationDuration: const Duration(milliseconds: 300),
+                snackbarDuration: const Duration(seconds: 5),
+                builder: (context) => Container(
+                  margin: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        SolarIconsOutline.infoCircle,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '이미지 업로드 실패. 텍스트만 게시합니다.',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
+              ).show(context);
             }
           }
         }
@@ -1081,12 +1338,51 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
         // show error
         try {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('댓글 전송에 실패했습니다'),
-                backgroundColor: Colors.red,
+            DelightToastBar(
+              autoDismiss: true,
+              animationDuration: const Duration(milliseconds: 300),
+              snackbarDuration: const Duration(seconds: 5),
+              builder: (context) => Container(
+                margin: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 8,
+                  bottom: 8,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      SolarIconsOutline.dangerCircle,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '댓글 전송에 실패했습니다',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            );
+            ).show(context);
           }
         } catch (_) {}
       }
@@ -1103,7 +1399,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             ),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.red.shade100,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -1117,7 +1413,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               children: [
                 Icon(
                   SolarIconsBold.dangerTriangle,
-                  color: Colors.red.shade700,
+                  color: Colors.white,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -1125,7 +1421,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   child: Text(
                     '댓글 전송 중 오류가 발생했습니다: $e',
                     style: TextStyle(
-                      color: Colors.red.shade700,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1168,7 +1464,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 ),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
+                  color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -1182,7 +1478,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   children: [
                     Icon(
                       SolarIconsBold.dangerTriangle,
-                      color: Colors.orange.shade700,
+                      color: Colors.white,
                       size: 24,
                     ),
                     const SizedBox(width: 12),
@@ -1190,7 +1486,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       child: Text(
                         '이미지 업로드에 실패했습니다. 텍스트만 게시하시겠습니까?',
                         style: TextStyle(
-                          color: Colors.orange.shade700,
+                          color: Colors.white,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1274,7 +1570,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             ),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.red.shade100,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
@@ -1288,7 +1584,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               children: [
                 Icon(
                   SolarIconsBold.dangerTriangle,
-                  color: Colors.red.shade700,
+                  color: Colors.white,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -1296,7 +1592,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   child: Text(
                     '답글 전송 중 오류가 발생했습니다: $e',
                     style: TextStyle(
-                      color: Colors.red.shade700,
+                      color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1631,7 +1927,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            if (!isReply)
+                            // 편집 아이콘 (연필 모양) - 댓글에만 표시 (대댓글에는 없음)
+                            if (!isReply) ...[
                               GestureDetector(
                                 onTap: () {
                                   final cid = (c['id'] as int?) ?? -1;
@@ -1656,13 +1953,208 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     );
                                   }
                                 },
-                                child: Text(
-                                  '댓글 쓰기',
-                                  style: tt.bodySmall?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      SolarIconsOutline.pen,
+                                      size: 14,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '댓글 쓰기',
+                                      style: tt.bodySmall?.copyWith(
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              const SizedBox(width: 12),
+                            ],
+                            // 삭제 아이콘 (휴지통 모양) - 본인 댓글일 때만 표시 (댓글과 대댓글 모두)
+                            if (authorId != null && 
+                                Supabase.instance.client.auth.currentUser?.id == authorId)
+                                GestureDetector(
+                                  onTap: () async {
+                                    // 삭제 확인 다이얼로그
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('댓글 삭제'),
+                                        content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: const Text('취소'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.red,
+                                            ),
+                                            child: const Text('삭제'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    
+                                    if (confirmed == true) {
+                                      final cid = (c['id'] as int?) ?? -1;
+                                      if (cid < 0) return;
+                                      
+                                      try {
+                                        await CommunityRepository.instance.deleteComment(
+                                          commentId: cid,
+                                          postId: post.id,
+                                        );
+                                        
+                                        // 댓글 목록 새로고침
+                                        setState(() {
+                                          _commentsFuture = CommunityRepository.instance
+                                              .fetchCommentsForPost(post.id, limit: 6)
+                                              .then((comments) async {
+                                                await _prefetchCommentAuthors(comments);
+                                                try {
+                                                  final ids = comments
+                                                      .map((c) => (c['id'] as int?) ?? -1)
+                                                      .where((id) => id > 0)
+                                                      .toList();
+                                                  if (ids.isNotEmpty) {
+                                                    final counts = await CommunityRepository.instance
+                                                        .getCommentLikeCounts(ids);
+                                                    final liked = await CommunityRepository.instance
+                                                        .getUserLikedComments(ids);
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _commentLikeCounts.clear();
+                                                        _likedCommentIds.clear();
+                                                        for (final e in counts.entries) {
+                                                          _commentLikeCounts[e.key] = e.value;
+                                                        }
+                                                        _likedCommentIds.addAll(liked);
+                                                      });
+                                                    }
+                                                  }
+                                                } catch (_) {}
+                                                return comments;
+                                              });
+                                        });
+                                        
+                                        if (mounted) {
+                                          DelightToastBar(
+                                            autoDismiss: true,
+                                            animationDuration: const Duration(milliseconds: 300),
+                                            snackbarDuration: const Duration(seconds: 5),
+                                            builder: (context) => Container(
+                                              margin: const EdgeInsets.only(
+                                                left: 16,
+                                                right: 16,
+                                                top: 8,
+                                                bottom: 8,
+                                              ),
+                                              padding: const EdgeInsets.all(16),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                borderRadius: BorderRadius.circular(12),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withValues(alpha: 0.1),
+                                                    blurRadius: 8,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    SolarIconsOutline.checkCircle,
+                                                    color: Colors.white,
+                                                    size: 24,
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Text(
+                                                      '댓글이 삭제되었습니다.',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.w600,
+                                                        fontSize: 14,
+                                                        color: Theme.of(context).colorScheme.onSurface,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ).show(context);
+                                        }
+                                      } catch (e) {
+                                        if (mounted) {
+                                          DelightToastBar(
+                                            builder: (context) => Container(
+                                              margin: const EdgeInsets.only(
+                                                left: 16,
+                                                right: 16,
+                                                top: 8,
+                                                bottom: 8,
+                                              ),
+                                              padding: const EdgeInsets.all(16),
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                borderRadius: BorderRadius.circular(12),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withValues(alpha: 0.1),
+                                                    blurRadius: 8,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    SolarIconsOutline.dangerCircle,
+                                                    color: Colors.red,
+                                                    size: 24,
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Text(
+                                                      '댓글 삭제 중 오류가 발생했습니다: $e',
+                                                      style: const TextStyle(
+                      color: Colors.white,
+                                                        fontWeight: FontWeight.w600,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ).show(context);
+                                        }
+                                      }
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        SolarIconsOutline.trashBinMinimalistic,
+                                        size: 14,
+                                        color: Colors.red.withValues(alpha: 0.7),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '삭제하기',
+                                        style: tt.bodySmall?.copyWith(
+                                          color: Colors.red.withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                           ],
                         ),
                       ],
@@ -2607,7 +3099,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                               }
                             },
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 6),
+                              padding: const EdgeInsets.only(top: 12),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
