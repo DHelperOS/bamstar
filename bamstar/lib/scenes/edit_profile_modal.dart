@@ -6,8 +6,7 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'package:bamstar/services/avatar_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-// ...existing code... (removed unused solar_icons import)
+// ...existing code... (removed unused cached_network_image and solar_icons imports)
 
 /// Show the edit profile modal (photo + name/email). Calls [onImagePicked]
 /// when the user picks a new image so callers can update preview state.

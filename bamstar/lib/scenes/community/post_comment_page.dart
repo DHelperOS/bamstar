@@ -766,12 +766,13 @@ class _PostCommentPageState extends State<PostCommentPage> {
     // pushed via Navigator. For WoltModalSheet usage, use the
     // static helper `PostCommentPage.woltPage` below.
     return SafeArea(
-      child: WillPopScope(
-        onWillPop: () async {
-          try {
-            FocusScope.of(context).unfocus();
-          } catch (_) {}
-          return true;
+      child: PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            try {
+              FocusScope.of(context).unfocus();
+            } catch (_) {}
+          }
         },
         child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -846,7 +847,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                 children: [
                                   CircleAvatar(
                                     radius: CommunitySizes.avatarBase / 2,
-                                    backgroundColor: cs.surfaceVariant,
+                                    backgroundColor: cs.surfaceContainerHighest,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -857,7 +858,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                           height: 12,
                                           width: 120,
                                           decoration: BoxDecoration(
-                                            color: cs.surfaceVariant,
+                                            color: cs.surfaceContainerHighest,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                         ),
@@ -866,7 +867,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                           height: 14,
                                           width: double.infinity,
                                           decoration: BoxDecoration(
-                                            color: cs.surfaceVariant,
+                                            color: cs.surfaceContainerHighest,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                         ),
@@ -875,7 +876,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                           height: 14,
                                           width: MediaQuery.of(context).size.width * 0.6,
                                           decoration: BoxDecoration(
-                                            color: cs.surfaceVariant,
+                                            color: cs.surfaceContainerHighest,
                                             borderRadius: BorderRadius.circular(4),
                                           ),
                                         ),

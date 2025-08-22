@@ -933,48 +933,44 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                           }
                         },
                         style: ButtonStyle(
-                          shape:
-                              MaterialStatePropertyAll<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
+                          shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                           // selected state color and border
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color?>((
-                                states,
-                              ) {
-                                if (states.contains(MaterialState.selected)) {
-                                  return Theme.of(context).colorScheme.primary;
-                                }
-                                return Colors.transparent;
-                              }),
-                          side: MaterialStateProperty.resolveWith<BorderSide?>((
-                            states,
-                          ) {
-                            return BorderSide(
-                              color: Theme.of(context).inputGrey,
-                            );
-                          }),
-                          textStyle:
-                              MaterialStateProperty.resolveWith<TextStyle?>((
-                                states,
-                              ) {
-                                return TextStyle(
-                                  fontWeight:
-                                      states.contains(MaterialState.selected)
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                );
-                              }),
-                          foregroundColor:
-                              MaterialStateProperty.resolveWith<Color?>((
-                                states,
-                              ) {
-                                if (states.contains(MaterialState.selected))
-                                  return Colors.white;
-                                return Theme.of(context).colorScheme.onSurface;
-                              }),
+                          backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                            (states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return Theme.of(context).colorScheme.primary;
+                              }
+                              return Colors.transparent;
+                            },
+                          ),
+                          side: WidgetStateProperty.resolveWith<BorderSide?>(
+                            (states) {
+                              return BorderSide(
+                                color: Theme.of(context).inputGrey,
+                              );
+                            },
+                          ),
+                          textStyle: WidgetStateProperty.resolveWith<TextStyle?>(
+                            (states) {
+                              return TextStyle(
+                                fontWeight: states.contains(WidgetState.selected)
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              );
+                            },
+                          ),
+                          foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+                            (states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return Colors.white;
+                              }
+                              return Theme.of(context).colorScheme.onSurface;
+                            },
+                          ),
                         ),
                       );
                     },

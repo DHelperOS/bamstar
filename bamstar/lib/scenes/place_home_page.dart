@@ -362,7 +362,7 @@ class _BannerSkeleton extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         height: height,
-        color: cs.surfaceVariant,
+        color: cs.surfaceContainerHighest,
         child: Center(
           child: Icon(Icons.image, color: cs.onSurfaceVariant, size: 32),
         ),
@@ -387,7 +387,7 @@ class _ListSkeleton extends StatelessWidget {
           return Container(
             width: 300,
             decoration: BoxDecoration(
-              color: cs.surfaceVariant,
+              color: cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
           );
@@ -506,7 +506,7 @@ class _ContinueLearningList extends StatelessWidget {
                           const SizedBox(height: 8),
                           LinearProgressIndicator(
                             value: it['progress'] as double,
-                            backgroundColor: cs.surfaceVariant,
+                            backgroundColor: cs.surfaceContainerHighest,
                             valueColor: AlwaysStoppedAnimation(cs.primary),
                             minHeight: 6,
                             borderRadius: BorderRadius.circular(3),

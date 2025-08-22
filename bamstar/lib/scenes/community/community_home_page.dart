@@ -300,9 +300,11 @@ class _CommunityHomePageState extends State<CommunityHomePage>
               setState(() => _showSearch = next);
               if (next) {
                 Future.delayed(const Duration(milliseconds: 50), () {
-                  try {
-                    FocusScope.of(context).requestFocus(_searchFocusNode);
-                  } catch (_) {}
+                  if (mounted) {
+                    try {
+                      FocusScope.of(context).requestFocus(_searchFocusNode);
+                    } catch (_) {}
+                  }
                 });
               }
             },
@@ -536,7 +538,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                                 fontSize: smallFont,
                                 color: isSelected
                                     ? csLocal.onPrimary
-                                    : csLocal.onSurface.withOpacity(0.8),
+                                    : csLocal.onSurface.withValues(alpha: 0.8),
                               ),
                               side: BorderSide(
                                 color: isSelected
@@ -788,12 +790,14 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             if (ids.isNotEmpty) {
               final counts = await CommunityRepository.instance.getCommentLikeCounts(ids);
               final liked = await CommunityRepository.instance.getUserLikedComments(ids);
-              if (mounted) setState(() {
-                for (final e in counts.entries) {
-                  _commentLikeCounts[e.key] = e.value;
-                }
-                _likedCommentIds.addAll(liked);
-              });
+              if (mounted) {
+                setState(() {
+                  for (final e in counts.entries) {
+                    _commentLikeCounts[e.key] = e.value;
+                  }
+                  _likedCommentIds.addAll(liked);
+                });
+              }
             }
           } catch (_) {}
           return comments;
@@ -897,9 +901,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     } else {
       // show error
       try {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        }
       } catch (_) {}
     }
     if (mounted) setState(() => _isPostingComment = false);
@@ -951,7 +957,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       } catch (_) {}
     } else {
       try {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
+        }
       } catch (_) {}
     }
     if (mounted) setState(() => _isPostingComment = false);
@@ -1158,9 +1166,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   } else {
                                     setState(() => _replyingToCommentId = cid);
                                     Future.delayed(const Duration(milliseconds: 50), () {
-                                      try {
-                                        FocusScope.of(context).requestFocus(_replyFocusNode);
-                                      } catch (_) {}
+                                      if (mounted) {
+                                        try {
+                                          FocusScope.of(context).requestFocus(_replyFocusNode);
+                                        } catch (_) {}
+                                      }
                                     });
                                   }
                                 },
@@ -1846,9 +1856,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Theme.of(context).brightness == Brightness.light
-                        ? Colors.white.withOpacity(0.60)
-                        : Colors.white.withOpacity(0.06),
-                    Colors.white.withOpacity(0.0),
+                        ? Colors.white.withValues(alpha: 0.60)
+                        : Colors.white.withValues(alpha: 0.06),
+                    Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
