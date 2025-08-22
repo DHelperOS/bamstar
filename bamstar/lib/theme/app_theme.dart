@@ -36,6 +36,8 @@ class AppTheme {
     onError: Colors.white,
     surface: lightSurfaceColor,
     onSurface: lightTextColorPrimary,
+    // Ensure a consistent background color across scrollable surfaces
+    background: lightBackgroundColor,
   );
 
   // Dark ColorScheme
@@ -55,8 +57,12 @@ class AppTheme {
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
     fontFamily: fontFamily,
-    colorScheme: lightColorScheme,
-    scaffoldBackgroundColor: lightBackgroundColor,
+  colorScheme: lightColorScheme,
+  // CanvasColor affects many Material widgets (e.g., Drawer, Material)
+  canvasColor: lightBackgroundColor,
+  scaffoldBackgroundColor: lightBackgroundColor,
+  // Note: avoid using surfaceTintColor directly to maintain SDK compatibility;
+  // scaffoldBackgroundColor and canvasColor above enforce white background.
     cardColor: lightColorScheme.surface,
     textTheme: _buildAppTextTheme(lightColorScheme),
     cardTheme: const CardThemeData(
