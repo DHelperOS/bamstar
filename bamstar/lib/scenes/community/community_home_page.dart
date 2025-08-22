@@ -249,9 +249,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-  forceMaterialTransparency: true,
-  surfaceTintColor: Colors.transparent,
-  shadowColor: Colors.transparent,
+        forceMaterialTransparency: true,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
         foregroundColor: cs.onSurface,
         elevation: 0,
         title: const Text('커뮤니티'),
@@ -352,257 +352,270 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 return true;
               },
               child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              // Search input (togglable) - moved above the tab bar so it appears
-              // visually above tabs as requested.
-              SliverToBoxAdapter(
-                child: AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              focusNode: _searchFocusNode,
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: '게시물 내용으로 검색',
-                                prefixIcon: const Icon(
-                                  SolarIconsOutline.magnifier,
-                                  size: 20,
-                                ),
-                                suffixIcon: _searchController.text.isEmpty
-                                    ? null
-                                    : IconButton(
-                                        visualDensity: VisualDensity.compact,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
+                controller: _scrollController,
+                slivers: [
+                  // Search input (togglable) - moved above the tab bar so it appears
+                  // visually above tabs as requested.
+                  SliverToBoxAdapter(
+                    child: AnimatedCrossFade(
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: TextField(
+                                  focusNode: _searchFocusNode,
+                                  controller: _searchController,
+                                  decoration: InputDecoration(
+                                    hintText: '게시물 내용으로 검색',
+                                    prefixIcon: const Icon(
+                                      SolarIconsOutline.magnifier,
+                                      size: 20,
+                                    ),
+                                    suffixIcon: _searchController.text.isEmpty
+                                        ? null
+                                        : IconButton(
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                            ),
+                                            constraints: const BoxConstraints(
+                                              minWidth: 28,
+                                              minHeight: 28,
+                                            ),
+                                            icon: const Icon(
+                                              Icons.clear,
+                                              size: 16,
+                                            ),
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() {
+                                                _contentQuery = null;
+                                              });
+                                            },
+                                          ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(999),
+                                      borderSide: BorderSide(
+                                        color: cs.outlineVariant.withValues(
+                                          alpha: 0.12,
                                         ),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 28,
-                                          minHeight: 28,
-                                        ),
-                                        icon: const Icon(Icons.clear, size: 16),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() {
-                                            _contentQuery = null;
-                                          });
-                                        },
+                                        width: 1,
                                       ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                  borderSide: BorderSide(
-                                    color: cs.outlineVariant.withValues(
-                                      alpha: 0.12,
                                     ),
-                                    width: 1,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(999),
-                                  borderSide: BorderSide(
-                                    color: cs.outlineVariant.withValues(
-                                      alpha: 0.10,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(999),
+                                      borderSide: BorderSide(
+                                        color: cs.outlineVariant.withValues(
+                                          alpha: 0.10,
+                                        ),
+                                        width: 1,
+                                      ),
                                     ),
-                                    width: 1,
+                                    filled: true,
+                                    fillColor: cs.surface,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
+                                    ),
                                   ),
-                                ),
-                                filled: true,
-                                fillColor: cs.surface,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 12,
+                                  textInputAction: TextInputAction.search,
+                                  onSubmitted: (v) {
+                                    final text = v.trim();
+                                    setState(() {
+                                      _contentQuery = text.isEmpty
+                                          ? null
+                                          : text;
+                                      _selectedTag = null;
+                                      _selectedTabIndex = 0;
+                                      _showSearch = false;
+                                    });
+                                    FocusScope.of(context).unfocus();
+                                    _loadInitial();
+                                  },
                                 ),
                               ),
-                              textInputAction: TextInputAction.search,
-                              onSubmitted: (v) {
-                                final text = v.trim();
-                                setState(() {
-                                  _contentQuery = text.isEmpty ? null : text;
-                                  _selectedTag = null;
-                                  _selectedTabIndex = 0;
-                                  _showSearch = false;
-                                });
-                                FocusScope.of(context).unfocus();
-                                _loadInitial();
-                              },
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // search button sized to match input height
-                        SizedBox(
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              final text = _searchController.text.trim();
-                              setState(() {
-                                _contentQuery = text.isEmpty ? null : text;
-                                _selectedTag = null;
-                                _selectedTabIndex = 0;
-                                _showSearch = false;
-                              });
-                              FocusScope.of(context).unfocus();
-                              _loadInitial();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: const StadiumBorder(),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 6,
+                            const SizedBox(width: 8),
+                            // search button sized to match input height
+                            SizedBox(
+                              height: 40,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  final text = _searchController.text.trim();
+                                  setState(() {
+                                    _contentQuery = text.isEmpty ? null : text;
+                                    _selectedTag = null;
+                                    _selectedTabIndex = 0;
+                                    _showSearch = false;
+                                  });
+                                  FocusScope.of(context).unfocus();
+                                  _loadInitial();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  shape: const StadiumBorder(),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: const Text('검색'),
                               ),
-                              elevation: 0,
                             ),
-                            child: const Text('검색'),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
+                      crossFadeState: _showSearch
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 260),
                     ),
                   ),
-                  crossFadeState: _showSearch
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 260),
-                ),
-              ),
-              // Tab bar moved below search
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: _ChannelTabBar(
-                    controller: _tabController,
-                    channels: _channels,
-                    onTap: _onTabChanged,
-                  ),
-                ),
-              ),
-              // Sort choice chips: 최신 순(default), 인기 순(주간 댓글수), 좋아요 순(주간 좋아요수)
-              SliverToBoxAdapter(
-                child: AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      child: Row(
-                        children: List.generate(3, (i) {
-                          final labels = ['최신 순', '인기 순', '좋아요순'];
-                          final csLocal = Theme.of(context).colorScheme;
-                          final double smallFont = 12.0;
-                          final SortMode mode = (i == 0)
-                              ? SortMode.latest
-                              : (i == 1 ? SortMode.popular : SortMode.liked);
-                          final bool isSelected = _selectedSort == mode;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ChoiceChip(
-                              selected: false,
-                              onSelected: (_) {
-                                if (mode != _selectedSort) {
-                                  setState(() {
-                                    _selectedSort = mode;
-                                  });
-                                  _loadInitial();
-                                }
-                              },
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (isSelected) ...[
-                                    Icon(
-                                      Icons.check,
-                                      size: (smallFont - 2).clamp(8.0, 12.0),
-                                      color: csLocal.onPrimary,
-                                    ),
-                                    const SizedBox(width: 6),
-                                  ],
-                                  Text(labels[i]),
-                                ],
-                              ),
-                              selectedColor: csLocal.primary,
-                              backgroundColor: isSelected
-                                  ? csLocal.primary
-                                  : csLocal.surface.withValues(alpha: 0.06),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              labelStyle: TextStyle(
-                                fontSize: smallFont,
-                                color: isSelected
-                                    ? csLocal.onPrimary
-                                    : csLocal.onSurface.withValues(alpha: 0.8),
-                              ),
-                              side: BorderSide(
-                                color: isSelected
-                                    ? csLocal.primary
-                                    : csLocal.outlineVariant.withValues(
-                                        alpha: 0.06,
-                                      ),
-                              ),
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          );
-                        }),
+                  // Tab bar moved below search
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: _ChannelTabBar(
+                        controller: _tabController,
+                        channels: _channels,
+                        onTap: _onTabChanged,
                       ),
                     ),
                   ),
-                  crossFadeState: _showSort
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 260),
-                ),
-              ),
-              // Removed the empty-subscriptions helper message per request.
-              if (_isLoading)
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => Skeletonizer(
-                      enabled: true,
-                      child: _PostSkeleton(cs: cs),
+                  // Sort choice chips: 최신 순(default), 인기 순(주간 댓글수), 좋아요 순(주간 좋아요수)
+                  SliverToBoxAdapter(
+                    child: AnimatedCrossFade(
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: List.generate(3, (i) {
+                              final labels = ['최신 순', '인기 순', '좋아요순'];
+                              final csLocal = Theme.of(context).colorScheme;
+                              final double smallFont = 12.0;
+                              final SortMode mode = (i == 0)
+                                  ? SortMode.latest
+                                  : (i == 1
+                                        ? SortMode.popular
+                                        : SortMode.liked);
+                              final bool isSelected = _selectedSort == mode;
+
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: ChoiceChip(
+                                  selected: false,
+                                  onSelected: (_) {
+                                    if (mode != _selectedSort) {
+                                      setState(() {
+                                        _selectedSort = mode;
+                                      });
+                                      _loadInitial();
+                                    }
+                                  },
+                                  label: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (isSelected) ...[
+                                        Icon(
+                                          Icons.check,
+                                          size: (smallFont - 2).clamp(
+                                            8.0,
+                                            12.0,
+                                          ),
+                                          color: csLocal.onPrimary,
+                                        ),
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Text(labels[i]),
+                                    ],
+                                  ),
+                                  selectedColor: csLocal.primary,
+                                  backgroundColor: isSelected
+                                      ? csLocal.primary
+                                      : csLocal.surface.withValues(alpha: 0.06),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  labelStyle: TextStyle(
+                                    fontSize: smallFont,
+                                    color: isSelected
+                                        ? csLocal.onPrimary
+                                        : csLocal.onSurface.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                  ),
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? csLocal.primary
+                                        : csLocal.outlineVariant.withValues(
+                                            alpha: 0.06,
+                                          ),
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                      crossFadeState: _showSort
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 260),
                     ),
-                    childCount: 6,
                   ),
-                ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index < _posts.length) {
-                    final post = _posts[index];
-                    return _PostHtmlCard(
-                      post: post,
-                      onTap: null,
-                      onHashtagTap: (tag) {
-                        // parent handles hashtag taps: set as content query and reload
-                        setState(() {
-                          _contentQuery = tag;
-                          _selectedTag = null;
-                          _selectedTabIndex = 0;
-                          _showSearch = false;
-                        });
-                        _searchController.text = tag;
-                        _loadInitial();
-                      },
-                    );
-                  }
-                  // loading footer
-                  if (_isLoadingMore) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
+                  // Removed the empty-subscriptions helper message per request.
+                  if (_isLoading)
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => Skeletonizer(
+                          enabled: true,
+                          child: _PostSkeleton(cs: cs),
+                        ),
+                        childCount: 6,
+                      ),
+                    ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index < _posts.length) {
+                        final post = _posts[index];
+                        return _PostHtmlCard(
+                          post: post,
+                          onTap: null,
+                          onHashtagTap: (tag) {
+                            // parent handles hashtag taps: set as content query and reload
+                            setState(() {
+                              _contentQuery = tag;
+                              _selectedTag = null;
+                              _selectedTabIndex = 0;
+                              _showSearch = false;
+                            });
+                            _searchController.text = tag;
+                            _loadInitial();
+                          },
+                        );
+                      }
+                      // loading footer
+                      if (_isLoadingMore) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
+                  ),
+                ],
               ),
-            ],
-          ),
             ),
           ),
         ),
@@ -780,16 +793,21 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   void initState() {
     super.initState();
     post = widget.post;
-  _commentsFuture = CommunityRepository.instance
-    .fetchCommentsForPost(post.id, limit: 6)
+    _commentsFuture = CommunityRepository.instance
+        .fetchCommentsForPost(post.id, limit: 6)
         .then((comments) async {
           await _prefetchCommentAuthors(comments);
           // initialize like counts and liked ids for fetched comments
           try {
-            final ids = comments.map((c) => (c['id'] as int?) ?? -1).where((id) => id > 0).toList();
+            final ids = comments
+                .map((c) => (c['id'] as int?) ?? -1)
+                .where((id) => id > 0)
+                .toList();
             if (ids.isNotEmpty) {
-              final counts = await CommunityRepository.instance.getCommentLikeCounts(ids);
-              final liked = await CommunityRepository.instance.getUserLikedComments(ids);
+              final counts = await CommunityRepository.instance
+                  .getCommentLikeCounts(ids);
+              final liked = await CommunityRepository.instance
+                  .getUserLikedComments(ids);
               if (mounted) {
                 setState(() {
                   for (final e in counts.entries) {
@@ -802,16 +820,16 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           } catch (_) {}
           return comments;
         });
-      // hide inline reply when its focus is lost
-      _replyFocusListener = () {
-        if (!_replyFocusNode.hasFocus) {
-          if (mounted) setState(() => _replyingToCommentId = null);
-          try {
-            _replyController.clear();
-          } catch (_) {}
-        }
-      };
-      _replyFocusNode.addListener(_replyFocusListener!);
+    // hide inline reply when its focus is lost
+    _replyFocusListener = () {
+      if (!_replyFocusNode.hasFocus) {
+        if (mounted) setState(() => _replyingToCommentId = null);
+        try {
+          _replyController.clear();
+        } catch (_) {}
+      }
+    };
+    _replyFocusNode.addListener(_replyFocusListener!);
     // schedule a post-frame visibility check
     // VisibilityDetector will trigger view increment when appropriate.
   }
@@ -822,7 +840,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       _commentController.dispose();
     } catch (_) {}
     try {
-      if (_replyFocusListener != null) _replyFocusNode.removeListener(_replyFocusListener!);
+      if (_replyFocusListener != null)
+        _replyFocusNode.removeListener(_replyFocusListener!);
     } catch (_) {}
     try {
       _replyController.dispose();
@@ -950,15 +969,17 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           _commentsFuture = CommunityRepository.instance
               .fetchCommentsForPost(post.id, limit: 6)
               .then((comments) async {
-            await _prefetchCommentAuthors(comments);
-            return comments;
-          });
+                await _prefetchCommentAuthors(comments);
+                return comments;
+              });
         });
       } catch (_) {}
     } else {
       try {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
         }
       } catch (_) {}
     }
@@ -973,7 +994,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   ///   child of that parent. Otherwise treat it as a root-level comment.
   /// - This builds one nesting level which is sufficient for common
   ///   parent->reply rendering in the preview area.
-  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+  List<Map<String, dynamic>> _buildCommentTree(
+    List<Map<String, dynamic>> comments,
+  ) {
     final Map<int, Map<String, dynamic>> byId = {};
     for (final c in comments) {
       final id = (c['id'] as int?) ?? -1;
@@ -1002,9 +1025,15 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     return roots;
   }
 
-  Widget _buildCommentRow(Map<String, dynamic> c, ColorScheme cs, TextTheme tt, {bool isReply = false}) {
+  Widget _buildCommentRow(
+    Map<String, dynamic> c,
+    ColorScheme cs,
+    TextTheme tt, {
+    bool isReply = false,
+  }) {
     final content = (c['content'] as String?) ?? '';
-    final createdAt = DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
+    final createdAt =
+        DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
     final isAnonymous = (c['is_anonymous'] as bool? ?? false);
     final authorId = c['author_id'] as String?;
     final fallbackName = (c['author_name'] as String?) ?? '스타';
@@ -1018,15 +1047,20 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           final user = snap.data;
           final authorName = isAnonymous
               ? '익명의 스타'
-              : ((user != null && (user.nickname.isNotEmpty == true)) ? user.nickname : fallbackName);
+              : ((user != null && (user.nickname.isNotEmpty == true))
+                    ? user.nickname
+                    : fallbackName);
 
           String? candidateUrl;
           if (user != null) {
             final p = (user.data['profile_img'] as String?)?.trim();
             if (p != null && p.isNotEmpty) candidateUrl = p;
           }
-          if ((candidateUrl == null || candidateUrl.isEmpty) && fallbackAvatar.isNotEmpty) candidateUrl = fallbackAvatar;
-          if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) candidateUrl = null;
+          if ((candidateUrl == null || candidateUrl.isEmpty) &&
+              fallbackAvatar.isNotEmpty)
+            candidateUrl = fallbackAvatar;
+          if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty))
+            candidateUrl = null;
 
           ImageProvider? avatarImage;
           if (candidateUrl != null && candidateUrl.isNotEmpty) {
@@ -1045,7 +1079,12 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               child: ClipOval(
                 child: ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Image(image: avatarImage, width: CommunitySizes.avatarBase / 2 * 1.4 * 2, height: CommunitySizes.avatarBase / 2 * 1.4 * 2, fit: BoxFit.cover),
+                  child: Image(
+                    image: avatarImage,
+                    width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                    height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
@@ -1061,7 +1100,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
                     color: cs.secondaryContainer,
                     child: Center(
-                      child: Icon(SolarIconsOutline.incognito, size: CommunitySizes.avatarBase * 0.9, color: cs.onSurfaceVariant),
+                      child: Icon(
+                        SolarIconsOutline.incognito,
+                        size: CommunitySizes.avatarBase * 0.9,
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ),
@@ -1072,7 +1115,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               radius: CommunitySizes.avatarBase / 2,
               backgroundColor: isAnonymous ? cs.secondaryContainer : null,
               backgroundImage: avatarImage,
-              child: (!isAnonymous && avatarImage == null) ? Icon(Icons.person, size: 12, color: cs.onSurfaceVariant) : null,
+              child: (!isAnonymous && avatarImage == null)
+                  ? Icon(Icons.person, size: 12, color: cs.onSurfaceVariant)
+                  : null,
             );
           }
 
@@ -1090,8 +1135,19 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       children: [
                         Row(
                           children: [
-                            Expanded(child: Text(authorName, style: tt.titleSmall, overflow: TextOverflow.ellipsis)),
-                            Text(_timeAgo(createdAt), style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                            Expanded(
+                              child: Text(
+                                authorName,
+                                style: tt.titleSmall,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              _timeAgo(createdAt),
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -1107,7 +1163,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   final current = _commentLikeCounts[cid] ?? 0;
                                   if (_likedCommentIds.contains(cid)) {
                                     _likedCommentIds.remove(cid);
-                                    _commentLikeCounts[cid] = (current - 1).clamp(0, 999999);
+                                    _commentLikeCounts[cid] = (current - 1)
+                                        .clamp(0, 999999);
                                   } else {
                                     _likedCommentIds.add(cid);
                                     _commentLikeCounts[cid] = current + 1;
@@ -1115,19 +1172,25 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                 });
                                 try {
                                   if (_likedCommentIds.contains(cid)) {
-                                    final ok = await CommunityRepository.instance.likeComment(commentId: cid);
+                                    final ok = await CommunityRepository
+                                        .instance
+                                        .likeComment(commentId: cid);
                                     if (!ok) {
                                       setState(() {
                                         _likedCommentIds.remove(cid);
-                                        _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                        _commentLikeCounts[cid] =
+                                            (_commentLikeCounts[cid] ?? 1) - 1;
                                       });
                                     }
                                   } else {
-                                    final ok = await CommunityRepository.instance.unlikeComment(commentId: cid);
+                                    final ok = await CommunityRepository
+                                        .instance
+                                        .unlikeComment(commentId: cid);
                                     if (!ok) {
                                       setState(() {
                                         _likedCommentIds.add(cid);
-                                        _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                        _commentLikeCounts[cid] =
+                                            (_commentLikeCounts[cid] ?? 0) + 1;
                                       });
                                     }
                                   }
@@ -1135,22 +1198,48 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   setState(() {
                                     if (_likedCommentIds.contains(cid)) {
                                       _likedCommentIds.remove(cid);
-                                      _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                      _commentLikeCounts[cid] =
+                                          (_commentLikeCounts[cid] ?? 1) - 1;
                                     } else {
                                       _likedCommentIds.add(cid);
-                                      _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                      _commentLikeCounts[cid] =
+                                          (_commentLikeCounts[cid] ?? 0) + 1;
                                     }
                                   });
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(20)),
-                                child: Row(children: [
-                                  Icon(_likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart, color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey, size: 14),
-                                  const SizedBox(width: 6),
-                                  Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
-                                ]),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: cs.surface,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _likedCommentIds.contains(
+                                            (c['id'] as int?) ?? -1,
+                                          )
+                                          ? SolarIconsBold.heart
+                                          : SolarIconsOutline.heart,
+                                      color:
+                                          _likedCommentIds.contains(
+                                            (c['id'] as int?) ?? -1,
+                                          )
+                                          ? Colors.red
+                                          : Colors.grey,
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                      style: tt.bodySmall,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -1165,16 +1254,26 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     FocusScope.of(context).unfocus();
                                   } else {
                                     setState(() => _replyingToCommentId = cid);
-                                    Future.delayed(const Duration(milliseconds: 50), () {
-                                      if (mounted) {
-                                        try {
-                                          FocusScope.of(context).requestFocus(_replyFocusNode);
-                                        } catch (_) {}
-                                      }
-                                    });
+                                    Future.delayed(
+                                      const Duration(milliseconds: 50),
+                                      () {
+                                        if (mounted) {
+                                          try {
+                                            FocusScope.of(
+                                              context,
+                                            ).requestFocus(_replyFocusNode);
+                                          } catch (_) {}
+                                        }
+                                      },
+                                    );
                                   }
                                 },
-                                child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                                child: Text(
+                                  '댓글 쓰기',
+                                  style: tt.bodySmall?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
                               ),
                           ],
                         ),
@@ -1184,21 +1283,78 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 ],
               ),
               ClipRect(
-                  child: AnimatedSwitcher(
+                child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 260),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
-                  child: ((!isReply) && ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1)))
+                  transitionBuilder: (child, anim) => SizeTransition(
+                    sizeFactor: anim,
+                    axisAlignment: -1.0,
+                    child: FadeTransition(opacity: anim, child: child),
+                  ),
+                  child:
+                      ((!isReply) &&
+                          ((_replyingToCommentId ?? -1) ==
+                              ((c['id'] as int?) ?? -1)))
                       ? Container(
                           key: ValueKey('reply-input-${c['id']}'),
                           margin: const EdgeInsets.only(top: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                          decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1)),
-                          child: Row(children: [
-                            Expanded(child: SizedBox(height: 28, child: TextField(controller: _replyController, focusNode: _replyFocusNode, textInputAction: TextInputAction.send, onSubmitted: (_) => _submitReply(parentCommentId: (c['id'] as int?) ?? -1), decoration: InputDecoration(hintText: '답글 작성', isDense: true, contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), border: OutlineInputBorder(borderSide: BorderSide.none)),))),
-                            IconButton(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero, constraints: const BoxConstraints(minWidth: 28, minHeight: 28), onPressed: () => _submitReply(parentCommentId: (c['id'] as int?) ?? -1), icon: Icon(Icons.send, size: 18, color: cs.primary)),
-                          ]),
+                          decoration: BoxDecoration(
+                            color: cs.surface,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: cs.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 7,
+                            horizontal: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: _replyController,
+                                  focusNode: _replyFocusNode,
+                                  textInputAction: TextInputAction.send,
+                                  onSubmitted: (_) => _submitReply(
+                                    parentCommentId: (c['id'] as int?) ?? -1,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: '댓글 작성',
+                                    hintStyle: tt.bodyMedium?.copyWith(
+                                      color: Colors.grey[500],
+                                    ),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    border: InputBorder.none,
+                                  ),
+                                  style: tt.bodyMedium?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                SolarIconsOutline.paperclip,
+                                size: 21,
+                                color: Colors.grey[500],
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => _submitReply(
+                                  parentCommentId: (c['id'] as int?) ?? -1,
+                                ),
+                                child: Icon(
+                                  SolarIconsOutline.arrowRight,
+                                  size: 24,
+                                  color: cs.primary,
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                       : const SizedBox.shrink(),
                 ),
@@ -1770,31 +1926,42 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                         previewItems.add(_buildCommentRow(root, cs, tt));
                         remaining -= 1;
                         if (remaining <= 0) break;
-                        final rootChildren = (root['children'] as List<Map<String, dynamic>>?) ?? [];
+                        final rootChildren =
+                            (root['children'] as List<Map<String, dynamic>>?) ??
+                            [];
                         for (final child in rootChildren) {
                           if (remaining <= 0) break;
-                          previewItems.add(Padding(
-                            padding: const EdgeInsets.only(left: 44, top: 8),
-                            child: _buildCommentRow(child, cs, tt, isReply: true),
-                          ));
+                          previewItems.add(
+                            Padding(
+                              padding: const EdgeInsets.only(left: 44, top: 8),
+                              child: _buildCommentRow(
+                                child,
+                                cs,
+                                tt,
+                                isReply: true,
+                              ),
+                            ),
+                          );
                           remaining -= 1;
                         }
                       }
 
                       return Column(
                         children: [
-                          Column(
-                            children: previewItems,
-                          ),
+                          Column(children: previewItems),
                           GestureDetector(
                             onTap: () {
                               try {
                                 WoltModalSheet.show(
                                   context: context,
                                   pageListBuilder: (modalContext) => [
-                                    PostCommentPage.woltPage(modalContext, post),
+                                    PostCommentPage.woltPage(
+                                      modalContext,
+                                      post,
+                                    ),
                                   ],
-                                  modalTypeBuilder: (ctx) => WoltModalType.bottomSheet(),
+                                  modalTypeBuilder: (ctx) =>
+                                      WoltModalType.bottomSheet(),
                                 );
                               } catch (_) {
                                 Navigator.of(context).push(
