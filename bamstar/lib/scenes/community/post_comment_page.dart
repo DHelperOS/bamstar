@@ -159,7 +159,12 @@ class PostCommentPage extends StatefulWidget {
             IconButton(
               visualDensity: VisualDensity.compact,
               icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-              onPressed: () => Navigator.of(modalContext).pop(),
+              onPressed: () {
+                try {
+                  FocusScope.of(modalContext).unfocus();
+                } catch (_) {}
+                Navigator.of(modalContext).pop();
+              },
             ),
             Expanded(
               child: Transform.translate(
@@ -181,7 +186,12 @@ class PostCommentPage extends StatefulWidget {
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(),
         icon: const Icon(SolarIconsOutline.closeCircle, size: 20),
-        onPressed: () => Navigator.of(modalContext).pop(),
+        onPressed: () {
+          try {
+            FocusScope.of(modalContext).unfocus();
+          } catch (_) {}
+          Navigator.of(modalContext).pop();
+        },
       ),
       // Use a modal-specific child (no Scaffold) to avoid nesting a full
       // Scaffold inside the WoltModalSheet page which can hide content.
@@ -199,7 +209,7 @@ class PostCommentPage extends StatefulWidget {
 
 class _PostCommentPageState extends State<PostCommentPage> {
   final TextEditingController _commentCtl = TextEditingController();
-  
+
   int? _replyingToCommentId;
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
@@ -313,8 +323,6 @@ class _PostCommentPageState extends State<PostCommentPage> {
       } catch (_) {}
     }
   }
-
-  
 
   Widget _buildCommentRow(
     Map<String, dynamic> c,
@@ -505,16 +513,31 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                       } catch (_) {}
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
                                       child: Row(
                                         children: [
                                           Icon(
-                                            _likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart,
-                                            color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey,
+                                            _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? SolarIconsBold.heart
+                                                : SolarIconsOutline.heart,
+                                            color:
+                                                _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? Colors.red
+                                                : Colors.grey,
                                             size: 14,
                                           ),
                                           const SizedBox(width: 6),
-                                          Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
+                                          Text(
+                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                            style: tt.bodySmall,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -562,7 +585,23 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                           } catch (_) {}
                                         }
                                       },
-                                      child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 14, color: cs.onSurfaceVariant), const SizedBox(width: 6), Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant))]),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.edit,
+                                            size: 14,
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '댓글 쓰기',
+                                            style: tt.bodySmall?.copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                 ],
                               ),
@@ -608,10 +647,11 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                 margin: const EdgeInsets.only(
                                                   top: 8,
                                                 ),
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
                                                 decoration: BoxDecoration(
                                                   color: cs.surface,
                                                   borderRadius:
@@ -668,8 +708,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                       padding: EdgeInsets.zero,
                                                       constraints:
                                                           const BoxConstraints(
-                                                            minWidth: 24,
-                                                            minHeight: 24,
+                                                            minWidth: 28,
+                                                            minHeight: 28,
                                                           ),
                                                       onPressed: () =>
                                                           _submitReply(
@@ -681,7 +721,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                       icon: Icon(
                                                         Icons.send,
                                                         size: 18,
-                                                        color: cs.primary,
+                                                        color: Colors.grey[500],
                                                       ),
                                                     ),
                                                   ],
@@ -725,7 +765,14 @@ class _PostCommentPageState extends State<PostCommentPage> {
     // pushed via Navigator. For WoltModalSheet usage, use the
     // static helper `PostCommentPage.woltPage` below.
     return SafeArea(
-      child: Scaffold(
+      child: WillPopScope(
+        onWillPop: () async {
+          try {
+            FocusScope.of(context).unfocus();
+          } catch (_) {}
+          return true;
+        },
+        child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           elevation: 0,
@@ -735,7 +782,12 @@ class _PostCommentPageState extends State<PostCommentPage> {
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(),
             icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              try {
+                FocusScope.of(context).unfocus();
+              } catch (_) {}
+              Navigator.of(context).pop();
+            },
           ),
           centerTitle: true,
           title: Text('댓글', style: tt.titleLarge),
@@ -850,6 +902,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
           ),
         ),
         // bottom input removed per request
+        ),
       ),
     );
   }
@@ -884,7 +937,7 @@ class _PostCommentModalChild extends StatefulWidget {
 
 class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   final TextEditingController _commentCtl = TextEditingController();
-  
+
   int? _replyingToCommentId;
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
@@ -995,8 +1048,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
       } catch (_) {}
     }
   }
-
-  
 
   Widget _buildCommentRow(
     Map<String, dynamic> c,
@@ -1192,12 +1243,31 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                       }
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 4,
+                                      ),
                                       child: Row(
                                         children: [
-                                          Icon(_likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart, color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey, size: 14),
+                                          Icon(
+                                            _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? SolarIconsBold.heart
+                                                : SolarIconsOutline.heart,
+                                            color:
+                                                _likedCommentIds.contains(
+                                                  (c['id'] as int?) ?? -1,
+                                                )
+                                                ? Colors.red
+                                                : Colors.grey,
+                                            size: 14,
+                                          ),
                                           const SizedBox(width: 6),
-                                          Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
+                                          Text(
+                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                            style: tt.bodySmall,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -1244,7 +1314,23 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                           } catch (_) {}
                                         }
                                       },
-                                      child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 14, color: cs.onSurfaceVariant), const SizedBox(width: 6), Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant))]),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.edit,
+                                            size: 14,
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            '댓글 쓰기',
+                                            style: tt.bodySmall?.copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                 ],
                               ),
@@ -1318,36 +1404,16 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                 ),
                                               ),
                                             ),
-                                            // photo attach button
-                                            IconButton(
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                              padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(
-                                                minWidth: 24,
-                                                minHeight: 24,
-                                              ),
-                                              onPressed: () async {
-                                                // Try to pick an image if ImagePicker is available.
-                                                try {
-                                                  // Lazy import/use to avoid hard dependency issues
-                                                  // If image picking isn't configured, this will no-op.
-                                                  // ignore: unnecessary_import
-                                                  // final XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
-                                                  // For now, show a debug print.
-                                                  debugPrint(
-                                                    '[post_comment] pick image for reply cid=${c['id']}',
-                                                  );
-                                                } catch (_) {
-                                                  debugPrint(
-                                                    '[post_comment] image pick failed',
-                                                  );
-                                                }
-                                              },
-                                              icon: Icon(
-                                                Icons.photo_camera,
-                                                size: 18,
-                                                color: cs.onSurfaceVariant,
+                                            // file attach icon (match community_home_page style)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                  ),
+                                              child: Icon(
+                                                SolarIconsOutline.paperclip,
+                                                size: 21,
+                                                color: Colors.grey[500],
                                               ),
                                             ),
                                             IconButton(
@@ -1365,7 +1431,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                               icon: Icon(
                                                 Icons.send,
                                                 size: 18,
-                                                color: cs.primary,
+                                                color: Colors.grey[500],
                                               ),
                                             ),
                                           ],
