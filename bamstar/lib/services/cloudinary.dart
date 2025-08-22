@@ -154,6 +154,14 @@ class CloudinaryService {
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
         'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
+      // 이미지 최적화 및 리사이징 설정 (최소 용량 우선)
+      'quality': 'auto:eco',   // 최소 용량 우선 품질 최적화 (eco 모드)
+      'fetch_format': 'auto',  // 브라우저에 맞는 최적 포맷 자동 선택 (WebP, AVIF 등)
+      'crop': 'limit',         // 원본 비율 유지하면서 크기 제한
+      'width': 800,            // 최대 너비 800px (모바일 앱에 충분)
+      'height': 800,           // 최대 높이 800px (모바일 앱에 충분)
+      'dpr': '1.0',            // 픽셀 비율 1.0 고정 (용량 절약)
+      'flags': 'progressive', // 프로그레시브 JPEG 활성화 (빠른 로딩)
     });
 
     final res = await _dio.post(
@@ -229,6 +237,14 @@ class CloudinaryService {
           if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
           if (context != null && context.isNotEmpty)
             'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
+          // 이미지 최적화 및 리사이징 설정 (최소 용량 우선)
+          'quality': 'auto:eco',   // 최소 용량 우선 품질 최적화 (eco 모드)
+          'fetch_format': 'auto',  // 브라우저에 맞는 최적 포맷 자동 선택 (WebP, AVIF 등)
+          'crop': 'limit',         // 원본 비율 유지하면서 크기 제한
+          'width': 800,            // 최대 너비 800px (모바일 앱에 충분)
+          'height': 800,           // 최대 높이 800px (모바일 앱에 충분)
+          'dpr': '1.0',            // 픽셀 비율 1.0 고정 (용량 절약)
+          'flags': 'progressive', // 프로그레시브 JPEG 활성화 (빠른 로딩)
         });
 
         final res = await _dio.post(
