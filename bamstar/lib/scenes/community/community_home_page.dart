@@ -759,7 +759,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     super.initState();
     post = widget.post;
   _commentsFuture = CommunityRepository.instance
-    .fetchCommentsForPost(post.id, limit: 2)
+    .fetchCommentsForPost(post.id, limit: 6)
         .then((comments) async {
           await _prefetchCommentAuthors(comments);
           // initialize like counts and liked ids for fetched comments
@@ -922,7 +922,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       try {
         setState(() {
           _commentsFuture = CommunityRepository.instance
-              .fetchCommentsForPost(post.id, limit: 2)
+              .fetchCommentsForPost(post.id, limit: 6)
               .then((comments) async {
             await _prefetchCommentAuthors(comments);
             return comments;
@@ -935,6 +935,248 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       } catch (_) {}
     }
     if (mounted) setState(() => _isPostingComment = false);
+  }
+
+  /// Build a simple one-level comment tree from a flat comments list.
+  ///
+  /// Strategy:
+  /// - Index comments by id. If a comment has a `parent_comment_id` that
+  ///   refers to another comment present in the fetched list, attach it as a
+  ///   child of that parent. Otherwise treat it as a root-level comment.
+  /// - This builds one nesting level which is sufficient for common
+  ///   parent->reply rendering in the preview area.
+  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+    final Map<int, Map<String, dynamic>> byId = {};
+    for (final c in comments) {
+      final id = (c['id'] as int?) ?? -1;
+      if (id > 0) byId[id] = Map<String, dynamic>.from(c);
+    }
+
+    final Map<int, List<Map<String, dynamic>>> childMap = {};
+    final List<Map<String, dynamic>> roots = [];
+
+    for (final c in comments) {
+      final pid = c['parent_comment_id'] as int?;
+      if (pid != null && pid > 0 && byId.containsKey(pid)) {
+        childMap.putIfAbsent(pid, () => []).add(Map<String, dynamic>.from(c));
+      } else {
+        // treat as root when parent absent or null
+        roots.add(Map<String, dynamic>.from(c));
+      }
+    }
+
+    // attach children list to each root (may be empty)
+    for (final r in roots) {
+      final rid = (r['id'] as int?) ?? -1;
+      r['children'] = childMap[rid] ?? <Map<String, dynamic>>[];
+    }
+
+    return roots;
+  }
+
+  Widget _buildCommentRow(Map<String, dynamic> c, ColorScheme cs, TextTheme tt, {bool isReply = false}) {
+    final content = (c['content'] as String?) ?? '';
+    final createdAt = DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
+    final isAnonymous = (c['is_anonymous'] as bool? ?? false);
+    final authorId = c['author_id'] as String?;
+    final fallbackName = (c['author_name'] as String?) ?? '스타';
+    final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: FutureBuilder<us.AppUser?>(
+        future: _getAuthor(authorId),
+        builder: (context, snap) {
+          final user = snap.data;
+          final authorName = isAnonymous
+              ? '익명의 스타'
+              : ((user != null && (user.nickname.isNotEmpty == true)) ? user.nickname : fallbackName);
+
+          String? candidateUrl;
+          if (user != null) {
+            final p = (user.data['profile_img'] as String?)?.trim();
+            if (p != null && p.isNotEmpty) candidateUrl = p;
+          }
+          if ((candidateUrl == null || candidateUrl.isEmpty) && fallbackAvatar.isNotEmpty) candidateUrl = fallbackAvatar;
+          if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) candidateUrl = null;
+
+          ImageProvider? avatarImage;
+          if (candidateUrl != null && candidateUrl.isNotEmpty) {
+            avatarImage = avatarImageProviderFromUrl(
+              candidateUrl,
+              width: (CommunitySizes.avatarBase * 2.8).toInt(),
+              height: (CommunitySizes.avatarBase * 2.8).toInt(),
+            );
+          }
+
+          Widget avatarWidget;
+          if (isAnonymous && avatarImage != null) {
+            avatarWidget = SizedBox(
+              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+              child: ClipOval(
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Image(image: avatarImage, width: CommunitySizes.avatarBase / 2 * 1.4 * 2, height: CommunitySizes.avatarBase / 2 * 1.4 * 2, fit: BoxFit.cover),
+                ),
+              ),
+            );
+          } else if (isAnonymous && avatarImage == null) {
+            avatarWidget = SizedBox(
+              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+              child: ClipOval(
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                    height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                    color: cs.secondaryContainer,
+                    child: Center(
+                      child: Icon(SolarIconsOutline.incognito, size: CommunitySizes.avatarBase * 0.9, color: cs.onSurfaceVariant),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          } else {
+            avatarWidget = CircleAvatar(
+              radius: CommunitySizes.avatarBase / 2,
+              backgroundColor: isAnonymous ? cs.secondaryContainer : null,
+              backgroundImage: avatarImage,
+              child: (!isAnonymous && avatarImage == null) ? Icon(Icons.person, size: 12, color: cs.onSurfaceVariant) : null,
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  avatarWidget,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(child: Text(authorName, style: tt.titleSmall, overflow: TextOverflow.ellipsis)),
+                            Text(_timeAgo(createdAt), style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(content, style: tt.bodyMedium),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                final cid = (c['id'] as int?) ?? -1;
+                                if (cid < 0) return;
+                                setState(() {
+                                  final current = _commentLikeCounts[cid] ?? 0;
+                                  if (_likedCommentIds.contains(cid)) {
+                                    _likedCommentIds.remove(cid);
+                                    _commentLikeCounts[cid] = (current - 1).clamp(0, 999999);
+                                  } else {
+                                    _likedCommentIds.add(cid);
+                                    _commentLikeCounts[cid] = current + 1;
+                                  }
+                                });
+                                try {
+                                  if (_likedCommentIds.contains(cid)) {
+                                    final ok = await CommunityRepository.instance.likeComment(commentId: cid);
+                                    if (!ok) {
+                                      setState(() {
+                                        _likedCommentIds.remove(cid);
+                                        _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                      });
+                                    }
+                                  } else {
+                                    final ok = await CommunityRepository.instance.unlikeComment(commentId: cid);
+                                    if (!ok) {
+                                      setState(() {
+                                        _likedCommentIds.add(cid);
+                                        _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                      });
+                                    }
+                                  }
+                                } catch (_) {
+                                  setState(() {
+                                    if (_likedCommentIds.contains(cid)) {
+                                      _likedCommentIds.remove(cid);
+                                      _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                    } else {
+                                      _likedCommentIds.add(cid);
+                                      _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                    }
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(20)),
+                                child: Row(children: [
+                                  Icon(_likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart, color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey, size: 14),
+                                  const SizedBox(width: 6),
+                                  Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
+                                ]),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            GestureDetector(
+                              onTap: () {
+                                final cid = (c['id'] as int?) ?? -1;
+                                if (cid < 0) return;
+                                if (_replyingToCommentId == cid) {
+                                  setState(() => _replyingToCommentId = null);
+                                  _replyController.clear();
+                                  FocusScope.of(context).unfocus();
+                                } else {
+                                  setState(() => _replyingToCommentId = cid);
+                                  Future.delayed(const Duration(milliseconds: 50), () {
+                                    try {
+                                      FocusScope.of(context).requestFocus(_replyFocusNode);
+                                    } catch (_) {}
+                                  });
+                                }
+                              },
+                              child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              ClipRect(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
+                  child: ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1))
+                      ? Container(
+                          key: ValueKey('reply-input-${c['id']}'),
+                          margin: const EdgeInsets.only(top: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(8), border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1)),
+                          child: Row(children: [
+                            Expanded(child: SizedBox(height: 28, child: TextField(controller: _replyController, focusNode: _replyFocusNode, textInputAction: TextInputAction.send, onSubmitted: (_) => _submitReply(parentCommentId: (c['id'] as int?) ?? -1), decoration: InputDecoration(hintText: '답글 작성', isDense: true, contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), border: OutlineInputBorder(borderSide: BorderSide.none)),))),
+                            IconButton(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero, constraints: const BoxConstraints(minWidth: 28, minHeight: 28), onPressed: () => _submitReply(parentCommentId: (c['id'] as int?) ?? -1), icon: Icon(Icons.send, size: 18, color: cs.primary)),
+                          ]),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   /// Prefetch comment authors for the provided comments list and populate the
@@ -1480,373 +1722,28 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     builder: (context, snap) {
                       final comments = snap.data ?? [];
                       if (comments.isEmpty) return const SizedBox.shrink();
+                      final roots = _buildCommentTree(comments);
                       return Column(
                         children: [
                           Column(
-                            children: List.generate(comments.length, (i) {
-                              final c = comments[i];
-                              final content = (c['content'] as String?) ?? '';
-                              final createdAt =
-                                  DateTime.tryParse(
-                                    c['created_at'] as String? ?? '',
-                                  ) ??
-                                  DateTime.now();
-                              final isAnonymous =
-                                  (c['is_anonymous'] as bool? ?? false);
-                              final authorId = c['author_id'] as String?;
-                              final fallbackName =
-                                  (c['author_name'] as String?) ?? '스타';
-                              final fallbackAvatar =
-                                  (c['author_avatar_url'] as String?) ?? '';
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: FutureBuilder<us.AppUser?>(
-                                  future: _getAuthor(authorId),
-                                  builder: (context, snap) {
-                                    final user = snap.data;
-
-                                    // Resolve display name (respect anonymity)
-                                    final authorName = isAnonymous
-                                        ? '익명의 스타'
-                                        : ((user != null &&
-                                                  (user.nickname.isNotEmpty ==
-                                                      true))
-                                              ? user.nickname
-                                              : fallbackName);
-
-                                    // Determine avatar URL similarly to post header
-                                    String? candidateUrl;
-                                    if (user != null) {
-                                      final p =
-                                          (user.data['profile_img'] as String?)
-                                              ?.trim();
-                                      if (p != null && p.isNotEmpty)
-                                        candidateUrl = p;
-                                    }
-                                    if ((candidateUrl == null ||
-                                            candidateUrl.isEmpty) &&
-                                        fallbackAvatar.isNotEmpty) {
-                                      candidateUrl = fallbackAvatar;
-                                    }
-                                    if (isAnonymous &&
-                                        (candidateUrl == null ||
-                                            candidateUrl.isEmpty)) {
-                                      candidateUrl =
-                                          null; // explicit: don't fetch external placeholder
-                                    }
-
-                                    ImageProvider? avatarImage;
-                                    if (candidateUrl != null &&
-                                        candidateUrl.isNotEmpty) {
-                                      avatarImage = avatarImageProviderFromUrl(
-                                        candidateUrl,
-                                        width: (CommunitySizes.avatarBase * 2.8)
-                                            .toInt(),
-                                        height:
-                                            (CommunitySizes.avatarBase * 2.8)
-                                                .toInt(),
-                                      );
-                                    }
-
-                                    Widget avatarWidget;
-                                    if (isAnonymous && avatarImage != null) {
-                                      avatarWidget = SizedBox(
-                                        width:
-                                            CommunitySizes.avatarBase /
-                                            2 *
-                                            1.4 *
-                                            2,
-                                        height:
-                                            CommunitySizes.avatarBase /
-                                            2 *
-                                            1.4 *
-                                            2,
-                                        child: ClipOval(
-                                          child: ImageFiltered(
-                                            imageFilter: ImageFilter.blur(
-                                              sigmaX: 8,
-                                              sigmaY: 8,
-                                            ),
-                                            child: Image(
-                                              image: avatarImage,
-                                              width:
-                                                  CommunitySizes.avatarBase /
-                                                  2 *
-                                                  1.4 *
-                                                  2,
-                                              height:
-                                                  CommunitySizes.avatarBase /
-                                                  2 *
-                                                  1.4 *
-                                                  2,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    } else if (isAnonymous &&
-                                        avatarImage == null) {
-                                      avatarWidget = SizedBox(
-                                        width:
-                                            CommunitySizes.avatarBase /
-                                            2 *
-                                            1.4 *
-                                            2,
-                                        height:
-                                            CommunitySizes.avatarBase /
-                                            2 *
-                                            1.4 *
-                                            2,
-                                        child: ClipOval(
-                                          child: ImageFiltered(
-                                            imageFilter: ImageFilter.blur(
-                                              sigmaX: 8,
-                                              sigmaY: 8,
-                                            ),
-                                            child: Container(
-                                              width:
-                                                  CommunitySizes.avatarBase /
-                                                  2 *
-                                                  1.4 *
-                                                  2,
-                                              height:
-                                                  CommunitySizes.avatarBase /
-                                                  2 *
-                                                  1.4 *
-                                                  2,
-                                              color: cs.secondaryContainer,
-                                              child: Center(
-                                                child: Icon(
-                                                  SolarIconsOutline.incognito,
-                                                  size:
-                                                      CommunitySizes
-                                                          .avatarBase *
-                                                      0.9,
-                                                  color: cs.onSurfaceVariant,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      avatarWidget = CircleAvatar(
-                                        radius: CommunitySizes.avatarBase / 2,
-                                        backgroundColor: isAnonymous
-                                            ? cs.secondaryContainer
-                                            : null,
-                                        backgroundImage: avatarImage,
-                                        child:
-                                            (!isAnonymous &&
-                                                avatarImage == null)
-                                            ? Icon(
-                                                Icons.person,
-                                                size: 12,
-                                                color: cs.onSurfaceVariant,
-                                              )
-                                            : null,
-                                      );
-                                    }
-
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            avatarWidget,
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          authorName,
-                                                          style: tt.titleSmall,
-                                                          overflow:
-                                                              TextOverflow.ellipsis,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        _timeAgo(createdAt),
-                                                        style: tt.bodySmall
-                                                            ?.copyWith(
-                                                              color: cs
-                                                                  .onSurfaceVariant,
-                                                            ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 6),
-                                                  Text(
-                                                    content,
-                                                    style: tt.bodyMedium,
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Row(
-                                                    children: [
-                                                      // Heart toggle for comment (local optimistic UI)
-                                                      GestureDetector(
-                                                        onTap: () async {
-                                                          final cid = (c['id'] as int?) ?? -1;
-                                                          if (cid < 0) return;
-                                                          // optimistic update
-                                                          setState(() {
-                                                            final current = _commentLikeCounts[cid] ?? 0;
-                                                            if (_likedCommentIds.contains(cid)) {
-                                                              _likedCommentIds.remove(cid);
-                                                              _commentLikeCounts[cid] = (current - 1).clamp(0, 999999);
-                                                            } else {
-                                                              _likedCommentIds.add(cid);
-                                                              _commentLikeCounts[cid] = current + 1;
-                                                            }
-                                                          });
-                                                          // call server
-                                                          try {
-                                                            if (_likedCommentIds.contains(cid)) {
-                                                              final ok = await CommunityRepository.instance.likeComment(commentId: cid);
-                                                              if (!ok) {
-                                                                // rollback
-                                                                setState(() {
-                                                                  _likedCommentIds.remove(cid);
-                                                                  _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
-                                                                });
-                                                              }
-                                                            } else {
-                                                              final ok = await CommunityRepository.instance.unlikeComment(commentId: cid);
-                                                              if (!ok) {
-                                                                setState(() {
-                                                                  _likedCommentIds.add(cid);
-                                                                  _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
-                                                                });
-                                                              }
-                                                            }
-                                                          } catch (_) {
-                                                            // network error: best-effort, rollback
-                                                            setState(() {
-                                                              if (_likedCommentIds.contains(cid)) {
-                                                                _likedCommentIds.remove(cid);
-                                                                _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
-                                                              } else {
-                                                                _likedCommentIds.add(cid);
-                                                                _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
-                                                              }
-                                                            });
-                                                          }
-                                                        },
-                                                        child: Container(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                                          decoration: BoxDecoration(
-                                                            color: cs.surface,
-                                                            borderRadius: BorderRadius.circular(20),
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(
-                                                                _likedCommentIds.contains((c['id'] as int?) ?? -1)
-                                                                    ? SolarIconsBold.heart
-                                                                    : SolarIconsOutline.heart,
-                                                                color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey,
-                                                                size: 14,
-                                                              ),
-                                                              const SizedBox(width: 6),
-                                                              Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 12),
-                                                      // Comment button: toggle inline reply input for this comment
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          final cid = (c['id'] as int?) ?? -1;
-                                                          if (cid < 0) return;
-                                                          if (_replyingToCommentId == cid) {
-                                                            setState(() => _replyingToCommentId = null);
-                                                            _replyController.clear();
-                                                            FocusScope.of(context).unfocus();
-                                                          } else {
-                                                            setState(() => _replyingToCommentId = cid);
-                                                            // ensure focus after frame
-                                                            Future.delayed(const Duration(milliseconds: 50), () {
-                                                              try {
-                                                                FocusScope.of(context).requestFocus(_replyFocusNode);
-                                                              } catch (_) {}
-                                                            });
-                                                          }
-                                                        },
-                                                        child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        // Inline reply input (animated)
-                                        ClipRect(
-                                          child: AnimatedSwitcher(
-                                            duration: const Duration(milliseconds: 260),
-                                            switchInCurve: Curves.easeOutCubic,
-                                            switchOutCurve: Curves.easeInCubic,
-                                            transitionBuilder: (child, anim) => SizeTransition(
-                                              sizeFactor: anim,
-                                              axisAlignment: -1.0,
-                                              child: FadeTransition(opacity: anim, child: child),
-                                            ),
-                                            child: ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1))
-                                                ? Container(
-                                                    key: ValueKey('reply-input-${c['id']}'),
-                                                    margin: const EdgeInsets.only(top: 8),
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                    decoration: BoxDecoration(
-                                                      color: cs.surface,
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1),
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: SizedBox(
-                                                            height: 28,
-                                                            child: TextField(
-                                                              controller: _replyController,
-                                                              focusNode: _replyFocusNode,
-                                                              textInputAction: TextInputAction.send,
-                                                              onSubmitted: (_) => _submitReply(parentCommentId: (c['id'] as int?) ?? -1),
-                                                              decoration: InputDecoration(
-                                                                hintText: '답글 작성',
-                                                                isDense: true,
-                                                                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                                border: OutlineInputBorder(borderSide: BorderSide.none),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        IconButton(
-                                                          visualDensity: VisualDensity.compact,
-                                                          padding: EdgeInsets.zero,
-                                                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                                          onPressed: () => _submitReply(parentCommentId: (c['id'] as int?) ?? -1),
-                                                          icon: Icon(Icons.send, size: 18, color: cs.primary),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : const SizedBox.shrink(),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
+                            children: List.generate(roots.length, (ri) {
+                              final root = roots[ri];
+                              final rootChildren = (root['children'] as List<Map<String, dynamic>>?) ?? [];
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildCommentRow(root, cs, tt),
+                                  if (rootChildren.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 44, top: 8),
+                                      child: Column(
+                                        children: List.generate(rootChildren.length, (ci) {
+                                          final child = rootChildren[ci];
+                                          return _buildCommentRow(child, cs, tt, isReply: true);
+                                        }),
+                                      ),
+                                    ),
+                                ],
                               );
                             }),
                           ),
