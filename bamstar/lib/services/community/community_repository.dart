@@ -808,6 +808,7 @@ class CommunityRepository {
     required String content,
     required bool isAnonymous,
     int? parentCommentId,
+    List<String>? imageUrls,
   }) async {
     try {
       final user = _client.auth.currentUser;
@@ -820,6 +821,10 @@ class CommunityRepository {
       };
       if (parentCommentId != null) {
         row['parent_comment_id'] = parentCommentId;
+      }
+      if (imageUrls != null && imageUrls.isNotEmpty) {
+        // DB 컬럼이 text[] 배열이므로 배열로 저장
+        row['image_url'] = imageUrls;
       }
       await _client.from('community_comments').insert(row);
       // Invalidate cache so UI shows updated avatars

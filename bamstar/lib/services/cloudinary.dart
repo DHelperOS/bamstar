@@ -46,7 +46,11 @@ class CloudinaryService {
   }) : _cloudName = cloudName,
        _uploadPreset = uploadPreset,
        _supabase = supabase ?? Supabase.instance.client,
-       _dio = dio.Dio();
+       _dio = dio.Dio()..options = dio.BaseOptions(
+         connectTimeout: const Duration(seconds: 30),
+         receiveTimeout: const Duration(minutes: 3),
+         sendTimeout: const Duration(minutes: 3),
+       );
 
   /// Create from environment variables.
   factory CloudinaryService.fromEnv({SupabaseClient? supabase}) {
@@ -174,6 +178,7 @@ class CloudinaryService {
     String? publicId,
     Map<String, String>? context,
     void Function(double progress)? onProgress,
+    int maxRetries = 2,
   }) async {
     // Safety check before upload
     if (kIsWeb) {
@@ -193,38 +198,81 @@ class CloudinaryService {
         );
       }
     }
-    final sig = await _getSignature(
-      resourceType: 'image',
-      folder: folder,
-      publicId: publicId,
-      context: context,
-    );
 
-    final url = 'https://api.cloudinary.com/v1_1/$_cloudName/image/upload';
-    final form = dio.FormData.fromMap({
-      'file': dio.MultipartFile.fromBytes(bytes, filename: fileName),
-      'api_key': sig.apiKey,
-      'timestamp': sig.timestamp.toString(),
-      'signature': sig.signature,
-      if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
-      if (folder != null && folder.isNotEmpty) 'folder': folder,
-      if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
-      if (context != null && context.isNotEmpty)
-        'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
-    });
+    Exception? lastError;
+    
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (kDebugMode) {
+          print('[CloudinaryService] Uploading $fileName (attempt ${attempt + 1}/${maxRetries + 1})');
+        }
+        
+        final sig = await _getSignature(
+          resourceType: 'image',
+          folder: folder,
+          publicId: publicId,
+          context: context,
+        );
 
-    final res = await _dio.post(
-      url,
-      data: form,
-      onSendProgress: (sent, total) {
-        if (onProgress != null && total > 0) onProgress(sent / total);
-      },
-    );
-    final data = res.data;
-    if (data is Map && data['secure_url'] is String) {
-      return data['secure_url'] as String;
+        if (kDebugMode) {
+          print('[CloudinaryService] Got signature for $fileName');
+        }
+
+        final url = 'https://api.cloudinary.com/v1_1/$_cloudName/image/upload';
+        final form = dio.FormData.fromMap({
+          'file': dio.MultipartFile.fromBytes(bytes, filename: fileName),
+          'api_key': sig.apiKey,
+          'timestamp': sig.timestamp.toString(),
+          'signature': sig.signature,
+          if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
+          if (folder != null && folder.isNotEmpty) 'folder': folder,
+          if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
+          if (context != null && context.isNotEmpty)
+            'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
+        });
+
+        final res = await _dio.post(
+          url,
+          data: form,
+          onSendProgress: (sent, total) {
+            if (onProgress != null && total > 0) onProgress(sent / total);
+          },
+        );
+        
+        final data = res.data;
+        if (data is Map && data['secure_url'] is String) {
+          final secureUrl = data['secure_url'] as String;
+          if (kDebugMode) {
+            print('[CloudinaryService] Successfully uploaded $fileName: $secureUrl');
+          }
+          return secureUrl;
+        }
+        throw StateError('Unexpected Cloudinary response: ${res.data}');
+        
+      } catch (e) {
+        lastError = e is Exception ? e : Exception(e.toString());
+        
+        if (kDebugMode) {
+          print('[CloudinaryService] Upload failed for $fileName (attempt ${attempt + 1}): $e');
+        }
+        
+        if (attempt < maxRetries) {
+          // 재시도 전에 잠시 대기 (exponential backoff)
+          final delay = Duration(seconds: (attempt + 1) * 2);
+          if (kDebugMode) {
+            print('[CloudinaryService] Retrying in ${delay.inSeconds} seconds...');
+          }
+          await Future.delayed(delay);
+          continue;
+        }
+      }
     }
-    throw StateError('Unexpected Cloudinary response: ${res.data}');
+    
+    // 모든 재시도 실패
+    if (kDebugMode) {
+      print('[CloudinaryService] All retries failed for $fileName');
+    }
+    throw lastError ?? Exception('Upload failed after $maxRetries retries');
   }
 
   // --- Content safety (on-device, best-effort via ML Kit image labeling) ---

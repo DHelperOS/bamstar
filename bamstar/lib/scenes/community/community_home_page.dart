@@ -16,6 +16,11 @@ import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:bamstar/services/cloudinary.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:delightful_toast/delight_toast.dart';
 
 class CommunityHomePage extends StatefulWidget {
   const CommunityHomePage({super.key});
@@ -788,6 +793,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
   late Future<List<Map<String, dynamic>>> _commentsFuture;
+  // Image picker for comments and replies
+  List<XFile> _selectedImages = [];
+  List<XFile> _selectedReplyImages = [];
+  final ImagePicker _picker = ImagePicker();
+  bool _isUploadingImages = false;
 
   @override
   void initState() {
@@ -852,40 +862,365 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     super.dispose();
   }
 
+  // 댓글용 이미지 선택
+  Future<void> _pickImagesForComment() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (images.isNotEmpty) {
+        setState(() {
+          _selectedImages = images;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // 답글용 이미지 선택
+  Future<void> _pickImagesForReply() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (images.isNotEmpty) {
+        setState(() {
+          _selectedReplyImages = images;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('이미지 선택 중 오류가 발생했습니다: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // 선택된 이미지 삭제 (댓글용)
+  void _removeImageFromComment(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+    });
+  }
+
+  // 선택된 이미지 삭제 (답글용)
+  void _removeImageFromReply(int index) {
+    setState(() {
+      _selectedReplyImages.removeAt(index);
+    });
+  }
+
+  // 이미지들을 Cloudinary에 업로드하고 URL 리스트 반환
+  Future<List<String>> _uploadImages(List<XFile> images) async {
+    final List<String> uploadedUrls = [];
+
+    setState(() {
+      _isUploadingImages = true;
+    });
+
+    try {
+      for (int i = 0; i < images.length; i++) {
+        final image = images[i];
+        try {
+          final bytes = await image.readAsBytes();
+          final url = await CloudinaryService.instance.uploadImageFromBytes(
+            bytes,
+            fileName: image.name,
+            folder: 'community/comments',
+          );
+          uploadedUrls.add(url);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('이미지 업로드 실패: ${image.name}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          // 개별 이미지 업로드 실패 시에도 다른 이미지들은 계속 업로드
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingImages = false;
+        });
+      }
+    }
+
+    return uploadedUrls;
+  }
+
   Future<void> _submitComment() async {
+    // 키보드 내리기
+    FocusScope.of(context).unfocus();
+    
     final text = _commentController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _selectedImages.isEmpty) return;
     if (_isPostingComment) return;
     setState(() => _isPostingComment = true);
-    final success = await CommunityRepository.instance.createComment(
-      postId: post.id,
-      content: text,
-      isAnonymous: false,
-    );
-    if (success) {
-      // refresh commenter avatars for this post and bump comment count
-      try {
-        final avatars = await CommunityRepository.instance
-            .getPostCommenterAvatars(post.id, limit: 3);
+
+    try {
+      // 이미지 업로드 (있는 경우)
+      List<String> uploadedUrls = [];
+      if (_selectedImages.isNotEmpty) {
+        uploadedUrls = await _uploadImages(_selectedImages);
+        if (uploadedUrls.isEmpty && _selectedImages.isNotEmpty) {
+          // 이미지 업로드가 모두 실패한 경우 - 텍스트가 있으면 텍스트만 게시
+          if (text.isEmpty) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('이미지 업로드 실패. 텍스트를 입력해주세요.'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+            return;
+          } else {
+            // 텍스트가 있으면 텍스트만 게시하고 계속 진행
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('이미지 업로드 실패. 텍스트만 게시합니다.'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+          }
+        }
+      }
+
+      // 댓글 생성 (업로드된 모든 이미지 URL을 댓글에 첨부)
+      final success = await CommunityRepository.instance.createComment(
+        postId: post.id,
+        content: text,
+        isAnonymous: false,
+        imageUrls: uploadedUrls.isNotEmpty ? uploadedUrls : null,
+      );
+
+      if (success) {
+        // 선택된 이미지들과 텍스트 초기화
         setState(() {
-          post = CommunityPost(
-            id: post.id,
-            content: post.content,
-            isAnonymous: post.isAnonymous,
-            authorId: post.authorId,
-            authorName: post.authorName,
-            authorAvatarUrl: post.authorAvatarUrl,
-            imageUrls: post.imageUrls,
-            createdAt: post.createdAt,
-            hashtags: post.hashtags,
-            recentCommenterAvatarUrls: avatars,
-            likesCount: post.likesCount,
-            viewCount: post.viewCount,
-            commentCount: post.commentCount + 1,
-            isLiked: post.isLiked,
-          );
+          _selectedImages.clear();
+          _commentController.clear();
         });
-      } catch (_) {
+
+        // refresh commenter avatars for this post and bump comment count
+        try {
+          final avatars = await CommunityRepository.instance
+              .getPostCommenterAvatars(post.id, limit: 3);
+          setState(() {
+            post = CommunityPost(
+              id: post.id,
+              content: post.content,
+              isAnonymous: post.isAnonymous,
+              authorId: post.authorId,
+              authorName: post.authorName,
+              authorAvatarUrl: post.authorAvatarUrl,
+              imageUrls: post.imageUrls,
+              createdAt: post.createdAt,
+              hashtags: post.hashtags,
+              recentCommenterAvatarUrls: avatars,
+              likesCount: post.likesCount,
+              viewCount: post.viewCount,
+              commentCount: post.commentCount + 1,
+              isLiked: post.isLiked,
+            );
+          });
+        } catch (_) {
+          setState(() {
+            post = CommunityPost(
+              id: post.id,
+              content: post.content,
+              isAnonymous: post.isAnonymous,
+              authorId: post.authorId,
+              authorName: post.authorName,
+              authorAvatarUrl: post.authorAvatarUrl,
+              imageUrls: post.imageUrls,
+              createdAt: post.createdAt,
+              hashtags: post.hashtags,
+              recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
+              likesCount: post.likesCount,
+              viewCount: post.viewCount,
+              commentCount: post.commentCount + 1,
+              isLiked: post.isLiked,
+            );
+          });
+        }
+        _commentController.clear();
+        // refresh inline preview
+        try {
+          setState(() {
+            _commentsFuture = CommunityRepository.instance
+                .fetchCommentsForPost(post.id, limit: 2)
+                .then((comments) async {
+                  await _prefetchCommentAuthors(comments);
+                  return comments;
+                });
+          });
+        } catch (_) {}
+      } else {
+        // show error
+        try {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('댓글 전송에 실패했습니다'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (_) {}
+      }
+    } catch (e) {
+      // 이미지 업로드 또는 댓글 생성 중 오류 발생
+      if (mounted) {
+        DelightToastBar(
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 60,
+              bottom: 8,
+            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade100,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsBold.dangerTriangle,
+                  color: Colors.red.shade700,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '댓글 전송 중 오류가 발생했습니다: $e',
+                    style: TextStyle(
+                      color: Colors.red.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          autoDismiss: true,
+        ).show(context);
+      }
+    }
+
+    if (mounted) setState(() => _isPostingComment = false);
+  }
+
+  Future<void> _submitReply({required int parentCommentId}) async {
+    // 키보드 내리기
+    FocusScope.of(context).unfocus();
+    
+    final text = _replyController.text.trim();
+    if (text.isEmpty && _selectedReplyImages.isEmpty) return;
+    if (_isPostingComment) return;
+    setState(() => _isPostingComment = true);
+
+    try {
+      // 이미지 업로드 (있는 경우)
+      List<String> uploadedUrls = [];
+      if (_selectedReplyImages.isNotEmpty) {
+        uploadedUrls = await _uploadImages(_selectedReplyImages);
+        if (uploadedUrls.isEmpty && _selectedReplyImages.isNotEmpty) {
+          // 이미지 업로드가 모두 실패한 경우
+          if (mounted) {
+            DelightToastBar(
+              builder: (context) => Container(
+                margin: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 60,
+                  bottom: 8,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      SolarIconsBold.dangerTriangle,
+                      color: Colors.orange.shade700,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '이미지 업로드에 실패했습니다. 텍스트만 게시하시겠습니까?',
+                        style: TextStyle(
+                          color: Colors.orange.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              autoDismiss: true,
+            ).show(context);
+          }
+          return;
+        }
+      }
+
+      final success = await CommunityRepository.instance.createComment(
+        postId: post.id,
+        content: text,
+        isAnonymous: false,
+        parentCommentId: parentCommentId,
+        imageUrls: uploadedUrls.isNotEmpty ? uploadedUrls : null,
+      );
+
+      if (success) {
+        // 선택된 답글 이미지들과 텍스트 초기화
+        setState(() {
+          _selectedReplyImages.clear();
+          _replyController.clear();
+        });
+
+        // optimistic bump
         setState(() {
           post = CommunityPost(
             id: post.id,
@@ -904,85 +1239,76 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             isLiked: post.isLiked,
           );
         });
+        _replyController.clear();
+        _replyingToCommentId = null;
+        // refresh inline preview
+        try {
+          setState(() {
+            _commentsFuture = CommunityRepository.instance
+                .fetchCommentsForPost(post.id, limit: 6)
+                .then((comments) async {
+                  await _prefetchCommentAuthors(comments);
+                  return comments;
+                });
+          });
+        } catch (_) {}
+      } else {
+        try {
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
+          }
+        } catch (_) {}
       }
-      _commentController.clear();
-      // refresh inline preview
-      try {
-        setState(() {
-          _commentsFuture = CommunityRepository.instance
-              .fetchCommentsForPost(post.id, limit: 2)
-              .then((comments) async {
-                await _prefetchCommentAuthors(comments);
-                return comments;
-              });
-        });
-      } catch (_) {}
-    } else {
-      // show error
-      try {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
-        }
-      } catch (_) {}
+    } catch (e) {
+      // 이미지 업로드 또는 답글 생성 중 오류 발생
+      if (mounted) {
+        DelightToastBar(
+          builder: (context) => Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 60,
+              bottom: 8,
+            ),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade100,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  SolarIconsBold.dangerTriangle,
+                  color: Colors.red.shade700,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '답글 전송 중 오류가 발생했습니다: $e',
+                    style: TextStyle(
+                      color: Colors.red.shade700,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          autoDismiss: true,
+        ).show(context);
+      }
     }
-    if (mounted) setState(() => _isPostingComment = false);
-  }
 
-  Future<void> _submitReply({required int parentCommentId}) async {
-    final text = _replyController.text.trim();
-    if (text.isEmpty) return;
-    if (_isPostingComment) return;
-    setState(() => _isPostingComment = true);
-    final success = await CommunityRepository.instance.createComment(
-      postId: post.id,
-      content: text,
-      isAnonymous: false,
-      parentCommentId: parentCommentId,
-    );
-    if (success) {
-      // optimistic bump
-      setState(() {
-        post = CommunityPost(
-          id: post.id,
-          content: post.content,
-          isAnonymous: post.isAnonymous,
-          authorId: post.authorId,
-          authorName: post.authorName,
-          authorAvatarUrl: post.authorAvatarUrl,
-          imageUrls: post.imageUrls,
-          createdAt: post.createdAt,
-          hashtags: post.hashtags,
-          recentCommenterAvatarUrls: post.recentCommenterAvatarUrls,
-          likesCount: post.likesCount,
-          viewCount: post.viewCount,
-          commentCount: post.commentCount + 1,
-          isLiked: post.isLiked,
-        );
-      });
-      _replyController.clear();
-      _replyingToCommentId = null;
-      // refresh inline preview
-      try {
-        setState(() {
-          _commentsFuture = CommunityRepository.instance
-              .fetchCommentsForPost(post.id, limit: 6)
-              .then((comments) async {
-                await _prefetchCommentAuthors(comments);
-                return comments;
-              });
-        });
-      } catch (_) {}
-    } else {
-      try {
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
-        }
-      } catch (_) {}
-    }
     if (mounted) setState(() => _isPostingComment = false);
   }
 
@@ -1152,6 +1478,68 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                         ),
                         const SizedBox(height: 6),
                         Text(content, style: tt.bodyMedium),
+                        // 댓글 이미지들 표시 (배열 지원)
+                        if (c['image_url'] != null) ...[
+                          const SizedBox(height: 8),
+                          Builder(
+                            builder: (context) {
+                              List<String> imageUrls = [];
+                              
+                              // image_url이 배열인지 단일 문자열인지 확인
+                              if (c['image_url'] is List) {
+                                imageUrls = (c['image_url'] as List)
+                                    .map((e) => e.toString())
+                                    .where((url) => url.isNotEmpty)
+                                    .toList();
+                              } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                                imageUrls = [c['image_url'].toString()];
+                              }
+                              
+                              if (imageUrls.isEmpty) return const SizedBox.shrink();
+                              
+                              return GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: imageUrls.length == 1 ? 1 : 2,
+                                  crossAxisSpacing: 4,
+                                  mainAxisSpacing: 4,
+                                  childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
+                                ),
+                                itemCount: imageUrls.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _showImageViewer(context, imageUrls, index);
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: SizedBox(
+                                        height: imageUrls.length == 1 ? 100 : 80,
+                                        child: Image.network(
+                                          imageUrls[index],
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              color: cs.surfaceContainer,
+                                              child: Center(
+                                                child: Icon(
+                                                  SolarIconsOutline.gallery,
+                                                  color: cs.onSurfaceVariant,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -1315,48 +1703,180 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                 vertical: 7,
                                 horizontal: 12,
                               ),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _replyController,
-                                      focusNode: _replyFocusNode,
-                                      textInputAction: TextInputAction.send,
-                                      onSubmitted: (_) => _submitReply(
-                                        parentCommentId:
-                                            (c['id'] as int?) ?? -1,
+                                  // 답글용 선택된 이미지 섬네일 표시
+                                  if (_selectedReplyImages.isNotEmpty) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      height: 60,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: _selectedReplyImages.length,
+                                        itemBuilder: (context, index) {
+                                          final image =
+                                              _selectedReplyImages[index];
+                                          return Container(
+                                            margin: const EdgeInsets.only(
+                                              right: 8,
+                                            ),
+                                            child: Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  child: kIsWeb
+                                                      ? Image.network(
+                                                          image.path,
+                                                          width: 60,
+                                                          height: 60,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder:
+                                                              (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) {
+                                                                return Container(
+                                                                  width: 60,
+                                                                  height: 60,
+                                                                  color: cs
+                                                                      .surfaceContainerHighest,
+                                                                  child: Icon(
+                                                                    SolarIconsOutline
+                                                                        .gallery,
+                                                                    color: cs
+                                                                        .onSurfaceVariant,
+                                                                    size: 20,
+                                                                  ),
+                                                                );
+                                                              },
+                                                        )
+                                                      : Image.file(
+                                                          File(image.path),
+                                                          width: 60,
+                                                          height: 60,
+                                                          fit: BoxFit.cover,
+                                                          errorBuilder:
+                                                              (
+                                                                context,
+                                                                error,
+                                                                stackTrace,
+                                                              ) {
+                                                                return Container(
+                                                                  width: 60,
+                                                                  height: 60,
+                                                                  color: cs
+                                                                      .surfaceContainerHighest,
+                                                                  child: Icon(
+                                                                    SolarIconsOutline
+                                                                        .gallery,
+                                                                    color: cs
+                                                                        .onSurfaceVariant,
+                                                                    size: 20,
+                                                                  ),
+                                                                );
+                                                              },
+                                                        ),
+                                                ),
+                                                Positioned(
+                                                  top: 2,
+                                                  right: 2,
+                                                  child: GestureDetector(
+                                                    onTap: () =>
+                                                        _removeImageFromReply(
+                                                          index,
+                                                        ),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                              alpha: 0.7,
+                                                            ),
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            3,
+                                                          ),
+                                                      child: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                        size: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
                                       ),
-                                      decoration: InputDecoration(
-                                        hintText: '댓글 작성',
-                                        hintStyle: tt.bodyMedium?.copyWith(
+                                    ),
+                                  ],
+                                  Row(
+                                    children: [
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: TextField(
+                                          controller: _replyController,
+                                          focusNode: _replyFocusNode,
+                                          textInputAction: TextInputAction.send,
+                                          onSubmitted: (_) => _submitReply(
+                                            parentCommentId:
+                                                (c['id'] as int?) ?? -1,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: '댓글 작성',
+                                            hintStyle: tt.bodyMedium?.copyWith(
+                                              color: Colors.grey[500],
+                                            ),
+                                            isDense: true,
+                                            contentPadding: EdgeInsets.zero,
+                                            border: InputBorder.none,
+                                          ),
+                                          style: tt.bodyMedium?.copyWith(
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: _pickImagesForReply,
+                                        child: Icon(
+                                          SolarIconsOutline.paperclip,
+                                          size: 21,
                                           color: Colors.grey[500],
                                         ),
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                        border: InputBorder.none,
                                       ),
-                                      style: tt.bodyMedium?.copyWith(
-                                        color: cs.onSurfaceVariant,
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: _isUploadingImages
+                                            ? null
+                                            : () => _submitReply(
+                                                parentCommentId:
+                                                    (c['id'] as int?) ?? -1,
+                                              ),
+                                        child: _isUploadingImages
+                                            ? const SizedBox(
+                                                width: 24,
+                                                height: 24,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(Colors.grey),
+                                                ),
+                                              )
+                                            : Icon(
+                                                SolarIconsOutline.arrowRight,
+                                                size: 24,
+                                                color: Colors.grey[500],
+                                              ),
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    SolarIconsOutline.paperclip,
-                                    size: 21,
-                                    color: Colors.grey[500],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  GestureDetector(
-                                    onTap: () => _submitReply(
-                                      parentCommentId: (c['id'] as int?) ?? -1,
-                                    ),
-                                    child: Icon(
-                                      SolarIconsOutline.arrowRight,
-                                      size: 24,
-                                      color: Colors.grey[500],
-                                    ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -1853,59 +2373,167 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               Padding(
                 // add ~5px extra top padding so the input has a bit more space above it
                 padding: const EdgeInsets.fromLTRB(24, 13, 24, 0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: cs.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: cs.outline.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 7,
-                    horizontal: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          controller: _commentController,
-                          onSubmitted: (_) => _submitComment(),
-                          decoration: InputDecoration(
-                            hintText: '댓글 남기기',
-                            hintStyle: tt.bodyMedium?.copyWith(
-                              color: Colors.grey[500],
-                            ),
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                            border: InputBorder.none,
-                          ),
-                          style: tt.bodyMedium?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        SolarIconsOutline.paperclip,
-                        size: 21,
-                        color: Colors.grey[500],
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: _isPostingComment ? null : _submitComment,
-                        child: Icon(
-                          SolarIconsOutline.arrowRight,
-                          size: 24,
-                          color: _isPostingComment
-                              ? Colors.grey[400]
-                              : Colors.grey[500],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 선택된 이미지 섬네일 표시
+                    if (_selectedImages.isNotEmpty) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        height: 80,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _selectedImages.length,
+                          itemBuilder: (context, index) {
+                            final image = _selectedImages[index];
+                            return Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: kIsWeb
+                                        ? Image.network(
+                                            image.path,
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Container(
+                                                    width: 80,
+                                                    height: 80,
+                                                    color: cs
+                                                        .surfaceContainerHighest,
+                                                    child: Icon(
+                                                      SolarIconsOutline.gallery,
+                                                      color:
+                                                          cs.onSurfaceVariant,
+                                                    ),
+                                                  );
+                                                },
+                                          )
+                                        : Image.file(
+                                            File(image.path),
+                                            width: 80,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Container(
+                                                    width: 80,
+                                                    height: 80,
+                                                    color: cs
+                                                        .surfaceContainerHighest,
+                                                    child: Icon(
+                                                      SolarIconsOutline.gallery,
+                                                      color:
+                                                          cs.onSurfaceVariant,
+                                                    ),
+                                                  );
+                                                },
+                                          ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          _removeImageFromComment(index),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.7,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: const EdgeInsets.all(4),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
-                  ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: cs.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: cs.outline.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 7,
+                        horizontal: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              controller: _commentController,
+                              onSubmitted: (_) => _submitComment(),
+                              decoration: InputDecoration(
+                                hintText: '댓글 남기기',
+                                hintStyle: tt.bodyMedium?.copyWith(
+                                  color: Colors.grey[500],
+                                ),
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                border: InputBorder.none,
+                              ),
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: _pickImagesForComment,
+                            child: Icon(
+                              SolarIconsOutline.paperclip,
+                              size: 21,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: (_isPostingComment || _isUploadingImages)
+                                ? null
+                                : _submitComment,
+                            child: _isUploadingImages
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.grey,
+                                      ),
+                                    ),
+                                  )
+                                : Icon(
+                                    SolarIconsOutline.arrowRight,
+                                    size: 24,
+                                    color: _isPostingComment
+                                        ? Colors.grey[400]
+                                        : Colors.grey[500],
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // Inline comments preview under the comment input (data-driven)
@@ -2113,6 +2741,18 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     if (d.inDays < 1) return '${d.inHours}시간 전';
     return '${d.inDays}일 전';
   }
+
+  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => _ImageViewerPage(
+          imageUrls: imageUrls,
+          initialIndex: initialIndex,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
 }
 
 class _ChannelTabBar extends StatelessWidget {
@@ -2223,7 +2863,7 @@ class _PostSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(left: 16, right: 16, top: 60, bottom: 8),
       color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 6,
@@ -2270,6 +2910,114 @@ class _PostSkeleton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ImageViewerPage extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+
+  const _ImageViewerPage({
+    required this.imageUrls,
+    required this.initialIndex,
+  });
+
+  @override
+  State<_ImageViewerPage> createState() => _ImageViewerPageState();
+}
+
+class _ImageViewerPageState extends State<_ImageViewerPage> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // 전체 화면을 차지하는 이미지 뷰어
+          Positioned.fill(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemCount: widget.imageUrls.length,
+              itemBuilder: (context, index) {
+                return InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Center(
+                    child: Image.network(
+                      widget.imageUrls[index],
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: cs.surfaceContainer,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  SolarIconsOutline.gallery,
+                                  color: Colors.white,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '이미지를 불러올 수 없습니다',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          // 상단 AppBar 영역
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              title: Text(
+                '${_currentIndex + 1} / ${widget.imageUrls.length}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
