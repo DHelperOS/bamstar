@@ -199,7 +199,7 @@ class PostCommentPage extends StatefulWidget {
 
 class _PostCommentPageState extends State<PostCommentPage> {
   final TextEditingController _commentCtl = TextEditingController();
-  bool _isPosting = false;
+  
   int? _replyingToCommentId;
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
@@ -314,28 +314,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
     }
   }
 
-  Future<void> _submit() async {
-    final text = _commentCtl.text.trim();
-    if (text.isEmpty) return;
-    if (_isPosting) return;
-    setState(() => _isPosting = true);
-    final ok = await CommunityRepository.instance.createComment(
-      postId: widget.post.id,
-      content: text,
-      isAnonymous: false,
-    );
-    if (ok) {
-      _commentCtl.clear();
-      _reload();
-    } else {
-      try {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
-      } catch (_) {}
-    }
-    if (mounted) setState(() => _isPosting = false);
-  }
+  
 
   Widget _buildCommentRow(
     Map<String, dynamic> c,
@@ -525,36 +504,17 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                         }
                                       } catch (_) {}
                                     },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: cs.surface,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                                       child: Row(
                                         children: [
                                           Icon(
-                                            _likedCommentIds.contains(
-                                                  (c['id'] as int?) ?? -1,
-                                                )
-                                                ? SolarIconsBold.heart
-                                                : SolarIconsOutline.heart,
-                                            color:
-                                                _likedCommentIds.contains(
-                                                  (c['id'] as int?) ?? -1,
-                                                )
-                                                ? Colors.red
-                                                : Colors.grey,
+                                            _likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart,
+                                            color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey,
                                             size: 14,
                                           ),
                                           const SizedBox(width: 6),
-                                          Text(
-                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
-                                            style: tt.bodySmall,
-                                          ),
+                                          Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
                                         ],
                                       ),
                                     ),
@@ -602,12 +562,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                           } catch (_) {}
                                         }
                                       },
-                                      child: Text(
-                                        '댓글 쓰기',
-                                        style: tt.bodySmall?.copyWith(
-                                          color: cs.onSurfaceVariant,
-                                        ),
-                                      ),
+                                      child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 14, color: cs.onSurfaceVariant), const SizedBox(width: 6), Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant))]),
                                     ),
                                 ],
                               ),
@@ -653,11 +608,10 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                 margin: const EdgeInsets.only(
                                                   top: 8,
                                                 ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 6,
-                                                    ),
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
                                                 decoration: BoxDecoration(
                                                   color: cs.surface,
                                                   borderRadius:
@@ -674,7 +628,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                   children: [
                                                     Expanded(
                                                       child: SizedBox(
-                                                        height: 28,
+                                                        height: 24,
                                                         child: TextField(
                                                           controller:
                                                               _replyController,
@@ -696,7 +650,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                             contentPadding:
                                                                 const EdgeInsets.symmetric(
                                                                   horizontal: 8,
-                                                                  vertical: 6,
+                                                                  vertical: 4,
                                                                 ),
                                                             border:
                                                                 OutlineInputBorder(
@@ -714,8 +668,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                       padding: EdgeInsets.zero,
                                                       constraints:
                                                           const BoxConstraints(
-                                                            minWidth: 28,
-                                                            minHeight: 28,
+                                                            minWidth: 24,
+                                                            minHeight: 24,
                                                           ),
                                                       onPressed: () =>
                                                           _submitReply(
@@ -854,37 +808,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                             itemCount: roots.length + 1,
                             itemBuilder: (context, index) {
                               if (index == roots.length) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: cs.surface,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: cs.outline.withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: TextButton(
-                                        onPressed: () {},
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 6,
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Show more comments',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
+                                return const SizedBox.shrink();
                               }
                               final root = roots[index];
                               final children =
@@ -960,7 +884,7 @@ class _PostCommentModalChild extends StatefulWidget {
 
 class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   final TextEditingController _commentCtl = TextEditingController();
-  bool _isPosting = false;
+  
   int? _replyingToCommentId;
   final TextEditingController _replyController = TextEditingController();
   final FocusNode _replyFocusNode = FocusNode();
@@ -1072,28 +996,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     }
   }
 
-  Future<void> _submit() async {
-    final text = _commentCtl.text.trim();
-    if (text.isEmpty) return;
-    if (_isPosting) return;
-    setState(() => _isPosting = true);
-    final ok = await CommunityRepository.instance.createComment(
-      postId: widget.post.id,
-      content: text,
-      isAnonymous: false,
-    );
-    if (ok) {
-      _commentCtl.clear();
-      _reload();
-    } else {
-      try {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
-      } catch (_) {}
-    }
-    if (mounted) setState(() => _isPosting = false);
-  }
+  
 
   Widget _buildCommentRow(
     Map<String, dynamic> c,
@@ -1288,36 +1191,13 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                         });
                                       }
                                     },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: cs.surface,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                                       child: Row(
                                         children: [
-                                          Icon(
-                                            _likedCommentIds.contains(
-                                                  (c['id'] as int?) ?? -1,
-                                                )
-                                                ? SolarIconsBold.heart
-                                                : SolarIconsOutline.heart,
-                                            color:
-                                                _likedCommentIds.contains(
-                                                  (c['id'] as int?) ?? -1,
-                                                )
-                                                ? Colors.red
-                                                : Colors.grey,
-                                            size: 14,
-                                          ),
+                                          Icon(_likedCommentIds.contains((c['id'] as int?) ?? -1) ? SolarIconsBold.heart : SolarIconsOutline.heart, color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey, size: 14),
                                           const SizedBox(width: 6),
-                                          Text(
-                                            '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
-                                            style: tt.bodySmall,
-                                          ),
+                                          Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
                                         ],
                                       ),
                                     ),
@@ -1364,12 +1244,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                           } catch (_) {}
                                         }
                                       },
-                                      child: Text(
-                                        '댓글 쓰기',
-                                        style: tt.bodySmall?.copyWith(
-                                          color: cs.onSurfaceVariant,
-                                        ),
-                                      ),
+                                      child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.edit, size: 14, color: cs.onSurfaceVariant), const SizedBox(width: 6), Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant))]),
                                     ),
                                 ],
                               ),
@@ -1397,7 +1272,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                         margin: const EdgeInsets.only(top: 8),
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
-                                          vertical: 6,
+                                          vertical: 4,
                                         ),
                                         decoration: BoxDecoration(
                                           color: cs.surface,
@@ -1415,7 +1290,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                           children: [
                                             Expanded(
                                               child: SizedBox(
-                                                height: 28,
+                                                height: 24,
                                                 child: TextField(
                                                   controller: _replyController,
                                                   focusNode: _replyFocusNode,
@@ -1433,7 +1308,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                     contentPadding:
                                                         const EdgeInsets.symmetric(
                                                           horizontal: 8,
-                                                          vertical: 6,
+                                                          vertical: 4,
                                                         ),
                                                     border: OutlineInputBorder(
                                                       borderSide:
@@ -1449,8 +1324,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                   VisualDensity.compact,
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(
-                                                minWidth: 28,
-                                                minHeight: 28,
+                                                minWidth: 24,
+                                                minHeight: 24,
                                               ),
                                               onPressed: () async {
                                                 // Try to pick an image if ImagePicker is available.
@@ -1480,8 +1355,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                   VisualDensity.compact,
                                               padding: EdgeInsets.zero,
                                               constraints: const BoxConstraints(
-                                                minWidth: 28,
-                                                minHeight: 28,
+                                                minWidth: 24,
+                                                minHeight: 24,
                                               ),
                                               onPressed: () => _submitReply(
                                                 parentId:
