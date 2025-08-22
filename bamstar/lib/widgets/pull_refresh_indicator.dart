@@ -78,28 +78,30 @@ class _AppPullRefreshIndicatorState extends State<AppPullRefreshIndicator>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // sparkles (3 small pulsing dots)
-                Transform.translate(
-                  offset: const Offset(-18, -10),
-                  child: _SparkleDot(
-                    scale: 0.6 + 0.4 * s1,
-                    color: cs.primary.withValues(alpha: 64),
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(22, -6),
-                  child: _SparkleDot(
-                    scale: 0.5 + 0.5 * s2,
-                    color: cs.primary.withValues(alpha: 56),
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, 16),
-                  child: _SparkleDot(
-                    scale: 0.4 + 0.6 * s3,
-                    color: cs.primary.withValues(alpha: 48),
-                  ),
-                ),
+                        // sparkles (3 small pulsing dots). Use subtle onSurface tints
+                        // instead of the theme primary so pull-to-refresh doesn't
+                        // inject the purple accent behind AppBars while scrolling.
+                        Transform.translate(
+                          offset: const Offset(-18, -10),
+                          child: _SparkleDot(
+                            scale: 0.6 + 0.4 * s1,
+                            color: cs.onSurface.withValues(alpha: 0.10),
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: const Offset(22, -6),
+                          child: _SparkleDot(
+                            scale: 0.5 + 0.5 * s2,
+                            color: cs.onSurface.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, 16),
+                          child: _SparkleDot(
+                            scale: 0.4 + 0.6 * s3,
+                            color: cs.onSurface.withValues(alpha: 0.06),
+                          ),
+                        ),
                 // app icon
                 Transform.rotate(
                   angle: widget.spinning ? angle : 0.0,

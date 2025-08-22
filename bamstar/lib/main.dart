@@ -202,13 +202,32 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    return MaterialApp.router(
+  return MaterialApp.router(
       title: 'BamStar',
-      themeMode: ThemeMode.system,
+      // Override scroll behavior to control overscroll glow color so
+      // it doesn't show the theme primary color behind the AppBar when
+      // scrolling on platforms that show a glow (Android).
+      scrollBehavior: AppScrollBehavior(),
+  // Force light mode to eliminate system dynamic mode induced tint differences for debugging.
+  themeMode: ThemeMode.light,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       routerConfig: _router,
     );
+  }
+}
+
+// Custom scroll behavior that paints the overscroll glow using the
+// current scaffold background color (white in light theme) instead of
+// the theme primary color. This keeps the top area white when users
+// overscroll on scrollable pages.
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
+  // Disable default glow/stretch entirely to avoid any primary/surface tint flash.
+  return child;
   }
 }
 

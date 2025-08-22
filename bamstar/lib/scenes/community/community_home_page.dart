@@ -10,6 +10,7 @@ import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 // removed drop_down_search_field dependency: use plain TextField for search
 import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
@@ -245,9 +246,12 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+  forceMaterialTransparency: true,
+  surfaceTintColor: Colors.transparent,
+  shadowColor: Colors.transparent,
         foregroundColor: cs.onSurface,
         elevation: 0,
         title: const Text('커뮤니티'),
@@ -333,9 +337,19 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         child: const Icon(SolarIconsOutline.chatRound),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refresh,
-          child: CustomScrollView(
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: RefreshIndicator(
+            color: Colors.grey, // neutral spinner instead of primary (purple)
+            backgroundColor: Colors.white,
+            onRefresh: _refresh,
+            child: NotificationListener<OverscrollIndicatorNotification>(
+              onNotification: (overscroll) {
+                // Suppress default glow (we already provide a neutral one globally)
+                overscroll.disallowIndicator();
+                return true;
+              },
+              child: CustomScrollView(
             controller: _scrollController,
             slivers: [
               // Search input (togglable) - moved above the tab bar so it appears
@@ -546,9 +560,13 @@ class _CommunityHomePageState extends State<CommunityHomePage>
               ),
               // Removed the empty-subscriptions helper message per request.
               if (_isLoading)
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: List.generate(6, (_) => _PostSkeleton(cs: cs)),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => Skeletonizer(
+                      enabled: true,
+                      child: _PostSkeleton(cs: cs),
+                    ),
+                    childCount: 6,
                   ),
                 ),
               SliverList(
@@ -582,6 +600,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
               ),
             ],
+          ),
+            ),
           ),
         ),
       ),
@@ -1306,12 +1326,19 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     }
     final twoThumbs = post.imageUrls.length >= 2;
 
-    final _cardInner = Card(
+    final _cardInner = Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      color: Theme.of(context).cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 6,
-      shadowColor: Color.fromRGBO(0, 0, 0, 0.25),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.08),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: null,

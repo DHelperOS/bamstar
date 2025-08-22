@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'dart:ui';
 import 'package:bamstar/services/avatar_helper.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/services/user_service.dart' as us;
@@ -834,7 +835,58 @@ class _PostCommentPageState extends State<PostCommentPage> {
                     builder: (context, snap) {
                       final comments = snap.data ?? [];
                       if (snap.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Skeletonizer(
+                          enabled: true,
+                          child: ListView.separated(
+                            itemCount: 6,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: CommunitySizes.avatarBase / 2,
+                                    backgroundColor: cs.surfaceVariant,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: 12,
+                                          width: 120,
+                                          decoration: BoxDecoration(
+                                            color: cs.surfaceVariant,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          height: 14,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            color: cs.surfaceVariant,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          height: 14,
+                                          width: MediaQuery.of(context).size.width * 0.6,
+                                          decoration: BoxDecoration(
+                                            color: cs.surfaceVariant,
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
                       }
                       if (comments.isEmpty) {
                         return Padding(

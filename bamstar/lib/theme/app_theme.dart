@@ -67,16 +67,20 @@ class AppTheme {
     textTheme: _buildAppTextTheme(lightColorScheme),
     cardTheme: const CardThemeData(
       color: lightSurfaceColor,
-      elevation: 0,
+      elevation: 0, // remove elevation to prevent M3 surfaceTint blending
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
+      // surfaceTintColor intentionally omitted (defaults to transparent when elevation=0)
     ),
     appBarTheme: const AppBarTheme(
       // Force AppBar background to pure white in light mode
       backgroundColor: Colors.white,
       foregroundColor: lightTextColorPrimary,
       elevation: 0,
+      scrolledUnderElevation: 0, // prevent M3 scroll-under tint overlay
+      surfaceTintColor: Colors.transparent, // remove primary tint blending
+      shadowColor: Colors.transparent,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: lightColorScheme.primary,
@@ -158,6 +162,9 @@ class AppTheme {
       backgroundColor: darkBackgroundColor,
       foregroundColor: darkTextColorPrimary,
       elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: darkColorScheme.primary,
