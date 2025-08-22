@@ -708,12 +708,12 @@ class CommunityRepository {
     final user = _client.auth.currentUser;
     if (user == null) return [];
     try {
-    final idsCsv = commentIds.join(',');
-    final res = await _client
-      .from('community_likes')
-      .select('comment_id')
-      .eq('user_id', user.id)
-      .filter('comment_id', 'in', '($idsCsv)');
+      final idsCsv = commentIds.join(',');
+      final res = await _client
+          .from('community_likes')
+          .select('comment_id')
+          .eq('user_id', user.id)
+          .filter('comment_id', 'in', '($idsCsv)');
       final List data = res as List? ?? [];
       final out = <int>[];
       for (final row in data) {
@@ -733,11 +733,11 @@ class CommunityRepository {
     final out = <int, int>{};
     if (commentIds.isEmpty) return out;
     try {
-    final idsCsv = commentIds.join(',');
-    final res = await _client
-      .from('community_likes')
-      .select('comment_id')
-      .filter('comment_id', 'in', '($idsCsv)');
+      final idsCsv = commentIds.join(',');
+      final res = await _client
+          .from('community_likes')
+          .select('comment_id')
+          .filter('comment_id', 'in', '($idsCsv)');
       final List data = res as List? ?? [];
       for (final row in data) {
         try {
@@ -807,16 +807,21 @@ class CommunityRepository {
     required int postId,
     required String content,
     required bool isAnonymous,
+    int? parentCommentId,
   }) async {
     try {
       final user = _client.auth.currentUser;
       if (user == null) return false;
-      await _client.from('community_comments').insert({
+      final row = <String, dynamic>{
         'post_id': postId,
         'author_id': user.id,
         'content': content,
         'is_anonymous': isAnonymous,
-      });
+      };
+      if (parentCommentId != null) {
+        row['parent_comment_id'] = parentCommentId;
+      }
+      await _client.from('community_comments').insert(row);
       // Invalidate cache so UI shows updated avatars
       invalidateAvatarsCacheForPost(postId);
       return true;
@@ -833,7 +838,9 @@ class CommunityRepository {
     try {
       final res = await _client
           .from('community_comments')
-          .select('id, author_id, content, image_url, is_anonymous, created_at')
+          .select(
+            'id, author_id, content, image_url, is_anonymous, parent_comment_id, created_at',
+          )
           .eq('post_id', postId)
           .order('created_at', ascending: false)
           .limit(limit);
@@ -1218,8 +1225,12 @@ class CommunityRepository {
       interactions.sort((a, b) {
         final ats = a['ts'] as String?;
         final bts = b['ts'] as String?;
-        final ad = DateTime.tryParse(ats ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final bd = DateTime.tryParse(bts ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final ad =
+            DateTime.tryParse(ats ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final bd =
+            DateTime.tryParse(bts ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
         return bd.compareTo(ad);
       });
 

@@ -22,7 +22,17 @@ class AvatarStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final toShow = avatarUrls.take(maxDisplay).toList();
+    // Deduplicate while preserving order to avoid duplicate keys inside AnimatedAvatarStack.
+    final seen = <String>{};
+    final toShow = <String>[];
+    for (final u in avatarUrls) {
+      final trimmed = u.trim();
+      if (trimmed.isEmpty) continue;
+      if (seen.add(trimmed)) {
+        toShow.add(trimmed);
+      }
+      if (toShow.length >= maxDisplay) break;
+    }
     // Determine actual per-avatar size: prefer explicit avatarSize, fallback to legacy size.
     final perAvatar = avatarSize ?? size;
     // Apply centralized stack-scale so AvatarStack renders slightly smaller than

@@ -219,4 +219,3 @@ class PostCard extends StatelessWidget {
     return '${d.inDays}일 전';
   }
 }
-
