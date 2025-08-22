@@ -474,6 +474,68 @@ class _PostCommentPageState extends State<PostCommentPage> {
                           ),
                           const SizedBox(height: 6),
                           Text(content, style: tt.bodyMedium),
+                          // 댓글 이미지들 표시 (배열 지원)
+                          if (c['image_url'] != null) ...[
+                            const SizedBox(height: 8),
+                            Builder(
+                              builder: (context) {
+                                List<String> imageUrls = [];
+                                
+                                // image_url이 배열인지 단일 문자열인지 확인
+                                if (c['image_url'] is List) {
+                                  imageUrls = (c['image_url'] as List)
+                                      .map((e) => e.toString())
+                                      .where((url) => url.isNotEmpty)
+                                      .toList();
+                                } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                                  imageUrls = [c['image_url'].toString()];
+                                }
+                                
+                                if (imageUrls.isEmpty) return const SizedBox.shrink();
+                                
+                                return GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: imageUrls.length == 1 ? 1 : 2,
+                                    crossAxisSpacing: 4,
+                                    mainAxisSpacing: 4,
+                                    childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
+                                  ),
+                                  itemCount: imageUrls.length,
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        _showImageViewer(context, imageUrls, index);
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          height: imageUrls.length == 1 ? 100 : 80,
+                                          child: Image.network(
+                                            imageUrls[index],
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: cs.surfaceContainer,
+                                                child: Center(
+                                                  child: Icon(
+                                                    SolarIconsOutline.gallery,
+                                                    color: cs.onSurfaceVariant,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                           const SizedBox(height: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -617,6 +679,81 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                         ],
                                       ),
                                     ),
+                                  // 댓글 삭제 버튼 추가 (내가 작성한 댓글인 경우에만)
+                                  Builder(
+                                    builder: (context) {
+                                      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                                      final commentAuthorId = c['author_id'] as String?;
+                                      final isMyComment = currentUserId != null && 
+                                                          commentAuthorId != null && 
+                                                          currentUserId == commentAuthorId;
+                                      
+                                      if (!isMyComment) return const SizedBox.shrink();
+                                      
+                                      return Row(
+                                        children: [
+                                          const SizedBox(width: 12),
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(
+                                                vertical: 2,
+                                                horizontal: 4,
+                                              ),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                            onPressed: () {
+                                              final cid = (c['id'] as int?) ?? -1;
+                                              if (cid < 0) return;
+                                              
+                                              // 삭제 확인 다이얼로그 표시
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => AlertDialog(
+                                                  title: const Text('댓글 삭제'),
+                                                  content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      child: const Text('취소'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        Navigator.of(context).pop();
+                                                        // TODO: 댓글 삭제 API 호출
+                                                        // await _deleteComment(cid);
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('댓글이 삭제되었습니다')),
+                                                        );
+                                                      },
+                                                      child: const Text('삭제'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  SolarIconsOutline.trashBinTrash,
+                                                  size: 14,
+                                                  color: Colors.red[400],
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  '삭제',
+                                                  style: tt.bodySmall?.copyWith(
+                                                    color: Colors.red[400],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 ],
                               ),
                               ClipRect(
@@ -678,65 +815,129 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                     width: 1,
                                                   ),
                                                 ),
-                                                child: Row(
+                                                child: Column(
                                                   children: [
-                                                    Expanded(
-                                                      child: SizedBox(
-                                                        height: 24,
-                                                        child: TextField(
-                                                          controller:
-                                                              _replyController,
-                                                          focusNode:
-                                                              _replyFocusNode,
-                                                          textInputAction:
-                                                              TextInputAction
-                                                                  .send,
-                                                          onSubmitted: (_) =>
+                                                    // Reply images preview
+                                                    if (_selectedReplyImages.isNotEmpty)
+                                                      Container(
+                                                        margin: const EdgeInsets.only(bottom: 8),
+                                                        height: 60,
+                                                        child: ListView.builder(
+                                                          scrollDirection: Axis.horizontal,
+                                                          itemCount: _selectedReplyImages.length,
+                                                          itemBuilder: (context, index) {
+                                                            return Container(
+                                                              margin: const EdgeInsets.only(right: 6),
+                                                              child: Stack(
+                                                                children: [
+                                                                  ClipRRect(
+                                                                    borderRadius: BorderRadius.circular(6),
+                                                                    child: Image.file(
+                                                                      File(_selectedReplyImages[index].path),
+                                                                      width: 60,
+                                                                      height: 60,
+                                                                      fit: BoxFit.cover,
+                                                                    ),
+                                                                  ),
+                                                                  Positioned(
+                                                                    top: 2,
+                                                                    right: 2,
+                                                                    child: GestureDetector(
+                                                                      onTap: () => _removeImageFromReply(index),
+                                                                      child: Container(
+                                                                        padding: const EdgeInsets.all(2),
+                                                                        decoration: BoxDecoration(
+                                                                          color: Colors.black.withValues(alpha: 0.7),
+                                                                          shape: BoxShape.circle,
+                                                                        ),
+                                                                        child: const Icon(
+                                                                          SolarIconsOutline.trashBinTrash,
+                                                                          color: Colors.white,
+                                                                          size: 12,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    // Reply input row
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: SizedBox(
+                                                            height: 24,
+                                                            child: TextField(
+                                                              controller:
+                                                                  _replyController,
+                                                              focusNode:
+                                                                  _replyFocusNode,
+                                                              textInputAction:
+                                                                  TextInputAction
+                                                                      .send,
+                                                              onSubmitted: (_) =>
+                                                                  _submitReply(
+                                                                    parentId:
+                                                                        (c['id']
+                                                                            as int?) ??
+                                                                        -1,
+                                                                  ),
+                                                              decoration: InputDecoration(
+                                                                hintText: '답글 작성',
+                                                                isDense: true,
+                                                                contentPadding:
+                                                                    const EdgeInsets.symmetric(
+                                                                      horizontal: 8,
+                                                                      vertical: 4,
+                                                                    ),
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide
+                                                                              .none,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        // Image attach button for reply
+                                                        GestureDetector(
+                                                          onTap: _pickImagesForReply,
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                            child: Icon(
+                                                              SolarIconsOutline.paperclip,
+                                                              size: 16,
+                                                              color: Colors.grey[500],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        IconButton(
+                                                          visualDensity:
+                                                              VisualDensity.compact,
+                                                          padding: EdgeInsets.zero,
+                                                          constraints:
+                                                              const BoxConstraints(
+                                                                minWidth: 28,
+                                                                minHeight: 28,
+                                                              ),
+                                                          onPressed: () =>
                                                               _submitReply(
                                                                 parentId:
                                                                     (c['id']
                                                                         as int?) ??
                                                                     -1,
                                                               ),
-                                                          decoration: InputDecoration(
-                                                            hintText: '답글 작성',
-                                                            isDense: true,
-                                                            contentPadding:
-                                                                const EdgeInsets.symmetric(
-                                                                  horizontal: 8,
-                                                                  vertical: 4,
-                                                                ),
-                                                            border:
-                                                                OutlineInputBorder(
-                                                                  borderSide:
-                                                                      BorderSide
-                                                                          .none,
-                                                                ),
+                                                          icon: Icon(
+                                                            Icons.send,
+                                                            size: 18,
+                                                            color: Colors.grey[500],
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    IconButton(
-                                                      visualDensity:
-                                                          VisualDensity.compact,
-                                                      padding: EdgeInsets.zero,
-                                                      constraints:
-                                                          const BoxConstraints(
-                                                            minWidth: 28,
-                                                            minHeight: 28,
-                                                          ),
-                                                      onPressed: () =>
-                                                          _submitReply(
-                                                            parentId:
-                                                                (c['id']
-                                                                    as int?) ??
-                                                                -1,
-                                                          ),
-                                                      icon: Icon(
-                                                        Icons.send,
-                                                        size: 18,
-                                                        color: Colors.grey[500],
-                                                      ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
@@ -1186,6 +1387,20 @@ class _PostCommentPageState extends State<PostCommentPage> {
       // 오류 처리
     }
   }
+
+  // 이미지 뷰어 표시 함수
+  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => _ImageViewerPage(
+          imageUrls: imageUrls,
+          initialIndex: initialIndex,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
   void dispose() {
     try {
       _commentCtl.dispose();
@@ -1460,6 +1675,68 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                           ),
                           const SizedBox(height: 6),
                           Text(content, style: tt.bodyMedium),
+                          // 댓글 이미지들 표시 (배열 지원)
+                          if (c['image_url'] != null) ...[
+                            const SizedBox(height: 8),
+                            Builder(
+                              builder: (context) {
+                                List<String> imageUrls = [];
+                                
+                                // image_url이 배열인지 단일 문자열인지 확인
+                                if (c['image_url'] is List) {
+                                  imageUrls = (c['image_url'] as List)
+                                      .map((e) => e.toString())
+                                      .where((url) => url.isNotEmpty)
+                                      .toList();
+                                } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                                  imageUrls = [c['image_url'].toString()];
+                                }
+                                
+                                if (imageUrls.isEmpty) return const SizedBox.shrink();
+                                
+                                return GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: imageUrls.length == 1 ? 1 : 2,
+                                    crossAxisSpacing: 4,
+                                    mainAxisSpacing: 4,
+                                    childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
+                                  ),
+                                  itemCount: imageUrls.length,
+                                  itemBuilder: (context, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        _showImageViewer(context, imageUrls, index);
+                                      },
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          height: imageUrls.length == 1 ? 100 : 80,
+                                          child: Image.network(
+                                            imageUrls[index],
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: cs.surfaceContainer,
+                                                child: Center(
+                                                  child: Icon(
+                                                    SolarIconsOutline.gallery,
+                                                    color: cs.onSurfaceVariant,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                           const SizedBox(height: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1616,6 +1893,81 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                         ],
                                       ),
                                     ),
+                                  // 댓글 삭제 버튼 추가 (내가 작성한 댓글인 경우에만)
+                                  Builder(
+                                    builder: (context) {
+                                      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                                      final commentAuthorId = c['author_id'] as String?;
+                                      final isMyComment = currentUserId != null && 
+                                                          commentAuthorId != null && 
+                                                          currentUserId == commentAuthorId;
+                                      
+                                      if (!isMyComment) return const SizedBox.shrink();
+                                      
+                                      return Row(
+                                        children: [
+                                          const SizedBox(width: 12),
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(
+                                                vertical: 2,
+                                                horizontal: 4,
+                                              ),
+                                              minimumSize: Size.zero,
+                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                            ),
+                                            onPressed: () {
+                                              final cid = (c['id'] as int?) ?? -1;
+                                              if (cid < 0) return;
+                                              
+                                              // 삭제 확인 다이얼로그 표시
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => AlertDialog(
+                                                  title: const Text('댓글 삭제'),
+                                                  content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      child: const Text('취소'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        Navigator.of(context).pop();
+                                                        // TODO: 댓글 삭제 API 호출
+                                                        // await _deleteComment(cid);
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('댓글이 삭제되었습니다')),
+                                                        );
+                                                      },
+                                                      child: const Text('삭제'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  SolarIconsOutline.trashBinTrash,
+                                                  size: 14,
+                                                  color: Colors.red[400],
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  '삭제',
+                                                  style: tt.bodySmall?.copyWith(
+                                                    color: Colors.red[400],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
                                 ],
                               ),
                               AnimatedSwitcher(
@@ -1824,69 +2176,130 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                 ),
               ),
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: cs.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: cs.outline.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 7,
-                  horizontal: 12,
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _commentCtl,
-                        onSubmitted: (_) => _submitComment(),
-                        decoration: InputDecoration(
-                          hintText: '댓글 남기기',
-                          hintStyle: tt.bodyMedium?.copyWith(
+              child: Column(
+                children: [
+                  // Image preview section for modal
+                  if (_selectedImages.isNotEmpty)
+                    Container(
+                      height: 80,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _selectedImages.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(_selectedImages[index].path),
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: 80,
+                                        height: 80,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.error),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: GestureDetector(
+                                    onTap: () => _removeImageFromComment(index),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withValues(alpha: 0.7),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        SolarIconsOutline.trashBinTrash,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  // Input container
+                  Container(
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: cs.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 7,
+                      horizontal: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 1),
+                            child: TextFormField(
+                              controller: _commentCtl,
+                              onFieldSubmitted: (_) => _submitComment(),
+                              style: tt.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                              decoration: const InputDecoration.collapsed(
+                                hintText: '댓글 남기기',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            debugPrint('[_PostCommentModalChildState] Paperclip button tapped!');
+                            _pickImagesForComment();
+                          },
+                          child: Icon(
+                            SolarIconsOutline.paperclip,
+                            size: 21,
                             color: Colors.grey[500],
                           ),
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
-                          border: InputBorder.none,
                         ),
-                        style: tt.bodyMedium?.copyWith(
-                          color: cs.onSurfaceVariant,
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: (_isUploadingImages) ? null : _submitComment,
+                          child: _isUploadingImages
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : Icon(
+                                  SolarIconsOutline.arrowRight,
+                                  size: 21,
+                                  color: (_commentCtl.text.trim().isEmpty && _selectedImages.isEmpty)
+                                      ? Colors.grey[400]
+                                      : cs.primary,
+                                ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: _pickImagesForComment,
-                      child: Icon(
-                        SolarIconsOutline.paperclip,
-                        size: 21,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: (_isUploadingImages) ? null : _submitComment,
-                      child: _isUploadingImages
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              SolarIconsOutline.arrowRight,
-                              size: 21,
-                              color: (_commentCtl.text.trim().isEmpty && _selectedImages.isEmpty)
-                                  ? Colors.grey[400]
-                                  : cs.primary,
-                            ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -2065,54 +2478,213 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   // 댓글 작성 제출
   Future<void> _submitComment() async {
     final text = _commentCtl.text.trim();
-    if (text.isEmpty) return;
-    // 기본 댓글 제출 로직
-    try {
-      final success = await CommunityRepository.instance.createComment(
-        postId: widget.post.id,
-        content: text,
-        isAnonymous: false,
-        imageUrls: [],
-      );
-      if (success) {
-        _commentCtl.clear();
-        _reload();
-      }
-    } catch (e) {
-      // 오류 처리
-    }
-
-  // 댓글 작성 제출
-  Future<void> _submitComment() async {
-    final text = _commentCtl.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _selectedImages.isEmpty) return;
+    
+    setState(() {
+      _isUploadingImages = true;
+    });
     
     try {
+      // 이미지 업로드
+      List<String> uploadedUrls = [];
+      if (_selectedImages.isNotEmpty) {
+        uploadedUrls = await _uploadImages(_selectedImages);
+      }
+      
       final success = await CommunityRepository.instance.createComment(
         postId: widget.post.id,
         content: text,
         isAnonymous: false,
-        imageUrls: [],
+        imageUrls: uploadedUrls.isNotEmpty ? uploadedUrls : null,
       );
+      
       if (success) {
         _commentCtl.clear();
+        setState(() {
+          _selectedImages.clear();
+        });
         _reload();
+        
+        DelightToastBar(
+          builder: (context) => ToastCard(
+            color: Theme.of(context).colorScheme.primary,
+            leading: const Icon(
+              SolarIconsOutline.checkCircle,
+              size: 28,
+              color: Colors.white,
+            ),
+            title: Text(
+              '댓글이 등록되었습니다',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          position: DelightSnackbarPosition.top,
+          autoDismiss: true,
+          snackbarDuration: const Duration(seconds: 2),
+        ).show(context);
       }
     } catch (e) {
-      // 오류 처리
+      DelightToastBar(
+        builder: (context) => ToastCard(
+          color: Theme.of(context).colorScheme.primary,
+          leading: const Icon(
+            SolarIconsOutline.dangerCircle,
+            size: 28,
+            color: Colors.white,
+          ),
+          title: Text(
+            '댓글 등록 중 오류가 발생했습니다',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        position: DelightSnackbarPosition.top,
+        autoDismiss: true,
+        snackbarDuration: const Duration(seconds: 3),
+      ).show(context);
+    } finally {
+      setState(() {
+        _isUploadingImages = false;
+      });
     }
   }
-  }
+
+  @override
   void dispose() {
-    try {
-      _commentCtl.dispose();
-    } catch (_) {}
-    try {
-      _replyController.dispose();
-    } catch (_) {}
-    try {
-      _replyFocusNode.dispose();
-    } catch (_) {}
+    _commentCtl.dispose();
     super.dispose();
+  }
+
+  // 이미지 뷰어 표시 함수
+  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => _ImageViewerPage(
+          imageUrls: imageUrls,
+          initialIndex: initialIndex,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+}
+
+// 이미지 뷰어 페이지
+class _ImageViewerPage extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+
+  const _ImageViewerPage({
+    required this.imageUrls,
+    required this.initialIndex,
+  });
+
+  @override
+  State<_ImageViewerPage> createState() => _ImageViewerPageState();
+}
+
+class _ImageViewerPageState extends State<_ImageViewerPage> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        // 이미지 뷰어를 닫을 때 키보드 포커스를 제거
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+        children: [
+          // 전체 화면을 차지하는 이미지 뷰어
+          Positioned.fill(
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemCount: widget.imageUrls.length,
+              itemBuilder: (context, index) {
+                return InteractiveViewer(
+                  panEnabled: true,
+                  boundaryMargin: const EdgeInsets.all(20),
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Center(
+                    child: Image.network(
+                      widget.imageUrls[index],
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: cs.surfaceContainer,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  SolarIconsOutline.gallery,
+                                  color: Colors.white,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  '이미지를 불러올 수 없습니다',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          // 상단 AppBar 영역
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              title: Text(
+                '${_currentIndex + 1} / ${widget.imageUrls.length}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+      ),
+    );
   }
 }
