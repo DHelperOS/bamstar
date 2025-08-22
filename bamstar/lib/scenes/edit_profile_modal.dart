@@ -160,7 +160,8 @@ Future<void> showEditProfileModal(
                                       picker: picker,
                                       onPreview: (img) {
                                         preview = img;
-                                        if (modalCtx.mounted && onImagePicked != null) {
+                                        if (modalCtx.mounted &&
+                                            onImagePicked != null) {
                                           onImagePicked(preview);
                                         }
                                       },
@@ -175,13 +176,17 @@ Future<void> showEditProfileModal(
                                       boxShadow: [
                                         // subtle inner shadow
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.08),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.08,
+                                          ),
                                           blurRadius: 4,
                                           offset: const Offset(0, 1),
                                         ),
                                         // larger soft shadow to lift the button
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.10),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.10,
+                                          ),
                                           blurRadius: 8,
                                           spreadRadius: 1,
                                           offset: const Offset(0, 3),
@@ -212,7 +217,8 @@ Future<void> showEditProfileModal(
                                         picker: picker,
                                         onPreview: (img) {
                                           preview = img;
-                                          if (modalCtx.mounted && onImagePicked != null) {
+                                          if (modalCtx.mounted &&
+                                              onImagePicked != null) {
                                             onImagePicked(preview);
                                           }
                                         },
@@ -388,21 +394,24 @@ Future<void> _pickAndUpload({
     );
 
     // Persist to DB
-    await client.from('users').update({'profile_img': deliveryUrl}).eq('id', uid);
+    await client
+        .from('users')
+        .update({'profile_img': deliveryUrl})
+        .eq('id', uid);
 
     // Clear any local avatar placeholders and temp b64
     final sp = await SharedPreferences.getInstance();
     await sp.remove('avatar_b64');
     await sp.remove('${UserService.avatarPrefKey}_$uid');
 
-  // Switch preview to cached network image (via avatar helper which will
-  // attempt to inject Cloudinary transforms when possible).
-  onPreview(avatarImageProviderFromUrl(deliveryUrl, width: 256, height: 256));
+    // Switch preview to cached network image (via avatar helper which will
+    // attempt to inject Cloudinary transforms when possible).
+    onPreview(avatarImageProviderFromUrl(deliveryUrl, width: 256, height: 256));
 
     if (modalCtx.mounted) {
-      ScaffoldMessenger.of(modalCtx).showSnackBar(
-        const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')),
-      );
+      ScaffoldMessenger.of(
+        modalCtx,
+      ).showSnackBar(const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')));
     }
   } catch (e) {
     debugPrint('pick/upload image error: $e');
@@ -410,9 +419,7 @@ Future<void> _pickAndUpload({
       final msg = e.toString().contains('UnsafeImageException')
           ? '부적절한 이미지로 업로드할 수 없습니다'
           : '이미지 업로드 중 오류가 발생했습니다';
-      ScaffoldMessenger.of(modalCtx).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(modalCtx).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 }

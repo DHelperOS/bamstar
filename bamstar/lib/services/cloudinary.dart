@@ -22,7 +22,8 @@ class CloudinaryService {
 
   /// Returns a singleton instance, creating it from env if necessary.
   /// Throws if required environment variables are missing.
-  static CloudinaryService get instance => _instance ??= CloudinaryService.fromEnv();
+  static CloudinaryService get instance =>
+      _instance ??= CloudinaryService.fromEnv();
 
   /// Attempts to return a singleton instance created from env. If env is not
   /// configured or creation fails, returns null instead of throwing.
@@ -42,10 +43,10 @@ class CloudinaryService {
     required String cloudName,
     required String uploadPreset,
     SupabaseClient? supabase,
-  })  : _cloudName = cloudName,
-        _uploadPreset = uploadPreset,
-  _supabase = supabase ?? Supabase.instance.client,
-  _dio = dio.Dio();
+  }) : _cloudName = cloudName,
+       _uploadPreset = uploadPreset,
+       _supabase = supabase ?? Supabase.instance.client,
+       _dio = dio.Dio();
 
   /// Create from environment variables.
   factory CloudinaryService.fromEnv({SupabaseClient? supabase}) {
@@ -83,7 +84,7 @@ class CloudinaryService {
     // Do NOT include resource_type, file, or api_key in the signature payload.
     final paramsToSign = <String, dynamic>{
       'timestamp': timestamp,
-  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
+      if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
@@ -124,7 +125,10 @@ class CloudinaryService {
     } else {
       final safe = await _isImageSafe(await File(path).readAsBytes());
       if (!safe.allowed) {
-        throw UnsafeImageException(reason: safe.reason, labels: safe.matchedLabels);
+        throw UnsafeImageException(
+          reason: safe.reason,
+          labels: safe.matchedLabels,
+        );
       }
     }
     final sig = await _getSignature(
@@ -138,17 +142,17 @@ class CloudinaryService {
     final form = dio.FormData.fromMap({
       'file': await dio.MultipartFile.fromFile(path),
       'api_key': sig.apiKey,
-  'timestamp': sig.timestamp.toString(),
+      'timestamp': sig.timestamp.toString(),
       'signature': sig.signature,
       // include preset if your signature generation expects it
-  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
+      if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
         'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
     });
 
-  final res = await _dio.post(
+    final res = await _dio.post(
       url,
       data: form,
       onSendProgress: (sent, total) {
@@ -175,12 +179,18 @@ class CloudinaryService {
     if (kIsWeb) {
       final verdict = await _moderateOnWeb(bytes, fileName: fileName);
       if (!verdict.allowed) {
-        throw UnsafeImageException(reason: verdict.reason, labels: verdict.matchedLabels);
+        throw UnsafeImageException(
+          reason: verdict.reason,
+          labels: verdict.matchedLabels,
+        );
       }
     } else {
       final safe = await _isImageSafe(bytes);
       if (!safe.allowed) {
-        throw UnsafeImageException(reason: safe.reason, labels: safe.matchedLabels);
+        throw UnsafeImageException(
+          reason: safe.reason,
+          labels: safe.matchedLabels,
+        );
       }
     }
     final sig = await _getSignature(
@@ -194,16 +204,16 @@ class CloudinaryService {
     final form = dio.FormData.fromMap({
       'file': dio.MultipartFile.fromBytes(bytes, filename: fileName),
       'api_key': sig.apiKey,
-  'timestamp': sig.timestamp.toString(),
+      'timestamp': sig.timestamp.toString(),
       'signature': sig.signature,
-  if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
+      if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
       if (folder != null && folder.isNotEmpty) 'folder': folder,
       if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
       if (context != null && context.isNotEmpty)
         'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
     });
 
-  final res = await _dio.post(
+    final res = await _dio.post(
       url,
       data: form,
       onSendProgress: (sent, total) {
@@ -221,11 +231,41 @@ class CloudinaryService {
   static const double _blockConfidence = 0.65; // 65%+
   static const List<String> _blockKeywords = [
     // adult/sexual
-    'explicit', 'nudity', 'nude', 'sex', 'sexual', 'porn', 'underwear', 'lingerie',
+    'explicit',
+    'nudity',
+    'nude',
+    'sex',
+    'sexual',
+    'porn',
+    'underwear',
+    'lingerie',
     // violence/blood/weapons
-    'violence', 'violent', 'blood', 'bloody', 'gore', 'weapon', 'gun', 'rifle', 'pistol', 'knife', 'sword',
+    'violence',
+    'violent',
+    'blood',
+    'bloody',
+    'gore',
+    'weapon',
+    'gun',
+    'rifle',
+    'pistol',
+    'knife',
+    'sword',
     // illegal/harmful substances
-    'drugs', 'drug', 'marijuana', 'cannabis', 'cocaine', 'heroin', 'meth', 'alcohol', 'beer', 'wine', 'liquor', 'tobacco', 'cigarette', 'smoking',
+    'drugs',
+    'drug',
+    'marijuana',
+    'cannabis',
+    'cocaine',
+    'heroin',
+    'meth',
+    'alcohol',
+    'beer',
+    'wine',
+    'liquor',
+    'tobacco',
+    'cigarette',
+    'smoking',
   ];
 
   Future<_SafetyVerdict> _isImageSafe(Uint8List bytes) async {
@@ -241,16 +281,16 @@ class CloudinaryService {
       final f = File('${tmpDir.path}/check.jpg');
       await f.writeAsBytes(bytes, flush: true);
 
-  final input = InputImage.fromFilePath(f.path);
-  final options = ImageLabelerOptions(confidenceThreshold: 0.5);
-  final labeler = ImageLabeler(options: options);
-  final labels = await labeler.processImage(input);
-  await labeler.close();
+      final input = InputImage.fromFilePath(f.path);
+      final options = ImageLabelerOptions(confidenceThreshold: 0.5);
+      final labeler = ImageLabeler(options: options);
+      final labels = await labeler.processImage(input);
+      await labeler.close();
 
       final matched = <String>[];
       for (final l in labels) {
-  final text = (l.label).toLowerCase();
-  final conf = l.confidence;
+        final text = (l.label).toLowerCase();
+        final conf = l.confidence;
         if (conf < _blockConfidence) continue;
         for (final kw in _blockKeywords) {
           if (text.contains(kw)) {
@@ -262,7 +302,9 @@ class CloudinaryService {
 
       try {
         await f.parent.delete(recursive: true);
-      } catch (_) {/* ignore */}
+      } catch (_) {
+        /* ignore */
+      }
 
       if (matched.isNotEmpty) {
         return _SafetyVerdict(
@@ -280,7 +322,10 @@ class CloudinaryService {
 
   /// Web-only moderation via Supabase Edge Function.
   /// Expects the function to return: { allowed: bool, reason?: string, labels?: string[] }
-  Future<_SafetyVerdict> _moderateOnWeb(Uint8List bytes, {required String fileName}) async {
+  Future<_SafetyVerdict> _moderateOnWeb(
+    Uint8List bytes, {
+    required String fileName,
+  }) async {
     try {
       if (!kIsWeb) return const _SafetyVerdict(allowed: true);
       final b64 = base64Encode(bytes);
@@ -291,14 +336,11 @@ class CloudinaryService {
           overrideUrl,
           data: {
             'fileName': fileName,
-            'contentType': _inferContentType(fileName) ?? 'application/octet-stream',
+            'contentType':
+                _inferContentType(fileName) ?? 'application/octet-stream',
             'dataBase64': b64,
           },
-          options: dio.Options(
-            headers: {
-              'content-type': 'application/json',
-            },
-          ),
+          options: dio.Options(headers: {'content-type': 'application/json'}),
         );
         data = (resp.data is Map) ? Map<String, dynamic>.from(resp.data) : null;
       } else {
@@ -306,7 +348,8 @@ class CloudinaryService {
           'image-safety-web',
           body: {
             'fileName': fileName,
-            'contentType': _inferContentType(fileName) ?? 'application/octet-stream',
+            'contentType':
+                _inferContentType(fileName) ?? 'application/octet-stream',
             'dataBase64': b64,
           },
         );
@@ -315,11 +358,16 @@ class CloudinaryService {
 
       if (data != null) {
         final allowed = (data['allowed'] == true);
-        final reason = (data['reason'] as String?) ?? (allowed ? null : '검수 실패');
+        final reason =
+            (data['reason'] as String?) ?? (allowed ? null : '검수 실패');
         final labels = (data['labels'] is List)
             ? List<String>.from(data['labels'] as List)
             : const <String>[];
-        return _SafetyVerdict(allowed: allowed, reason: reason, matchedLabels: labels);
+        return _SafetyVerdict(
+          allowed: allowed,
+          reason: reason,
+          matchedLabels: labels,
+        );
       }
       return const _SafetyVerdict(allowed: true);
     } catch (_) {
@@ -345,8 +393,8 @@ class CloudinaryService {
     int? height,
     String? crop,
     String? gravity,
-  bool autoFormat = true,
-  bool autoQuality = true,
+    bool autoFormat = true,
+    bool autoQuality = true,
   }) {
     final base = 'https://res.cloudinary.com/$_cloudName/image/upload';
     final parts = <String>[];
@@ -448,7 +496,11 @@ class _SignatureBundle {
 
 @immutable
 class _SafetyVerdict {
-  const _SafetyVerdict({required this.allowed, this.reason, this.matchedLabels = const []});
+  const _SafetyVerdict({
+    required this.allowed,
+    this.reason,
+    this.matchedLabels = const [],
+  });
   final bool allowed;
   final String? reason;
   final List<String> matchedLabels;
@@ -459,5 +511,6 @@ class UnsafeImageException implements Exception {
   final String? reason;
   final List<String> labels;
   @override
-  String toString() => 'UnsafeImageException(${reason ?? 'blocked'}, labels=$labels)';
+  String toString() =>
+      'UnsafeImageException(${reason ?? 'blocked'}, labels=$labels)';
 }

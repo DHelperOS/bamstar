@@ -1,3 +1,6 @@
+// Archived copy of: bamstar/lib/scenes/community/post_detail_page.dart
+// Moved to dev/archived_ui for safe-keeping.
+
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 

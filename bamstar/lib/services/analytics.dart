@@ -18,12 +18,17 @@ class AnalyticsService {
     }
   }
 
-  static Future<void> logEvent(String name, {Map<String, Object?>? params}) async {
+  static Future<void> logEvent(
+    String name, {
+    Map<String, Object?>? params,
+  }) async {
     try {
       _log.fine('logEvent: $name params=$params');
-    // Firebase API expects Map<String, Object>? (non-nullable values).
-  final filtered = params?.map<String, Object>((k, v) => MapEntry(k, v as Object));
-    await _analytics?.logEvent(name: name, parameters: filtered);
+      // Firebase API expects Map<String, Object>? (non-nullable values).
+      final filtered = params?.map<String, Object>(
+        (k, v) => MapEntry(k, v as Object),
+      );
+      await _analytics?.logEvent(name: name, parameters: filtered);
     } catch (e, st) {
       _log.warning('Failed to log event $name: $e', e, st);
     }

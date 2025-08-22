@@ -33,12 +33,12 @@ String get kakaoNativeAppKey => dotenv.maybeGet('KAKAO_NATIVE_APP_KEY') ?? '';
 // If the env var is empty, native client IDs will be provided by the
 // Firebase config at runtime (no env change required).
 String get googleWebClientId =>
-  dotenv.maybeGet('NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID') ??
-  dotenv.maybeGet('GOOGLE_WEB_CLIENT_ID') ??
-  '';
+    dotenv.maybeGet('NEXT_PUBLIC_GOOGLE_WEB_CLIENT_ID') ??
+    dotenv.maybeGet('GOOGLE_WEB_CLIENT_ID') ??
+    '';
 
 String get googleAndroidClientId =>
-  dotenv.maybeGet('GOOGLE_ANDROID_CLIENT_ID') ?? '';
+    dotenv.maybeGet('GOOGLE_ANDROID_CLIENT_ID') ?? '';
 
 String get googleIosClientId => dotenv.maybeGet('GOOGLE_IOS_CLIENT_ID') ?? '';
 

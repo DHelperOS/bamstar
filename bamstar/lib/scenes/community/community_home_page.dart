@@ -744,18 +744,35 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   // Comment input controller and posting state
   final TextEditingController _commentController = TextEditingController();
   bool _isPostingComment = false;
+  // Track liked comment ids locally for inline preview (optimistic UI).
+  final Set<int> _likedCommentIds = {};
+  final Map<int, int> _commentLikeCounts = {};
   late Future<List<Map<String, dynamic>>> _commentsFuture;
 
   @override
   void initState() {
     super.initState();
     post = widget.post;
-    _commentsFuture = CommunityRepository.instance
-        .fetchCommentsForPost(post.id, limit: 3)
+  _commentsFuture = CommunityRepository.instance
+    .fetchCommentsForPost(post.id, limit: 2)
         .then((comments) async {
-      await _prefetchCommentAuthors(comments);
-      return comments;
-    });
+          await _prefetchCommentAuthors(comments);
+          // initialize like counts and liked ids for fetched comments
+          try {
+            final ids = comments.map((c) => (c['id'] as int?) ?? -1).where((id) => id > 0).toList();
+            if (ids.isNotEmpty) {
+              final counts = await CommunityRepository.instance.getCommentLikeCounts(ids);
+              final liked = await CommunityRepository.instance.getUserLikedComments(ids);
+              if (mounted) setState(() {
+                for (final e in counts.entries) {
+                  _commentLikeCounts[e.key] = e.value;
+                }
+                _likedCommentIds.addAll(liked);
+              });
+            }
+          } catch (_) {}
+          return comments;
+        });
     // schedule a post-frame visibility check
     // VisibilityDetector will trigger view increment when appropriate.
   }
@@ -826,11 +843,11 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       try {
         setState(() {
           _commentsFuture = CommunityRepository.instance
-              .fetchCommentsForPost(post.id, limit: 3)
+              .fetchCommentsForPost(post.id, limit: 2)
               .then((comments) async {
-            await _prefetchCommentAuthors(comments);
-            return comments;
-          });
+                await _prefetchCommentAuthors(comments);
+                return comments;
+              });
         });
       } catch (_) {}
     } else {
@@ -847,7 +864,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   /// Prefetch comment authors for the provided comments list and populate the
   /// top-level `_authorCache` so `_getAuthor` hits the cache and avoids
   /// individual network calls per comment.
-  Future<void> _prefetchCommentAuthors(List<Map<String, dynamic>> comments) async {
+  Future<void> _prefetchCommentAuthors(
+    List<Map<String, dynamic>> comments,
+  ) async {
     try {
       final ids = comments
           .map((c) => c['author_id'] as String?)
@@ -859,7 +878,10 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       if (ids.isEmpty) return;
       final client = Supabase.instance.client;
       final idsCsv = ids.map((s) => '"$s"').join(',');
-      final res = await client.from('users').select('*').filter('id', 'in', '($idsCsv)');
+      final res = await client
+          .from('users')
+          .select('*')
+          .filter('id', 'in', '($idsCsv)');
       final List data = res as List? ?? [];
       for (final row in data) {
         try {
@@ -1310,7 +1332,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               ),
               // Comment input (themed)
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                // add ~5px extra top padding so the input has a bit more space above it
+                padding: const EdgeInsets.fromLTRB(24, 13, 24, 0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: cs.surface,
@@ -1398,14 +1421,18 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                             children: List.generate(comments.length, (i) {
                               final c = comments[i];
                               final content = (c['content'] as String?) ?? '';
-                              final createdAt = DateTime.tryParse(
+                              final createdAt =
+                                  DateTime.tryParse(
                                     c['created_at'] as String? ?? '',
                                   ) ??
                                   DateTime.now();
-                              final isAnonymous = (c['is_anonymous'] as bool? ?? false);
+                              final isAnonymous =
+                                  (c['is_anonymous'] as bool? ?? false);
                               final authorId = c['author_id'] as String?;
-                              final fallbackName = (c['author_name'] as String?) ?? '스타';
-                              final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
+                              final fallbackName =
+                                  (c['author_name'] as String?) ?? '스타';
+                              final fallbackAvatar =
+                                  (c['author_avatar_url'] as String?) ?? '';
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
@@ -1415,40 +1442,61 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     final user = snap.data;
 
                                     // Resolve display name (respect anonymity)
-                  final authorName = isAnonymous
-                    ? '익명의 스타'
-                    : ((user != null && (user.nickname.isNotEmpty == true))
-                      ? user.nickname
-                      : fallbackName);
+                                    final authorName = isAnonymous
+                                        ? '익명의 스타'
+                                        : ((user != null &&
+                                                  (user.nickname.isNotEmpty ==
+                                                      true))
+                                              ? user.nickname
+                                              : fallbackName);
 
                                     // Determine avatar URL similarly to post header
                                     String? candidateUrl;
                                     if (user != null) {
-                                      final p = (user.data['profile_img'] as String?)?.trim();
-                                      if (p != null && p.isNotEmpty) candidateUrl = p;
+                                      final p =
+                                          (user.data['profile_img'] as String?)
+                                              ?.trim();
+                                      if (p != null && p.isNotEmpty)
+                                        candidateUrl = p;
                                     }
-                                    if ((candidateUrl == null || candidateUrl.isEmpty) &&
+                                    if ((candidateUrl == null ||
+                                            candidateUrl.isEmpty) &&
                                         fallbackAvatar.isNotEmpty) {
                                       candidateUrl = fallbackAvatar;
                                     }
-                                    if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) {
-                                      candidateUrl = null; // explicit: don't fetch external placeholder
+                                    if (isAnonymous &&
+                                        (candidateUrl == null ||
+                                            candidateUrl.isEmpty)) {
+                                      candidateUrl =
+                                          null; // explicit: don't fetch external placeholder
                                     }
 
                                     ImageProvider? avatarImage;
-                                    if (candidateUrl != null && candidateUrl.isNotEmpty) {
+                                    if (candidateUrl != null &&
+                                        candidateUrl.isNotEmpty) {
                                       avatarImage = avatarImageProviderFromUrl(
                                         candidateUrl,
-                                        width: (CommunitySizes.avatarBase * 2.8).toInt(),
-                                        height: (CommunitySizes.avatarBase * 2.8).toInt(),
+                                        width: (CommunitySizes.avatarBase * 2.8)
+                                            .toInt(),
+                                        height:
+                                            (CommunitySizes.avatarBase * 2.8)
+                                                .toInt(),
                                       );
                                     }
 
                                     Widget avatarWidget;
                                     if (isAnonymous && avatarImage != null) {
                                       avatarWidget = SizedBox(
-                                        width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
-                                        height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        width:
+                                            CommunitySizes.avatarBase /
+                                            2 *
+                                            1.4 *
+                                            2,
+                                        height:
+                                            CommunitySizes.avatarBase /
+                                            2 *
+                                            1.4 *
+                                            2,
                                         child: ClipOval(
                                           child: ImageFiltered(
                                             imageFilter: ImageFilter.blur(
@@ -1457,17 +1505,34 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                             ),
                                             child: Image(
                                               image: avatarImage,
-                                              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
-                                              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              width:
+                                                  CommunitySizes.avatarBase /
+                                                  2 *
+                                                  1.4 *
+                                                  2,
+                                              height:
+                                                  CommunitySizes.avatarBase /
+                                                  2 *
+                                                  1.4 *
+                                                  2,
                                               fit: BoxFit.cover,
                                             ),
                                           ),
                                         ),
                                       );
-                                    } else if (isAnonymous && avatarImage == null) {
+                                    } else if (isAnonymous &&
+                                        avatarImage == null) {
                                       avatarWidget = SizedBox(
-                                        width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
-                                        height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                        width:
+                                            CommunitySizes.avatarBase /
+                                            2 *
+                                            1.4 *
+                                            2,
+                                        height:
+                                            CommunitySizes.avatarBase /
+                                            2 *
+                                            1.4 *
+                                            2,
                                         child: ClipOval(
                                           child: ImageFiltered(
                                             imageFilter: ImageFilter.blur(
@@ -1475,13 +1540,24 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                               sigmaY: 8,
                                             ),
                                             child: Container(
-                                              width: CommunitySizes.avatarBase / 2 * 1.4 * 2,
-                                              height: CommunitySizes.avatarBase / 2 * 1.4 * 2,
+                                              width:
+                                                  CommunitySizes.avatarBase /
+                                                  2 *
+                                                  1.4 *
+                                                  2,
+                                              height:
+                                                  CommunitySizes.avatarBase /
+                                                  2 *
+                                                  1.4 *
+                                                  2,
                                               color: cs.secondaryContainer,
                                               child: Center(
                                                 child: Icon(
                                                   SolarIconsOutline.incognito,
-                                                  size: CommunitySizes.avatarBase * 0.9,
+                                                  size:
+                                                      CommunitySizes
+                                                          .avatarBase *
+                                                      0.9,
                                                   color: cs.onSurfaceVariant,
                                                 ),
                                               ),
@@ -1492,24 +1568,32 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     } else {
                                       avatarWidget = CircleAvatar(
                                         radius: CommunitySizes.avatarBase / 2,
-                                        backgroundColor: isAnonymous ? cs.secondaryContainer : null,
+                                        backgroundColor: isAnonymous
+                                            ? cs.secondaryContainer
+                                            : null,
                                         backgroundImage: avatarImage,
-                                        child: (!isAnonymous && avatarImage == null) ? Icon(
-                                          Icons.person,
-                                          size: 12,
-                                          color: cs.onSurfaceVariant,
-                                        ) : null,
+                                        child:
+                                            (!isAnonymous &&
+                                                avatarImage == null)
+                                            ? Icon(
+                                                Icons.person,
+                                                size: 12,
+                                                color: cs.onSurfaceVariant,
+                                              )
+                                            : null,
                                       );
                                     }
 
                                     return Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         avatarWidget,
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Row(
                                                 children: [
@@ -1517,19 +1601,122 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                                     child: Text(
                                                       authorName,
                                                       style: tt.titleSmall,
-                                                      overflow: TextOverflow.ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                   ),
                                                   Text(
                                                     _timeAgo(createdAt),
-                                                    style: tt.bodySmall?.copyWith(
-                                                      color: cs.onSurfaceVariant,
-                                                    ),
+                                                    style: tt.bodySmall
+                                                        ?.copyWith(
+                                                          color: cs
+                                                              .onSurfaceVariant,
+                                                        ),
                                                   ),
                                                 ],
                                               ),
                                               const SizedBox(height: 6),
-                                              Text(content, style: tt.bodyMedium),
+                                              Text(
+                                                content,
+                                                style: tt.bodyMedium,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                children: [
+                                                  // Heart toggle for comment (local optimistic UI)
+                                                  GestureDetector(
+                                                    onTap: () async {
+                                                      final cid = (c['id'] as int?) ?? -1;
+                                                      if (cid < 0) return;
+                                                      // optimistic update
+                                                      setState(() {
+                                                        final current = _commentLikeCounts[cid] ?? 0;
+                                                        if (_likedCommentIds.contains(cid)) {
+                                                          _likedCommentIds.remove(cid);
+                                                          _commentLikeCounts[cid] = (current - 1).clamp(0, 999999);
+                                                        } else {
+                                                          _likedCommentIds.add(cid);
+                                                          _commentLikeCounts[cid] = current + 1;
+                                                        }
+                                                      });
+                                                      // call server
+                                                      try {
+                                                        if (_likedCommentIds.contains(cid)) {
+                                                          final ok = await CommunityRepository.instance.likeComment(commentId: cid);
+                                                          if (!ok) {
+                                                            // rollback
+                                                            setState(() {
+                                                              _likedCommentIds.remove(cid);
+                                                              _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                                            });
+                                                          }
+                                                        } else {
+                                                          final ok = await CommunityRepository.instance.unlikeComment(commentId: cid);
+                                                          if (!ok) {
+                                                            setState(() {
+                                                              _likedCommentIds.add(cid);
+                                                              _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                                            });
+                                                          }
+                                                        }
+                                                      } catch (_) {
+                                                        // network error: best-effort, rollback
+                                                        setState(() {
+                                                          if (_likedCommentIds.contains(cid)) {
+                                                            _likedCommentIds.remove(cid);
+                                                            _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 1) - 1;
+                                                          } else {
+                                                            _likedCommentIds.add(cid);
+                                                            _commentLikeCounts[cid] = (_commentLikeCounts[cid] ?? 0) + 1;
+                                                          }
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: cs.surface,
+                                                        borderRadius: BorderRadius.circular(20),
+                                                      ),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            _likedCommentIds.contains((c['id'] as int?) ?? -1)
+                                                                ? SolarIconsBold.heart
+                                                                : SolarIconsOutline.heart,
+                                                            color: _likedCommentIds.contains((c['id'] as int?) ?? -1) ? Colors.red : Colors.grey,
+                                                            size: 14,
+                                                          ),
+                                                          const SizedBox(width: 6),
+                                                          Text('${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}', style: tt.bodySmall),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  // Comment button: open PostCommentPage modal for this post
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      try {
+                                                        WoltModalSheet.show(
+                                                          context: context,
+                                                          pageListBuilder: (modalContext) => [
+                                                            PostCommentPage.woltPage(modalContext, post),
+                                                          ],
+                                                          modalTypeBuilder: (ctx) => WoltModalType.bottomSheet(),
+                                                        );
+                                                      } catch (_) {
+                                                        Navigator.of(context).push(
+                                                          MaterialPageRoute(
+                                                            builder: (_) => PostCommentPage(post: post),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Text('댓글 쓰기', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),

@@ -316,3 +316,52 @@ CREATE POLICY "Allow users to delete their own likes" ON public.community_likes 
 COMMENT ON TABLE public.community_likes IS '멤버가 게시글 또는 댓글에 누른 공감(좋아요) 정보. (댓글 좋아요 지원)';
 COMMENT ON COLUMN public.community_likes.post_id IS '좋아요 대상 (게시글 ID). 댓글에 좋아요를 누른 경우 NULL.';
 COMMENT ON COLUMN public.community_likes.comment_id IS '좋아요 대상 (댓글 ID). 게시글에 좋아요를 누른 경우 NULL.';
+
+
+CREATE TABLE public.community_likes (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  
+  -- '좋아요'의 대상은 post 또는 comment 둘 중 하나입니다.
+  post_id BIGINT REFERENCES public.community_posts(id) ON DELETE CASCADE,
+  comment_id BIGINT REFERENCES public.community_comments(id) ON DELETE CASCADE,
+  
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  -- 제약조건 1: 한 사람이 같은 '게시글'에 중복으로 좋아요 누르는 것을 방지합니다.
+  CONSTRAINT unique_post_like UNIQUE (user_id, post_id),
+
+  -- 제약조건 2: 한 사람이 같은 '댓글'에 중복으로 좋아요 누르는 것을 방지합니다.
+  CONSTRAINT unique_comment_like UNIQUE (user_id, comment_id),
+
+  -- 제약조건 3: '좋아요'의 대상은 게시글 또는 댓글, 둘 중 하나여야 함을 강제합니다.
+  CONSTRAINT target_like_check CHECK (num_nonnulls(post_id, comment_id) = 1)
+);
+
+
+-- 2. 테이블 및 컬럼에 대한 주석(Comment) 추가
+COMMENT ON TABLE public.community_likes IS '멤버가 게시글 또는 댓글에 누른 공감(좋아요) 정보.';
+COMMENT ON COLUMN public.community_likes.post_id IS '좋아요 대상 (게시글 ID). 댓글에 좋아요를 누른 경우 NULL.';
+COMMENT ON COLUMN public.community_likes.comment_id IS '좋아요 대상 (댓글 ID). 게시글에 좋아요를 누른 경우 NULL.';
+
+
+-- 3. RLS (Row Level Security) 활성화 및 정책 정의
+ALTER TABLE public.community_likes ENABLE ROW LEVEL SECURITY;
+
+-- 정책 3.1: 로그인한 사용자는 모든 좋아요 정보를 '읽을(SELECT)' 수 있습니다.
+CREATE POLICY "Allow read access to authenticated users"
+  ON public.community_likes
+  FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+-- 정책 3.2: 사용자는 자신의 좋아요만 '누를(INSERT)' 수 있습니다.
+CREATE POLICY "Allow users to insert their own likes"
+  ON public.community_likes
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- 정책 3.3: 사용자는 자신의 좋아요만 '취소(DELETE)'할 수 있습니다.
+CREATE POLICY "Allow users to delete their own likes"
+  ON public.community_likes
+  FOR DELETE
+  USING (auth.uid() = user_id);

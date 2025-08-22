@@ -1,3 +1,6 @@
+// Archived copy of: bamstar/lib/scenes/community/widgets/post_card.dart
+// This file was moved to dev/archived_ui for safe-keeping. Original content follows.
+
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:solar_icons/solar_icons.dart';
@@ -216,3 +219,4 @@ class PostCard extends StatelessWidget {
     return '${d.inDays}일 전';
   }
 }
+

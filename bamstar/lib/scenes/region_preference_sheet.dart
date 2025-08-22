@@ -114,9 +114,9 @@ class _RegionPreferenceSheetLauncherState
         (map[g.mainCategoryId] ??= []).add(g);
       }
 
-  // Debug
-  log.fine('[region] main_categories rows=${cats.length}');
-  log.fine('[region] area_groups rows=${groups.length}');
+      // Debug
+      log.fine('[region] main_categories rows=${cats.length}');
+      log.fine('[region] area_groups rows=${groups.length}');
       if (!mounted) return;
 
       setState(() {

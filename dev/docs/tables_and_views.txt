@@ -1,0 +1,44 @@
+auth.audit_log_entries|BASE TABLE
+auth.flow_state|BASE TABLE
+auth.identities|BASE TABLE
+auth.instances|BASE TABLE
+auth.mfa_amr_claims|BASE TABLE
+auth.mfa_challenges|BASE TABLE
+auth.mfa_factors|BASE TABLE
+auth.one_time_tokens|BASE TABLE
+auth.refresh_tokens|BASE TABLE
+auth.saml_providers|BASE TABLE
+auth.saml_relay_states|BASE TABLE
+auth.schema_migrations|BASE TABLE
+auth.sessions|BASE TABLE
+auth.sso_domains|BASE TABLE
+auth.sso_providers|BASE TABLE
+auth.users|BASE TABLE
+extensions.pg_stat_statements|VIEW
+extensions.pg_stat_statements_info|VIEW
+public.area_groups|BASE TABLE
+public.area_keywords|BASE TABLE
+public.community_comments|BASE TABLE
+public.community_hashtags|BASE TABLE
+public.community_likes|BASE TABLE
+public.community_posts|BASE TABLE
+public.community_subscriptions|BASE TABLE
+public.devices|BASE TABLE
+public.main_categories|BASE TABLE
+public.post_hashtags|BASE TABLE
+public.roles|BASE TABLE
+public.users|BASE TABLE
+realtime.messages|BASE TABLE
+realtime.schema_migrations|BASE TABLE
+realtime.subscription|BASE TABLE
+storage.buckets|BASE TABLE
+storage.buckets_analytics|BASE TABLE
+storage.migrations|BASE TABLE
+storage.objects|BASE TABLE
+storage.prefixes|BASE TABLE
+storage.s3_multipart_uploads|BASE TABLE
+storage.s3_multipart_uploads_parts|BASE TABLE
+supabase_migrations.schema_migrations|BASE TABLE
+supabase_migrations.seed_files|BASE TABLE
+vault.decrypted_secrets|VIEW
+vault.secrets|BASE TABLE

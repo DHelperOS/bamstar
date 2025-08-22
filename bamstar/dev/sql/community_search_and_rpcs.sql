@@ -38,36 +38,7 @@ AS $$
       SELECT unnest(post_ids_in) AS post_id
     ) p
     LEFT JOIN (
-      SELECT post_id, COUNT(*) AS likes_count
-      FROM public.community_likes
-      WHERE post_id = ANY(post_ids_in)
-      GROUP BY post_id
-    ) l ON l.post_id = p.post_id
-    LEFT JOIN (
-      SELECT post_id, COUNT(*) AS comments_count
-      FROM public.community_comments
-      WHERE post_id = ANY(post_ids_in)
-      GROUP BY post_id
-    ) c ON c.post_id = p.post_id;
-$$;
-
--- 4) RPC: get_user_liked_posts(post_ids_in bigint[]) -> rows of post_id
-CREATE OR REPLACE FUNCTION public.get_user_liked_posts(post_ids_in bigint[])
-RETURNS TABLE(post_id bigint)
-LANGUAGE plpgsql STABLE SECURITY DEFINER
-AS $$
-DECLARE
-  uid uuid := current_setting('jwt.claims.user_id', true)::uuid;
-BEGIN
-  IF uid IS NULL THEN
-    RETURN;
-  END IF;
-  RETURN QUERY
-  SELECT post_id::bigint FROM public.community_likes
-  WHERE user_id = uid AND post_id = ANY(post_ids_in);
-END$$;
-
--- 5) RPC: increment_post_view(post_id_in bigint) -> new_count bigint
+    -- End of script
 CREATE OR REPLACE FUNCTION public.increment_post_view(post_id_in bigint)
 RETURNS TABLE(new_count bigint)
 LANGUAGE sql VOLATILE
@@ -83,17 +54,28 @@ CREATE OR REPLACE FUNCTION public.get_post_commenter_avatars_batch(post_ids_in b
 RETURNS TABLE(post_id bigint, profile_img text)
 LANGUAGE sql STABLE
 AS $$
-  SELECT c.post_id::bigint, u.profile_img
-  FROM (
-    SELECT DISTINCT ON (post_id, author_id) post_id, author_id
+  WITH recent AS (
+    -- get last comment time per (post_id, author_id)
+    SELECT post_id, author_id, MAX(created_at) AS last_comment_at
     FROM public.community_comments
-    WHERE post_id = ANY(post_ids_in) AND (is_anonymous IS DISTINCT FROM true)
-    ORDER BY post_id, created_at DESC
-  ) c
-  JOIN public.users u ON u.id = c.author_id
-  WHERE u.profile_img IS NOT NULL
-  ORDER BY c.post_id, u.id
-  LIMIT GREATEST(1, COALESCE(limit_in, 3));
+    WHERE post_id = ANY(post_ids_in)
+      AND (is_anonymous IS DISTINCT FROM true)
+      AND author_id IS NOT NULL
+    GROUP BY post_id, author_id
+  ), ranked AS (
+    SELECT
+      r.post_id,
+      r.author_id,
+      r.last_comment_at,
+      ROW_NUMBER() OVER (PARTITION BY r.post_id ORDER BY r.last_comment_at DESC) AS rn
+    FROM recent r
+  )
+  SELECT r.post_id::bigint, u.profile_img
+  FROM ranked r
+  JOIN public.users u ON u.id = r.author_id
+  WHERE r.rn <= GREATEST(1, COALESCE(limit_in, 3))
+    AND u.profile_img IS NOT NULL
+  ORDER BY r.post_id, r.rn;
 $$;
 
 -- 7) RPC: get_post_commenter_avatars(post_id_in bigint, limit_in int)
@@ -101,16 +83,20 @@ CREATE OR REPLACE FUNCTION public.get_post_commenter_avatars(post_id_in bigint, 
 RETURNS TABLE(profile_img text)
 LANGUAGE sql STABLE
 AS $$
-  SELECT u.profile_img
-  FROM (
-    SELECT DISTINCT ON (author_id) author_id
+  WITH recent AS (
+    SELECT author_id, MAX(created_at) AS last_comment_at
     FROM public.community_comments
-    WHERE post_id = post_id_in AND (is_anonymous IS DISTINCT FROM true)
-    ORDER BY created_at DESC
-    LIMIT COALESCE(limit_in, 3)
-  ) c
-  JOIN public.users u ON u.id = c.author_id
-  WHERE u.profile_img IS NOT NULL;
+    WHERE post_id = post_id_in
+      AND (is_anonymous IS DISTINCT FROM true)
+      AND author_id IS NOT NULL
+    GROUP BY author_id
+  )
+  SELECT u.profile_img
+  FROM recent r
+  JOIN public.users u ON u.id = r.author_id
+  WHERE u.profile_img IS NOT NULL
+  ORDER BY r.last_comment_at DESC
+  LIMIT GREATEST(1, COALESCE(limit_in, 3));
 $$;
 
 -- 8) RPC: get_top_posts_by_metric(window_days integer, metric text, limit_val integer, offset_val integer)
@@ -141,14 +127,43 @@ CREATE OR REPLACE FUNCTION public.get_top_posts_by_metric(
 ) LANGUAGE sql STABLE
 AS $$
 WITH windowed_posts AS (
-  SELECT p.*, p.id AS post_id
+  SELECT p.*
   FROM public.community_posts p
   WHERE (window_days IS NULL) OR (p.created_at >= now() - (window_days || ' days')::interval)
 ),
-agg AS (
-  Slower(metric) = 'comments' THEN a.comments_count
-       ELSE a.comments_count END DESC,
-  a.created_at DESC
+likes_agg AS (
+  SELECT post_id, COUNT(*)::bigint AS likes_count
+  FROM public.community_likes
+  WHERE post_id IS NOT NULL
+  GROUP BY post_id
+),
+comments_agg AS (
+  SELECT post_id, COUNT(*)::bigint AS comments_count
+  FROM public.community_comments
+  WHERE post_id IS NOT NULL
+  GROUP BY post_id
+),
+combined AS (
+  SELECT wp.id,
+         wp.author_id,
+         wp.content,
+         wp.is_anonymous,
+         wp.image_urls,
+         COALESCE(wp.view_count, 0)::bigint AS view_count,
+         wp.created_at,
+         COALESCE(l.likes_count, 0)::bigint AS likes_count,
+         COALESCE(c.comments_count, 0)::bigint AS comments_count
+  FROM windowed_posts wp
+  LEFT JOIN likes_agg l ON l.post_id = wp.id
+  LEFT JOIN comments_agg c ON c.post_id = wp.id
+)
+SELECT id, author_id, content, is_anonymous, image_urls, view_count, created_at, likes_count, comments_count
+FROM combined
+ORDER BY
+  CASE WHEN lower(metric) = 'likes' THEN likes_count
+       WHEN lower(metric) = 'comments' THEN comments_count
+       ELSE comments_count END DESC,
+  created_at DESC
 LIMIT GREATEST(1, COALESCE(limit_val, 20))
 OFFSET GREATEST(0, COALESCE(offset_val, 0));
 $$;

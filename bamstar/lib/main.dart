@@ -89,7 +89,14 @@ Future<void> main() async {
   // Initialize router (reads SharedPreferences) before starting the app so
   // initial route honors whether onboarding was seen.
   await initRouter();
-  runApp(ProviderScope(child: MyApp(supabaseInitOk: supabaseInitOk, cloudinaryInitOk: cloudinaryInitOk)));
+  runApp(
+    ProviderScope(
+      child: MyApp(
+        supabaseInitOk: supabaseInitOk,
+        cloudinaryInitOk: cloudinaryInitOk,
+      ),
+    ),
+  );
 }
 
 late final GoRouter _router;
@@ -132,7 +139,11 @@ Future<void> initRouter() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.supabaseInitOk = true, this.cloudinaryInitOk = true});
+  const MyApp({
+    super.key,
+    this.supabaseInitOk = true,
+    this.cloudinaryInitOk = true,
+  });
 
   final bool supabaseInitOk;
   final bool cloudinaryInitOk;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'dart:ui';
 import 'package:bamstar/services/avatar_helper.dart';
+import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
+import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/services/user_service.dart' as us;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bamstar/services/community/community_repository.dart';
@@ -16,11 +18,17 @@ Future<us.AppUser?> _getAuthor(String? id) async {
   try {
     debugPrint('[post_comment] _getAuthor: fetching user id=$id');
     final client = Supabase.instance.client;
-    final res = await client.from('users').select('*').eq('id', id).maybeSingle();
+    final res = await client
+        .from('users')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
-      debugPrint('[post_comment] _getAuthor: fetched user id=${u.id} nickname=${u.nickname}');
+      debugPrint(
+        '[post_comment] _getAuthor: fetched user id=${u.id} nickname=${u.nickname}',
+      );
       _authorCache[id] = u;
       return u;
     }
@@ -30,7 +38,9 @@ Future<us.AppUser?> _getAuthor(String? id) async {
   return null;
 }
 
-Future<void> _prefetchCommentAuthors(List<Map<String, dynamic>> comments) async {
+Future<void> _prefetchCommentAuthors(
+  List<Map<String, dynamic>> comments,
+) async {
   try {
     final ids = comments
         .map((c) => c['author_id'] as String?)
@@ -42,7 +52,10 @@ Future<void> _prefetchCommentAuthors(List<Map<String, dynamic>> comments) async 
     if (ids.isEmpty) return;
     final client = Supabase.instance.client;
     final idsCsv = ids.map((s) => '"$s"').join(',');
-    final res = await client.from('users').select('*').filter('id', 'in', '($idsCsv)');
+    final res = await client
+        .from('users')
+        .select('*')
+        .filter('id', 'in', '($idsCsv)');
     final List data = res as List? ?? [];
     for (final row in data) {
       try {
@@ -63,16 +76,29 @@ class VerticalDashedLine extends StatelessWidget {
   final double thickness;
   final double dashHeight;
   final double dashGap;
-  const VerticalDashedLine({Key? key, required this.color, this.thickness = 1.0, this.dashHeight = 4.0, this.dashGap = 4.0}) : super(key: key);
+  const VerticalDashedLine({
+    Key? key,
+    required this.color,
+    this.thickness = 1.0,
+    this.dashHeight = 4.0,
+    this.dashGap = 4.0,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return CustomPaint(
-        size: Size(thickness, constraints.maxHeight),
-        painter: _VerticalDashedLinePainter(color: color, thickness: thickness, dashHeight: dashHeight, dashGap: dashGap),
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return CustomPaint(
+          size: Size(thickness, constraints.maxHeight),
+          painter: _VerticalDashedLinePainter(
+            color: color,
+            thickness: thickness,
+            dashHeight: dashHeight,
+            dashGap: dashGap,
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -81,15 +107,27 @@ class _VerticalDashedLinePainter extends CustomPainter {
   final double thickness;
   final double dashHeight;
   final double dashGap;
-  _VerticalDashedLinePainter({required this.color, required this.thickness, required this.dashHeight, required this.dashGap});
+  _VerticalDashedLinePainter({
+    required this.color,
+    required this.thickness,
+    required this.dashHeight,
+    required this.dashGap,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color..strokeWidth = thickness..style = PaintingStyle.stroke;
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = thickness
+      ..style = PaintingStyle.stroke;
     double y = 0;
     while (y < size.height) {
       final end = (y + dashHeight).clamp(0.0, size.height);
-      canvas.drawLine(Offset(size.width / 2, y), Offset(size.width / 2, end), paint);
+      canvas.drawLine(
+        Offset(size.width / 2, y),
+        Offset(size.width / 2, end),
+        paint,
+      );
       y += dashHeight + dashGap;
     }
   }
@@ -106,16 +144,24 @@ class PostCommentPage extends StatefulWidget {
 
   /// Helper that builds a `WoltModalSheetPage` for this comment UI so callers
   /// can include it in `WoltModalSheet.show(pageListBuilder: ...)`.
-  static WoltModalSheetPage woltPage(BuildContext modalContext, CommunityPost post) {
+  static WoltModalSheetPage woltPage(
+    BuildContext modalContext,
+    CommunityPost post,
+  ) {
     return WoltModalSheetPage(
       pageTitle: Padding(
         padding: const EdgeInsets.all(12),
-        child: Text('댓글', style: Theme.of(modalContext).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+        child: Text(
+          '댓글',
+          style: Theme.of(
+            modalContext,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
       ),
       leadingNavBarWidget: IconButton(
         visualDensity: VisualDensity.compact,
         icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-        onPressed: () => WoltModalSheet.of(modalContext).showPrevious(),
+        onPressed: () => Navigator.of(modalContext).pop(),
       ),
       trailingNavBarWidget: IconButton(
         visualDensity: VisualDensity.compact,
@@ -126,9 +172,11 @@ class PostCommentPage extends StatefulWidget {
       ),
       // Use a modal-specific child (no Scaffold) to avoid nesting a full
       // Scaffold inside the WoltModalSheet page which can hide content.
-      child: Builder(builder: (ctx) {
-        return _PostCommentModalChild(post: post);
-      }),
+      child: Builder(
+        builder: (ctx) {
+          return _PostCommentModalChild(post: post);
+        },
+      ),
     );
   }
 
@@ -140,6 +188,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
   final TextEditingController _commentCtl = TextEditingController();
   bool _isPosting = false;
   late Future<List<Map<String, dynamic>>> _commentsFuture;
+  final Set<int> _likedCommentIds = {};
+  final Map<int, int> _commentLikeCounts = {};
 
   @override
   void initState() {
@@ -147,9 +197,26 @@ class _PostCommentPageState extends State<PostCommentPage> {
     _commentsFuture = CommunityRepository.instance
         .fetchCommentsForPost(widget.post.id, limit: 50)
         .then((comments) async {
-      await _prefetchCommentAuthors(comments);
-      return comments;
-    });
+          await _prefetchCommentAuthors(comments);
+          try {
+            final ids = comments
+                .map((c) => (c['id'] as int?) ?? -1)
+                .where((id) => id > 0)
+                .toList();
+            if (ids.isNotEmpty) {
+              final counts = await CommunityRepository.instance
+                  .getCommentLikeCounts(ids);
+              final liked = await CommunityRepository.instance
+                  .getUserLikedComments(ids);
+              if (mounted)
+                setState(() {
+                  _commentLikeCounts.addAll(counts);
+                  _likedCommentIds.addAll(liked);
+                });
+            }
+          } catch (_) {}
+          return comments;
+        });
   }
 
   void _reload() {
@@ -157,9 +224,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
       _commentsFuture = CommunityRepository.instance
           .fetchCommentsForPost(widget.post.id, limit: 50)
           .then((comments) async {
-        await _prefetchCommentAuthors(comments);
-        return comments;
-      });
+            await _prefetchCommentAuthors(comments);
+            return comments;
+          });
     });
   }
 
@@ -168,25 +235,36 @@ class _PostCommentPageState extends State<PostCommentPage> {
     if (text.isEmpty) return;
     if (_isPosting) return;
     setState(() => _isPosting = true);
-    final ok = await CommunityRepository.instance.createComment(postId: widget.post.id, content: text, isAnonymous: false);
+    final ok = await CommunityRepository.instance.createComment(
+      postId: widget.post.id,
+      content: text,
+      isAnonymous: false,
+    );
     if (ok) {
       _commentCtl.clear();
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
       } catch (_) {}
     }
     if (mounted) setState(() => _isPosting = false);
   }
 
-  Widget _buildCommentRow(Map<String, dynamic> c, TextTheme tt, ColorScheme cs) {
+  Widget _buildCommentRow(
+    Map<String, dynamic> c,
+    TextTheme tt,
+    ColorScheme cs,
+  ) {
     final isAnon = (c['is_anonymous'] as bool?) ?? false;
     final authorId = c['author_id'] as String?;
     final fallbackName = (c['author_name'] as String?) ?? '스타';
     final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
     final content = (c['content'] as String?) ?? '';
-    final createdAt = DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
+    final createdAt =
+        DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -197,14 +275,17 @@ class _PostCommentPageState extends State<PostCommentPage> {
 
           final authorName = isAnon
               ? '익명의 스타'
-              : ((user != null && (user.nickname.isNotEmpty)) ? user.nickname : fallbackName);
+              : ((user != null && (user.nickname.isNotEmpty))
+                    ? user.nickname
+                    : fallbackName);
 
           String? candidateUrl;
           if (user != null) {
             final p = (user.data['profile_img'] as String?)?.trim();
             if (p != null && p.isNotEmpty) candidateUrl = p;
           }
-          if ((candidateUrl == null || candidateUrl.isEmpty) && fallbackAvatar.isNotEmpty) {
+          if ((candidateUrl == null || candidateUrl.isEmpty) &&
+              fallbackAvatar.isNotEmpty) {
             candidateUrl = fallbackAvatar;
           }
           if (isAnon && (candidateUrl == null || candidateUrl.isEmpty)) {
@@ -228,7 +309,12 @@ class _PostCommentPageState extends State<PostCommentPage> {
               child: ClipOval(
                 child: ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Image(image: avatarImage, width: 36, height: 36, fit: BoxFit.cover),
+                  child: Image(
+                    image: avatarImage,
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
@@ -243,7 +329,13 @@ class _PostCommentPageState extends State<PostCommentPage> {
                     width: 36,
                     height: 36,
                     color: cs.secondaryContainer,
-                    child: Center(child: Icon(SolarIconsOutline.incognito, size: 18, color: cs.onSurfaceVariant)),
+                    child: Center(
+                      child: Icon(
+                        SolarIconsOutline.incognito,
+                        size: 18,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -253,7 +345,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
               radius: 18,
               backgroundColor: isAnon ? cs.secondaryContainer : null,
               backgroundImage: avatarImage,
-              child: (!isAnon && avatarImage == null) ? Icon(Icons.person, size: 18, color: cs.onSurfaceVariant) : null,
+              child: (!isAnon && avatarImage == null)
+                  ? Icon(Icons.person, size: 18, color: cs.onSurfaceVariant)
+                  : null,
             );
           }
 
@@ -261,29 +355,28 @@ class _PostCommentPageState extends State<PostCommentPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Left column: avatar + optional thread line for replies
-              Column(
-                children: [
-                  avatarWidget,
-                ],
-              ),
+              Column(children: [avatarWidget]),
               const SizedBox(width: 12),
               // Thread and content: thread line sits on the left edge of content
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6, right: 10),
-                      child: SizedBox(width: 12, height: 68, child: VerticalDashedLine(color: cs.onSurface.withOpacity(0.12), thickness: 1)),
-                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Expanded(child: Text(authorName, style: tt.titleSmall)),
-                              Text(_timeAgo(createdAt), style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                              Expanded(
+                                child: Text(authorName, style: tt.titleSmall),
+                              ),
+                              Text(
+                                _timeAgo(createdAt),
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -291,13 +384,92 @@ class _PostCommentPageState extends State<PostCommentPage> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(20)),
-                                child: Row(children: [const Icon(SolarIconsOutline.heart, color: Colors.red, size: 14), const SizedBox(width: 6), Text('0', style: tt.bodySmall)]),
+                              GestureDetector(
+                                onTap: () async {
+                                  final cid = (c['id'] as int?) ?? -1;
+                                  if (cid < 0) return;
+                                  setState(() {
+                                    final cur = _commentLikeCounts[cid] ?? 0;
+                                    if (_likedCommentIds.contains(cid)) {
+                                      _likedCommentIds.remove(cid);
+                                      _commentLikeCounts[cid] = (cur - 1).clamp(
+                                        0,
+                                        999999,
+                                      );
+                                    } else {
+                                      _likedCommentIds.add(cid);
+                                      _commentLikeCounts[cid] = cur + 1;
+                                    }
+                                  });
+                                  try {
+                                    if (_likedCommentIds.contains(cid)) {
+                                      final ok = await CommunityRepository
+                                          .instance
+                                          .likeComment(commentId: cid);
+                                      if (!ok) {
+                                        setState(() {
+                                          _likedCommentIds.remove(cid);
+                                          _commentLikeCounts[cid] =
+                                              (_commentLikeCounts[cid] ?? 1) -
+                                              1;
+                                        });
+                                      }
+                                    } else {
+                                      final ok = await CommunityRepository
+                                          .instance
+                                          .unlikeComment(commentId: cid);
+                                      if (!ok) {
+                                        setState(() {
+                                          _likedCommentIds.add(cid);
+                                          _commentLikeCounts[cid] =
+                                              (_commentLikeCounts[cid] ?? 0) +
+                                              1;
+                                        });
+                                      }
+                                    }
+                                  } catch (_) {}
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: cs.surface,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _likedCommentIds.contains(
+                                              (c['id'] as int?) ?? -1,
+                                            )
+                                            ? SolarIconsBold.heart
+                                            : SolarIconsOutline.heart,
+                                        color:
+                                            _likedCommentIds.contains(
+                                              (c['id'] as int?) ?? -1,
+                                            )
+                                            ? Colors.red
+                                            : Colors.grey,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                        style: tt.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 12),
-                              Text('Reply', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                              Text(
+                                '댓글 쓰기',
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -344,50 +516,97 @@ class _PostCommentPageState extends State<PostCommentPage> {
           ),
           title: Text('댓글', style: tt.titleLarge),
         ),
-        body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _commentsFuture,
-          builder: (context, snap) {
-            final comments = snap.data ?? [];
-            if (snap.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (comments.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Center(child: Text('댓글이 없습니다', style: tt.bodyMedium)),
-              );
-            }
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 100),
-                  child: ListView.separated(
-                    itemCount: comments.length + 1,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      if (index == comments.length) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Center(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: cs.surface,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: cs.outline.withOpacity(0.3)),
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+          child: Column(
+            children: [
+              // recent interactors avatar stack
+              FutureBuilder<List<String>>(
+                future: CommunityRepository.instance.getPostCommenterAvatars(
+                  widget.post.id,
+                  limit: 3,
+                ),
+                builder: (context, snap) {
+                  final avatars = snap.data ?? [];
+                  if (avatars.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 6,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: local.AvatarStack(
+                        avatarUrls: avatars,
+                        avatarSize: CommunitySizes.avatarBase,
+                        overlapFactor: 0.5,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _commentsFuture,
+                  builder: (context, snap) {
+                    final comments = snap.data ?? [];
+                    if (snap.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (comments.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Center(
+                          child: Text('댓글이 없습니다', style: tt.bodyMedium),
+                        ),
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      child: ListView.builder(
+                        itemCount: comments.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == comments.length) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: cs.surface,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: cs.outline.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 6,
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Show more comments',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: TextButton(
-                                onPressed: () {},
-                                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6)),
-                                child: const Text('Show more comments', style: TextStyle(fontWeight: FontWeight.w600)),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                      final c = comments[index];
-                      return _buildCommentRow(c, tt, cs);
-                    },
-                  ),
-                );
-          },
+                            );
+                          }
+                          final c = comments[index];
+                          return _buildCommentRow(c, tt, cs);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
         bottomSheet: Container(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
@@ -395,28 +614,42 @@ class _PostCommentPageState extends State<PostCommentPage> {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: cs.surface,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _commentCtl,
-                          decoration: InputDecoration.collapsed(hintText: '댓글을 입력하세요'),
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (_) => _submit(),
+                child: Transform.scale(
+                  scale: 0.7,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _commentCtl,
+                            decoration: const InputDecoration.collapsed(
+                              hintText: '댓글 내용을 작성해주세요',
+                            ),
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _submit(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: _isPosting ? null : _submit,
-                        icon: Icon(Icons.send, color: _isPosting ? cs.onSurfaceVariant : cs.primary),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: _isPosting ? null : _submit,
+                          icon: Icon(
+                            Icons.send,
+                            color: _isPosting
+                                ? cs.onSurfaceVariant
+                                : cs.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -442,7 +675,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
 // inside the modal container.
 class _PostCommentModalChild extends StatefulWidget {
   final CommunityPost post;
-  const _PostCommentModalChild({Key? key, required this.post}) : super(key: key);
+  const _PostCommentModalChild({Key? key, required this.post})
+    : super(key: key);
 
   @override
   State<_PostCommentModalChild> createState() => _PostCommentModalChildState();
@@ -452,6 +686,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   final TextEditingController _commentCtl = TextEditingController();
   bool _isPosting = false;
   late Future<List<Map<String, dynamic>>> _commentsFuture;
+  final Set<int> _likedCommentIds = {};
+  final Map<int, int> _commentLikeCounts = {};
 
   @override
   void initState() {
@@ -459,9 +695,26 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     _commentsFuture = CommunityRepository.instance
         .fetchCommentsForPost(widget.post.id, limit: 50)
         .then((comments) async {
-      await _prefetchCommentAuthors(comments);
-      return comments;
-    });
+          await _prefetchCommentAuthors(comments);
+          try {
+            final ids = comments
+                .map((c) => (c['id'] as int?) ?? -1)
+                .where((id) => id > 0)
+                .toList();
+            if (ids.isNotEmpty) {
+              final counts = await CommunityRepository.instance
+                  .getCommentLikeCounts(ids);
+              final liked = await CommunityRepository.instance
+                  .getUserLikedComments(ids);
+              if (mounted)
+                setState(() {
+                  _commentLikeCounts.addAll(counts);
+                  _likedCommentIds.addAll(liked);
+                });
+            }
+          } catch (_) {}
+          return comments;
+        });
   }
 
   void _reload() {
@@ -469,9 +722,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
       _commentsFuture = CommunityRepository.instance
           .fetchCommentsForPost(widget.post.id, limit: 50)
           .then((comments) async {
-        await _prefetchCommentAuthors(comments);
-        return comments;
-      });
+            await _prefetchCommentAuthors(comments);
+            return comments;
+          });
     });
   }
 
@@ -480,25 +733,36 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     if (text.isEmpty) return;
     if (_isPosting) return;
     setState(() => _isPosting = true);
-    final ok = await CommunityRepository.instance.createComment(postId: widget.post.id, content: text, isAnonymous: false);
+    final ok = await CommunityRepository.instance.createComment(
+      postId: widget.post.id,
+      content: text,
+      isAnonymous: false,
+    );
     if (ok) {
       _commentCtl.clear();
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
       } catch (_) {}
     }
     if (mounted) setState(() => _isPosting = false);
   }
 
-  Widget _buildCommentRow(Map<String, dynamic> c, TextTheme tt, ColorScheme cs) {
+  Widget _buildCommentRow(
+    Map<String, dynamic> c,
+    TextTheme tt,
+    ColorScheme cs,
+  ) {
     final isAnon = (c['is_anonymous'] as bool?) ?? false;
     final authorId = c['author_id'] as String?;
     final fallbackName = (c['author_name'] as String?) ?? '스타';
     final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
     final content = (c['content'] as String?) ?? '';
-    final createdAt = DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
+    final createdAt =
+        DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -509,14 +773,17 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
 
           final authorName = isAnon
               ? '익명의 스타'
-              : ((user != null && (user.nickname.isNotEmpty)) ? user.nickname : fallbackName);
+              : ((user != null && (user.nickname.isNotEmpty))
+                    ? user.nickname
+                    : fallbackName);
 
           String? candidateUrl;
           if (user != null) {
             final p = (user.data['profile_img'] as String?)?.trim();
             if (p != null && p.isNotEmpty) candidateUrl = p;
           }
-          if ((candidateUrl == null || candidateUrl.isEmpty) && fallbackAvatar.isNotEmpty) {
+          if ((candidateUrl == null || candidateUrl.isEmpty) &&
+              fallbackAvatar.isNotEmpty) {
             candidateUrl = fallbackAvatar;
           }
           if (isAnon && (candidateUrl == null || candidateUrl.isEmpty)) {
@@ -540,7 +807,12 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
               child: ClipOval(
                 child: ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: Image(image: avatarImage, width: 36, height: 36, fit: BoxFit.cover),
+                  child: Image(
+                    image: avatarImage,
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             );
@@ -555,7 +827,13 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                     width: 36,
                     height: 36,
                     color: cs.secondaryContainer,
-                    child: Center(child: Icon(SolarIconsOutline.incognito, size: 18, color: cs.onSurfaceVariant)),
+                    child: Center(
+                      child: Icon(
+                        SolarIconsOutline.incognito,
+                        size: 18,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -565,7 +843,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
               radius: 18,
               backgroundColor: isAnon ? cs.secondaryContainer : null,
               backgroundImage: avatarImage,
-              child: (!isAnon && avatarImage == null) ? Icon(Icons.person, size: 18, color: cs.onSurfaceVariant) : null,
+              child: (!isAnon && avatarImage == null)
+                  ? Icon(Icons.person, size: 18, color: cs.onSurfaceVariant)
+                  : null,
             );
           }
 
@@ -578,18 +858,21 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6, right: 10),
-                      child: SizedBox(width: 12, height: 68, child: VerticalDashedLine(color: cs.onSurface.withOpacity(0.12), thickness: 1)),
-                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Expanded(child: Text(authorName, style: tt.titleSmall)),
-                              Text(_timeAgo(createdAt), style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                              Expanded(
+                                child: Text(authorName, style: tt.titleSmall),
+                              ),
+                              Text(
+                                _timeAgo(createdAt),
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -597,13 +880,105 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                decoration: BoxDecoration(color: cs.surface, borderRadius: BorderRadius.circular(20)),
-                                child: Row(children: [const Icon(SolarIconsOutline.heart, color: Colors.red, size: 14), const SizedBox(width: 6), Text('0', style: tt.bodySmall)]),
+                              GestureDetector(
+                                onTap: () async {
+                                  final cid = (c['id'] as int?) ?? -1;
+                                  if (cid < 0) return;
+                                  setState(() {
+                                    final cur = _commentLikeCounts[cid] ?? 0;
+                                    if (_likedCommentIds.contains(cid)) {
+                                      _likedCommentIds.remove(cid);
+                                      _commentLikeCounts[cid] = (cur - 1).clamp(
+                                        0,
+                                        999999,
+                                      );
+                                    } else {
+                                      _likedCommentIds.add(cid);
+                                      _commentLikeCounts[cid] = cur + 1;
+                                    }
+                                  });
+                                  try {
+                                    if (_likedCommentIds.contains(cid)) {
+                                      final ok = await CommunityRepository
+                                          .instance
+                                          .likeComment(commentId: cid);
+                                      if (!ok) {
+                                        setState(() {
+                                          _likedCommentIds.remove(cid);
+                                          _commentLikeCounts[cid] =
+                                              (_commentLikeCounts[cid] ?? 1) -
+                                              1;
+                                        });
+                                      }
+                                    } else {
+                                      final ok = await CommunityRepository
+                                          .instance
+                                          .unlikeComment(commentId: cid);
+                                      if (!ok) {
+                                        setState(() {
+                                          _likedCommentIds.add(cid);
+                                          _commentLikeCounts[cid] =
+                                              (_commentLikeCounts[cid] ?? 0) +
+                                              1;
+                                        });
+                                      }
+                                    }
+                                  } catch (_) {
+                                    // network error: best-effort rollback
+                                    setState(() {
+                                      if (_likedCommentIds.contains(cid)) {
+                                        _likedCommentIds.remove(cid);
+                                        _commentLikeCounts[cid] =
+                                            (_commentLikeCounts[cid] ?? 1) - 1;
+                                      } else {
+                                        _likedCommentIds.add(cid);
+                                        _commentLikeCounts[cid] =
+                                            (_commentLikeCounts[cid] ?? 0) + 1;
+                                      }
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: cs.surface,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _likedCommentIds.contains(
+                                              (c['id'] as int?) ?? -1,
+                                            )
+                                            ? SolarIconsBold.heart
+                                            : SolarIconsOutline.heart,
+                                        color:
+                                            _likedCommentIds.contains(
+                                              (c['id'] as int?) ?? -1,
+                                            )
+                                            ? Colors.red
+                                            : Colors.grey,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${_commentLikeCounts[(c['id'] as int?) ?? -1] ?? 0}',
+                                        style: tt.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 12),
-                              Text('Reply', style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                              Text(
+                                '댓글 쓰기',
+                                style: tt.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -648,9 +1023,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                 if (comments.isEmpty) {
                   return Center(child: Text('댓글이 없습니다', style: tt.bodyMedium));
                 }
-                return ListView.separated(
+                return ListView.builder(
                   itemCount: comments.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final c = comments[index];
                     return _buildCommentRow(c, tt, cs);
@@ -668,28 +1042,41 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
               color: Theme.of(context).scaffoldBackgroundColor,
               child: Row(
-                  children: [
-                    Expanded(
+                children: [
+                  Expanded(
+                    child: Transform.scale(
+                      scale: 0.7,
+                      alignment: Alignment.centerLeft,
                       child: Container(
                         decoration: BoxDecoration(
                           color: cs.surface,
                           borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: cs.outline.withOpacity(0.06)),
+                          border: Border.all(
+                            color: cs.outline.withOpacity(0.06),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         child: Row(
                           children: [
                             Expanded(
                               child: TextField(
                                 controller: _commentCtl,
-                                decoration: const InputDecoration.collapsed(hintText: 'Write a comment'),
+                                decoration: const InputDecoration.collapsed(
+                                  hintText: '댓글 내용을 작성해주세요',
+                                ),
                                 textInputAction: TextInputAction.send,
                                 onSubmitted: (_) => _submit(),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              decoration: BoxDecoration(color: cs.primary, borderRadius: BorderRadius.circular(999)),
+                              decoration: BoxDecoration(
+                                color: cs.primary,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
                               child: IconButton(
                                 onPressed: _isPosting ? null : _submit,
                                 icon: Icon(Icons.send, color: cs.onPrimary),
@@ -699,8 +1086,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

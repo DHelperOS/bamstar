@@ -212,7 +212,8 @@ class _ChannelExplorerPageState extends State<ChannelExplorerPage> {
                         final sanitized = text.replaceAll('#', '').trim();
                         setState(() {
                           _q = sanitized;
-                          _selectedCategoryIndex = 0; // show all matched results
+                          _selectedCategoryIndex =
+                              0; // show all matched results
                         });
                         FocusScope.of(context).unfocus();
                         _load();

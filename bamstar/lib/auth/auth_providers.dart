@@ -248,10 +248,10 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
             await _postSignIn(session);
             // Analytics: record successful sign-in
             try {
-              await AnalyticsService.logEvent('login', params: {
-                'method': 'google',
-                'user_id': session.user.id,
-              });
+              await AnalyticsService.logEvent(
+                'login',
+                params: {'method': 'google', 'user_id': session.user.id},
+              );
               await AnalyticsService.setUserId(session.user.id);
             } catch (_) {}
             state = AsyncValue.data(AuthState(session: session));
@@ -589,11 +589,10 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
         'Post sign-in provisioning completed for user=$uid device=$duuid',
       );
       try {
-        await AnalyticsService.logEvent('post_sign_in', params: {
-          'user_id': uid,
-          'device_uuid': duuid,
-          'device_os': os,
-        });
+        await AnalyticsService.logEvent(
+          'post_sign_in',
+          params: {'user_id': uid, 'device_uuid': duuid, 'device_os': os},
+        );
       } catch (_) {}
     } catch (e, st) {
       log.severe('Post sign-in provisioning failed: $e', e, st);

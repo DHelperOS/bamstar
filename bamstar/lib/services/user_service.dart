@@ -80,7 +80,7 @@ class UserService extends ChangeNotifier {
       if (res != null) {
         final row = Map<String, dynamic>.from(res as Map);
         _user = AppUser.fromMap(row);
-  debugPrint('[UserService] loadCurrentUser fetched row: $row');
+        debugPrint('[UserService] loadCurrentUser fetched row: $row');
         debugPrint(
           '[UserService] loadCurrentUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
         );
@@ -133,7 +133,7 @@ class UserService extends ChangeNotifier {
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       _user = AppUser.fromMap(row);
-  debugPrint('[UserService] upsertUser fetched after upsert row: $row');
+      debugPrint('[UserService] upsertUser fetched after upsert row: $row');
       debugPrint(
         '[UserService] upsertUser user.nickname=${_user?.nickname} user.email=${_user?.email}',
       );
@@ -202,7 +202,7 @@ class UserService extends ChangeNotifier {
       }
 
       final idxStr = (idx != null) ? idx.toString() : '0';
-  final computedName = '$roleKor#$idxStr';
+      final computedName = '$roleKor#$idxStr';
       _displayName = computedName;
 
       // If user's nickname is empty or a demo placeholder, persist computed
@@ -276,7 +276,9 @@ class UserService extends ChangeNotifier {
         // If DB contains a network URL, return NetworkImage.
         if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
           await sp.remove(key);
-          debugPrint('[UserService] returning NetworkImage from DB profile_img (via avatar helper)');
+          debugPrint(
+            '[UserService] returning NetworkImage from DB profile_img (via avatar helper)',
+          );
           return avatarImageProviderFromUrl(imgUrl, width: 256, height: 256);
         }
 
@@ -289,7 +291,9 @@ class UserService extends ChangeNotifier {
           } catch (_) {
             // ignore
           }
-          debugPrint('[UserService] returning AssetImage from DB profile_img: $imgUrl');
+          debugPrint(
+            '[UserService] returning AssetImage from DB profile_img: $imgUrl',
+          );
           return AssetImage(imgUrl);
         }
         // Unknown format: fall through to local choice.
@@ -308,10 +312,13 @@ class UserService extends ChangeNotifier {
               .update({'profile_img': assetPath})
               .eq('id', uid);
           debugPrint(
-              '[UserService] persisted local profile_img asset for uid=$uid -> $assetPath');
+            '[UserService] persisted local profile_img asset for uid=$uid -> $assetPath',
+          );
         }
       } catch (e) {
-        debugPrint('[UserService] failed to persist profile_img asset path: $e');
+        debugPrint(
+          '[UserService] failed to persist profile_img asset path: $e',
+        );
       }
 
       return AssetImage('assets/images/avatar/$saved');
@@ -327,11 +334,18 @@ class UserService extends ChangeNotifier {
         await sp.setString(key, saved);
         if (uid != null) {
           final assetPath = 'assets/images/avatar/$saved';
-          await client.from('users').update({'profile_img': assetPath}).eq('id', uid);
-          debugPrint('[UserService] (catch) persisted local profile_img asset for uid=$uid -> $assetPath');
+          await client
+              .from('users')
+              .update({'profile_img': assetPath})
+              .eq('id', uid);
+          debugPrint(
+            '[UserService] (catch) persisted local profile_img asset for uid=$uid -> $assetPath',
+          );
         }
       } catch (e) {
-        debugPrint('[UserService] (catch) failed to persist profile_img asset path: $e');
+        debugPrint(
+          '[UserService] (catch) failed to persist profile_img asset path: $e',
+        );
       }
       return AssetImage('assets/images/avatar/$saved');
     }

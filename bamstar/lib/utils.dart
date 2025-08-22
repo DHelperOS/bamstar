@@ -35,10 +35,7 @@ String cleanProfanitiesKo(String text) {
 }
 
 /// Replaces profanities in [text] with [replacement] (default '※').
-String censorProfanitiesKo(
-  String text, {
-  String replacement = '※',
-}) {
+String censorProfanitiesKo(String text, {String replacement = '※'}) {
   return text.replaceBadWords(replacement);
 }
 

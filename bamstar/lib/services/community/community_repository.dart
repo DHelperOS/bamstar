@@ -39,7 +39,7 @@ class CommunityPost {
     this.likesCount = 0,
     this.viewCount = 0,
     this.commentCount = 0,
-  this.isLiked = false,
+    this.isLiked = false,
   });
 }
 
@@ -114,9 +114,9 @@ class CommunityRepository {
 
   Future<List<CommunityPost>> fetchFeed({
     String? filterTag,
-  String? contentQuery,
-  int limit = 20,
-  int? offset,
+    String? contentQuery,
+    int limit = 20,
+    int? offset,
     SortMode sortMode = SortMode.latest,
     Duration? window,
   }) async {
@@ -130,14 +130,19 @@ class CommunityRepository {
       if (sortMode == SortMode.popular || sortMode == SortMode.liked) {
         // Prefer server-side ranking RPC if available (deployed to DB).
         final int effectiveWindowDays = window?.inDays ?? 7;
-        final String metric = (sortMode == SortMode.popular) ? 'comments' : 'likes';
+        final String metric = (sortMode == SortMode.popular)
+            ? 'comments'
+            : 'likes';
         try {
-          final res = await _client.rpc('get_top_posts_by_metric', params: {
-            'window_days': effectiveWindowDays,
-            'metric': metric,
-            'limit_val': limit,
-            'offset_val': offset ?? 0,
-          });
+          final res = await _client.rpc(
+            'get_top_posts_by_metric',
+            params: {
+              'window_days': effectiveWindowDays,
+              'metric': metric,
+              'limit_val': limit,
+              'offset_val': offset ?? 0,
+            },
+          );
           final List data = res as List? ?? [];
           if (data.isEmpty) return <CommunityPost>[];
 
@@ -150,28 +155,34 @@ class CommunityRepository {
               ids.add(id);
               final content = (row['content'] as String?) ?? '';
               final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
-              final imageUrls = (row['image_urls'] as List?)?.cast<String>() ?? const [];
-              final createdAt = DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now();
+              final imageUrls =
+                  (row['image_urls'] as List?)?.cast<String>() ?? const [];
+              final createdAt =
+                  DateTime.tryParse(row['created_at'] as String? ?? '') ??
+                  DateTime.now();
               final likesCount = (row['likes_count'] as num?)?.toInt() ?? 0;
-              final commentsCount = (row['comments_count'] as num?)?.toInt() ?? 0;
+              final commentsCount =
+                  (row['comments_count'] as num?)?.toInt() ?? 0;
               final viewCount = (row['view_count'] as num?)?.toInt() ?? 0;
 
-              posts.add(CommunityPost(
-                id: id,
-                content: content,
-                isAnonymous: _isAnon,
-                authorId: row['author_id'] as String?,
-                authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
-                // RPC does not return author avatar by default; keep null for anonymous protection
-                authorAvatarUrl: _isAnon ? null : null,
-                imageUrls: imageUrls,
-                createdAt: createdAt,
-                hashtags: _extractHashtags(content),
-                recentCommenterAvatarUrls: const [],
-                likesCount: likesCount,
-                viewCount: viewCount,
-                commentCount: commentsCount,
-              ));
+              posts.add(
+                CommunityPost(
+                  id: id,
+                  content: content,
+                  isAnonymous: _isAnon,
+                  authorId: row['author_id'] as String?,
+                  authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
+                  // RPC does not return author avatar by default; keep null for anonymous protection
+                  authorAvatarUrl: _isAnon ? null : null,
+                  imageUrls: imageUrls,
+                  createdAt: createdAt,
+                  hashtags: _extractHashtags(content),
+                  recentCommenterAvatarUrls: const [],
+                  likesCount: likesCount,
+                  viewCount: viewCount,
+                  commentCount: commentsCount,
+                ),
+              );
             } catch (_) {
               // skip row parsing errors
             }
@@ -188,7 +199,11 @@ class CommunityRepository {
 
           // Batch-fetch commenter avatars for the posts we just built.
           try {
-            final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+            final avatarsMap = await fetchCommenterAvatarsForPosts(
+              ids,
+              limitPerPost: 3,
+              concurrency: 6,
+            );
             return posts.map((p) {
               final avatars = avatarsMap[p.id];
               final liked = likedMap[p.id] == true;
@@ -202,7 +217,10 @@ class CommunityRepository {
                 imageUrls: p.imageUrls,
                 createdAt: p.createdAt,
                 hashtags: p.hashtags,
-                recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+                recentCommenterAvatarUrls:
+                    (avatars != null && avatars.isNotEmpty)
+                    ? avatars
+                    : p.recentCommenterAvatarUrls,
                 likesCount: p.likesCount,
                 viewCount: p.viewCount,
                 commentCount: p.commentCount,
@@ -219,7 +237,9 @@ class CommunityRepository {
         // FALLBACK: previous client-side candidate fetch (kept for compatibility)
         // Ensure we have a window for popularity/liked modes. Default to 7 days.
         final Duration effectiveWindow = window ?? const Duration(days: 7);
-        final cutoff = DateTime.now().subtract(effectiveWindow).toIso8601String();
+        final cutoff = DateTime.now()
+            .subtract(effectiveWindow)
+            .toIso8601String();
 
         // Determine how many candidate ids we need to fetch to satisfy
         // pagination after sorting: offset+limit (if offset absent, offset=0).
@@ -233,7 +253,9 @@ class CommunityRepository {
             .gte('created_at', cutoff)
             .order('created_at', ascending: false)
             .limit(need);
-        final List<int> candidateIds = (idRows as List? ?? []).map((r) => (r['id'] as num).toInt()).toList();
+        final List<int> candidateIds = (idRows as List? ?? [])
+            .map((r) => (r['id'] as num).toInt())
+            .toList();
 
         if (candidateIds.isEmpty) return <CommunityPost>[];
 
@@ -291,14 +313,18 @@ class CommunityRepository {
 
         // Step 4: fetch full post rows for pagedIds and preserve order
         final idsCsvFetch = pagedIds.join(',');
-    final List rows = await _client
-      .from('community_posts')
-      .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count, author_avatar_url')
-      .filter('id', 'in', '($idsCsvFetch)');
+        final List rows = await _client
+            .from('community_posts')
+            .select(
+              'id, content, is_anonymous, created_at, image_urls, author_id, view_count, author_avatar_url',
+            )
+            .filter('id', 'in', '($idsCsvFetch)');
         final Map<int, Map> mapById = {};
         for (final r in (rows as List? ?? [])) {
           try {
-            mapById[(r['id'] as num).toInt()] = Map<String, dynamic>.from(r as Map);
+            mapById[(r['id'] as num).toInt()] = Map<String, dynamic>.from(
+              r as Map,
+            );
           } catch (_) {}
         }
 
@@ -310,21 +336,26 @@ class CommunityRepository {
           final content = (row['content'] as String?) ?? '';
           final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
           final String? _dbAvatar = (row['author_avatar_url'] as String?);
-          posts.add(CommunityPost(
-            id: id,
-            content: content,
-            isAnonymous: _isAnon,
-            authorId: row['author_id'] as String?,
-            authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
-            authorAvatarUrl: _isAnon ? null : _dbAvatar,
-            imageUrls: (row['image_urls'] as List?)?.cast<String>() ?? const [],
-            createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now(),
-            hashtags: _extractHashtags(content),
-            recentCommenterAvatarUrls: const [],
-            likesCount: counts[id]?['likes_count'] ?? 0,
-            viewCount: (row['view_count'] as int?) ?? 0,
-            commentCount: counts[id]?['comments_count'] ?? 0,
-          ));
+          posts.add(
+            CommunityPost(
+              id: id,
+              content: content,
+              isAnonymous: _isAnon,
+              authorId: row['author_id'] as String?,
+              authorName: _isAnon ? '익명의 스타' : '스타 ${id % 97}',
+              authorAvatarUrl: _isAnon ? null : _dbAvatar,
+              imageUrls:
+                  (row['image_urls'] as List?)?.cast<String>() ?? const [],
+              createdAt:
+                  DateTime.tryParse(row['created_at'] as String? ?? '') ??
+                  DateTime.now(),
+              hashtags: _extractHashtags(content),
+              recentCommenterAvatarUrls: const [],
+              likesCount: counts[id]?['likes_count'] ?? 0,
+              viewCount: (row['view_count'] as int?) ?? 0,
+              commentCount: counts[id]?['comments_count'] ?? 0,
+            ),
+          );
         }
 
         // Determine which posts the current user has liked
@@ -337,7 +368,11 @@ class CommunityRepository {
         // Batch-fetch commenter avatars for the posts we just built.
         try {
           final ids = posts.map((p) => p.id).toList();
-          final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+          final avatarsMap = await fetchCommenterAvatarsForPosts(
+            ids,
+            limitPerPost: 3,
+            concurrency: 6,
+          );
           return posts.map((p) {
             final avatars = avatarsMap[p.id];
             final liked = likedMap[p.id] == true;
@@ -351,7 +386,9 @@ class CommunityRepository {
               imageUrls: p.imageUrls,
               createdAt: p.createdAt,
               hashtags: p.hashtags,
-              recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+              recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty)
+                  ? avatars
+                  : p.recentCommenterAvatarUrls,
               likesCount: p.likesCount,
               viewCount: p.viewCount,
               commentCount: p.commentCount,
@@ -365,8 +402,10 @@ class CommunityRepository {
 
       // Default/latest flow
       dynamic q = _client
-        .from('community_posts')
-        .select('id, content, is_anonymous, created_at, image_urls, author_id, view_count');
+          .from('community_posts')
+          .select(
+            'id, content, is_anonymous, created_at, image_urls, author_id, view_count',
+          );
       if (filterTag != null && filterTag.trim().isNotEmpty) {
         final ft = filterTag.toLowerCase();
         // Filter by hashtag-like token in content
@@ -387,7 +426,7 @@ class CommunityRepository {
         q = q.gte('created_at', cutoff.toIso8601String());
       }
 
-  final List data = await q.order('created_at', ascending: false);
+      final List data = await q.order('created_at', ascending: false);
       // collect post ids for aggregated counts
       final postIds = data.map((r) => r['id'] as int).toList();
       Map<int, int> commentCounts = {};
@@ -428,13 +467,13 @@ class CommunityRepository {
       } catch (_) {
         // ignore aggregation errors and fallback to defaults
       }
-  // Build posts first (with fallback avatars). Then fetch commenter avatars
+      // Build posts first (with fallback avatars). Then fetch commenter avatars
       // for all posts in a batched manner and replace the placeholder lists.
       final posts = data.map((row) {
         final id = row['id'] as int;
         final content = (row['content'] as String?) ?? '';
         final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
-  final String? _dbAvatar = (row['author_avatar_url'] as String?);
+        final String? _dbAvatar = (row['author_avatar_url'] as String?);
         return CommunityPost(
           id: id,
           content: content,
@@ -445,7 +484,9 @@ class CommunityRepository {
           // profile images; UI will render a blurred placeholder and label.
           authorAvatarUrl: _isAnon ? null : _dbAvatar,
           imageUrls: (row['image_urls'] as List?)?.cast<String>() ?? const [],
-          createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ?? DateTime.now(),
+          createdAt:
+              DateTime.tryParse(row['created_at'] as String? ?? '') ??
+              DateTime.now(),
           // 서버 컬럼이 없으므로 내용에서 해시태그를 파싱합니다.
           hashtags: _extractHashtags(content),
           // Start with empty commenter avatars; will be filled by
@@ -461,9 +502,14 @@ class CommunityRepository {
       // aggregated counts above (commentCounts, likeCounts). Use those to
       // sort posts client-side while preserving pagination.
       if (sortMode == SortMode.popular) {
-        posts.sort((a, b) => (commentCounts[b.id] ?? 0).compareTo(commentCounts[a.id] ?? 0));
+        posts.sort(
+          (a, b) =>
+              (commentCounts[b.id] ?? 0).compareTo(commentCounts[a.id] ?? 0),
+        );
       } else if (sortMode == SortMode.liked) {
-        posts.sort((a, b) => (likeCounts[b.id] ?? 0).compareTo(likeCounts[a.id] ?? 0));
+        posts.sort(
+          (a, b) => (likeCounts[b.id] ?? 0).compareTo(likeCounts[a.id] ?? 0),
+        );
       }
 
       // Determine which posts the current user has liked (if authenticated)
@@ -481,7 +527,11 @@ class CommunityRepository {
       // concurrency to avoid hammering the RPC.
       try {
         final ids = posts.map((p) => p.id).toList();
-        final avatarsMap = await fetchCommenterAvatarsForPosts(ids, limitPerPost: 3, concurrency: 6);
+        final avatarsMap = await fetchCommenterAvatarsForPosts(
+          ids,
+          limitPerPost: 3,
+          concurrency: 6,
+        );
         // Replace placeholders when data is available.
         return posts.map((p) {
           final avatars = avatarsMap[p.id];
@@ -496,7 +546,9 @@ class CommunityRepository {
             imageUrls: p.imageUrls,
             createdAt: p.createdAt,
             hashtags: p.hashtags,
-            recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty) ? avatars : p.recentCommenterAvatarUrls,
+            recentCommenterAvatarUrls: (avatars != null && avatars.isNotEmpty)
+                ? avatars
+                : p.recentCommenterAvatarUrls,
             likesCount: p.likesCount,
             viewCount: p.viewCount,
             commentCount: p.commentCount,
@@ -523,9 +575,10 @@ class CommunityRepository {
     final out = <int, Map<String, int>>{};
     if (postIds.isEmpty) return out;
     try {
-      final res = await _client.rpc('get_post_counts', params: {
-        'post_ids_in': postIds,
-      });
+      final res = await _client.rpc(
+        'get_post_counts',
+        params: {'post_ids_in': postIds},
+      );
       final List data = res as List? ?? [];
       for (final row in data) {
         if (row is Map && row['post_id'] != null) {
@@ -545,9 +598,10 @@ class CommunityRepository {
   Future<List<int>> getUserLikedPosts(List<int> postIds) async {
     if (postIds.isEmpty) return [];
     try {
-      final res = await _client.rpc('get_user_liked_posts', params: {
-        'post_ids_in': postIds,
-      });
+      final res = await _client.rpc(
+        'get_user_liked_posts',
+        params: {'post_ids_in': postIds},
+      );
       final List data = res as List? ?? [];
       final out = <int>[];
       for (final row in data) {
@@ -566,7 +620,10 @@ class CommunityRepository {
   /// RPC: increment view count and return new value
   Future<int?> incrementPostView(int postId) async {
     try {
-      final res = await _client.rpc('increment_post_view', params: {'post_id_in': postId});
+      final res = await _client.rpc(
+        'increment_post_view',
+        params: {'post_id_in': postId},
+      );
       final List data = res as List? ?? [];
       if (data.isNotEmpty) {
         final row = data.first;
@@ -603,11 +660,100 @@ class CommunityRepository {
     try {
       final user = _client.auth.currentUser;
       if (user == null) return false;
-      await _client.from('community_likes').delete().eq('user_id', user.id).eq('post_id', postId);
+      await _client
+          .from('community_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('post_id', postId);
       invalidateAvatarsCacheForPost(postId);
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  /// Toggle like for a comment
+  Future<bool> likeComment({required int commentId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client.from('community_likes').insert({
+        'user_id': user.id,
+        'comment_id': commentId,
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> unlikeComment({required int commentId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      await _client
+          .from('community_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('comment_id', commentId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Return a list of comment ids that the current user has liked (from the provided list)
+  Future<List<int>> getUserLikedComments(List<int> commentIds) async {
+    if (commentIds.isEmpty) return [];
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+    try {
+    final idsCsv = commentIds.join(',');
+    final res = await _client
+      .from('community_likes')
+      .select('comment_id')
+      .eq('user_id', user.id)
+      .filter('comment_id', 'in', '($idsCsv)');
+      final List data = res as List? ?? [];
+      final out = <int>[];
+      for (final row in data) {
+        try {
+          final cid = (row['comment_id'] as num).toInt();
+          out.add(cid);
+        } catch (_) {}
+      }
+      return out;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Return like counts for a list of comment ids
+  Future<Map<int, int>> getCommentLikeCounts(List<int> commentIds) async {
+    final out = <int, int>{};
+    if (commentIds.isEmpty) return out;
+    try {
+    final idsCsv = commentIds.join(',');
+    final res = await _client
+      .from('community_likes')
+      .select('comment_id')
+      .filter('comment_id', 'in', '($idsCsv)');
+      final List data = res as List? ?? [];
+      for (final row in data) {
+        try {
+          final cid = (row['comment_id'] as num).toInt();
+          out[cid] = (out[cid] ?? 0) + 1;
+        } catch (_) {}
+      }
+      // ensure all requested ids exist in map
+      for (final id in commentIds) {
+        out[id] = out[id] ?? 0;
+      }
+      return out;
+    } catch (_) {
+      // on error return zeros
+      for (final id in commentIds) out[id] = 0;
+      return out;
     }
   }
 
@@ -620,7 +766,10 @@ class CommunityRepository {
   }) async {
     // First try server-side batch RPC for efficiency.
     try {
-      final batch = await getPostCommenterAvatarsBatch(postIds, limit: limitPerPost);
+      final batch = await getPostCommenterAvatarsBatch(
+        postIds,
+        limit: limitPerPost,
+      );
       if (batch.isNotEmpty) return batch;
     } catch (_) {
       // ignore and fallback
@@ -630,7 +779,10 @@ class CommunityRepository {
     if (postIds.isEmpty) return out;
     // Process ids in chunks of size `concurrency` to limit parallel RPC calls.
     for (var i = 0; i < postIds.length; i += concurrency) {
-      final chunk = postIds.sublist(i, (i + concurrency).clamp(0, postIds.length));
+      final chunk = postIds.sublist(
+        i,
+        (i + concurrency).clamp(0, postIds.length),
+      );
       final futures = <Future<List<String>>>[];
       final idsInChunk = <int>[];
       for (final id in chunk) {
@@ -674,7 +826,10 @@ class CommunityRepository {
   }
 
   /// Fetch recent comments for a post (non-threaded flat list, newest first)
-  Future<List<Map<String, dynamic>>> fetchCommentsForPost(int postId, {int limit = 3}) async {
+  Future<List<Map<String, dynamic>>> fetchCommentsForPost(
+    int postId, {
+    int limit = 3,
+  }) async {
     try {
       final res = await _client
           .from('community_comments')
@@ -690,7 +845,10 @@ class CommunityRepository {
   }
 
   /// Delete a comment by id and invalidate cache for its post.
-  Future<bool> deleteComment({required int commentId, required int postId}) async {
+  Future<bool> deleteComment({
+    required int commentId,
+    required int postId,
+  }) async {
     try {
       final user = _client.auth.currentUser;
       if (user == null) return false;
@@ -708,16 +866,19 @@ class CommunityRepository {
 
   // --- Server batch RPC wrapper ---
   /// Prefer batch RPC if available on server. Returns map postId->avatars.
-  Future<Map<int, List<String>>> getPostCommenterAvatarsBatch(List<int> postIds, {int limit = 3}) async {
+  Future<Map<int, List<String>>> getPostCommenterAvatarsBatch(
+    List<int> postIds, {
+    int limit = 3,
+  }) async {
     final out = <int, List<String>>{};
     if (postIds.isEmpty) return out;
     try {
-  // Attempt server-side batch RPC which should return rows with
-  // { post_id: bigint, profile_img: text }
-      final res = await _client.rpc('get_post_commenter_avatars_batch', params: {
-        'post_ids_in': postIds,
-        'limit_in': limit,
-      });
+      // Attempt server-side batch RPC which should return rows with
+      // { post_id: bigint, profile_img: text }
+      final res = await _client.rpc(
+        'get_post_commenter_avatars_batch',
+        params: {'post_ids_in': postIds, 'limit_in': limit},
+      );
       final List data = res as List? ?? [];
       for (final row in data) {
         if (row is Map && row['post_id'] != null) {
@@ -730,7 +891,7 @@ class CommunityRepository {
       return out;
     } catch (_) {
       // rpc not available or failed — caller should fallback to per-post requests
-      return {}; 
+      return {};
     }
   }
 
@@ -826,7 +987,9 @@ class CommunityRepository {
     try {
       final res = await _client
           .from('community_hashtags')
-          .select('id, name, description, category, post_count, subscriber_count, last_used_at')
+          .select(
+            'id, name, description, category, post_count, subscriber_count, last_used_at',
+          )
           .ilike('name', '%$query%')
           .order('subscriber_count', ascending: false)
           .limit(limit);
@@ -836,8 +999,8 @@ class CommunityRepository {
             (tag) => HashtagChannel(
               id: tag['id'] as int,
               name: (tag['name'] as String).toLowerCase(),
-                  description: tag['description'] as String?,
-                  category: tag['category'] as String?,
+              description: tag['description'] as String?,
+              category: tag['category'] as String?,
               postCount: tag['post_count'] as int? ?? 0,
               subscriberCount: tag['subscriber_count'] as int? ?? 0,
               lastUsedAt: tag['last_used_at'] == null
@@ -880,7 +1043,9 @@ class CommunityRepository {
 
       dynamic req = _client
           .from('community_hashtags')
-          .select('id, name, description, category, post_count, subscriber_count, last_used_at')
+          .select(
+            'id, name, description, category, post_count, subscriber_count, last_used_at',
+          )
           .order('subscriber_count', ascending: false)
           .limit(limit * 3); // overfetch then filter client-side
 
@@ -930,7 +1095,9 @@ class CommunityRepository {
     try {
       dynamic req = _client
           .from('community_hashtags')
-          .select('id, name, description, category, post_count, subscriber_count, last_used_at');
+          .select(
+            'id, name, description, category, post_count, subscriber_count, last_used_at',
+          );
       if (orderByPopularity) {
         req = req.order('subscriber_count', ascending: false);
       }
@@ -965,7 +1132,10 @@ class CommunityRepository {
 
   /// RPC wrapper for `public.get_post_commenter_avatars(post_id_in BIGINT, limit_in INT)`
   /// Returns a list of profile image URLs for recent non-anonymous commenters.
-  Future<List<String>> getPostCommenterAvatars(int postId, {int limit = 3}) async {
+  Future<List<String>> getPostCommenterAvatars(
+    int postId, {
+    int limit = 3,
+  }) async {
     final now = DateTime.now();
     final cached = _avatarsCache[postId];
     if (cached != null) {
@@ -977,10 +1147,11 @@ class CommunityRepository {
     }
 
     try {
-      final res = await _client.rpc('get_post_commenter_avatars', params: {
-        'post_id_in': postId,
-        'limit_in': limit,
-      });
+      // First try server-side RPC which may return recent commenter avatars.
+      final res = await _client.rpc(
+        'get_post_commenter_avatars',
+        params: {'post_id_in': postId, 'limit_in': limit},
+      );
       // Expecting a list of rows like { 'profile_img': 'https://...' }
       final List data = res as List? ?? [];
       final out = <String>[];
@@ -991,6 +1162,97 @@ class CommunityRepository {
         } else if (row is String) {
           // some RPC responses can be a plain list of strings
           if (row.isNotEmpty) out.add(row);
+        }
+      }
+      // If RPC returned enough avatars already, cache and return.
+      if (out.length >= limit) {
+        _avatarsCache[postId] = _AvatarsCacheEntry(out, DateTime.now());
+        return out.take(limit).toList();
+      }
+
+      // RPC didn't provide enough results or isn't complete — fall back to
+      // server-side table queries combining recent likers and commenters.
+      // We'll fetch recent likers and recent non-anonymous commenters,
+      // merge by newest activity timestamp, deduplicate, then fetch their
+      // profile images from users table.
+      final List<Map<String, dynamic>> interactions = [];
+      try {
+        // recent likers
+        final likerRes = await _client
+            .from('community_likes')
+            .select('user_id, created_at')
+            .eq('post_id', postId)
+            .order('created_at', ascending: false)
+            .limit(limit);
+        for (final r in (likerRes as List? ?? [])) {
+          try {
+            interactions.add({
+              'id': r['user_id'] as String?,
+              'ts': r['created_at'] as String?,
+            });
+          } catch (_) {}
+        }
+      } catch (_) {}
+
+      try {
+        // recent commenters (exclude anonymous)
+        final commentRes = await _client
+            .from('community_comments')
+            .select('author_id, created_at, is_anonymous')
+            .eq('post_id', postId)
+            .eq('is_anonymous', false)
+            .order('created_at', ascending: false)
+            .limit(limit);
+        for (final r in (commentRes as List? ?? [])) {
+          try {
+            interactions.add({
+              'id': r['author_id'] as String?,
+              'ts': r['created_at'] as String?,
+            });
+          } catch (_) {}
+        }
+      } catch (_) {}
+
+      // Parse timestamps and sort by ts desc
+      interactions.removeWhere((e) => e['id'] == null);
+      interactions.sort((a, b) {
+        final ats = a['ts'] as String?;
+        final bts = b['ts'] as String?;
+        final ad = DateTime.tryParse(ats ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bd = DateTime.tryParse(bts ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bd.compareTo(ad);
+      });
+
+      // Deduplicate while preserving order
+      final seen = <String>{};
+      final orderedIds = <String>[];
+      for (final it in interactions) {
+        final id = it['id'] as String;
+        if (!seen.contains(id)) {
+          seen.add(id);
+          orderedIds.add(id);
+        }
+        if (orderedIds.length >= limit) break;
+      }
+
+      if (orderedIds.isNotEmpty) {
+        final idsCsv = orderedIds.map((s) => '"$s"').join(',');
+        final users = await _client
+            .from('users')
+            .select('id, profile_img')
+            .filter('id', 'in', '($idsCsv)');
+        final Map<String, String> byId = {};
+        for (final u in (users as List? ?? [])) {
+          try {
+            final id = u['id'] as String?;
+            final p = (u['profile_img'] as String?)?.trim();
+            if (id != null && p != null && p.isNotEmpty) byId[id] = p;
+          } catch (_) {}
+        }
+        for (final id in orderedIds) {
+          final p = byId[id];
+          if (p != null && p.isNotEmpty) out.add(p);
+          if (out.length >= limit) break;
         }
       }
       _avatarsCache[postId] = _AvatarsCacheEntry(out, DateTime.now());
@@ -1033,11 +1295,11 @@ class CommunityRepository {
       // For any ids not returned by the grouped query, try reading subscriber_count from community_hashtags
       final missing = ids.where((i) => !out.containsKey(i)).toList();
       if (missing.isNotEmpty) {
-    final missingCsv = missing.join(',');
-    final tags = await _client
-      .from('community_hashtags')
-      .select('id, subscriber_count')
-      .filter('id', 'in', '($missingCsv)');
+        final missingCsv = missing.join(',');
+        final tags = await _client
+            .from('community_hashtags')
+            .select('id, subscriber_count')
+            .filter('id', 'in', '($missingCsv)');
         for (final t in (tags as List? ?? [])) {
           final id = t['id'] as int?;
           final sc = t['subscriber_count'] as int? ?? 0;
@@ -1048,11 +1310,11 @@ class CommunityRepository {
     } catch (_) {
       // best-effort fallback: fetch stored subscriber_count from hashtag rows
       try {
-    final idsCsv = ids.join(',');
-    final tags = await _client
-      .from('community_hashtags')
-      .select('id, subscriber_count')
-      .filter('id', 'in', '($idsCsv)');
+        final idsCsv = ids.join(',');
+        final tags = await _client
+            .from('community_hashtags')
+            .select('id, subscriber_count')
+            .filter('id', 'in', '($idsCsv)');
         final Map<int, int> out = {};
         for (final t in (tags as List? ?? [])) {
           final id = t['id'] as int?;
@@ -1141,9 +1403,12 @@ class CommunityRepository {
       recentCommenterAvatarUrls: const [],
     );
   });
-  
+
   /// Search posts by content. Returns a list of post maps (id, content).
-  Future<List<Map<String, dynamic>>> searchPostsByContent(String q, {int limit = 12}) async {
+  Future<List<Map<String, dynamic>>> searchPostsByContent(
+    String q, {
+    int limit = 12,
+  }) async {
     if (q.trim().isEmpty) return [];
     try {
       final res = await _client

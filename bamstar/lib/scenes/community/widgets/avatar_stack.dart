@@ -23,21 +23,30 @@ class AvatarStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final toShow = avatarUrls.take(maxDisplay).toList();
-  // Determine actual per-avatar size: prefer explicit avatarSize, fallback to legacy size.
-  final perAvatar = avatarSize ?? size;
-  // Apply centralized stack-scale so AvatarStack renders slightly smaller than
-  // the base avatar when desired (e.g. 15% reduction).
-  final renderSize = perAvatar * CommunitySizes.avatarStackScale;
+    // Determine actual per-avatar size: prefer explicit avatarSize, fallback to legacy size.
+    final perAvatar = avatarSize ?? size;
+    // Apply centralized stack-scale so AvatarStack renders slightly smaller than
+    // the base avatar when desired (e.g. 15% reduction).
+    final renderSize = perAvatar * CommunitySizes.avatarStackScale;
 
     if (toShow.isEmpty) return SizedBox(height: renderSize, width: renderSize);
 
     // The package accepts ImageProvider items (NetworkImage works).
-  final avatars = toShow.map<ImageProvider>((u) => avatarImageProviderFromUrl(u, width: renderSize.toInt(), height: renderSize.toInt())).toList();
+    final avatars = toShow
+        .map<ImageProvider>(
+          (u) => avatarImageProviderFromUrl(
+            u,
+            width: renderSize.toInt(),
+            height: renderSize.toInt(),
+          ),
+        )
+        .toList();
 
     // Calculate a finite width to avoid LayoutBuilder receiving infinite constraints
     // (the package expects a bounded width to compute stacking). This mirrors the
     // previous local implementation's width calculation but uses renderSize.
-  final width = renderSize + (avatars.length - 1) * (renderSize * overlapFactor);
+    final width =
+        renderSize + (avatars.length - 1) * (renderSize * overlapFactor);
 
     return SizedBox(
       height: renderSize,

@@ -6,10 +6,15 @@ import 'dart:math' as math;
 class AppPullRefreshIndicator extends StatefulWidget {
   final double progress; // 0.0 .. ~1.5
   final bool spinning;
-  const AppPullRefreshIndicator({required this.progress, required this.spinning, super.key});
+  const AppPullRefreshIndicator({
+    required this.progress,
+    required this.spinning,
+    super.key,
+  });
 
   @override
-  State<AppPullRefreshIndicator> createState() => _AppPullRefreshIndicatorState();
+  State<AppPullRefreshIndicator> createState() =>
+      _AppPullRefreshIndicatorState();
 }
 
 class _AppPullRefreshIndicatorState extends State<AppPullRefreshIndicator>
@@ -59,7 +64,8 @@ class _AppPullRefreshIndicatorState extends State<AppPullRefreshIndicator>
             : (widget.progress.clamp(0.0, 1.0) * 2 * math.pi * 0.7);
 
         // Sparkle animation params
-        double sparkle(double phase) => 0.5 + 0.5 * math.sin(2 * math.pi * (t + phase));
+        double sparkle(double phase) =>
+            0.5 + 0.5 * math.sin(2 * math.pi * (t + phase));
         final s1 = sparkle(0.0);
         final s2 = sparkle(0.33);
         final s3 = sparkle(0.66);
@@ -100,11 +106,13 @@ class _AppPullRefreshIndicatorState extends State<AppPullRefreshIndicator>
                   child: Opacity(
                     opacity: widget.spinning
                         ? 1.0
-                        : (0.35 + (widget.progress.clamp(0.0, 1.0) * 0.65)).clamp(0.0, 1.0),
+                        : (0.35 + (widget.progress.clamp(0.0, 1.0) * 0.65))
+                              .clamp(0.0, 1.0),
                     child: Transform.scale(
                       scale: widget.spinning
                           ? 1.0
-                          : (0.7 + widget.progress.clamp(0.0, 1.0) * 0.45).clamp(0.0, 2.0),
+                          : (0.7 + widget.progress.clamp(0.0, 1.0) * 0.45)
+                                .clamp(0.0, 2.0),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: Colors.transparent,

@@ -190,12 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           effect: ShimmerEffect(
             // use app primary color with subtle opacities so shimmer matches brand
-      baseColor: (Theme.of(context).brightness == Brightness.dark
-        ? cs.primary.withValues(alpha: 0.08)
-        : cs.primary.withValues(alpha: 0.12)),
-      highlightColor: (Theme.of(context).brightness == Brightness.dark
-        ? cs.primary.withValues(alpha: 0.18)
-        : cs.primary.withValues(alpha: 0.24)),
+            baseColor: (Theme.of(context).brightness == Brightness.dark
+                ? cs.primary.withValues(alpha: 0.08)
+                : cs.primary.withValues(alpha: 0.12)),
+            highlightColor: (Theme.of(context).brightness == Brightness.dark
+                ? cs.primary.withValues(alpha: 0.18)
+                : cs.primary.withValues(alpha: 0.24)),
             duration: const Duration(milliseconds: 900),
           ),
           child: Column(
@@ -1095,9 +1095,8 @@ class _NavbarWishlistState extends State<NavbarWishlist> {
                                   : Icons.favorite_border,
                               color: _wishlistCourses[index]['isFavorited']
                                   ? Colors.red
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                                  : Theme.of(context).colorScheme.onSurface
+                                        .withValues(alpha: 0.7),
                               size: 18,
                             ),
                           ),
@@ -1451,7 +1450,9 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
               width: 0.5,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           child: InkWell(
@@ -1511,9 +1512,10 @@ class _NavbarMyCourseState extends State<NavbarMyCourse> {
                                   child: Text(
                                     '${course['members']} Members',
                                     style: textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.7),
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
