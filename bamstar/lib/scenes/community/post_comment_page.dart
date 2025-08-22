@@ -244,6 +244,35 @@ class _PostCommentPageState extends State<PostCommentPage> {
     });
   }
 
+  /// Build a one-level comment tree from flat list (same strategy as
+  /// community_home_page.dart).
+  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+    final Map<int, Map<String, dynamic>> byId = {};
+    for (final c in comments) {
+      final id = (c['id'] as int?) ?? -1;
+      if (id > 0) byId[id] = Map<String, dynamic>.from(c);
+    }
+
+    final Map<int, List<Map<String, dynamic>>> childMap = {};
+    final List<Map<String, dynamic>> roots = [];
+
+    for (final c in comments) {
+      final pid = c['parent_comment_id'] as int?;
+      if (pid != null && pid > 0 && byId.containsKey(pid)) {
+        childMap.putIfAbsent(pid, () => []).add(Map<String, dynamic>.from(c));
+      } else {
+        roots.add(Map<String, dynamic>.from(c));
+      }
+    }
+
+    for (final r in roots) {
+      final rid = (r['id'] as int?) ?? -1;
+      r['children'] = childMap[rid] ?? <Map<String, dynamic>>[];
+    }
+
+    return roots;
+  }
+
   Future<void> _submitReply({required int parentId}) async {
     final text = _replyController.text.trim();
     if (text.isEmpty) return;
@@ -295,8 +324,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
   Widget _buildCommentRow(
     Map<String, dynamic> c,
     TextTheme tt,
-    ColorScheme cs,
-  ) {
+    ColorScheme cs, {
+    bool isReply = false,
+  }) {
     final isAnon = (c['is_anonymous'] as bool?) ?? false;
     final authorId = c['author_id'] as String?;
     final fallbackName = (c['author_name'] as String?) ?? '스타';
@@ -311,6 +341,11 @@ class _PostCommentPageState extends State<PostCommentPage> {
         future: _getAuthor(authorId),
         builder: (context, snap) {
           final user = snap.data;
+
+          // Debug: log comment metadata when building the row
+          try {
+            debugPrint('[post_comment] building row id=${c['id']} parent=${c['parent_comment_id']}');
+          } catch (_) {}
 
           final authorName = isAnon
               ? '익명의 스타'
@@ -505,62 +540,101 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                   ),
                                   const SizedBox(width: 12),
                                   // Only allow replies to top-level comments
-                                  GestureDetector(
-                                    onTap: () {
-                                      final cid = (c['id'] as int?) ?? -1;
-                                      if (cid < 0) return;
-                                      // if this comment is itself a reply, don't open reply
-                                      if ((c['parent_comment_id'] as int?) != null) return;
-                                      debugPrint('[post_comment] reply tap cid=$cid');
-                                      setState(() {
-                                        _replyingToCommentId =
-                                            _replyingToCommentId == cid ? null : cid;
-                                      });
-                                      if (_replyingToCommentId == cid) {
-                                        Future.delayed(const Duration(milliseconds: 50), () {
-                                          if (mounted) _replyFocusNode.requestFocus();
+                                  if (!isReply)
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () {
+                                        final cid = (c['id'] as int?) ?? -1;
+                                        if (cid < 0) return;
+                                        debugPrint('[post_comment] reply press cid=$cid');
+                                        setState(() {
+                                          _replyingToCommentId = _replyingToCommentId == cid ? null : cid;
                                         });
-                                      } else {
-                                        _replyFocusNode.unfocus();
-                                      }
-                                    },
-                                    child: Text(
-                                      '댓글 쓰기',
-                                      style: tt.bodySmall?.copyWith(
-                                        color: cs.onSurfaceVariant,
+                                        debugPrint('[post_comment] replyingTo=$_replyingToCommentId after setState');
+                                        if (mounted && _replyingToCommentId == cid) {
+                                          Future.microtask(() {
+                                            debugPrint('[post_comment] requesting focus for reply cid=$cid');
+                                            if (mounted) _replyFocusNode.requestFocus();
+                                          });
+                                        } else {
+                                          try {
+                                            _replyFocusNode.unfocus();
+                                          } catch (_) {}
+                                        }
+                                      },
+                                      child: Text(
+                                        '댓글 쓰기',
+                                        style: tt.bodySmall?.copyWith(
+                                          color: cs.onSurfaceVariant,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 180),
-                                child: _replyingToCommentId == (c['id'] as int?)
-                                    ? Padding(
-                                        key: ValueKey('reply-input-${c['id']}'),
-                                        padding: const EdgeInsets.only(top: 8),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: TextField(
-                                                controller: _replyController,
-                                                focusNode: _replyFocusNode,
-                                                decoration: const InputDecoration(
-                                                  hintText: '답글을 작성하세요',
-                                                ),
-                                                textInputAction: TextInputAction.send,
-                                                onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                              ClipRect(
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 260),
+                                  switchInCurve: Curves.easeOutCubic,
+                                  switchOutCurve: Curves.easeInCubic,
+                                  transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
+                                  child: ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1))
+                                      ? GestureDetector(
+                                          key: ValueKey('reply-input-${c['id']}'),
+                                          behavior: HitTestBehavior.opaque,
+                                          onTap: () {}, // prevent tap-through
+                                          onPanDown: (_) {
+                                            // 외부 영역 탭 시 unfocus
+                                            if (_replyFocusNode.hasFocus) {
+                                              _replyFocusNode.unfocus();
+                                              setState(() => _replyingToCommentId = null);
+                                            }
+                                          },
+                                          child: Builder(builder: (ctx) {
+                                            debugPrint('[post_comment] building reply-input for cid=${c['id']} (replying=$_replyingToCommentId)');
+                                            return Container(
+                                              margin: const EdgeInsets.only(top: 8),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: cs.surface,
+                                                borderRadius: BorderRadius.circular(8),
+                                                border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1),
                                               ),
-                                            ),
-                                            const SizedBox(width: 8),
-                                            IconButton(
-                                              onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
-                                              icon: const Icon(Icons.send),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: SizedBox(
+                                                      height: 28,
+                                                      child: TextField(
+                                                        controller: _replyController,
+                                                        focusNode: _replyFocusNode,
+                                                        textInputAction: TextInputAction.send,
+                                                        onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                                        decoration: InputDecoration(
+                                                          hintText: '답글 작성',
+                                                          isDense: true,
+                                                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                          border: OutlineInputBorder(borderSide: BorderSide.none),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    visualDensity: VisualDensity.compact,
+                                                    padding: EdgeInsets.zero,
+                                                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                                    onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                                    icon: Icon(Icons.send, size: 18, color: cs.primary),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }))
+                                      : const SizedBox.shrink(),
+                                ),
                               ),
                             ],
                           ),
@@ -608,96 +682,125 @@ class _PostCommentPageState extends State<PostCommentPage> {
           ),
           title: Text('댓글', style: tt.titleLarge),
         ),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-          child: Column(
-            children: [
-              // recent interactors avatar stack
-              FutureBuilder<List<String>>(
-                future: CommunityRepository.instance.getPostCommenterAvatars(
-                  widget.post.id,
-                  limit: 3,
-                ),
-                builder: (context, snap) {
-                  final avatars = snap.data ?? [];
-                  if (avatars.isEmpty) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 6,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: local.AvatarStack(
-                        avatarUrls: avatars,
-                        avatarSize: CommunitySizes.avatarBase,
-                        overlapFactor: 0.5,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _commentsFuture,
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            try {
+              FocusScope.of(context).unfocus();
+            } catch (_) {}
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Column(
+              children: [
+                // recent interactors avatar stack
+                FutureBuilder<List<String>>(
+                  future: CommunityRepository.instance.getPostCommenterAvatars(
+                    widget.post.id,
+                    limit: 3,
+                  ),
                   builder: (context, snap) {
-                    final comments = snap.data ?? [];
-                    if (snap.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (comments.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Center(
-                          child: Text('댓글이 없습니다', style: tt.bodyMedium),
-                        ),
-                      );
-                    }
+                    final avatars = snap.data ?? [];
+                    if (avatars.isEmpty) return const SizedBox.shrink();
                     return Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                      child: ListView.builder(
-                        itemCount: comments.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == comments.length) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Center(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: cs.surface,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: cs.outline.withOpacity(0.3),
-                                    ),
-                                  ),
-                                  child: TextButton(
-                                    onPressed: () {},
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 6,
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Show more comments',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                          final c = comments[index];
-                          return _buildCommentRow(c, tt, cs);
-                        },
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 6,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: local.AvatarStack(
+                          avatarUrls: avatars,
+                          avatarSize: CommunitySizes.avatarBase,
+                          overlapFactor: 0.5,
+                        ),
                       ),
                     );
                   },
                 ),
-              ),
-            ],
+                Expanded(
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _commentsFuture,
+                    builder: (context, snap) {
+                      final comments = snap.data ?? [];
+                      if (snap.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (comments.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Center(
+                            child: Text('댓글이 없습니다', style: tt.bodyMedium),
+                          ),
+                        );
+                      }
+                      final roots = _buildCommentTree(comments);
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTapDown: (_) {
+                            try {
+                              FocusScope.of(context).unfocus();
+                              if (mounted) setState(() => _replyingToCommentId = null);
+                            } catch (_) {}
+                          },
+                          child: ListView.builder(
+                            itemCount: roots.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == roots.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  child: Center(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: cs.surface,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: cs.outline.withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: TextButton(
+                                        onPressed: () {},
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 6,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'Show more comments',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final root = roots[index];
+                              final children = (root['children'] as List<Map<String, dynamic>>?) ?? <Map<String, dynamic>>[];
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildCommentRow(root, tt, cs, isReply: false),
+                                  for (final ch in children)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 56.0),
+                                      child: _buildCommentRow(ch, tt, cs, isReply: true),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         bottomSheet: Container(
@@ -756,6 +859,12 @@ class _PostCommentPageState extends State<PostCommentPage> {
   void dispose() {
     try {
       _commentCtl.dispose();
+    } catch (_) {}
+    try {
+      _replyController.dispose();
+    } catch (_) {}
+    try {
+      _replyFocusNode.dispose();
     } catch (_) {}
     super.dispose();
   }
@@ -833,6 +942,33 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     });
   }
 
+  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+    final Map<int, Map<String, dynamic>> byId = {};
+    for (final c in comments) {
+      final id = (c['id'] as int?) ?? -1;
+      if (id > 0) byId[id] = Map<String, dynamic>.from(c);
+    }
+
+    final Map<int, List<Map<String, dynamic>>> childMap = {};
+    final List<Map<String, dynamic>> roots = [];
+
+    for (final c in comments) {
+      final pid = c['parent_comment_id'] as int?;
+      if (pid != null && pid > 0 && byId.containsKey(pid)) {
+        childMap.putIfAbsent(pid, () => []).add(Map<String, dynamic>.from(c));
+      } else {
+        roots.add(Map<String, dynamic>.from(c));
+      }
+    }
+
+    for (final r in roots) {
+      final rid = (r['id'] as int?) ?? -1;
+      r['children'] = childMap[rid] ?? <Map<String, dynamic>>[];
+    }
+
+    return roots;
+  }
+
   Future<void> _submitReply({required int parentId}) async {
     final text = _replyController.text.trim();
     if (text.isEmpty) return;
@@ -884,8 +1020,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   Widget _buildCommentRow(
     Map<String, dynamic> c,
     TextTheme tt,
-    ColorScheme cs,
-  ) {
+    ColorScheme cs, {
+    bool isReply = false,
+  }) {
     final isAnon = (c['is_anonymous'] as bool?) ?? false;
     final authorId = c['author_id'] as String?;
     final fallbackName = (c['author_name'] as String?) ?? '스타';
@@ -1103,56 +1240,101 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  GestureDetector(
-                                    onTap: () {
-                                      final cid = (c['id'] as int?) ?? -1;
-                                      if (cid < 0) return;
-                                      if ((c['parent_comment_id'] as int?) != null) return;
-                                      debugPrint('[post_comment_modal] reply tap cid=$cid');
-                                      setState(() {
-                                        _replyingToCommentId =
-                                            _replyingToCommentId == cid ? null : cid;
-                                      });
-                                      if (_replyingToCommentId == cid) {
-                                        Future.delayed(const Duration(milliseconds: 50), () {
-                                          if (mounted) _replyFocusNode.requestFocus();
+                                  if (!isReply)
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      onPressed: () {
+                                        final cid = (c['id'] as int?) ?? -1;
+                                        if (cid < 0) return;
+                                        debugPrint('[post_comment_modal] reply press cid=$cid');
+                                        setState(() {
+                                          _replyingToCommentId = _replyingToCommentId == cid ? null : cid;
                                         });
-                                      } else {
-                                        _replyFocusNode.unfocus();
-                                      }
-                                    },
-                                    child: Text(
-                                      '댓글 쓰기',
-                                      style: tt.bodySmall?.copyWith(
-                                        color: cs.onSurfaceVariant,
+                                        debugPrint('[post_comment_modal] replyingTo=$_replyingToCommentId after setState');
+                                        if (mounted && _replyingToCommentId == cid) {
+                                          Future.microtask(() {
+                                            debugPrint('[post_comment_modal] requesting focus for reply cid=$cid');
+                                            if (mounted) _replyFocusNode.requestFocus();
+                                          });
+                                        } else {
+                                          try {
+                                            _replyFocusNode.unfocus();
+                                          } catch (_) {}
+                                        }
+                                      },
+                                      child: Text(
+                                        '댓글 쓰기',
+                                        style: tt.bodySmall?.copyWith(
+                                          color: cs.onSurfaceVariant,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                               AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 180),
-                                child: _replyingToCommentId == (c['id'] as int?)
-                                    ? Padding(
+                                switchInCurve: Curves.easeOutCubic,
+                                switchOutCurve: Curves.easeInCubic,
+                                transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
+                                child: (!isReply && _replyingToCommentId == (c['id'] as int?))
+                                    ? Container(
                                         key: ValueKey('reply-input-modal-${c['id']}'),
-                                        padding: const EdgeInsets.only(top: 8),
+                                        margin: const EdgeInsets.only(top: 8),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: cs.surface,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1),
+                                        ),
                                         child: Row(
                                           children: [
                                             Expanded(
-                                              child: TextField(
-                                                controller: _replyController,
-                                                focusNode: _replyFocusNode,
-                                                decoration: const InputDecoration(
-                                                  hintText: '답글을 작성하세요',
+                                              child: SizedBox(
+                                                height: 28,
+                                                child: TextField(
+                                                  controller: _replyController,
+                                                  focusNode: _replyFocusNode,
+                                                  textInputAction: TextInputAction.send,
+                                                  onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                                  decoration: InputDecoration(
+                                                    hintText: '답글 작성',
+                                                    isDense: true,
+                                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                                    border: OutlineInputBorder(borderSide: BorderSide.none),
+                                                  ),
                                                 ),
-                                                textInputAction: TextInputAction.send,
-                                                onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
                                               ),
                                             ),
-                                            const SizedBox(width: 8),
+                                            // photo attach button
                                             IconButton(
+                                              visualDensity: VisualDensity.compact,
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                              onPressed: () async {
+                                                // Try to pick an image if ImagePicker is available.
+                                                try {
+                                                  // Lazy import/use to avoid hard dependency issues
+                                                  // If image picking isn't configured, this will no-op.
+                                                  // ignore: unnecessary_import
+                                                  // final XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                                  // For now, show a debug print.
+                                                  debugPrint('[post_comment] pick image for reply cid=${c['id']}');
+                                                } catch (_) {
+                                                  debugPrint('[post_comment] image pick failed');
+                                                }
+                                              },
+                                              icon: Icon(Icons.photo_camera, size: 18, color: cs.onSurfaceVariant),
+                                            ),
+                                            IconButton(
+                                              visualDensity: VisualDensity.compact,
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                                               onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
-                                              icon: const Icon(Icons.send),
+                                              icon: Icon(Icons.send, size: 18, color: cs.primary),
                                             ),
                                           ],
                                         ),
@@ -1203,12 +1385,33 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                 if (comments.isEmpty) {
                   return Center(child: Text('댓글이 없습니다', style: tt.bodyMedium));
                 }
-                return ListView.builder(
-                  itemCount: comments.length,
-                  itemBuilder: (context, index) {
-                    final c = comments[index];
-                    return _buildCommentRow(c, tt, cs);
+                final roots = _buildCommentTree(comments);
+                return GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTapDown: (_) {
+                    try {
+                      FocusScope.of(context).unfocus();
+                      if (mounted) setState(() => _replyingToCommentId = null);
+                    } catch (_) {}
                   },
+                  child: ListView.builder(
+                    itemCount: roots.length,
+                    itemBuilder: (context, index) {
+                      final root = roots[index];
+                      final children = (root['children'] as List<Map<String, dynamic>>?) ?? <Map<String, dynamic>>[];
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildCommentRow(root, tt, cs, isReply: false),
+                          for (final ch in children)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 56.0),
+                              child: _buildCommentRow(ch, tt, cs, isReply: true),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -1280,6 +1483,12 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   void dispose() {
     try {
       _commentCtl.dispose();
+    } catch (_) {}
+    try {
+      _replyController.dispose();
+    } catch (_) {}
+    try {
+      _replyFocusNode.dispose();
     } catch (_) {}
     super.dispose();
   }
