@@ -149,19 +149,32 @@ class PostCommentPage extends StatefulWidget {
     CommunityPost post,
   ) {
     return WoltModalSheetPage(
-      pageTitle: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(
-          '댓글',
-          style: Theme.of(
-            modalContext,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+      // Place title in the navigation bar area with minimal vertical padding
+      // Put the title directly into the nav row so it aligns with the close icon
+      pageTitle: const SizedBox.shrink(),
+      leadingNavBarWidget: SizedBox(
+        width: double.infinity,
+        child: Row(
+          children: [
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
+              onPressed: () => Navigator.of(modalContext).pop(),
+            ),
+            Expanded(
+              child: Transform.translate(
+                offset: const Offset(-22, 5), // shift left 15px and down 10px
+                child: Center(
+                  child: Text(
+                    '댓글',
+                    style: Theme.of(modalContext).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      leadingNavBarWidget: IconButton(
-        visualDensity: VisualDensity.compact,
-        icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-        onPressed: () => Navigator.of(modalContext).pop(),
       ),
       trailingNavBarWidget: IconButton(
         visualDensity: VisualDensity.compact,
@@ -246,7 +259,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
 
   /// Build a one-level comment tree from flat list (same strategy as
   /// community_home_page.dart).
-  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+  List<Map<String, dynamic>> _buildCommentTree(
+    List<Map<String, dynamic>> comments,
+  ) {
     final Map<int, Map<String, dynamic>> byId = {};
     for (final c in comments) {
       final id = (c['id'] as int?) ?? -1;
@@ -292,8 +307,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
       } catch (_) {}
     }
   }
@@ -344,7 +360,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
 
           // Debug: log comment metadata when building the row
           try {
-            debugPrint('[post_comment] building row id=${c['id']} parent=${c['parent_comment_id']}');
+            debugPrint(
+              '[post_comment] building row id=${c['id']} parent=${c['parent_comment_id']}',
+            );
           } catch (_) {}
 
           final authorName = isAnon
@@ -466,7 +484,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                       final cid = (c['id'] as int?) ?? -1;
                                       if (cid < 0) return;
                                       setState(() {
-                                        final cur = _commentLikeCounts[cid] ?? 0;
+                                        final cur =
+                                            _commentLikeCounts[cid] ?? 0;
                                         if (_likedCommentIds.contains(cid)) {
                                           _likedCommentIds.remove(cid);
                                           _commentLikeCounts[cid] = (cur - 1)
@@ -485,7 +504,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                             setState(() {
                                               _likedCommentIds.remove(cid);
                                               _commentLikeCounts[cid] =
-                                                  (_commentLikeCounts[cid] ?? 1) -
+                                                  (_commentLikeCounts[cid] ??
+                                                      1) -
                                                   1;
                                             });
                                           }
@@ -497,7 +517,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                             setState(() {
                                               _likedCommentIds.add(cid);
                                               _commentLikeCounts[cid] =
-                                                  (_commentLikeCounts[cid] ?? 0) +
+                                                  (_commentLikeCounts[cid] ??
+                                                      0) +
                                                   1;
                                             });
                                           }
@@ -543,22 +564,37 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                   if (!isReply)
                                     TextButton(
                                       style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                          horizontal: 4,
+                                        ),
                                         minimumSize: Size.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       onPressed: () {
                                         final cid = (c['id'] as int?) ?? -1;
                                         if (cid < 0) return;
-                                        debugPrint('[post_comment] reply press cid=$cid');
+                                        debugPrint(
+                                          '[post_comment] reply press cid=$cid',
+                                        );
                                         setState(() {
-                                          _replyingToCommentId = _replyingToCommentId == cid ? null : cid;
+                                          _replyingToCommentId =
+                                              _replyingToCommentId == cid
+                                              ? null
+                                              : cid;
                                         });
-                                        debugPrint('[post_comment] replyingTo=$_replyingToCommentId after setState');
-                                        if (mounted && _replyingToCommentId == cid) {
+                                        debugPrint(
+                                          '[post_comment] replyingTo=$_replyingToCommentId after setState',
+                                        );
+                                        if (mounted &&
+                                            _replyingToCommentId == cid) {
                                           Future.microtask(() {
-                                            debugPrint('[post_comment] requesting focus for reply cid=$cid');
-                                            if (mounted) _replyFocusNode.requestFocus();
+                                            debugPrint(
+                                              '[post_comment] requesting focus for reply cid=$cid',
+                                            );
+                                            if (mounted)
+                                              _replyFocusNode.requestFocus();
                                           });
                                         } else {
                                           try {
@@ -580,59 +616,126 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                   duration: const Duration(milliseconds: 260),
                                   switchInCurve: Curves.easeOutCubic,
                                   switchOutCurve: Curves.easeInCubic,
-                                  transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
-                                  child: ((_replyingToCommentId ?? -1) == ((c['id'] as int?) ?? -1))
+                                  transitionBuilder: (child, anim) =>
+                                      SizeTransition(
+                                        sizeFactor: anim,
+                                        axisAlignment: -1.0,
+                                        child: FadeTransition(
+                                          opacity: anim,
+                                          child: child,
+                                        ),
+                                      ),
+                                  child:
+                                      ((_replyingToCommentId ?? -1) ==
+                                          ((c['id'] as int?) ?? -1))
                                       ? GestureDetector(
-                                          key: ValueKey('reply-input-${c['id']}'),
+                                          key: ValueKey(
+                                            'reply-input-${c['id']}',
+                                          ),
                                           behavior: HitTestBehavior.opaque,
                                           onTap: () {}, // prevent tap-through
                                           onPanDown: (_) {
                                             // 외부 영역 탭 시 unfocus
                                             if (_replyFocusNode.hasFocus) {
                                               _replyFocusNode.unfocus();
-                                              setState(() => _replyingToCommentId = null);
+                                              setState(
+                                                () =>
+                                                    _replyingToCommentId = null,
+                                              );
                                             }
                                           },
-                                          child: Builder(builder: (ctx) {
-                                            debugPrint('[post_comment] building reply-input for cid=${c['id']} (replying=$_replyingToCommentId)');
-                                            return Container(
-                                              margin: const EdgeInsets.only(top: 8),
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                              decoration: BoxDecoration(
-                                                color: cs.surface,
-                                                borderRadius: BorderRadius.circular(8),
-                                                border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: SizedBox(
-                                                      height: 28,
-                                                      child: TextField(
-                                                        controller: _replyController,
-                                                        focusNode: _replyFocusNode,
-                                                        textInputAction: TextInputAction.send,
-                                                        onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
-                                                        decoration: InputDecoration(
-                                                          hintText: '답글 작성',
-                                                          isDense: true,
-                                                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                          border: OutlineInputBorder(borderSide: BorderSide.none),
+                                          child: Builder(
+                                            builder: (ctx) {
+                                              debugPrint(
+                                                '[post_comment] building reply-input for cid=${c['id']} (replying=$_replyingToCommentId)',
+                                              );
+                                              return Container(
+                                                margin: const EdgeInsets.only(
+                                                  top: 8,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: cs.surface,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  border: Border.all(
+                                                    color: cs.outline
+                                                        .withValues(
+                                                          alpha: 0.08,
+                                                        ),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: SizedBox(
+                                                        height: 28,
+                                                        child: TextField(
+                                                          controller:
+                                                              _replyController,
+                                                          focusNode:
+                                                              _replyFocusNode,
+                                                          textInputAction:
+                                                              TextInputAction
+                                                                  .send,
+                                                          onSubmitted: (_) =>
+                                                              _submitReply(
+                                                                parentId:
+                                                                    (c['id']
+                                                                        as int?) ??
+                                                                    -1,
+                                                              ),
+                                                          decoration: InputDecoration(
+                                                            hintText: '답글 작성',
+                                                            isDense: true,
+                                                            contentPadding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal: 8,
+                                                                  vertical: 6,
+                                                                ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                                  borderSide:
+                                                                      BorderSide
+                                                                          .none,
+                                                                ),
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  IconButton(
-                                                    visualDensity: VisualDensity.compact,
-                                                    padding: EdgeInsets.zero,
-                                                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                                    onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
-                                                    icon: Icon(Icons.send, size: 18, color: cs.primary),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          }))
+                                                    IconButton(
+                                                      visualDensity:
+                                                          VisualDensity.compact,
+                                                      padding: EdgeInsets.zero,
+                                                      constraints:
+                                                          const BoxConstraints(
+                                                            minWidth: 28,
+                                                            minHeight: 28,
+                                                          ),
+                                                      onPressed: () =>
+                                                          _submitReply(
+                                                            parentId:
+                                                                (c['id']
+                                                                    as int?) ??
+                                                                -1,
+                                                          ),
+                                                      icon: Icon(
+                                                        Icons.send,
+                                                        size: 18,
+                                                        color: cs.primary,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
                                       : const SizedBox.shrink(),
                                 ),
                               ),
@@ -680,6 +783,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
             icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
             onPressed: () => Navigator.of(context).pop(),
           ),
+          centerTitle: true,
           title: Text('댓글', style: tt.titleLarge),
         ),
         body: GestureDetector(
@@ -742,7 +846,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                           onTapDown: (_) {
                             try {
                               FocusScope.of(context).unfocus();
-                              if (mounted) setState(() => _replyingToCommentId = null);
+                              if (mounted)
+                                setState(() => _replyingToCommentId = null);
                             } catch (_) {}
                           },
                           child: ListView.builder(
@@ -750,7 +855,9 @@ class _PostCommentPageState extends State<PostCommentPage> {
                             itemBuilder: (context, index) {
                               if (index == roots.length) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                   child: Center(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -780,15 +887,30 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                 );
                               }
                               final root = roots[index];
-                              final children = (root['children'] as List<Map<String, dynamic>>?) ?? <Map<String, dynamic>>[];
+                              final children =
+                                  (root['children']
+                                      as List<Map<String, dynamic>>?) ??
+                                  <Map<String, dynamic>>[];
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildCommentRow(root, tt, cs, isReply: false),
+                                  _buildCommentRow(
+                                    root,
+                                    tt,
+                                    cs,
+                                    isReply: false,
+                                  ),
                                   for (final ch in children)
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 56.0),
-                                      child: _buildCommentRow(ch, tt, cs, isReply: true),
+                                      padding: const EdgeInsets.only(
+                                        left: 56.0,
+                                      ),
+                                      child: _buildCommentRow(
+                                        ch,
+                                        tt,
+                                        cs,
+                                        isReply: true,
+                                      ),
                                     ),
                                 ],
                               );
@@ -803,7 +925,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
             ),
           ),
         ),
-  // bottom input removed per request
+        // bottom input removed per request
       ),
     );
   }
@@ -895,7 +1017,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     });
   }
 
-  List<Map<String, dynamic>> _buildCommentTree(List<Map<String, dynamic>> comments) {
+  List<Map<String, dynamic>> _buildCommentTree(
+    List<Map<String, dynamic>> comments,
+  ) {
     final Map<int, Map<String, dynamic>> byId = {};
     for (final c in comments) {
       final id = (c['id'] as int?) ?? -1;
@@ -941,8 +1065,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
       } catch (_) {}
     }
   }
@@ -1108,7 +1233,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                       final cid = (c['id'] as int?) ?? -1;
                                       if (cid < 0) return;
                                       setState(() {
-                                        final cur = _commentLikeCounts[cid] ?? 0;
+                                        final cur =
+                                            _commentLikeCounts[cid] ?? 0;
                                         if (_likedCommentIds.contains(cid)) {
                                           _likedCommentIds.remove(cid);
                                           _commentLikeCounts[cid] = (cur - 1)
@@ -1127,7 +1253,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                             setState(() {
                                               _likedCommentIds.remove(cid);
                                               _commentLikeCounts[cid] =
-                                                  (_commentLikeCounts[cid] ?? 1) -
+                                                  (_commentLikeCounts[cid] ??
+                                                      1) -
                                                   1;
                                             });
                                           }
@@ -1139,7 +1266,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                             setState(() {
                                               _likedCommentIds.add(cid);
                                               _commentLikeCounts[cid] =
-                                                  (_commentLikeCounts[cid] ?? 0) +
+                                                  (_commentLikeCounts[cid] ??
+                                                      0) +
                                                   1;
                                             });
                                           }
@@ -1149,11 +1277,13 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                           if (_likedCommentIds.contains(cid)) {
                                             _likedCommentIds.remove(cid);
                                             _commentLikeCounts[cid] =
-                                                (_commentLikeCounts[cid] ?? 1) - 1;
+                                                (_commentLikeCounts[cid] ?? 1) -
+                                                1;
                                           } else {
                                             _likedCommentIds.add(cid);
                                             _commentLikeCounts[cid] =
-                                                (_commentLikeCounts[cid] ?? 0) + 1;
+                                                (_commentLikeCounts[cid] ?? 0) +
+                                                1;
                                           }
                                         });
                                       }
@@ -1196,22 +1326,37 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                   if (!isReply)
                                     TextButton(
                                       style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                          horizontal: 4,
+                                        ),
                                         minimumSize: Size.zero,
-                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       onPressed: () {
                                         final cid = (c['id'] as int?) ?? -1;
                                         if (cid < 0) return;
-                                        debugPrint('[post_comment_modal] reply press cid=$cid');
+                                        debugPrint(
+                                          '[post_comment_modal] reply press cid=$cid',
+                                        );
                                         setState(() {
-                                          _replyingToCommentId = _replyingToCommentId == cid ? null : cid;
+                                          _replyingToCommentId =
+                                              _replyingToCommentId == cid
+                                              ? null
+                                              : cid;
                                         });
-                                        debugPrint('[post_comment_modal] replyingTo=$_replyingToCommentId after setState');
-                                        if (mounted && _replyingToCommentId == cid) {
+                                        debugPrint(
+                                          '[post_comment_modal] replyingTo=$_replyingToCommentId after setState',
+                                        );
+                                        if (mounted &&
+                                            _replyingToCommentId == cid) {
                                           Future.microtask(() {
-                                            debugPrint('[post_comment_modal] requesting focus for reply cid=$cid');
-                                            if (mounted) _replyFocusNode.requestFocus();
+                                            debugPrint(
+                                              '[post_comment_modal] requesting focus for reply cid=$cid',
+                                            );
+                                            if (mounted)
+                                              _replyFocusNode.requestFocus();
                                           });
                                         } else {
                                           try {
@@ -1232,16 +1377,39 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                 duration: const Duration(milliseconds: 180),
                                 switchInCurve: Curves.easeOutCubic,
                                 switchOutCurve: Curves.easeInCubic,
-                                transitionBuilder: (child, anim) => SizeTransition(sizeFactor: anim, axisAlignment: -1.0, child: FadeTransition(opacity: anim, child: child)),
-                                child: (!isReply && _replyingToCommentId == (c['id'] as int?))
+                                transitionBuilder: (child, anim) =>
+                                    SizeTransition(
+                                      sizeFactor: anim,
+                                      axisAlignment: -1.0,
+                                      child: FadeTransition(
+                                        opacity: anim,
+                                        child: child,
+                                      ),
+                                    ),
+                                child:
+                                    (!isReply &&
+                                        _replyingToCommentId ==
+                                            (c['id'] as int?))
                                     ? Container(
-                                        key: ValueKey('reply-input-modal-${c['id']}'),
+                                        key: ValueKey(
+                                          'reply-input-modal-${c['id']}',
+                                        ),
                                         margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: cs.surface,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: cs.outline.withValues(alpha: 0.08), width: 1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: cs.outline.withValues(
+                                              alpha: 0.08,
+                                            ),
+                                            width: 1,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
@@ -1251,22 +1419,39 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                 child: TextField(
                                                   controller: _replyController,
                                                   focusNode: _replyFocusNode,
-                                                  textInputAction: TextInputAction.send,
-                                                  onSubmitted: (_) => _submitReply(parentId: (c['id'] as int?) ?? -1),
+                                                  textInputAction:
+                                                      TextInputAction.send,
+                                                  onSubmitted: (_) =>
+                                                      _submitReply(
+                                                        parentId:
+                                                            (c['id'] as int?) ??
+                                                            -1,
+                                                      ),
                                                   decoration: InputDecoration(
                                                     hintText: '답글 작성',
                                                     isDense: true,
-                                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                                    border: OutlineInputBorder(borderSide: BorderSide.none),
+                                                    contentPadding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 6,
+                                                        ),
+                                                    border: OutlineInputBorder(
+                                                      borderSide:
+                                                          BorderSide.none,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                             // photo attach button
                                             IconButton(
-                                              visualDensity: VisualDensity.compact,
+                                              visualDensity:
+                                                  VisualDensity.compact,
                                               padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 28,
+                                                minHeight: 28,
+                                              ),
                                               onPressed: () async {
                                                 // Try to pick an image if ImagePicker is available.
                                                 try {
@@ -1275,19 +1460,38 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                   // ignore: unnecessary_import
                                                   // final XFile? img = await ImagePicker().pickImage(source: ImageSource.gallery);
                                                   // For now, show a debug print.
-                                                  debugPrint('[post_comment] pick image for reply cid=${c['id']}');
+                                                  debugPrint(
+                                                    '[post_comment] pick image for reply cid=${c['id']}',
+                                                  );
                                                 } catch (_) {
-                                                  debugPrint('[post_comment] image pick failed');
+                                                  debugPrint(
+                                                    '[post_comment] image pick failed',
+                                                  );
                                                 }
                                               },
-                                              icon: Icon(Icons.photo_camera, size: 18, color: cs.onSurfaceVariant),
+                                              icon: Icon(
+                                                Icons.photo_camera,
+                                                size: 18,
+                                                color: cs.onSurfaceVariant,
+                                              ),
                                             ),
                                             IconButton(
-                                              visualDensity: VisualDensity.compact,
+                                              visualDensity:
+                                                  VisualDensity.compact,
                                               padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                                              onPressed: () => _submitReply(parentId: (c['id'] as int?) ?? -1),
-                                              icon: Icon(Icons.send, size: 18, color: cs.primary),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 28,
+                                                minHeight: 28,
+                                              ),
+                                              onPressed: () => _submitReply(
+                                                parentId:
+                                                    (c['id'] as int?) ?? -1,
+                                              ),
+                                              icon: Icon(
+                                                Icons.send,
+                                                size: 18,
+                                                color: cs.primary,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1351,7 +1555,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                     itemCount: roots.length,
                     itemBuilder: (context, index) {
                       final root = roots[index];
-                      final children = (root['children'] as List<Map<String, dynamic>>?) ?? <Map<String, dynamic>>[];
+                      final children =
+                          (root['children'] as List<Map<String, dynamic>>?) ??
+                          <Map<String, dynamic>>[];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1359,7 +1565,12 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                           for (final ch in children)
                             Padding(
                               padding: const EdgeInsets.only(left: 56.0),
-                              child: _buildCommentRow(ch, tt, cs, isReply: true),
+                              child: _buildCommentRow(
+                                ch,
+                                tt,
+                                cs,
+                                isReply: true,
+                              ),
                             ),
                         ],
                       );
