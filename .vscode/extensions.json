@@ -1,5 +1,8 @@
 {
   "recommendations": [
+    "upstash.context7-mcp",
+    "serenade.serenade",
+    "tomoki1207.vscode-input-sequence",
     "Dart-Code.flutter",
     "Dart-Code.dart-code",
     "VisualStudioExptTeam.vscodeintellicode",
@@ -11,5 +14,6 @@
     "pubspecassist.pubspec-assist",
     "coenraads.bracket-pair-colorizer-2",
     "ms-vscode.cpptools"
-  ]
+  ],
+  "unwantedRecommendations": []
 }

@@ -87,10 +87,31 @@ class HashtagService {
         }
       }
 
-      // Cache results
-      final tagNames = suggestions.map((s) => s.name).toList();
-      _suggestionCache[cacheKey] = tagNames;
-      _cacheTimestamps[cacheKey] = now;
+      // If no suggestions were found from primary sources, use popular fallback
+      if (suggestions.isEmpty) {
+        try {
+          final popularTags = await _repository.getPopularHashtags(limit: 5);
+          for (final tag in popularTags) {
+            if (seen.add(tag.name.toLowerCase())) {
+              suggestions.add(HashtagSuggestion(
+                name: tag.name,
+                source: SuggestionSource.popularFallback,
+                relevanceScore: 0.5, // Lower relevance than other sources
+              ));
+            }
+          }
+        } catch (e) {
+          print('Failed to get popular fallback suggestions: $e');
+          // return empty list if fallback also fails
+        }
+      }
+
+      // Cache results only if they are not from the popular fallback
+      if (suggestions.isNotEmpty && suggestions.first.source != SuggestionSource.popularFallback) {
+          final tagNames = suggestions.map((s) => s.name).toList();
+          _suggestionCache[cacheKey] = tagNames;
+          _cacheTimestamps[cacheKey] = now;
+      }
 
       return suggestions;
     } catch (e) {
@@ -222,6 +243,7 @@ enum SuggestionSource {
   trending,
   personalized,
   cached,
+  popularFallback,
 }
 
 class TrendingHashtag {

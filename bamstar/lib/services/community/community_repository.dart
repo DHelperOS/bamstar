@@ -1638,6 +1638,38 @@ class CommunityRepository {
 
   /// Get daily hashtag curation data
   Future<Map<String, dynamic>?> getDailyCuration({
+
+  /// Get popular hashtags based on subscriber and post counts
+  Future<List<HashtagChannel>> getPopularHashtags({int limit = 10}) async {
+    try {
+      final res = await _client
+          .from('community_hashtags')
+          .select(
+              'id, name, description, category, post_count, subscriber_count, last_used_at')
+          .order('subscriber_count', ascending: false)
+          .order('post_count', ascending: false)
+          .limit(limit);
+      final List data = res as List? ?? [];
+      return data
+          .map(
+            (tag) => HashtagChannel(
+              id: tag['id'] as int,
+              name: (tag['name'] as String).toLowerCase(),
+              description: tag['description'] as String?,
+              category: tag['category'] as String?,
+              postCount: tag['post_count'] as int? ?? 0,
+              subscriberCount: tag['subscriber_count'] as int? ?? 0,
+              lastUsedAt: tag['last_used_at'] == null
+                  ? null
+                  : DateTime.tryParse(tag['last_used_at'] as String),
+            ),
+          )
+          .toList();
+    } catch (e) {
+      print('Failed to get popular hashtags: $e');
+      return [];
+    }
+  }
     String? date, // YYYY-MM-DD format, defaults to today
   }) async {
     try {

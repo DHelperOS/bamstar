@@ -17,6 +17,20 @@ class AppUser {
     required this.data,
   });
 
+  AppUser copyWith({
+    String? id,
+    String? nickname,
+    String? email,
+    Map<String, dynamic>? data,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      nickname: nickname ?? this.nickname,
+      email: email ?? this.email,
+      data: data ?? this.data,
+    );
+  }
+
   factory AppUser.fromMap(Map<String, dynamic> m) {
     return AppUser(
       id: m['id'] as String,

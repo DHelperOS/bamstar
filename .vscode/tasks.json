@@ -2,6 +2,118 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "MCP: npm install (supabase-mcp)",
+			"type": "shell",
+			"command": "npm install",
+			"options": { "cwd": "${workspaceFolder}/mcp/supabase-mcp" },
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: npm install (context7-mcp)",
+			"type": "shell",
+			"command": "npm install",
+			"options": { "cwd": "${workspaceFolder}/mcp/context7-mcp" },
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: npm install (serena-mcp)",
+			"type": "shell",
+			"command": "npm install",
+			"options": { "cwd": "${workspaceFolder}/mcp/serena-mcp" },
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: npm install (sequential-mcp)",
+			"type": "shell",
+			"command": "npm install",
+			"options": { "cwd": "${workspaceFolder}/mcp/sequential-mcp" },
+			"problemMatcher": []
+		},
+		{
+			"label": "Serena: clone (optional)",
+			"type": "shell",
+			"command": "git clone https://github.com/oraios/serena.git ${workspaceFolder}/third_party/serena || true",
+			"problemMatcher": []
+		},
+		{
+			"label": "Serena: npm install (optional)",
+			"type": "shell",
+			"command": "npm install",
+			"options": { "cwd": "${workspaceFolder}/third_party/serena" },
+			"problemMatcher": []
+		},
+		{
+			"label": "Serena: start (optional)",
+			"type": "shell",
+			"command": "export PORT=4000 && npm start",
+			"options": { "cwd": "${workspaceFolder}/third_party/serena" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: start (supabase-mcp)",
+			"type": "shell",
+			"command": "export $(grep -v '^#' ${workspaceFolder}/mcp/supabase-mcp/.env | xargs) && npm start",
+			"options": { "cwd": "${workspaceFolder}/mcp/supabase-mcp" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: start (context7-mcp)",
+			"type": "shell",
+			"command": "export $(grep -v '^#' ${workspaceFolder}/mcp/context7-mcp/.env | xargs) && npm start",
+			"options": { "cwd": "${workspaceFolder}/mcp/context7-mcp" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: start (serena-mcp)",
+			"type": "shell",
+			"command": "export $(grep -v '^#' ${workspaceFolder}/mcp/serena-mcp/.env | xargs) && npm start",
+			"options": { "cwd": "${workspaceFolder}/mcp/serena-mcp" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: start (sequential-mcp)",
+			"type": "shell",
+			"command": "export $(grep -v '^#' ${workspaceFolder}/mcp/sequential-mcp/.env | xargs) && npm start",
+			"options": { "cwd": "${workspaceFolder}/mcp/sequential-mcp" },
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: kill node MCP",
+			"type": "shell",
+			"command": "pkill -f 'node index.js' || true",
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: kill context7-mcp",
+			"type": "shell",
+			"command": "pkill -f 'context7-mcp/index.js' || true",
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: kill serena-mcp",
+			"type": "shell",
+			"command": "pkill -f 'serena-mcp/index.js' || true",
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: kill sequential-mcp",
+			"type": "shell",
+			"command": "pkill -f 'sequential-mcp/index.js' || true",
+			"problemMatcher": []
+		},
+		{
+			"label": "MCP: run migration (supabase-mcp)",
+			"type": "shell",
+			"command": "node run-migration.js ${input:sqlFile}",
+			"options": { "cwd": "${workspaceFolder}/mcp/supabase-mcp" },
+			"problemMatcher": []
+		},
+		{
 			"label": "flutter: pub get",
 			"type": "shell",
 			"command": "flutter pub get",
@@ -11,9 +123,7 @@
 			"label": "flutter: analyze",
 			"type": "shell",
 			"command": "flutter analyze",
-			"problemMatcher": [
-				"$dart-analyzer"
-			]
+			"problemMatcher": []
 		},
 		{
 			"label": "flutter: run (macos)",
@@ -27,63 +137,14 @@
 			"command": "cd bamstar && flutter run -d macos",
 			"isBackground": true,
 			"group": "build"
-		},
+		}
+	],
+	"inputs": [
 		{
-			"label": "flutter: pub get",
-			"type": "shell",
-			"command": "flutter pub get"
-		},
-		{
-			"label": "flutter: pub get (bamstar)",
-			"type": "shell",
-			"command": "cd bamstar && flutter pub get"
-		},
-		{
-			"label": "flutter: analyze",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
-		},
-		{
-			"label": "flutter (bamstar): run (macos)",
-			"type": "shell",
-			"command": "cd bamstar && flutter run -d macos",
-			"isBackground": true,
-			"group": "build"
-		},
-		{
-			"label": "flutter: pub get (bamstar)",
-			"type": "shell",
-			"command": "cd bamstar && flutter pub get"
-		},
-		{
-			"label": "flutter: analyze",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
-		},
-		{
-			"label": "flutter: analyze",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
-		},
-		{
-			"label": "flutter: pub get (bamstar)",
-			"type": "shell",
-			"command": "cd bamstar && flutter pub get"
-		},
-		{
-			"label": "flutter: analyze (bamstar)",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
-		},
-		{
-			"label": "flutter: analyze (bamstar)",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
-		},
-		{
-			"label": "flutter: run (macos)",
-			"type": "shell",
-			"command": "cd bamstar && flutter analyze"
+			"id": "sqlFile",
+			"type": "promptString",
+			"description": "Path to SQL migration (relative to mcp/supabase-mcp)",
+			"default": "dev/supabase/migrations/20250826000001_hashtag_functions.sql"
 		}
 	]
 }
