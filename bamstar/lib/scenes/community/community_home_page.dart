@@ -2724,15 +2724,14 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               ),
               // Media section (multi 이미지일 때: 댓글 썸네일 스타일, 1장일 때는 아래에서 Aspect 유지 렌더)
               if (twoThumbs) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: _PostImageGallery(
-                    imageUrls: post.imageUrls,
-                    onTap: (index) => _showImageViewer(context, post.imageUrls, index),
-                    // 다중이미지이므로 grid 모드
-                    isGrid: true,
-                  ),
-                ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0), // add extra top padding for visual breathing room
+                          child: _PostImageGallery(
+                            imageUrls: post.imageUrls,
+                            onTap: (index) => _showImageViewer(context, post.imageUrls, index),
+                            isGrid: true,
+                          ),
+                        ),
               ],
               // Title (only when short or explicitly provided)
               if (displayTitle.isNotEmpty) ...[
@@ -2751,7 +2750,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               ],
               // Single image (원본 비율 유지) - Title 뒤에 위치 유지
               if (!twoThumbs && hasImages) ...[
-                const SizedBox(height: 12),
+                // minimal vertical gap to match comment layout
+                const SizedBox(height: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: _PostImageGallery(
@@ -3352,56 +3352,51 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
     final cs = Theme.of(context).colorScheme;
     if (widget.imageUrls.isEmpty) return const SizedBox.shrink();
 
-    const singleMaxHeight = 180.0;
-    const thumbSize = 100.0;
-    const spacing = 4.0;
+  final singleMaxHeight = CommunitySizes.imageSingleMaxHeight;
+  final thumbSize = CommunitySizes.imageThumbSize;
+  final spacing = CommunitySizes.imageThumbSpacing;
 
     if (widget.isGrid) {
       final urls = widget.imageUrls.take(4).toList(); // 최대 4개 표시 (댓글 스타일)
-      final rows = (urls.length / 2).ceil();
-      final gridHeight = rows * thumbSize + (rows - 1) * spacing;
+  final rows = (urls.length / 2).ceil();
+  final gridHeight = rows * thumbSize + (rows - 1) * spacing;
+      // 댓글/대댓글 썸네일 레이아웃과 완전히 동일하게: 고정 100px 정사각 Wrap (2열 흐름)
       return SizedBox(
         height: gridHeight,
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: spacing,
-            mainAxisSpacing: spacing,
-            childAspectRatio: 1.0,
-          ),
-          itemCount: urls.length,
-          itemBuilder: (context, index) {
-            final url = urls[index];
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: widget.onTap == null ? null : () => widget.onTap!(index),
-                borderRadius: BorderRadius.circular(8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: thumbSize,
-                    child: Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) => Container(
-                        color: cs.surfaceContainer,
-                        child: Icon(
-                          SolarIconsOutline.gallery,
-                          color: cs.onSurfaceVariant,
-                          size: 20,
+        child: Wrap(
+          spacing: spacing,
+            runSpacing: spacing,
+          children: [
+            for (int index = 0; index < urls.length; index++)
+              SizedBox(
+                width: thumbSize,
+                height: thumbSize,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: widget.onTap == null
+                        ? null
+                        : () => widget.onTap!(index),
+                    borderRadius: BorderRadius.circular(8),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        urls[index],
+                        fit: BoxFit.cover,
+                        errorBuilder: (c, e, s) => Container(
+                          color: cs.surfaceContainer,
+                          child: Icon(
+                            SolarIconsOutline.gallery,
+                            color: cs.onSurfaceVariant,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            );
-          },
+          ],
         ),
       );
     }
@@ -3410,9 +3405,9 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
     final url = widget.imageUrls.first;
     final aspect = _aspectCache[url];
     Widget content;
-    if (aspect != null) {
+      if (aspect != null) {
       content = ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: singleMaxHeight),
+        constraints: BoxConstraints(maxHeight: singleMaxHeight),
         child: AspectRatio(
           aspectRatio: aspect,
           child: _buildSingle(url, aspect),
@@ -3423,9 +3418,9 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
         future: _resolveAspect(url),
         builder: (context, snap) {
           final ar = snap.data;
-          if (ar != null) {
+            if (ar != null) {
             return ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: singleMaxHeight),
+              constraints: BoxConstraints(maxHeight: singleMaxHeight),
               child: AspectRatio(
                 aspectRatio: ar,
                 child: _buildSingle(url, ar),

@@ -1,0 +1,16 @@
+# Repo-level analyzer config to ignore archived templates and dev helpers
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # exclude archived and template folders that are not part of the active app
+    - dev/**
+    - dev/templates/**
+    - dev/archived_ui/**
+    - templates/**
+    - .github/**
+
+# You can still have more specific rules inside the flutter project at
+# `bamstar/analysis_options.yaml`. This repo-level file keeps analyzer
+# focused on the app code when running `flutter analyze` from the workspace root.
+ 

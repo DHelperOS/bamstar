@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'dart:ui';
+import 'dart:async';
 import 'package:bamstar/services/avatar_helper.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
@@ -17,131 +18,10 @@ import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
-// Cache for resolved image aspect ratios to avoid repeated decoding
-final Map<String, double> _imageAspectRatioCache = {};
-
-/// Widget that loads a network image, resolves its intrinsic aspect ratio,
-/// and displays it cropped (BoxFit.cover) while preserving the original
-/// aspect ratio for single images. For multi-image grids it falls back to
-/// square thumbnails.
-class _NetworkImageWithAspect extends StatefulWidget {
-  final String url;
-  final bool isSingle;
-  final VoidCallback? onTap;
-  final double maxHeight;
-
-  const _NetworkImageWithAspect({
-    Key? key,
-    required this.url,
-    this.isSingle = false,
-    this.onTap,
-    this.maxHeight = 220,
-  }) : super(key: key);
-
-  @override
-  State<_NetworkImageWithAspect> createState() => _NetworkImageWithAspectState();
-}
-
-class _NetworkImageWithAspectState extends State<_NetworkImageWithAspect> {
-  double? _aspect;
-  ImageStreamListener? _listener;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_imageAspectRatioCache.containsKey(widget.url)) {
-      _aspect = _imageAspectRatioCache[widget.url];
-    } else {
-      _resolve();
-    }
-  }
-
-  void _resolve() {
-    try {
-      final provider = NetworkImage(widget.url);
-      final stream = provider.resolve(const ImageConfiguration());
-      _listener = ImageStreamListener((info, _) {
-        final w = info.image.width.toDouble();
-        final h = info.image.height.toDouble();
-        if (w > 0 && h > 0) {
-          final aspect = w / h;
-          _imageAspectRatioCache[widget.url] = aspect;
-          if (mounted) setState(() => _aspect = aspect);
-        }
-      }, onError: (_, __) {
-        // ignore errors, keep null aspect
-      });
-      stream.addListener(_listener!);
-    } catch (_) {}
-  }
-
-  @override
-  void dispose() {
-    try {
-      if (_listener != null) {
-        final stream = NetworkImage(widget.url).resolve(const ImageConfiguration());
-        stream.removeListener(_listener!);
-      }
-    } catch (_) {}
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    Widget image = Image.network(
-      widget.url,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (context, error, st) => Container(
-        color: cs.surfaceContainer,
-        child: Center(
-          child: Icon(
-            SolarIconsOutline.gallery,
-            color: cs.onSurfaceVariant,
-            size: 20,
-          ),
-        ),
-      ),
-    );
-
-    // If this is a single image and we know aspect ratio, wrap with AspectRatio
-    if (widget.isSingle && _aspect != null) {
-      final aspect = _aspect!;
-      // cap displayed height so very wide/tall images don't take too much space
-      final constrained = ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: widget.maxHeight),
-        child: AspectRatio(
-          aspectRatio: aspect,
-          child: image,
-        ),
-      );
-      image = constrained;
-    } else if (widget.isSingle && _aspect == null) {
-      // unknown aspect yet: use an intrinsic height placeholder until resolved
-      image = SizedBox(
-        height: widget.maxHeight * 0.6,
-        child: image,
-      );
-    } else {
-      // multi-image: square thumbnail
-      image = AspectRatio(
-        aspectRatio: 1.0,
-        child: image,
-      );
-    }
-
-    if (widget.onTap != null) {
-      return GestureDetector(
-        onTap: widget.onTap,
-        child: image,
-      );
-    }
-    return image;
-  }
-}
+// Image layout constants for comments (match feed gallery)
+final double _commentSingleMaxHeight = CommunitySizes.imageSingleMaxHeight;
+final double _commentThumbSize = CommunitySizes.imageThumbSize;
+final double _commentThumbSpacing = CommunitySizes.imageThumbSpacing;
 
 // Simple in-memory cache for author lookups to avoid refetching repeatedly.
 final Map<String, us.AppUser?> _authorCache = {};
@@ -204,6 +84,34 @@ Future<void> _prefetchCommentAuthors(
   } catch (_) {}
 }
 
+// Aspect ratio cache and resolver for comment images (match feed behavior)
+final Map<String, double> _commentAspectCache = {};
+
+Future<double> _resolveCommentAspect(String url) async {
+  if (_commentAspectCache.containsKey(url)) return _commentAspectCache[url]!;
+  final c = Completer<double>();
+  final img = Image.network(url);
+  final stream = img.image.resolve(const ImageConfiguration());
+  late ImageStreamListener l;
+  l = ImageStreamListener((ImageInfo info, bool sync) {
+    final w = info.image.width.toDouble();
+    final h = info.image.height.toDouble();
+    if (w > 0 && h > 0) {
+      final ar = w / h;
+      _commentAspectCache[url] = ar;
+      c.complete(ar);
+    } else {
+      c.complete(1.6);
+    }
+    stream.removeListener(l);
+  }, onError: (error, stack) {
+    if (!c.isCompleted) c.complete(1.6);
+    stream.removeListener(l);
+  });
+  stream.addListener(l);
+  return c.future;
+}
+
 // Simple vertical dashed line used to indicate threaded replies.
 class VerticalDashedLine extends StatelessWidget {
   final Color color;
@@ -218,7 +126,6 @@ class VerticalDashedLine extends StatelessWidget {
     this.dashGap = 4.0,
   }) : super(key: key);
 
-  
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -248,7 +155,6 @@ class _VerticalDashedLinePainter extends CustomPainter {
     required this.dashGap,
   });
 
-  
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
@@ -266,7 +172,6 @@ class _VerticalDashedLinePainter extends CustomPainter {
     }
   }
 
-  
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
@@ -337,7 +242,6 @@ class PostCommentPage extends StatefulWidget {
     );
   }
 
-  
   State<PostCommentPage> createState() => _PostCommentPageState();
 }
 
@@ -350,14 +254,13 @@ class _PostCommentPageState extends State<PostCommentPage> {
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
-  
+
   // 이미지 업로드 관련 필드들
   List<XFile> _selectedImages = [];
   List<XFile> _selectedReplyImages = [];
   final ImagePicker _picker = ImagePicker();
   bool _isUploadingImages = false;
 
-  
   void initState() {
     super.initState();
     _commentsFuture = CommunityRepository.instance
@@ -606,43 +509,97 @@ class _PostCommentPageState extends State<PostCommentPage> {
                             Builder(
                               builder: (context) {
                                 List<String> imageUrls = [];
-                                
+
                                 // image_url이 배열인지 단일 문자열인지 확인
                                 if (c['image_url'] is List) {
                                   imageUrls = (c['image_url'] as List)
                                       .map((e) => e.toString())
                                       .where((url) => url.isNotEmpty)
                                       .toList();
-                                } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                                } else if (c['image_url'] is String &&
+                                    c['image_url'].toString().isNotEmpty) {
                                   imageUrls = [c['image_url'].toString()];
                                 }
-                                
+
                                 if (imageUrls.isEmpty) return const SizedBox.shrink();
-                                
-                                return GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: imageUrls.length == 1 ? 1 : 2,
-                                    crossAxisSpacing: 4,
-                                    mainAxisSpacing: 4,
-                                    childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
-                                  ),
-                                  itemCount: imageUrls.length,
-                                  itemBuilder: (context, index) {
-                                    return GestureDetector(
-                                      onTap: () => _showImageViewer(context, imageUrls, index),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: _NetworkImageWithAspect(
-                                          url: imageUrls[index],
-                                          isSingle: imageUrls.length == 1,
-                                          maxHeight: imageUrls.length == 1 ? 180 : 100,
-                                          onTap: () => _showImageViewer(context, imageUrls, index),
+
+                                // Single image: preserve intrinsic aspect ratio with max height
+                                if (imageUrls.length == 1) {
+                                  final url = imageUrls.first;
+                                  return GestureDetector(
+                                    onTap: () => _showImageViewer(context, imageUrls, 0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: _commentSingleMaxHeight,
+                                        ),
+                                        child: FutureBuilder<double>(
+                                          future: _resolveCommentAspect(url),
+                                          builder: (context, snap) {
+                                            final ar = snap.data ?? 1.6;
+                                            return AspectRatio(
+                                              aspectRatio: ar,
+                                              child: Image.network(
+                                                url,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: cs.surfaceContainer,
+                                                    child: Center(
+                                                      child: Icon(
+                                                        SolarIconsOutline.gallery,
+                                                        color: cs.onSurfaceVariant,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+                                  );
+                                }
+
+                                // Multi-image: fixed square thumbnails using Wrap
+                                return SizedBox(
+                                  height: ((_commentThumbSize) * ((imageUrls.length / 2).ceil())) + (_commentThumbSpacing * (((imageUrls.length / 2).ceil() - 1).clamp(0, 10))),
+                                  child: Wrap(
+                                    spacing: _commentThumbSpacing,
+                                    runSpacing: _commentThumbSpacing,
+                                    children: List.generate(imageUrls.length, (index) {
+                                      final url = imageUrls[index];
+                                      return GestureDetector(
+                                        onTap: () => _showImageViewer(context, imageUrls, index),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: SizedBox(
+                                            width: _commentThumbSize,
+                                            height: _commentThumbSize,
+                                            child: Image.network(
+                                              url,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  color: cs.surfaceContainer,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      SolarIconsOutline.gallery,
+                                                      color: cs.onSurfaceVariant,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ),
                                 );
                               },
                             ),
@@ -793,48 +750,73 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                   // 댓글 삭제 버튼 추가 (내가 작성한 댓글인 경우에만)
                                   Builder(
                                     builder: (context) {
-                                      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                                      final commentAuthorId = c['author_id'] as String?;
-                                      final isMyComment = currentUserId != null && 
-                                                          commentAuthorId != null && 
-                                                          currentUserId == commentAuthorId;
-                                      
-                                      if (!isMyComment) return const SizedBox.shrink();
-                                      
+                                      final currentUserId = Supabase
+                                          .instance
+                                          .client
+                                          .auth
+                                          .currentUser
+                                          ?.id;
+                                      final commentAuthorId =
+                                          c['author_id'] as String?;
+                                      final isMyComment =
+                                          currentUserId != null &&
+                                          commentAuthorId != null &&
+                                          currentUserId == commentAuthorId;
+
+                                      if (!isMyComment)
+                                        return const SizedBox.shrink();
+
                                       return Row(
                                         children: [
                                           const SizedBox(width: 12),
                                           TextButton(
                                             style: TextButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                                horizontal: 4,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 2,
+                                                    horizontal: 4,
+                                                  ),
                                               minimumSize: Size.zero,
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
                                             ),
                                             onPressed: () {
-                                              final cid = (c['id'] as int?) ?? -1;
+                                              final cid =
+                                                  (c['id'] as int?) ?? -1;
                                               if (cid < 0) return;
-                                              
+
                                               // 삭제 확인 다이얼로그 표시
                                               showDialog(
                                                 context: context,
                                                 builder: (context) => AlertDialog(
                                                   title: const Text('댓글 삭제'),
-                                                  content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                                  content: const Text(
+                                                    '이 댓글을 삭제하시겠습니까?',
+                                                  ),
                                                   actions: [
                                                     TextButton(
-                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      onPressed: () =>
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop(),
                                                       child: const Text('취소'),
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
-                                                        Navigator.of(context).pop();
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
                                                         // TODO: 댓글 삭제 API 호출
                                                         // await _deleteComment(cid);
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(content: Text('댓글이 삭제되었습니다')),
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              '댓글이 삭제되었습니다',
+                                                            ),
+                                                          ),
                                                         );
                                                       },
                                                       child: const Text('삭제'),
@@ -847,7 +829,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(
-                                                  SolarIconsOutline.trashBinTrash,
+                                                  SolarIconsOutline
+                                                      .trashBinTrash,
                                                   size: 14,
                                                   color: Colors.red[400],
                                                 ),
@@ -929,42 +912,73 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                 child: Column(
                                                   children: [
                                                     // Reply images preview
-                                                    if (_selectedReplyImages.isNotEmpty)
+                                                    if (_selectedReplyImages
+                                                        .isNotEmpty)
                                                       Container(
-                                                        margin: const EdgeInsets.only(bottom: 8),
+                                                        margin:
+                                                            const EdgeInsets.only(
+                                                              bottom: 8,
+                                                            ),
                                                         height: 60,
                                                         child: ListView.builder(
-                                                          scrollDirection: Axis.horizontal,
-                                                          itemCount: _selectedReplyImages.length,
+                                                          scrollDirection:
+                                                              Axis.horizontal,
+                                                          itemCount:
+                                                              _selectedReplyImages
+                                                                  .length,
                                                           itemBuilder: (context, index) {
                                                             return Container(
-                                                              margin: const EdgeInsets.only(right: 6),
+                                                              margin:
+                                                                  const EdgeInsets.only(
+                                                                    right: 6,
+                                                                  ),
                                                               child: Stack(
                                                                 children: [
                                                                   ClipRRect(
-                                                                    borderRadius: BorderRadius.circular(6),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          6,
+                                                                        ),
                                                                     child: Image.file(
-                                                                      File(_selectedReplyImages[index].path),
+                                                                      File(
+                                                                        _selectedReplyImages[index]
+                                                                            .path,
+                                                                      ),
                                                                       width: 60,
-                                                                      height: 60,
-                                                                      fit: BoxFit.cover,
+                                                                      height:
+                                                                          60,
+                                                                      fit: BoxFit
+                                                                          .cover,
                                                                     ),
                                                                   ),
                                                                   Positioned(
                                                                     top: 2,
                                                                     right: 2,
                                                                     child: GestureDetector(
-                                                                      onTap: () => _removeImageFromReply(index),
+                                                                      onTap: () =>
+                                                                          _removeImageFromReply(
+                                                                            index,
+                                                                          ),
                                                                       child: Container(
-                                                                        padding: const EdgeInsets.all(2),
+                                                                        padding:
+                                                                            const EdgeInsets.all(
+                                                                              2,
+                                                                            ),
                                                                         decoration: BoxDecoration(
-                                                                          color: Colors.black.withValues(alpha: 0.7),
-                                                                          shape: BoxShape.circle,
+                                                                          color: Colors.black.withValues(
+                                                                            alpha:
+                                                                                0.7,
+                                                                          ),
+                                                                          shape:
+                                                                              BoxShape.circle,
                                                                         ),
                                                                         child: const Icon(
-                                                                          SolarIconsOutline.trashBinTrash,
-                                                                          color: Colors.white,
-                                                                          size: 12,
+                                                                          SolarIconsOutline
+                                                                              .trashBinTrash,
+                                                                          color:
+                                                                              Colors.white,
+                                                                          size:
+                                                                              12,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -997,39 +1011,49 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                                         -1,
                                                                   ),
                                                               decoration: InputDecoration(
-                                                                hintText: '답글 작성',
+                                                                hintText:
+                                                                    '답글 작성',
                                                                 isDense: true,
                                                                 contentPadding:
                                                                     const EdgeInsets.symmetric(
-                                                                      horizontal: 8,
-                                                                      vertical: 4,
+                                                                      horizontal:
+                                                                          8,
+                                                                      vertical:
+                                                                          4,
                                                                     ),
-                                                                border:
-                                                                    OutlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide
-                                                                              .none,
-                                                                    ),
+                                                                border: OutlineInputBorder(
+                                                                  borderSide:
+                                                                      BorderSide
+                                                                          .none,
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
                                                         ),
                                                         // Image attach button for reply
                                                         GestureDetector(
-                                                          onTap: _pickImagesForReply,
+                                                          onTap:
+                                                              _pickImagesForReply,
                                                           child: Padding(
-                                                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal: 4,
+                                                                ),
                                                             child: Icon(
-                                                              SolarIconsOutline.paperclip,
+                                                              SolarIconsOutline
+                                                                  .paperclip,
                                                               size: 16,
-                                                              color: Colors.grey[500],
+                                                              color: Colors
+                                                                  .grey[500],
                                                             ),
                                                           ),
                                                         ),
                                                         IconButton(
                                                           visualDensity:
-                                                              VisualDensity.compact,
-                                                          padding: EdgeInsets.zero,
+                                                              VisualDensity
+                                                                  .compact,
+                                                          padding:
+                                                              EdgeInsets.zero,
                                                           constraints:
                                                               const BoxConstraints(
                                                                 minWidth: 28,
@@ -1045,7 +1069,8 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                           icon: Icon(
                                                             Icons.send,
                                                             size: 18,
-                                                            color: Colors.grey[500],
+                                                            color: Colors
+                                                                .grey[500],
                                                           ),
                                                         ),
                                                       ],
@@ -1082,7 +1107,6 @@ class _PostCommentPageState extends State<PostCommentPage> {
     return '${d.inDays}일 전';
   }
 
-  
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -1100,212 +1124,220 @@ class _PostCommentPageState extends State<PostCommentPage> {
           }
         },
         child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          elevation: 0,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          leading: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.all(8),
-            constraints: const BoxConstraints(),
-            icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-            onPressed: () {
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            leading: IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(),
+              icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
+              onPressed: () {
+                try {
+                  FocusScope.of(context).unfocus();
+                } catch (_) {}
+                Navigator.of(context).pop();
+              },
+            ),
+            centerTitle: true,
+            title: Text('댓글', style: tt.titleLarge),
+          ),
+          body: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
               try {
                 FocusScope.of(context).unfocus();
               } catch (_) {}
-              Navigator.of(context).pop();
             },
-          ),
-          centerTitle: true,
-          title: Text('댓글', style: tt.titleLarge),
-        ),
-        body: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            try {
-              FocusScope.of(context).unfocus();
-            } catch (_) {}
-          },
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-            child: Column(
-              children: [
-                // recent interactors avatar stack
-                FutureBuilder<List<String>>(
-                  future: CommunityRepository.instance.getPostCommenterAvatars(
-                    widget.post.id,
-                    limit: 3,
-                  ),
-                  builder: (context, snap) {
-                    final avatars = snap.data ?? [];
-                    if (avatars.isEmpty) return const SizedBox.shrink();
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 6,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: local.AvatarStack(
-                          avatarUrls: avatars,
-                          avatarSize: CommunitySizes.avatarBase,
-                          overlapFactor: 0.5,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                Expanded(
-                  child: FutureBuilder<List<Map<String, dynamic>>>(
-                    future: _commentsFuture,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+              child: Column(
+                children: [
+                  // recent interactors avatar stack
+                  FutureBuilder<List<String>>(
+                    future: CommunityRepository.instance
+                        .getPostCommenterAvatars(widget.post.id, limit: 3),
                     builder: (context, snap) {
-                      final comments = snap.data ?? [];
-                      if (snap.connectionState == ConnectionState.waiting) {
-                        return Skeletonizer(
-                          enabled: true,
-                          child: ListView.separated(
-                            itemCount: 6,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    radius: CommunitySizes.avatarBase / 2,
-                                    backgroundColor: cs.surfaceContainerHighest,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          height: 12,
-                                          width: 120,
-                                          decoration: BoxDecoration(
-                                            color: cs.surfaceContainerHighest,
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          height: 14,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: cs.surfaceContainerHighest,
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Container(
-                                          height: 14,
-                                          width: MediaQuery.of(context).size.width * 0.6,
-                                          decoration: BoxDecoration(
-                                            color: cs.surfaceContainerHighest,
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        );
-                      }
-                      if (comments.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Center(
-                            child: Text('댓글이 없습니다', style: tt.bodyMedium),
-                          ),
-                        );
-                      }
-                      final roots = _buildCommentTree(comments);
+                      final avatars = snap.data ?? [];
+                      if (avatars.isEmpty) return const SizedBox.shrink();
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTapDown: (_) {
-                            try {
-                              FocusScope.of(context).unfocus();
-                              if (mounted)
-                                setState(() => _replyingToCommentId = null);
-                            } catch (_) {}
-                          },
-                          child: ListView.builder(
-                            itemCount: roots.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == roots.length) {
-                                return const SizedBox.shrink();
-                              }
-                              final root = roots[index];
-                              final children =
-                                  (root['children']
-                                      as List<Map<String, dynamic>>?) ??
-                                  <Map<String, dynamic>>[];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildCommentRow(
-                                    root,
-                                    tt,
-                                    cs,
-                                    isReply: false,
-                                  ),
-                                  for (final ch in children)
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 56.0,
-                                      ),
-                                      child: _buildCommentRow(
-                                        ch,
-                                        tt,
-                                        cs,
-                                        isReply: true,
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 6,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: local.AvatarStack(
+                            avatarUrls: avatars,
+                            avatarSize: CommunitySizes.avatarBase,
+                            overlapFactor: 0.5,
                           ),
                         ),
                       );
                     },
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: _commentsFuture,
+                      builder: (context, snap) {
+                        final comments = snap.data ?? [];
+                        if (snap.connectionState == ConnectionState.waiting) {
+                          return Skeletonizer(
+                            enabled: true,
+                            child: ListView.separated(
+                              itemCount: 6,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: CommunitySizes.avatarBase / 2,
+                                      backgroundColor:
+                                          cs.surfaceContainerHighest,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            height: 12,
+                                            width: 120,
+                                            decoration: BoxDecoration(
+                                              color: cs.surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            height: 14,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: cs.surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Container(
+                                            height: 14,
+                                            width:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.width *
+                                                0.6,
+                                            decoration: BoxDecoration(
+                                              color: cs.surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          );
+                        }
+                        if (comments.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Center(
+                              child: Text('댓글이 없습니다', style: tt.bodyMedium),
+                            ),
+                          );
+                        }
+                        final roots = _buildCommentTree(comments);
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTapDown: (_) {
+                              try {
+                                FocusScope.of(context).unfocus();
+                                if (mounted)
+                                  setState(() => _replyingToCommentId = null);
+                              } catch (_) {}
+                            },
+                            child: ListView.builder(
+                              itemCount: roots.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == roots.length) {
+                                  return const SizedBox.shrink();
+                                }
+                                final root = roots[index];
+                                final children =
+                                    (root['children']
+                                        as List<Map<String, dynamic>>?) ??
+                                    <Map<String, dynamic>>[];
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildCommentRow(
+                                      root,
+                                      tt,
+                                      cs,
+                                      isReply: false,
+                                    ),
+                                    for (final ch in children)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 56.0,
+                                        ),
+                                        child: _buildCommentRow(
+                                          ch,
+                                          tt,
+                                          cs,
+                                          isReply: true,
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        // bottom input removed per request
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // 댓글 작성 모달 열기
-            WoltModalSheet.show(
-              context: context,
-              pageListBuilder: (context) => [
-                WoltModalSheetPage(
-                  hasSabGradient: false,
-                  topBarTitle: Text('댓글 쓰기', style: tt.titleLarge),
-                  isTopBarLayerAlwaysVisible: true,
-                  trailingNavBarWidget: IconButton(
-                    padding: const EdgeInsets.all(8),
-                    icon: const Icon(SolarIconsOutline.closeCircle, size: 24),
-                    onPressed: () => Navigator.of(context).pop(),
+          // bottom input removed per request
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              // 댓글 작성 모달 열기
+              WoltModalSheet.show(
+                context: context,
+                pageListBuilder: (context) => [
+                  WoltModalSheetPage(
+                    hasSabGradient: false,
+                    topBarTitle: Text('댓글 쓰기', style: tt.titleLarge),
+                    isTopBarLayerAlwaysVisible: true,
+                    trailingNavBarWidget: IconButton(
+                      padding: const EdgeInsets.all(8),
+                      icon: const Icon(SolarIconsOutline.closeCircle, size: 24),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: _PostCommentModalChild(post: widget.post),
+                    ),
                   ),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: _PostCommentModalChild(post: widget.post),
-                  ),
-                ),
-              ],
-            );
-          },
-          child: const Icon(SolarIconsOutline.pen),
-        ),
+                ],
+              );
+            },
+            child: const Icon(SolarIconsOutline.pen),
+          ),
         ),
       ),
     );
@@ -1319,16 +1351,16 @@ class _PostCommentPageState extends State<PostCommentPage> {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
         // 최대 4개까지만 선택 가능
         final remainingSlots = 4 - _selectedImages.length;
         final imagesToAdd = images.take(remainingSlots).toList();
-        
+
         setState(() {
           _selectedImages.addAll(imagesToAdd);
         });
-        
+
         if (images.length > remainingSlots) {
           DelightToastBar(
             builder: (context) => ToastCard(
@@ -1384,16 +1416,16 @@ class _PostCommentPageState extends State<PostCommentPage> {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
         // 최대 4개까지만 선택 가능
         final remainingSlots = 4 - _selectedReplyImages.length;
         final imagesToAdd = images.take(remainingSlots).toList();
-        
+
         setState(() {
           _selectedReplyImages.addAll(imagesToAdd);
         });
-        
+
         if (images.length > remainingSlots) {
           DelightToastBar(
             builder: (context) => ToastCard(
@@ -1458,7 +1490,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
   // 이미지 업로드
   Future<List<String>> _uploadImages(List<XFile> images) async {
     final List<String> uploadedUrls = [];
-    
+
     for (final image in images) {
       try {
         final bytes = await image.readAsBytes();
@@ -1473,11 +1505,10 @@ class _PostCommentPageState extends State<PostCommentPage> {
         continue;
       }
     }
-    
+
     return uploadedUrls;
   }
 
-  
   // 댓글 작성 제출
   Future<void> _submitComment() async {
     final text = _commentCtl.text.trim();
@@ -1500,13 +1531,15 @@ class _PostCommentPageState extends State<PostCommentPage> {
   }
 
   // 이미지 뷰어 표시 함수
-  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+  void _showImageViewer(
+    BuildContext context,
+    List<String> imageUrls,
+    int initialIndex,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => _ImageViewerPage(
-          imageUrls: imageUrls,
-          initialIndex: initialIndex,
-        ),
+        builder: (context) =>
+            _ImageViewerPage(imageUrls: imageUrls, initialIndex: initialIndex),
         fullscreenDialog: true,
       ),
     );
@@ -1535,7 +1568,6 @@ class _PostCommentModalChild extends StatefulWidget {
   const _PostCommentModalChild({Key? key, required this.post})
     : super(key: key);
 
-  
   State<_PostCommentModalChild> createState() => _PostCommentModalChildState();
 }
 
@@ -1548,14 +1580,13 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   late Future<List<Map<String, dynamic>>> _commentsFuture;
   final Set<int> _likedCommentIds = {};
   final Map<int, int> _commentLikeCounts = {};
-  
+
   // 이미지 업로드 관련 필드들
   List<XFile> _selectedImages = [];
   List<XFile> _selectedReplyImages = [];
   final ImagePicker _picker = ImagePicker();
   bool _isUploadingImages = false;
 
-  
   void initState() {
     super.initState();
     _commentsFuture = CommunityRepository.instance
@@ -1792,45 +1823,95 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                             Builder(
                               builder: (context) {
                                 List<String> imageUrls = [];
-                                
+
                                 // image_url이 배열인지 단일 문자열인지 확인
                                 if (c['image_url'] is List) {
                                   imageUrls = (c['image_url'] as List)
                                       .map((e) => e.toString())
                                       .where((url) => url.isNotEmpty)
                                       .toList();
-                                } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                                } else if (c['image_url'] is String &&
+                                    c['image_url'].toString().isNotEmpty) {
                                   imageUrls = [c['image_url'].toString()];
                                 }
-                                
+
                                 if (imageUrls.isEmpty) return const SizedBox.shrink();
-                                
-                                return GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: imageUrls.length == 1 ? 1 : 2,
-                                    crossAxisSpacing: 4,
-                                    mainAxisSpacing: 4,
-                                    childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
-                                  ),
-                                  itemCount: imageUrls.length,
-                                  itemBuilder: (context, index) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        _showImageViewer(context, imageUrls, index);
-                                      },
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: _NetworkImageWithAspect(
-                                          url: imageUrls[index],
-                                          isSingle: imageUrls.length == 1,
-                                          maxHeight: imageUrls.length == 1 ? 180 : 100,
-                                          onTap: () => _showImageViewer(context, imageUrls, index),
+
+                                if (imageUrls.length == 1) {
+                                  final url = imageUrls.first;
+                                  return GestureDetector(
+                                    onTap: () => _showImageViewer(context, imageUrls, 0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                        child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxHeight: _commentSingleMaxHeight,
+                                        ),
+                                        child: FutureBuilder<double>(
+                                          future: _resolveCommentAspect(url),
+                                          builder: (context, snap) {
+                                            final ar = snap.data ?? 1.6;
+                                            return AspectRatio(
+                                              aspectRatio: ar,
+                                              child: Image.network(
+                                                url,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Container(
+                                                    color: cs.surfaceContainer,
+                                                    child: Center(
+                                                      child: Icon(
+                                                        SolarIconsOutline.gallery,
+                                                        color: cs.onSurfaceVariant,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+                                  );
+                                }
+
+                                return SizedBox(
+                                  height: ((_commentThumbSize) * ((imageUrls.length / 2).ceil())) + (_commentThumbSpacing * (((imageUrls.length / 2).ceil() - 1).clamp(0, 10))),
+                                  child: Wrap(
+                                    spacing: _commentThumbSpacing,
+                                    runSpacing: _commentThumbSpacing,
+                                    children: List.generate(imageUrls.length, (index) {
+                                      final url = imageUrls[index];
+                                      return GestureDetector(
+                                        onTap: () => _showImageViewer(context, imageUrls, index),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: SizedBox(
+                                            width: _commentThumbSize,
+                                            height: _commentThumbSize,
+                                            child: Image.network(
+                                              url,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  color: cs.surfaceContainer,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      SolarIconsOutline.gallery,
+                                                      color: cs.onSurfaceVariant,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ),
                                 );
                               },
                             ),
@@ -1994,48 +2075,73 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                   // 댓글 삭제 버튼 추가 (내가 작성한 댓글인 경우에만)
                                   Builder(
                                     builder: (context) {
-                                      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                                      final commentAuthorId = c['author_id'] as String?;
-                                      final isMyComment = currentUserId != null && 
-                                                          commentAuthorId != null && 
-                                                          currentUserId == commentAuthorId;
-                                      
-                                      if (!isMyComment) return const SizedBox.shrink();
-                                      
+                                      final currentUserId = Supabase
+                                          .instance
+                                          .client
+                                          .auth
+                                          .currentUser
+                                          ?.id;
+                                      final commentAuthorId =
+                                          c['author_id'] as String?;
+                                      final isMyComment =
+                                          currentUserId != null &&
+                                          commentAuthorId != null &&
+                                          currentUserId == commentAuthorId;
+
+                                      if (!isMyComment)
+                                        return const SizedBox.shrink();
+
                                       return Row(
                                         children: [
                                           const SizedBox(width: 12),
                                           TextButton(
                                             style: TextButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(
-                                                vertical: 2,
-                                                horizontal: 4,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 2,
+                                                    horizontal: 4,
+                                                  ),
                                               minimumSize: Size.zero,
-                                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
                                             ),
                                             onPressed: () {
-                                              final cid = (c['id'] as int?) ?? -1;
+                                              final cid =
+                                                  (c['id'] as int?) ?? -1;
                                               if (cid < 0) return;
-                                              
+
                                               // 삭제 확인 다이얼로그 표시
                                               showDialog(
                                                 context: context,
                                                 builder: (context) => AlertDialog(
                                                   title: const Text('댓글 삭제'),
-                                                  content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                                  content: const Text(
+                                                    '이 댓글을 삭제하시겠습니까?',
+                                                  ),
                                                   actions: [
                                                     TextButton(
-                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      onPressed: () =>
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop(),
                                                       child: const Text('취소'),
                                                     ),
                                                     TextButton(
                                                       onPressed: () async {
-                                                        Navigator.of(context).pop();
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
                                                         // TODO: 댓글 삭제 API 호출
                                                         // await _deleteComment(cid);
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(content: Text('댓글이 삭제되었습니다')),
+                                                        ScaffoldMessenger.of(
+                                                          context,
+                                                        ).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              '댓글이 삭제되었습니다',
+                                                            ),
+                                                          ),
                                                         );
                                                       },
                                                       child: const Text('삭제'),
@@ -2048,7 +2154,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(
-                                                  SolarIconsOutline.trashBinTrash,
+                                                  SolarIconsOutline
+                                                      .trashBinTrash,
                                                   size: 14,
                                                   color: Colors.red[400],
                                                 ),
@@ -2199,7 +2306,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     return '${d.inDays}일 전';
   }
 
-  
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -2314,7 +2420,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.7),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.7,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -2367,7 +2475,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () {
-                            debugPrint('[_PostCommentModalChildState] Paperclip button tapped!');
+                            debugPrint(
+                              '[_PostCommentModalChildState] Paperclip button tapped!',
+                            );
                             _pickImagesForComment();
                           },
                           child: Icon(
@@ -2383,12 +2493,16 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                               ? const SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : Icon(
                                   SolarIconsOutline.arrowRight,
                                   size: 21,
-                                  color: (_commentCtl.text.trim().isEmpty && _selectedImages.isEmpty)
+                                  color:
+                                      (_commentCtl.text.trim().isEmpty &&
+                                          _selectedImages.isEmpty)
                                       ? Colors.grey[400]
                                       : cs.primary,
                                 ),
@@ -2414,16 +2528,16 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
         // 최대 4개까지만 선택 가능
         final remainingSlots = 4 - _selectedImages.length;
         final imagesToAdd = images.take(remainingSlots).toList();
-        
+
         setState(() {
           _selectedImages.addAll(imagesToAdd);
         });
-        
+
         if (images.length > remainingSlots) {
           DelightToastBar(
             builder: (context) => ToastCard(
@@ -2479,16 +2593,16 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
         maxHeight: 1920,
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
         // 최대 4개까지만 선택 가능
         final remainingSlots = 4 - _selectedReplyImages.length;
         final imagesToAdd = images.take(remainingSlots).toList();
-        
+
         setState(() {
           _selectedReplyImages.addAll(imagesToAdd);
         });
-        
+
         if (images.length > remainingSlots) {
           DelightToastBar(
             builder: (context) => ToastCard(
@@ -2553,7 +2667,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   // 이미지 업로드
   Future<List<String>> _uploadImages(List<XFile> images) async {
     final List<String> uploadedUrls = [];
-    
+
     for (final image in images) {
       try {
         final bytes = await image.readAsBytes();
@@ -2568,41 +2682,40 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
         continue;
       }
     }
-    
+
     return uploadedUrls;
   }
 
-  
   // 댓글 작성 제출
   Future<void> _submitComment() async {
     final text = _commentCtl.text.trim();
     if (text.isEmpty && _selectedImages.isEmpty) return;
-    
+
     setState(() {
       _isUploadingImages = true;
     });
-    
+
     try {
       // 이미지 업로드
       List<String> uploadedUrls = [];
       if (_selectedImages.isNotEmpty) {
         uploadedUrls = await _uploadImages(_selectedImages);
       }
-      
+
       final success = await CommunityRepository.instance.createComment(
         postId: widget.post.id,
         content: text,
         isAnonymous: false,
         imageUrls: uploadedUrls.isNotEmpty ? uploadedUrls : null,
       );
-      
+
       if (success) {
         _commentCtl.clear();
         setState(() {
           _selectedImages.clear();
         });
         _reload();
-        
+
         DelightToastBar(
           builder: (context) => ToastCard(
             color: Theme.of(context).colorScheme.primary,
@@ -2659,13 +2772,15 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
   }
 
   // 이미지 뷰어 표시 함수
-  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+  void _showImageViewer(
+    BuildContext context,
+    List<String> imageUrls,
+    int initialIndex,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => _ImageViewerPage(
-          imageUrls: imageUrls,
-          initialIndex: initialIndex,
-        ),
+        builder: (context) =>
+            _ImageViewerPage(imageUrls: imageUrls, initialIndex: initialIndex),
         fullscreenDialog: true,
       ),
     );
@@ -2677,10 +2792,7 @@ class _ImageViewerPage extends StatefulWidget {
   final List<String> imageUrls;
   final int initialIndex;
 
-  const _ImageViewerPage({
-    required this.imageUrls,
-    required this.initialIndex,
-  });
+  const _ImageViewerPage({required this.imageUrls, required this.initialIndex});
 
   @override
   State<_ImageViewerPage> createState() => _ImageViewerPageState();
@@ -2706,7 +2818,7 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    
+
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         // 이미지 뷰어를 닫을 때 키보드 포커스를 제거
@@ -2715,73 +2827,73 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Stack(
-        children: [
-          // 전체 화면을 차지하는 이미지 뷰어
-          Positioned.fill(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemCount: widget.imageUrls.length,
-              itemBuilder: (context, index) {
-                return InteractiveViewer(
-                  panEnabled: true,
-                  boundaryMargin: const EdgeInsets.all(20),
-                  minScale: 0.5,
-                  maxScale: 4.0,
-                  child: Center(
-                    child: Image.network(
-                      widget.imageUrls[index],
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: cs.surfaceContainer,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  SolarIconsOutline.gallery,
-                                  color: Colors.white,
-                                  size: 48,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '이미지를 불러올 수 없습니다',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ],
+          children: [
+            // 전체 화면을 차지하는 이미지 뷰어
+            Positioned.fill(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                itemCount: widget.imageUrls.length,
+                itemBuilder: (context, index) {
+                  return InteractiveViewer(
+                    panEnabled: true,
+                    boundaryMargin: const EdgeInsets.all(20),
+                    minScale: 0.5,
+                    maxScale: 4.0,
+                    child: Center(
+                      child: Image.network(
+                        widget.imageUrls[index],
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: cs.surfaceContainer,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    SolarIconsOutline.gallery,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    '이미지를 불러올 수 없습니다',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-          // 상단 AppBar 영역
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              title: Text(
-                '${_currentIndex + 1} / ${widget.imageUrls.length}',
-                style: const TextStyle(color: Colors.white),
+                  );
+                },
               ),
-              iconTheme: const IconThemeData(color: Colors.white),
             ),
-          ),
-        ],
-      ),
+            // 상단 AppBar 영역
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                title: Text(
+                  '${_currentIndex + 1} / ${widget.imageUrls.length}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                iconTheme: const IconThemeData(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
