@@ -1439,4 +1439,226 @@ class CommunityRepository {
       return [];
     }
   }
+
+  // ============== HASHTAG SERVICE METHODS ==============
+
+  /// Get hashtag recommendations based on content using AI RPC
+  Future<List<String>> getHashtagRecommendations(
+    String content, {
+    int maxRecommendations = 5,
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'recommend_hashtags_for_content',
+        params: {
+          'content_text': content,
+          'max_recommendations': maxRecommendations,
+        },
+      );
+      
+      final List data = response as List? ?? [];
+      return data
+          .map((item) => item['hashtag_name'] as String? ?? '')
+          .where((tag) => tag.isNotEmpty)
+          .toList();
+    } catch (e) {
+      print('Failed to get hashtag recommendations: $e');
+      return [];
+    }
+  }
+
+  /// Get cached trending hashtags with fallback to RPC
+  Future<List<String>> getCachedTrendingHashtags({int limit = 10}) async {
+    try {
+      // Try to get from trending cache first
+      final cacheRes = await _client
+          .from('trending_hashtags_cache')
+          .select('hashtags')
+          .eq('cache_key', 'current_trending')
+          .gt('expires_at', DateTime.now().toIso8601String())
+          .limit(1);
+      
+      if (cacheRes.isNotEmpty) {
+        final List hashtags = cacheRes[0]['hashtags'] as List? ?? [];
+        return hashtags
+            .map((h) => h['hashtag_name'] as String? ?? '')
+            .where((tag) => tag.isNotEmpty)
+            .take(limit)
+            .toList();
+      }
+      
+      // Fallback to RPC call
+      final hashtags = await _client.rpc(
+        'get_trending_hashtags',
+        params: {
+          'limit_count': limit,
+          'days_back': 7,
+        },
+      );
+      final List hashtagList = hashtags as List? ?? [];
+      
+      return hashtagList
+          .map((h) => h['hashtag_name'] as String? ?? '')
+          .where((tag) => tag.isNotEmpty)
+          .toList();
+    } catch (e) {
+      print('Failed to get cached trending hashtags: $e');
+      return [];
+    }
+  }
+
+  /// Get personalized hashtag recommendations based on user history
+  Future<List<String>> getPersonalizedHashtagRecommendations({
+    int limit = 10,
+  }) async {
+    try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      // Get user's recent hashtags from posts
+      final recentPosts = await _client
+          .from('community_posts')
+          .select('hashtags')
+          .eq('author_id', userId)
+          .gte('created_at', DateTime.now().subtract(const Duration(days: 30)).toIso8601String())
+          .order('created_at', ascending: false)
+          .limit(20);
+
+      // Collect all hashtags and count frequency
+      final Map<String, int> tagFrequency = {};
+      for (final post in (recentPosts as List? ?? [])) {
+        final hashtags = (post['hashtags'] as List?)?.cast<String>() ?? [];
+        for (final tag in hashtags) {
+          tagFrequency[tag] = (tagFrequency[tag] ?? 0) + 1;
+        }
+      }
+
+      // Get trending hashtags related to user's interests
+      final trending = await getTrendingHashtags(limit: limit * 2);
+      
+      // Mix user history with trending, prioritize user's frequently used tags
+      final recommendations = <String>[];
+      final seen = <String>{};
+      
+      // Add user's most used tags first
+      final sortedUserTags = tagFrequency.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      
+      for (final entry in sortedUserTags.take(limit ~/ 2)) {
+        if (seen.add(entry.key)) {
+          recommendations.add(entry.key);
+        }
+      }
+      
+      // Fill remaining with trending hashtags
+      for (final trendingItem in trending) {
+        if (recommendations.length >= limit) break;
+        final tag = trendingItem['name'] as String? ?? '';
+        if (tag.isNotEmpty && seen.add(tag)) {
+          recommendations.add(tag);
+        }
+      }
+
+      return recommendations.take(limit).toList();
+    } catch (e) {
+      print('Failed to get personalized recommendations: $e');
+      // Fallback to basic trending
+      final trending = await getCachedTrendingHashtags(limit: limit);
+      return trending.take(limit).toList();
+    }
+  }
+
+  /// Get trending hashtags using RPC
+  Future<List<Map<String, dynamic>>> getTrendingHashtags({
+    int daysBack = 7,
+    int minUsageCount = 2,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'get_trending_hashtags',
+        params: {
+          'limit_count': limit,
+          'days_back': daysBack,
+        },
+      );
+      
+      final List data = response as List? ?? [];
+      return data
+          .map((item) => {
+                'name': item['hashtag_name'] as String,
+                'usage_count': item['post_count'] as int,
+                'trend_score': (item['post_count'] as num).toDouble(),
+                'category': item['category'] as String? ?? 'general',
+              })
+          .toList();
+    } catch (e) {
+      print('Failed to get trending hashtags: $e');
+      return [];
+    }
+  }
+
+  /// Search hashtags with enhanced matching using RPC
+  Future<List<Map<String, dynamic>>> searchHashtagsEnhanced(
+    String searchTerm, {
+    int limitCount = 10,
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'search_hashtags',
+        params: {
+          'search_term': searchTerm,
+          'limit_count': limitCount,
+        },
+      );
+
+      final List data = response as List? ?? [];
+      return data
+          .map((item) => {
+                'name': item['hashtag_name'] as String,
+                'usage_count': item['usage_count'] as int,
+                'last_used': item['last_used'] as String?,
+                'match_type': item['match_type'] as String,
+              })
+          .toList();
+    } catch (e) {
+      print('Failed to search hashtags: $e');
+      // Fallback to basic search using existing method
+      final basic = await searchHashtags(searchTerm, limit: limitCount);
+      return basic
+          .map((channel) => {
+                'name': channel.name,
+                'usage_count': channel.postCount,
+                'last_used': channel.lastUsedAt?.toIso8601String(),
+                'match_type': 'contains',
+              })
+          .toList();
+    }
+  }
+
+  /// Get daily hashtag curation data
+  Future<Map<String, dynamic>?> getDailyCuration({
+    String? date, // YYYY-MM-DD format, defaults to today
+  }) async {
+    try {
+      final targetDate = date ?? DateTime.now().toIso8601String().split('T')[0];
+      
+      final response = await _client
+          .from('daily_hashtag_curation')
+          .select('*')
+          .eq('curation_date', targetDate)
+          .order('created_at', ascending: false)
+          .limit(1);
+
+      if (response.isNotEmpty) {
+        return response.first as Map<String, dynamic>;
+      }
+      
+      // If no curation exists for today, return null
+      return null;
+    } catch (e) {
+      print('Failed to get daily curation: $e');
+      return null;
+    }
+  }
 }

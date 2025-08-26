@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "sequential": {
+      "command": "/opt/homebrew/bin/mcp-server-sequential-thinking",
+      "args": []
+    },
+    "serena": {
+      "command": "/Users/deneb/.local/bin/serena",
+      "args": [
+        "start-mcp-server"
+      ]
+    }
+  }
+}

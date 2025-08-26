@@ -13,6 +13,7 @@ import 'package:bamstar/utils/global_toast.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bamstar/services/analytics.dart';
+import 'dart:convert';
 // material and toasts are used in UI layer; this service doesn't need them
 
 final secureStorageProvider = Provider((ref) => const FlutterSecureStorage());
@@ -27,6 +28,9 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
   AuthController(this.storage) : super(const AsyncValue.data(AuthState())) {
     log = Logger('AuthController');
   }
+
+  // Track GoogleSignIn.initialize one-time call per app run.
+  static bool _googleInitialized = false;
 
   final FlutterSecureStorage storage;
   late final Logger log;
@@ -180,66 +184,50 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
       } else {
         // Mobile: native Google Sign-In -> exchange tokens with Supabase
         try {
-          final webClientId = googleWebClientId;
-          final androidClientId = googleAndroidClientId;
-          final iosClientId = googleIosClientId;
-
-          String? clientIdForInit;
-          if (defaultTargetPlatform == TargetPlatform.iOS &&
-              iosClientId.isNotEmpty) {
-            clientIdForInit = iosClientId;
-          } else if (defaultTargetPlatform == TargetPlatform.android &&
-              androidClientId.isNotEmpty) {
-            clientIdForInit = androidClientId;
-          } else {
-            clientIdForInit = null;
+          // NOTE: google_sign_in 7.x 에서 Android 네이티브 로그인으로 얻는 id_token의 aud는
+          // 일반적으로 '웹(서버) OAuth 클라이언트 ID' 입니다. (Google 공식 가이드: 서버 검증용)
+          // Android 클라이언트 ID를 aud 로 강제하려는 시도는 실패하며, Supabase가 기대하는 aud가
+          // 다르면 Supabase Provider 설정(Client ID) 쪽을 웹 클라이언트 ID로 맞춰야 합니다.
+          // 따라서 여기서는 server(web) clientId만 넘깁니다 (android clientId X).
+          const webClientId =
+              '333694384981-b76kgbjmtr06qvsmv1cd5jq3t4pv6gad.apps.googleusercontent.com';
+          if (!_googleInitialized) {
+            await GoogleSignIn.instance.initialize(serverClientId: webClientId);
+            _googleInitialized = true;
           }
 
-          // Guard: platform client id must be set for reliable native token issuance
-          if ((defaultTargetPlatform == TargetPlatform.android &&
-                  (androidClientId.isEmpty)) ||
-              (defaultTargetPlatform == TargetPlatform.iOS &&
-                  (iosClientId.isEmpty))) {
-            throw Exception(
-              'Missing platform Client ID. Set GOOGLE_ANDROID_CLIENT_ID (Android) or GOOGLE_IOS_CLIENT_ID (iOS) in .env.',
-            );
-          }
-
-          log.info(
-            'Initializing GoogleSignIn with clientIdForInit=${clientIdForInit ?? '<none>'} serverClientId=${webClientId.isNotEmpty ? webClientId : '<none>'} androidClientId=${androidClientId.isNotEmpty ? androidClientId : '<none>'}',
-          );
-
-          // Clear any previous GoogleSignIn state to avoid reauth failures due to stale sessions
-          try {
-            await GoogleSignIn.instance.disconnect();
-          } catch (_) {}
-          try {
-            await GoogleSignIn.instance.signOut();
-          } catch (_) {}
-          // First attempt: initialize including serverClientId if available
-          await GoogleSignIn.instance.initialize(
-            clientId: clientIdForInit,
-            serverClientId: webClientId.isNotEmpty ? webClientId : null,
-          );
-
-          // Single attempt; on Android serverClientId (web client id) is required to obtain idToken.
           final account = await GoogleSignIn.instance.authenticate();
+            final auth = account.authentication;
+            final idToken = auth.idToken;
 
-          // Read authentication tokens from the account
-          final auth = account.authentication;
-          final idToken = auth.idToken;
-          // Access token is not provided by google_sign_in on Android/iOS; idToken is sufficient for Supabase.
-          final String? accessToken = null;
+          // Debug: decode JWT header/payload (without verification) to log aud/iss.
+          if (idToken != null) {
+            try {
+              List<String> parts = idToken.split('.');
+              if (parts.length >= 2) {
+                String payloadSeg = parts[1];
+                // base64url normalize
+                String norm = payloadSeg.padRight(payloadSeg.length + (4 - payloadSeg.length % 4) % 4, '=');
+                final decoded = String.fromCharCodes(base64Url.decode(norm));
+                // Extract minimal fields aud & iss for diagnostics
+                final audMatch = RegExp('"aud"\s*:\s*"([^"]+)"').firstMatch(decoded);
+                final issMatch = RegExp('"iss"\s*:\s*"([^"]+)"').firstMatch(decoded);
+                log.info('Google id_token payload aud=${audMatch?.group(1)} iss=${issMatch?.group(1)}');
+              }
+            } catch (e) {
+              log.fine('JWT decode failed: $e');
+            }
+          }
 
           log.info('Google native sign-in: idToken present=${idToken != null}');
 
           if (idToken == null) throw Exception('No ID Token from Google');
 
           final authRes = await _supabase.auth.signInWithIdToken(
-            provider: OAuthProvider.google,
-            idToken: idToken,
-            accessToken: accessToken,
-          );
+              provider: OAuthProvider.google,
+              idToken: idToken,
+              accessToken: null,
+            );
 
           final session = authRes.session ?? _supabase.auth.currentSession;
           if (session != null) {
