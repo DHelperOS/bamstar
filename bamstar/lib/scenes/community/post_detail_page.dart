@@ -1,19 +1,170 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'dart:ui';
+
+// 간단한 AspectRatio 캐시 (댓글 페이지와 동일한 로직을 가볍게 재구현)
+final Map<String, double> _detailImageAspectCache = {};
+
+class _DetailImageWithAspect extends StatefulWidget {
+  final String url;
+  final bool isSingle;
+  final double maxHeight;
+  const _DetailImageWithAspect({
+    required this.url,
+    this.isSingle = false,
+    this.maxHeight = 260,
+  });
+
+  @override
+  State<_DetailImageWithAspect> createState() => _DetailImageWithAspectState();
+}
+
+class _DetailImageWithAspectState extends State<_DetailImageWithAspect> {
+  double? _aspect;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_detailImageAspectCache.containsKey(widget.url)) {
+      _aspect = _detailImageAspectCache[widget.url];
+    } else {
+      _resolve();
+    }
+  }
+
+  void _resolve() {
+    try {
+      final provider = NetworkImage(widget.url);
+      final stream = provider.resolve(const ImageConfiguration());
+      _listener = ImageStreamListener((info, _) {
+        final w = info.image.width.toDouble();
+        final h = info.image.height.toDouble();
+        if (w > 0 && h > 0) {
+          final ar = w / h;
+          _detailImageAspectCache[widget.url] = ar;
+          if (mounted) setState(() => _aspect = ar);
+        }
+      }, onError: (_, __) {});
+      stream.addListener(_listener!);
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    try {
+      if (_listener != null) {
+        final stream = NetworkImage(widget.url).resolve(const ImageConfiguration());
+        stream.removeListener(_listener!);
+      }
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    Widget img = Image.network(
+      widget.url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => Container(
+        color: cs.surfaceContainerHighest,
+        child: Icon(SolarIconsOutline.gallery, color: cs.onSurfaceVariant, size: 28),
+      ),
+    );
+
+    if (widget.isSingle) {
+      if (_aspect != null) {
+        img = ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: widget.maxHeight),
+          child: AspectRatio(aspectRatio: _aspect!, child: img),
+        );
+      } else {
+        img = SizedBox(height: widget.maxHeight * 0.55, child: img);
+      }
+    } else {
+      img = AspectRatio(aspectRatio: 1, child: img);
+    }
+    return img;
+  }
+}
+
+class _FullScreenImageViewer extends StatefulWidget {
+  final List<String> imageUrls;
+  final int initialIndex;
+  const _FullScreenImageViewer({required this.imageUrls, required this.initialIndex});
+
+  @override
+  State<_FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<_FullScreenImageViewer> {
+  late PageController _pc;
+  int _index = 0;
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.initialIndex;
+    _pc = PageController(initialPage: _index);
+  }
+  @override
+  void dispose() { _pc.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('${_index + 1}/${widget.imageUrls.length}', style: const TextStyle(color: Colors.white)),
+      ),
+      body: GestureDetector(
+        onTap: () => Navigator.of(context).maybePop(),
+        child: PageView.builder(
+          controller: _pc,
+            onPageChanged: (i) => setState(() => _index = i),
+            itemCount: widget.imageUrls.length,
+            itemBuilder: (_, i) => InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.5,
+              maxScale: 4,
+              child: Center(
+                child: Image.network(
+                  widget.imageUrls[i],
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Icon(SolarIconsOutline.gallery, color: cs.onSurfaceVariant),
+                ),
+              ),
+            ),
+        ),
+      ),
+    );
+  }
+}
 
 // Simple post detail page replacement. Keeps layout minimal and focused on
 // the comment UI: top comment input (like community_home_page) and a
 // vertically scrolling comment list with nested replies.
 
 class CommunityPostDetailPage extends StatelessWidget {
-  // Minimal contract: caller provides a title and optional image urls.
   final String title;
   final String body;
+  final List<String> imageUrls; // 게시물 본문 이미지들
   const CommunityPostDetailPage({
     super.key,
     required this.title,
     this.body = '',
+    this.imageUrls = const [],
   });
+
+  void _openViewer(BuildContext context, List<String> urls, int index) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => _FullScreenImageViewer(imageUrls: urls, initialIndex: index)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,66 +232,34 @@ class CommunityPostDetailPage extends StatelessWidget {
             // Comments list
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
-                    // Example comments rendered to match screenshot layout
+                    // 제목
+                    Text(title, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    if (body.isNotEmpty) Text(body, style: tt.bodyMedium),
+                    if (body.isNotEmpty) const SizedBox(height: 16),
+                    if (imageUrls.isNotEmpty) ...[
+                      _buildImageGallery(context, imageUrls),
+                      const SizedBox(height: 24),
+                    ],
+                    // (예시) 아래에 기존 더미 댓글 섹션 유지 - 필요 없다면 제거 가능
                     _CommentItem(
                       avatarUrl: 'https://i.pravatar.cc/100?img=32',
                       name: 'Esther Howard',
-                      time: '25 minutes ago',
-                      text:
-                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.',
+                      time: '25분 전',
+                      text: '샘플 댓글입니다.',
                       likes: 18,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     _CommentItem(
                       avatarUrl: 'https://i.pravatar.cc/100?img=12',
                       name: 'Jerome Bell',
-                      time: '3 minutes ago',
-                      text:
-                          'Dolor sit ameteiusmod consectetur adipiscing elit.',
+                      time: '3분 전',
+                      text: '샘플 댓글 두번째 입니다.',
                       likes: 2,
-                      replies: [
-                        _Reply(
-                          avatarUrl: 'https://i.pravatar.cc/100?img=5',
-                          name: 'Eleanor Pena',
-                          time: '15 minutes ago',
-                          text: 'Dolor sit ameteiusmod consectetur.',
-                          likes: 6,
-                        ),
-                        _Reply(
-                          avatarUrl: 'https://i.pravatar.cc/100?img=8',
-                          name: 'Kristin Watson',
-                          time: '12 minutes ago',
-                          text: 'Dolor sit ameteiusmod consectetur.',
-                          likes: 32,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    _CommentItem(
-                      avatarUrl: 'https://i.pravatar.cc/100?img=50',
-                      name: 'Ronald Richards',
-                      time: '15 minutes ago',
-                      text: 'Dolor sit ameteiusmod.',
-                      likes: 0,
-                    ),
-
-                    const SizedBox(height: 24),
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 36,
-                            vertical: 14,
-                          ),
-                        ),
-                        child: const Text('Show more comments'),
-                      ),
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -150,6 +269,48 @@ class CommunityPostDetailPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImageGallery(BuildContext context, List<String> urls) {
+    final cs = Theme.of(context).colorScheme;
+    if (urls.length == 1) {
+      final url = urls.first;
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _openViewer(context, urls, 0),
+            child: _DetailImageWithAspect(url: url, isSingle: true, maxHeight: 320),
+          ),
+        ),
+      );
+    }
+    // 다중 이미지: 2열 그리드 정사각형 썸네일
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 1,
+      ),
+      itemCount: urls.length,
+      itemBuilder: (_, i) {
+        final u = urls[i];
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _openViewer(context, urls, i),
+              child: _DetailImageWithAspect(url: u, isSingle: false, maxHeight: 140),
+            ),
+          ),
+        );
+      },
     );
   }
 }

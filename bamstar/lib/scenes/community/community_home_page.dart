@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'dart:ui';
@@ -2509,7 +2510,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       displayBody = displayTitle;
       displayTitle = '';
     }
-    final twoThumbs = post.imageUrls.length >= 2;
+  final twoThumbs = post.imageUrls.length >= 2;
+  final hasImages = post.imageUrls.isNotEmpty;
 
     final _cardInner = Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -2720,19 +2722,15 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   ],
                 ),
               ),
-              // Media section
+              // Media section (multi 이미지일 때: 댓글 썸네일 스타일, 1장일 때는 아래에서 Aspect 유지 렌더)
               if (twoThumbs) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(child: _Thumb(imageUrl: post.imageUrls[0])),
-                      const SizedBox(width: 5),
-                      Expanded(child: _Thumb(imageUrl: post.imageUrls[1])),
-                    ],
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: _PostImageGallery(
+                    imageUrls: post.imageUrls,
+                    onTap: (index) => _showImageViewer(context, post.imageUrls, index),
+                    // 다중이미지이므로 grid 모드
+                    isGrid: true,
                   ),
                 ),
               ],
@@ -2751,19 +2749,15 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   ),
                 ),
               ],
-              // Single large image when only one
-              if (!twoThumbs && post.imageUrls.isNotEmpty) ...[
+              // Single image (원본 비율 유지) - Title 뒤에 위치 유지
+              if (!twoThumbs && hasImages) ...[
                 const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      post.imageUrls.first,
-                      height: 202,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                  child: _PostImageGallery(
+                    imageUrls: post.imageUrls,
+                    onTap: (index) => _showImageViewer(context, post.imageUrls, index),
+                    isGrid: false,
                   ),
                 ),
               ],
@@ -3334,18 +3328,171 @@ class _ChannelTabBar extends StatelessWidget {
   }
 }
 
-class _Thumb extends StatelessWidget {
-  final String imageUrl;
-  const _Thumb({required this.imageUrl});
+/// 게시글 카드 내 이미지 갤러리.
+/// isGrid=true 이면 다중(2개 이상) 이미지를 정사각형 썸네일 격자로, false 이면 단일 이미지를 원본 비율 유지하여 렌더.
+class _PostImageGallery extends StatefulWidget {
+  final List<String> imageUrls;
+  final ValueChanged<int>? onTap;
+  final bool isGrid; // true: multi grid, false: single with aspect
+  const _PostImageGallery({
+    required this.imageUrls,
+    this.onTap,
+    required this.isGrid,
+  });
+
+  @override
+  State<_PostImageGallery> createState() => _PostImageGalleryState();
+}
+
+class _PostImageGalleryState extends State<_PostImageGallery> {
+  final Map<String, double> _aspectCache = {};
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox(
-        height: 101,
-        child: Image.network(imageUrl, fit: BoxFit.cover),
+    final cs = Theme.of(context).colorScheme;
+    if (widget.imageUrls.isEmpty) return const SizedBox.shrink();
+
+    const singleMaxHeight = 180.0;
+    const thumbSize = 100.0;
+    const spacing = 4.0;
+
+    if (widget.isGrid) {
+      final urls = widget.imageUrls.take(4).toList(); // 최대 4개 표시 (댓글 스타일)
+      final rows = (urls.length / 2).ceil();
+      final gridHeight = rows * thumbSize + (rows - 1) * spacing;
+      return SizedBox(
+        height: gridHeight,
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: urls.length,
+          itemBuilder: (context, index) {
+            final url = urls[index];
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: widget.onTap == null ? null : () => widget.onTap!(index),
+                borderRadius: BorderRadius.circular(8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: thumbSize,
+                    child: Image.network(
+                      url,
+                      fit: BoxFit.cover,
+                      errorBuilder: (c, e, s) => Container(
+                        color: cs.surfaceContainer,
+                        child: Icon(
+                          SolarIconsOutline.gallery,
+                          color: cs.onSurfaceVariant,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    // 단일 이미지: 본래 비율 복원, 최대 높이 제한
+    final url = widget.imageUrls.first;
+    final aspect = _aspectCache[url];
+    Widget content;
+    if (aspect != null) {
+      content = ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: singleMaxHeight),
+        child: AspectRatio(
+          aspectRatio: aspect,
+          child: _buildSingle(url, aspect),
+        ),
+      );
+    } else {
+      content = FutureBuilder<double>(
+        future: _resolveAspect(url),
+        builder: (context, snap) {
+          final ar = snap.data;
+          if (ar != null) {
+            return ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: singleMaxHeight),
+              child: AspectRatio(
+                aspectRatio: ar,
+                child: _buildSingle(url, ar),
+              ),
+            );
+          }
+          // 로딩 중 placeholder (높이 비율)
+          return Container(
+            height: singleMaxHeight * 0.6,
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          );
+        },
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap == null ? null : () => widget.onTap!(0),
+        borderRadius: BorderRadius.circular(8),
+        child: ClipRRect(borderRadius: BorderRadius.circular(8), child: content),
       ),
     );
+  }
+
+  Widget _buildSingle(String url, double aspect) {
+    final cs = Theme.of(context).colorScheme;
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (c, e, s) => Container(
+        color: cs.surfaceContainer,
+        child: Icon(
+          SolarIconsOutline.gallery,
+          color: cs.onSurfaceVariant,
+          size: 32,
+        ),
+      ),
+    );
+  }
+
+  Future<double> _resolveAspect(String url) async {
+    if (_aspectCache.containsKey(url)) return _aspectCache[url]!;
+    final c = Completer<double>();
+    final img = Image.network(url);
+    final stream = img.image.resolve(const ImageConfiguration());
+    late ImageStreamListener l;
+    l = ImageStreamListener((ImageInfo info, bool sync) {
+      final w = info.image.width.toDouble();
+      final h = info.image.height.toDouble();
+      if (w > 0 && h > 0) {
+        final ar = w / h;
+        _aspectCache[url] = ar;
+        c.complete(ar);
+      } else {
+        c.complete(1.6); // fallback
+      }
+      stream.removeListener(l);
+    }, onError: (error, stack) {
+      if (!c.isCompleted) c.complete(1.6);
+      stream.removeListener(l);
+    });
+    stream.addListener(l);
+    return c.future;
   }
 }
 
