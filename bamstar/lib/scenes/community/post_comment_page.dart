@@ -17,6 +17,132 @@ import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
+// Cache for resolved image aspect ratios to avoid repeated decoding
+final Map<String, double> _imageAspectRatioCache = {};
+
+/// Widget that loads a network image, resolves its intrinsic aspect ratio,
+/// and displays it cropped (BoxFit.cover) while preserving the original
+/// aspect ratio for single images. For multi-image grids it falls back to
+/// square thumbnails.
+class _NetworkImageWithAspect extends StatefulWidget {
+  final String url;
+  final bool isSingle;
+  final VoidCallback? onTap;
+  final double maxHeight;
+
+  const _NetworkImageWithAspect({
+    Key? key,
+    required this.url,
+    this.isSingle = false,
+    this.onTap,
+    this.maxHeight = 220,
+  }) : super(key: key);
+
+  @override
+  State<_NetworkImageWithAspect> createState() => _NetworkImageWithAspectState();
+}
+
+class _NetworkImageWithAspectState extends State<_NetworkImageWithAspect> {
+  double? _aspect;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_imageAspectRatioCache.containsKey(widget.url)) {
+      _aspect = _imageAspectRatioCache[widget.url];
+    } else {
+      _resolve();
+    }
+  }
+
+  void _resolve() {
+    try {
+      final provider = NetworkImage(widget.url);
+      final stream = provider.resolve(const ImageConfiguration());
+      _listener = ImageStreamListener((info, _) {
+        final w = info.image.width.toDouble();
+        final h = info.image.height.toDouble();
+        if (w > 0 && h > 0) {
+          final aspect = w / h;
+          _imageAspectRatioCache[widget.url] = aspect;
+          if (mounted) setState(() => _aspect = aspect);
+        }
+      }, onError: (_, __) {
+        // ignore errors, keep null aspect
+      });
+      stream.addListener(_listener!);
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    try {
+      if (_listener != null) {
+        final stream = NetworkImage(widget.url).resolve(const ImageConfiguration());
+        stream.removeListener(_listener!);
+      }
+    } catch (_) {}
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    Widget image = Image.network(
+      widget.url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (context, error, st) => Container(
+        color: cs.surfaceContainer,
+        child: Center(
+          child: Icon(
+            SolarIconsOutline.gallery,
+            color: cs.onSurfaceVariant,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+
+    // If this is a single image and we know aspect ratio, wrap with AspectRatio
+    if (widget.isSingle && _aspect != null) {
+      final aspect = _aspect!;
+      // cap displayed height so very wide/tall images don't take too much space
+      final constrained = ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: widget.maxHeight),
+        child: AspectRatio(
+          aspectRatio: aspect,
+          child: image,
+        ),
+      );
+      image = constrained;
+    } else if (widget.isSingle && _aspect == null) {
+      // unknown aspect yet: use an intrinsic height placeholder until resolved
+      image = SizedBox(
+        height: widget.maxHeight * 0.6,
+        child: image,
+      );
+    } else {
+      // multi-image: square thumbnail
+      image = AspectRatio(
+        aspectRatio: 1.0,
+        child: image,
+      );
+    }
+
+    if (widget.onTap != null) {
+      return GestureDetector(
+        onTap: widget.onTap,
+        child: image,
+      );
+    }
+    return image;
+  }
+}
+
 // Simple in-memory cache for author lookups to avoid refetching repeatedly.
 final Map<String, us.AppUser?> _authorCache = {};
 
@@ -505,29 +631,14 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                   itemCount: imageUrls.length,
                                   itemBuilder: (context, index) {
                                     return GestureDetector(
-                                      onTap: () {
-                                        _showImageViewer(context, imageUrls, index);
-                                      },
+                                      onTap: () => _showImageViewer(context, imageUrls, index),
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
-                                        child: SizedBox(
-                                          height: imageUrls.length == 1 ? 100 : 80,
-                                          child: Image.network(
-                                            imageUrls[index],
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                color: cs.surfaceContainer,
-                                                child: Center(
-                                                  child: Icon(
-                                                    SolarIconsOutline.gallery,
-                                                    color: cs.onSurfaceVariant,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                        child: _NetworkImageWithAspect(
+                                          url: imageUrls[index],
+                                          isSingle: imageUrls.length == 1,
+                                          maxHeight: imageUrls.length == 1 ? 180 : 100,
+                                          onTap: () => _showImageViewer(context, imageUrls, index),
                                         ),
                                       ),
                                     );
@@ -1711,24 +1822,11 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                       },
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
-                                        child: SizedBox(
-                                          height: imageUrls.length == 1 ? 100 : 80,
-                                          child: Image.network(
-                                            imageUrls[index],
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Container(
-                                                color: cs.surfaceContainer,
-                                                child: Center(
-                                                  child: Icon(
-                                                    SolarIconsOutline.gallery,
-                                                    color: cs.onSurfaceVariant,
-                                                    size: 20,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                        child: _NetworkImageWithAspect(
+                                          url: imageUrls[index],
+                                          isSingle: imageUrls.length == 1,
+                                          maxHeight: imageUrls.length == 1 ? 180 : 100,
+                                          onTap: () => _showImageViewer(context, imageUrls, index),
                                         ),
                                       ),
                                     );
