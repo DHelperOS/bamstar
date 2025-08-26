@@ -564,11 +564,11 @@ class _CreatePostPageState extends State<CreatePostPage>
       ),
       child: Row(
         children: [
-          // Close button
+          // Back button (use left arrow instead of close)
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
             icon: Icon(
-              SolarIconsOutline.closeSquare,
+              Icons.arrow_back,
               size: 24,
               color: theme.colorScheme.onSurface,
             ),
