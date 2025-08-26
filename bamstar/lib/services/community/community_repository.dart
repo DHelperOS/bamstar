@@ -1638,6 +1638,29 @@ class CommunityRepository {
 
   /// Get daily hashtag curation data
   Future<Map<String, dynamic>?> getDailyCuration({
+    String? date, // YYYY-MM-DD format, defaults to today
+  }) async {
+    try {
+      final targetDate = date ?? DateTime.now().toIso8601String().split('T')[0];
+      
+      final response = await _client
+          .from('daily_hashtag_curation')
+          .select('*')
+          .eq('curation_date', targetDate)
+          .order('created_at', ascending: false)
+          .limit(1);
+
+      if (response.isNotEmpty) {
+        return response.first as Map<String, dynamic>;
+      }
+      
+      // If no curation exists for today, return null
+      return null;
+    } catch (e) {
+      print('Failed to get daily curation: $e');
+      return null;
+    }
+  }
 
   /// Get popular hashtags based on subscriber and post counts
   Future<List<HashtagChannel>> getPopularHashtags({int limit = 10}) async {
@@ -1668,29 +1691,6 @@ class CommunityRepository {
     } catch (e) {
       print('Failed to get popular hashtags: $e');
       return [];
-    }
-  }
-    String? date, // YYYY-MM-DD format, defaults to today
-  }) async {
-    try {
-      final targetDate = date ?? DateTime.now().toIso8601String().split('T')[0];
-      
-      final response = await _client
-          .from('daily_hashtag_curation')
-          .select('*')
-          .eq('curation_date', targetDate)
-          .order('created_at', ascending: false)
-          .limit(1);
-
-      if (response.isNotEmpty) {
-        return response.first as Map<String, dynamic>;
-      }
-      
-      // If no curation exists for today, return null
-      return null;
-    } catch (e) {
-      print('Failed to get daily curation: $e');
-      return null;
     }
   }
 }

@@ -295,6 +295,11 @@ class _CreatePostPageState extends State<CreatePostPage>
         sourceIcon = SolarIconsOutline.hashtag;
         sourceLabel = '인기';
         break;
+      case SuggestionSource.popularFallback:
+        sourceColor = theme.colorScheme.outline;
+        sourceIcon = SolarIconsOutline.hashtag;
+        sourceLabel = '추천';
+        break;
     }
 
     return InkWell(
