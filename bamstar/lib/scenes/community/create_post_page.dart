@@ -1,11 +1,15 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 import 'package:bamstar/services/community/hashtag_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:bamstar/services/cloudinary.dart';
+import 'package:bamstar/utils/global_toast.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:ui';
+import 'package:bamstar/services/user_service.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -42,12 +46,20 @@ class _CreatePostPageState extends State<CreatePostPage>
   late Animation<double> _profileFadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  // Profile data loaded from UserService
+  ImageProvider? _profileImage;
+  String _displayName = '';
+
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _textController.addListener(_onTextChanged);
     _textFocusNode.addListener(_onFocusChanged);
+
+  // Load profile and listen for changes
+  UserService.instance.addListener(_onUserChanged);
+  _loadProfile();
 
     // Screen entrance animation
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -80,6 +92,29 @@ class _CreatePostPageState extends State<CreatePostPage>
             curve: Curves.easeOutCubic,
           ),
         );
+  }
+
+  void _onUserChanged() {
+    if (!mounted) return;
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final img = await UserService.instance.getProfileImageProvider();
+      final name = UserService.instance.displayName;
+      if (!mounted) return;
+      setState(() {
+        _profileImage = img;
+        _displayName = name;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _profileImage = null;
+        _displayName = UserService.instance.displayName;
+      });
+    }
   }
 
   void _onTextChanged() {
@@ -416,11 +451,10 @@ class _CreatePostPageState extends State<CreatePostPage>
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('이미지를 선택할 수 없습니다. 다시 시도해주세요.'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+      showGlobalToast(
+        title: '이미지 선택 실패',
+        message: '이미지를 선택할 수 없습니다. 다시 시도해주세요.',
+        backgroundColor: Theme.of(context).colorScheme.error,
       );
     }
   }
@@ -449,10 +483,64 @@ class _CreatePostPageState extends State<CreatePostPage>
       }
 
       List<String> uploadedImageUrls = [];
-      if (_selectedImages.isNotEmpty && !_isAnonymous) {
-        // Upload images only for non-anonymous posts
-        // TODO: Implement image upload functionality
-        uploadedImageUrls = []; // Skip image upload for now
+      if (_selectedImages.isNotEmpty) {
+        // Upload images to Cloudinary (allow for both anonymous and non-anonymous posts)
+        try {
+          final cloudinary = CloudinaryService.instance;
+          
+          for (int i = 0; i < _selectedImages.length; i++) {
+            final file = _selectedImages[i];
+            final bytes = await file.readAsBytes();
+            final fileName = file.name;
+            
+            final uploadedUrl = await cloudinary.uploadImageFromBytes(
+              bytes,
+              fileName: fileName,
+              folder: 'posts', // 포스트 이미지를 위한 폴더
+              onProgress: (progress) {
+                if (kDebugMode) {
+                  print('Uploading $fileName: ${(progress * 100).toInt()}%');
+                }
+              },
+            );
+            
+            uploadedImageUrls.add(uploadedUrl);
+          }
+          
+          // Validate upload results
+          if (uploadedImageUrls.length != _selectedImages.length) {
+            if (!mounted) return;
+            showGlobalToast(
+              title: '업로드 실패',
+              message: '일부 이미지 업로드에 실패했습니다. 다시 시도해주세요.',
+              backgroundColor: Theme.of(context).colorScheme.error,
+            );
+            setState(() => _isSubmitting = false);
+            return;
+          }
+        } catch (e) {
+          if (!mounted) return;
+          String uploadErrorMessage = '이미지 업로드에 실패했습니다. 다시 시도해주세요.';
+          
+          // Better error messages for specific failures
+          if (e is UnsafeImageException) {
+            uploadErrorMessage = '업로드할 수 없는 이미지입니다. 다른 이미지를 선택해주세요.';
+          } else if (e.toString().contains('network') || e.toString().contains('connection')) {
+            uploadErrorMessage = '네트워크 연결에 실패했습니다. 인터넷 연결을 확인해주세요.';
+          } else if (e.toString().contains('auth')) {
+            uploadErrorMessage = '로그인이 필요합니다. 다시 로그인해주세요.';
+          } else if (e.toString().contains('size') || e.toString().contains('large')) {
+            uploadErrorMessage = '이미지 크기가 너무 큽니다. 다른 이미지를 선택해주세요.';
+          }
+          
+          showGlobalToast(
+            title: '이미지 업로드 실패',
+            message: uploadErrorMessage,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          );
+          setState(() => _isSubmitting = false);
+          return;
+        }
       }
 
       await CommunityRepository.instance.createPost(
@@ -479,12 +567,10 @@ class _CreatePostPageState extends State<CreatePostPage>
         errorMessage = '이미지 업로드에 실패했습니다. 다시 시도해주세요.';
       }
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          duration: const Duration(seconds: 4),
-        ),
+      showGlobalToast(
+        title: '게시 실패',
+        message: errorMessage,
+        backgroundColor: Theme.of(context).colorScheme.error,
       );
     } finally {
       if (mounted) {
@@ -502,6 +588,7 @@ class _CreatePostPageState extends State<CreatePostPage>
     _screenAnimationController.dispose();
     _hashtagDebounce?.cancel();
     _hideHashtagSuggestions();
+  UserService.instance.removeListener(_onUserChanged);
     super.dispose();
   }
 
@@ -655,47 +742,63 @@ class _CreatePostPageState extends State<CreatePostPage>
             height: 44,
             child: Stack(
               children: [
-                // Real profile picture
+                // Real profile picture (asset/network) with fade
                 AnimatedBuilder(
                   animation: _profileFadeAnimation,
                   builder: (context, child) {
                     return Opacity(
-                      opacity: _isAnonymous
-                          ? 1 - _profileFadeAnimation.value
-                          : 1.0,
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                      opacity: _isAnonymous ? 1 - _profileFadeAnimation.value : 1.0,
+                      child: ClipOval(
+                        child: Container(
+                          width: 44,
+                          height: 44,
                           color: theme.colorScheme.primaryContainer,
-                        ),
-                        child: Icon(
-                          SolarIconsOutline.userCircle,
-                          color: theme.colorScheme.onPrimaryContainer,
-                          size: 24,
+                          child: _profileImage != null
+                              ? Image(
+                                  image: _profileImage!,
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(
+                                  SolarIconsOutline.userCircle,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                  size: 24,
+                                ),
                         ),
                       ),
                     );
                   },
                 ),
-                // Anonymous icon
+
+                // Anonymous overlay: blurred real image when anonymous
                 AnimatedBuilder(
                   animation: _profileFadeAnimation,
                   builder: (context, child) {
                     return Opacity(
                       opacity: _isAnonymous ? _profileFadeAnimation.value : 0.0,
-                      child: Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                      child: ClipOval(
+                        child: Container(
+                          width: 44,
+                          height: 44,
                           color: theme.colorScheme.surfaceContainerHighest,
-                        ),
-                        child: Icon(
-                          SolarIconsOutline.ghost,
-                          color: theme.colorScheme.onSurfaceVariant,
-                          size: 24,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              if (_profileImage != null)
+                                Image(
+                                  image: _profileImage!,
+                                  fit: BoxFit.cover,
+                                ),
+                              // Blur layer
+                              BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 6.0, sigmaY: 6.0),
+                                child: Container(
+                                  color: theme.colorScheme.surface.withValues(alpha: 0.0),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -724,7 +827,7 @@ class _CreatePostPageState extends State<CreatePostPage>
                             ? 1 - _profileFadeAnimation.value
                             : 1.0,
                         child: Text(
-                          '나의 닉네임', // This should come from user data
+                          _displayName.isNotEmpty ? _displayName : UserService.instance.displayName,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontFamily: 'Pretendard',
                             fontWeight: FontWeight.w600,
