@@ -349,17 +349,8 @@ class _CreatePostPageState extends State<CreatePostPage>
               ),
             ),
             
-            // Relevance indicator
-            Container(
-              width: 4,
-              height: 20,
-              decoration: BoxDecoration(
-                color: sourceColor.withValues(
-                  alpha: suggestion.relevanceScore,
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            // (removed) relevance vertical indicator - hide the grey bar
+            const SizedBox(width: 8),
           ],
         ),
       ),
@@ -520,8 +511,15 @@ class _CreatePostPageState extends State<CreatePostPage>
       position: _slideAnimation,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Column(
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            // Tap outside input -> hide keyboard and hashtag overlay
+            FocusScope.of(context).unfocus();
+            _hideHashtagSuggestions();
+          },
+          child: SafeArea(
+            child: Column(
             children: [
               _buildHeader(),
               Expanded(
@@ -542,6 +540,7 @@ class _CreatePostPageState extends State<CreatePostPage>
             ],
           ),
         ),
+      ),
         bottomSheet: _buildFooterActionBar(),
       ),
     );
@@ -778,8 +777,9 @@ class _CreatePostPageState extends State<CreatePostPage>
       child: TextField(
         controller: _textController,
         focusNode: _textFocusNode,
-        maxLines: null,
-        minLines: 10,
+        // Limit initial height to ~3 lines and allow modest expansion
+        minLines: 3,
+        maxLines: 6,
         style: theme.textTheme.bodyLarge?.copyWith(
           fontFamily: 'Pretendard',
           height: 1.5,
@@ -793,7 +793,8 @@ class _CreatePostPageState extends State<CreatePostPage>
             height: 1.5,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(24),
+          // reduce vertical padding so the field height is closer to 3 text lines
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
       ),
     );
