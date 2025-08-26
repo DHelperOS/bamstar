@@ -1,14 +1,5 @@
 {
-  // MCP related settings (fill the correct values)
-  "context7.mcpUrl": "http://localhost:3000", // Context7 MCP endpoint (supabase-mcp)
-  "context7.mcpAuthToken": "changeme_mcp_token",
-
-  // Serenade / Sequential placeholders - some extensions read these keys if installed
-  "serenade.mcpUrl": "http://localhost:3000",
-  "serena.mcpUrl": "http://localhost:3000",
-
-  // Sequential MCP (if you have a folder mcp/sequential, adjust)
-  "sequential.mcpUrl": "http://localhost:3001",
+  // Project settings
 
   // Recommended: don't store production secrets here. Use .env / keychain for real tokens.
   "security.workspace.trust.startupPrompt": "never"

@@ -2,15 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch MCP (supabase-mcp)",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/mcp/supabase-mcp/index.js",
-      "cwd": "${workspaceFolder}/mcp/supabase-mcp",
-      "envFile": "${workspaceFolder}/mcp/supabase-mcp/.env",
-      "console": "integratedTerminal"
-    },
-    {
       "name": "Attach to MCP (Node)",
       "type": "node",
       "request": "attach",
@@ -18,15 +9,6 @@
       "restart": false,
       "localRoot": "${workspaceFolder}/mcp/supabase-mcp",
       "remoteRoot": "${workspaceFolder}/mcp/supabase-mcp"
-    },
-    {
-      "name": "Launch context7-mcp",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/mcp/context7-mcp/index.js",
-      "cwd": "${workspaceFolder}/mcp/context7-mcp",
-      "envFile": "${workspaceFolder}/mcp/context7-mcp/.env.example",
-      "console": "integratedTerminal"
     },
     {
       "name": "Attach to context7-mcp",
@@ -37,30 +19,12 @@
       "remoteRoot": "${workspaceFolder}/mcp/context7-mcp"
     },
     {
-      "name": "Launch serena-mcp",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/mcp/serena-mcp/index.js",
-      "cwd": "${workspaceFolder}/mcp/serena-mcp",
-      "envFile": "${workspaceFolder}/mcp/serena-mcp/.env.example",
-      "console": "integratedTerminal"
-    },
-    {
       "name": "Attach to serena-mcp",
       "type": "node",
       "request": "attach",
       "port": 9230,
       "localRoot": "${workspaceFolder}/mcp/serena-mcp",
       "remoteRoot": "${workspaceFolder}/mcp/serena-mcp"
-    },
-    {
-      "name": "Launch sequential-mcp",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/mcp/sequential-mcp/index.js",
-      "cwd": "${workspaceFolder}/mcp/sequential-mcp",
-      "envFile": "${workspaceFolder}/mcp/sequential-mcp/.env.example",
-      "console": "integratedTerminal"
     },
     {
       "name": "Attach to sequential-mcp",
