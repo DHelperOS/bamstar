@@ -17,6 +17,7 @@ import 'package:bamstar/scenes/community/create_post_page.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
+import 'package:bamstar/scenes/community/widgets/post_actions_menu.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
@@ -600,6 +601,9 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                             _searchController.text = tag;
                             _loadInitial();
                           },
+                          onDeleted: () {
+                            _loadInitial();
+                          },
                         );
                       }
                       // loading footer
@@ -783,7 +787,8 @@ class _PostHtmlCard extends StatefulWidget {
   final CommunityPost post;
   final VoidCallback? onTap;
   final ValueChanged<String>? onHashtagTap;
-  const _PostHtmlCard({required this.post, this.onTap, this.onHashtagTap});
+  final VoidCallback? onDeleted;
+  const _PostHtmlCard({required this.post, this.onTap, this.onHashtagTap, this.onDeleted});
 
   @override
   State<_PostHtmlCard> createState() => _PostHtmlCardState();
@@ -2715,9 +2720,98 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(SolarIconsOutline.menuDots),
+                    PostActionsMenu(
+                      postId: post.id,
+                      reportedUserId: post.isAnonymous ? null : post.authorId,
+                      // 자기 자신의 게시물에 대해서는 신고/차단 메뉴 비활성화
+                      onReport: post.authorId != null && 
+                          Supabase.instance.client.auth.currentUser?.id != post.authorId 
+                          ? (reason) {
+                              // 신고 처리는 PostActionsMenu에서 자동 처리
+                            } : null,
+                      onBlock: post.authorId != null && 
+                          Supabase.instance.client.auth.currentUser?.id != post.authorId 
+                          ? () {
+                              // 차단 처리는 PostActionsMenu에서 자동 처리
+                            } : null,
+                      // Show delete option only when current user is the author
+                      showDelete: post.authorId != null &&
+                          Supabase.instance.client.auth.currentUser?.id == post.authorId,
+                      onDelete: post.authorId != null &&
+                          Supabase.instance.client.auth.currentUser?.id == post.authorId
+                          ? () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('게시물 삭제'),
+                            content: const Text('이 게시물을 삭제하시겠습니까?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('취소')),
+                              TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('삭제', style: TextStyle(color: Colors.red))),
+                            ],
+                          ),
+                        );
+                        if (confirmed == true) {
+                          try {
+                            final ok = await CommunityRepository.instance.deletePost(postId: post.id);
+                            if (ok) {
+                              // refresh the feed: remove post locally and trigger parent reload
+                              setState(() {
+                                // optimistic removal from UI
+                                // actual refresh handled by parent on its next refresh
+                                // Remove from local posts list if present
+                              });
+                              DelightToastBar(
+                                autoDismiss: true,
+                                animationDuration: const Duration(milliseconds: 260),
+                                snackbarDuration: const Duration(seconds: 3),
+                                builder: (context) => Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Text('게시물이 삭제되었습니다', style: TextStyle(color: Colors.white)),
+                                ),
+                              ).show(context);
+                              // trigger a refresh of the feed
+                              // notify parent to refresh the feed
+                              widget.onDeleted?.call();
+                            } else {
+                              DelightToastBar(
+                                autoDismiss: true,
+                                animationDuration: const Duration(milliseconds: 260),
+                                snackbarDuration: const Duration(seconds: 3),
+                                builder: (context) => Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.error,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Text('삭제에 실패했습니다', style: TextStyle(color: Colors.white)),
+                                ),
+                              ).show(context);
+                            }
+                          } catch (e) {
+                            DelightToastBar(
+                              autoDismiss: true,
+                              animationDuration: const Duration(milliseconds: 260),
+                              snackbarDuration: const Duration(seconds: 3),
+                              builder: (context) => Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.error,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text('삭제 중 오류가 발생했습니다: $e', style: const TextStyle(color: Colors.white)),
+                              ),
+                            ).show(context);
+                          }
+                        }
+                          } : null,
                     ),
                   ],
                 ),

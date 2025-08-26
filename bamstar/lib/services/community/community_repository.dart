@@ -876,6 +876,26 @@ class CommunityRepository {
     }
   }
 
+  /// Delete a post owned by the current user. Returns true on success.
+  Future<bool> deletePost({required int postId}) async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return false;
+      // Only allow deleting posts by the same author (server should also enforce)
+      await _client
+          .from('community_posts')
+          .delete()
+          .eq('id', postId)
+          .eq('author_id', user.id);
+      // Optionally cleanup related rows (comments, likes) is handled server-side or via DB cascade.
+      // Invalidate any related caches if necessary.
+      invalidateAvatarsCacheForPost(postId);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // --- Server batch RPC wrapper ---
   /// Prefer batch RPC if available on server. Returns map postId->avatars.
   Future<Map<int, List<String>>> getPostCommenterAvatarsBatch(
@@ -909,7 +929,7 @@ class CommunityRepository {
 
   // 텍스트에서 해시태그 추출: '#tag' 형태를 찾아 '#' 제거 후 반환
   List<String> _extractHashtags(String text) {
-    final exp = RegExp(r'(?:^|\s)#([^\s#]+)');
+    final exp = RegExp(r'#([가-힣a-zA-Z0-9_]+)');
     final matches = exp.allMatches(text);
     return matches.map((m) => m.group(1)!).toList();
   }
@@ -923,12 +943,71 @@ class CommunityRepository {
     if (user == null) {
       return;
     }
+    
+    // 1. 포스트에서 해시태그 추출
+    final hashtags = _extractHashtags(content);
+    
+    // 2. 포스트 생성
     await _client.from('community_posts').insert({
       'author_id': user.id,
       'content': content,
       'is_anonymous': isAnonymous,
       'image_urls': imageUrls ?? [],
     });
+    
+    // 3. 해시태그가 있으면 자동으로 해시태그 생성 및 구독 처리
+    if (hashtags.isNotEmpty) {
+      await _ensureHashtagsExistAndSubscribe(hashtags, user.id);
+    }
+  }
+
+  /// 해시태그가 데이터베이스에 존재하는지 확인하고 없으면 생성, 그리고 자동 구독
+  Future<void> _ensureHashtagsExistAndSubscribe(List<String> hashtags, String userId) async {
+    try {
+      for (final hashtagName in hashtags) {
+        if (hashtagName.isEmpty) continue;
+        
+        // 1. 해시태그가 이미 존재하는지 확인
+        final existing = await _client
+            .from('community_hashtags')
+            .select('id')
+            .eq('name', hashtagName.toLowerCase())
+            .maybeSingle();
+            
+        int hashtagId;
+        
+        if (existing == null) {
+          // 2. 해시태그가 없으면 새로 생성
+          final newHashtag = await _client
+              .from('community_hashtags')
+              .insert({
+                'name': hashtagName.toLowerCase(),
+                'post_count': 1,
+                'subscriber_count': 1,
+                'last_used_at': DateTime.now().toIso8601String(),
+              })
+              .select('id')
+              .single();
+          hashtagId = newHashtag['id'] as int;
+        } else {
+          // 3. 해시태그가 존재하면 사용 횟수 업데이트
+          hashtagId = existing['id'] as int;
+          await _client
+              .from('community_hashtags')
+              .update({
+                'post_count': 'post_count + 1',
+                'last_used_at': DateTime.now().toIso8601String(),
+              })
+              .eq('id', hashtagId);
+        }
+        
+        // 4. 사용자를 해시태그에 자동 구독 (이미 구독되어 있으면 무시됨)
+        await subscribeToChannel(hashtagId: hashtagId);
+      }
+    } catch (e) {
+      // 해시태그 처리 실패해도 포스트 생성은 성공한 상태이므로 로그만 남김
+      print('Failed to process hashtags: $e');
+    }
   }
 
   // Subscribe current user to a hashtag channel by id
@@ -1651,7 +1730,7 @@ class CommunityRepository {
           .limit(1);
 
       if (response.isNotEmpty) {
-        return response.first as Map<String, dynamic>;
+        return response.first;
       }
       
       // If no curation exists for today, return null
@@ -1690,6 +1769,151 @@ class CommunityRepository {
           .toList();
     } catch (e) {
       print('Failed to get popular hashtags: $e');
+      return [];
+    }
+  }
+
+  /// Report a community post
+  Future<void> reportPost({
+    required int postId,
+    required String reportReason,
+    String? reportDetails,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    try {
+      // Get post details to identify reported user
+      final postResponse = await _client
+          .from('community_posts')
+          .select('author_id, is_anonymous')
+          .eq('id', postId)
+          .limit(1);
+
+      if (postResponse.isEmpty) {
+        throw Exception('Post not found');
+      }
+
+      final post = postResponse.first;
+      final isAnonymous = post['is_anonymous'] as bool? ?? false;
+      final reportedUserId = isAnonymous ? null : post['author_id'] as String?;
+
+      // Insert report record
+      await _client.from('community_reports').insert({
+        'reporter_id': user.id,
+        'reported_post_id': postId,
+        'reported_user_id': reportedUserId,
+        'report_reason': reportReason,
+        'report_details': reportDetails,
+      });
+
+      print('Post reported successfully: post_id=$postId, reason=$reportReason');
+    } catch (e) {
+      print('Failed to report post: $e');
+      rethrow;
+    }
+  }
+
+  /// Block a user manually
+  Future<void> blockUser({
+    required String blockedUserId,
+    String reason = 'manual_block',
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    if (user.id == blockedUserId) {
+      throw Exception('Cannot block yourself');
+    }
+
+    try {
+      await _client.from('user_blocks').insert({
+        'blocker_id': user.id,
+        'blocked_user_id': blockedUserId,
+        'reason': reason,
+      });
+
+      print('User blocked successfully: $blockedUserId');
+    } catch (e) {
+      print('Failed to block user: $e');
+      rethrow;
+    }
+  }
+
+  /// Unblock a user
+  Future<void> unblockUser({required String blockedUserId}) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    try {
+      await _client
+          .from('user_blocks')
+          .delete()
+          .eq('blocker_id', user.id)
+          .eq('blocked_user_id', blockedUserId);
+
+      print('User unblocked successfully: $blockedUserId');
+    } catch (e) {
+      print('Failed to unblock user: $e');
+      rethrow;
+    }
+  }
+
+  /// Get list of blocked users
+  Future<List<String>> getBlockedUsers() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      final response = await _client
+          .from('user_blocks')
+          .select('blocked_user_id')
+          .eq('blocker_id', user.id);
+
+      return (response as List)
+          .map((block) => block['blocked_user_id'] as String)
+          .toList();
+    } catch (e) {
+      print('Failed to get blocked users: $e');
+      return [];
+    }
+  }
+
+  /// Check if a user is blocked
+  Future<bool> isUserBlocked(String userId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final response = await _client
+          .from('user_blocks')
+          .select('id')
+          .eq('blocker_id', user.id)
+          .eq('blocked_user_id', userId)
+          .limit(1);
+
+      return response.isNotEmpty;
+    } catch (e) {
+      print('Failed to check if user is blocked: $e');
+      return false;
+    }
+  }
+
+  /// Get user's report history
+  Future<List<Map<String, dynamic>>> getUserReports() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    try {
+      final response = await _client
+          .from('community_reports')
+          .select('*, community_posts!inner(id, content)')
+          .eq('reporter_id', user.id)
+          .order('created_at', ascending: false);
+
+      return (response as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      print('Failed to get user reports: $e');
       return [];
     }
   }
