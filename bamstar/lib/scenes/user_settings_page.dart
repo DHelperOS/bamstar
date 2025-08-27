@@ -122,7 +122,8 @@ class _UserSettingsPageState extends State<UserSettingsPage>
   Widget _buildProfileHeader(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(20.0),
-      padding: const EdgeInsets.all(24.0),
+      // Slightly reduced padding so text lines sit closer together vertically
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(16),
@@ -151,7 +152,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                   backgroundImage: _profileImage,
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 16),
 
               // Profile Info with edit icon placed to the right of the name
               Expanded(
@@ -204,7 +205,8 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    // Reduce vertical gap between name and email to bring them closer
+                    const SizedBox(height: 4),
                     Text(
                       UserService.instance.user?.email ?? '이메일 없음',
                       style: const TextStyle(
