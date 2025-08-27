@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:animated_emoji/animated_emoji.dart';
 import 'package:bamstar/widgets/bs_alert_dialog.dart';
 import 'package:bamstar/scenes/match_profiles.dart';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 // animations package no longer needed after local pop-forward effect
 
@@ -212,10 +214,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                 ),
                                 child: Text(
                                   isStar ? '스타' : '플레이스',
-                                  style: const TextStyle(
+                                  style: AppTextStyles.chipLabel(context).copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 12,
                                   ),
                                 ),
                               ),
@@ -254,8 +255,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                     Text(
                                       header,
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
+                                      style: AppTextStyles.cardTitle(context).copyWith(
                                         fontWeight: FontWeight.w800,
                                         color: textPrimary,
                                       ),

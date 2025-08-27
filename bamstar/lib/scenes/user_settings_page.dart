@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
 // modal implementation moved to separate file
 import 'package:bamstar/theme/typography.dart';
@@ -65,7 +66,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
       appBar: AppBar(
         scrolledUnderElevation: 0,
         backgroundColor: Colors.white, // 유지: 사용자 요구
-        title: Text('프로필', style: context.h1),
+        title: Text('프로필', style: AppTextStyles.appBarTitle(context)),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(
@@ -103,12 +104,12 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                       children: [
                         Text(
                           UserService.instance.displayName,
-                          style: context.h3,
+                          style: context.titleMedium,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           UserService.instance.user?.email ?? '이메일 없음',
-                          style: context.lead,
+                          style: context.bodyMedium,
                         ),
                       ],
                     ),
@@ -140,7 +141,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                         const SizedBox(width: 8),
                         Text(
                           '수정하기',
-                          style: context.lead.copyWith(
+                          style: context.bodyMedium.copyWith(
                             color: cs.primary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -154,7 +155,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               const SizedBox(height: 20),
 
               // --- 내 정보 섹션: 간단한 카드 2개 (기본 정보, 상세 정보)
-              Text('내 정보', style: context.h2),
+              Text('내 정보', style: AppTextStyles.sectionTitle(context)),
               const SizedBox(height: 12),
 
               // 기본 정보 (심플 카드) - 필드 삭제 요청으로 항목 제거, 편집은 빈 필드로 이동
@@ -191,11 +192,11 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('기본 정보', style: context.h3),
+                              Text('기본 정보', style: context.titleMedium),
                               const SizedBox(height: 6),
                               Text(
                                 '나의 간단한 기본 정보를 넣어주세요.',
-                                style: context.caption.copyWith(
+                                style: context.bodySmall.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurfaceVariant,
@@ -253,11 +254,11 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('상세 정보', style: context.h3),
+                              Text('상세 정보', style: context.titleMedium),
                               const SizedBox(height: 6),
                               Text(
                                 'AI 매칭에 필요한 상세한 정보를 넣어주세요',
-                                style: context.caption.copyWith(
+                                style: context.bodySmall.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurfaceVariant,
@@ -321,11 +322,11 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('선호 지역', style: context.h3),
+                              Text('선호 지역', style: context.titleMedium),
                               const SizedBox(height: 6),
                               Text(
                                 '매칭에 반영할 선호 지역을 설정하세요',
-                                style: context.caption.copyWith(
+                                style: context.bodySmall.copyWith(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurfaceVariant,
@@ -346,7 +347,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               ),
 
               const SizedBox(height: 16),
-              Text('기타', style: context.h2),
+              Text('기타', style: AppTextStyles.sectionTitle(context)),
               const SizedBox(height: 16),
               _tile(
                 context,
@@ -373,7 +374,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
 
               SizedBox(height: 24 + MediaQuery.paddingOf(context).bottom),
               Center(
-                child: Text('2021 SkillUp • 버전 1.0', style: context.caption),
+                child: Text('2021 SkillUp • 버전 1.0', style: context.bodySmall),
               ),
             ],
           ),

@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 // This file uses Riverpod for page index state.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 final onboardingPageProvider = StateProvider<int>((ref) => 0);
 
@@ -168,11 +170,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                       child: Text(
                         _pages[currentPage]['title']!,
                         textAlign: TextAlign.start,
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          height: 1.1,
+                        style: AppTextStyles.pageTitle(context).copyWith(
                           fontSize: desktopTitleSize,
+                          height: 1.1,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -185,10 +186,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                       child: Text(
                         _pages[currentPage]['description']!,
                         textAlign: TextAlign.start,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[700],
-                          height: 1.4,
+                        style: AppTextStyles.secondaryText(context).copyWith(
                           fontSize: desktopBodySize,
+                          height: 1.4,
                         ),
                       ),
                     ),
@@ -199,7 +199,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                     child: FilledButton(
                       style: FilledButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: theme.colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: const StadiumBorder(),
                       ),
@@ -225,8 +225,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                         currentPage == _pages.length - 1
                             ? '밤스타 가입하기'
                             : '더 알아보기',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
+                        style: AppTextStyles.buttonText(context).copyWith(
+                          color: theme.colorScheme.onPrimary,
                         ),
                       ),
                     ),
@@ -272,9 +272,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                       const SizedBox(width: 8),
                       Text(
                         '건너뛰기',
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: AppTextStyles.chipLabel(context).copyWith(
                           color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -525,14 +524,14 @@ class _OnboardingPage extends StatelessWidget {
             debugPrint('Failed to load onboard image: $imagePath -> $error');
             final theme = Theme.of(context);
             return Container(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               alignment: Alignment.center,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+                  Icon(Icons.broken_image, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 8),
-                  Text('이미지 로드 실패', style: theme.textTheme.bodySmall),
+                  Text('이미지 로드 실패', style: AppTextStyles.captionText(context)),
                 ],
               ),
             );

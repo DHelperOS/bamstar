@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'report_dialog.dart';
 import '../../../services/community/community_repository.dart';
 import '../../../utils/global_toast.dart';
+import '../../../theme/app_color_scheme_extension.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 /// PostActionsMenu - MenuDots 버튼을 누르면 나타나는 팝업 메뉴
@@ -349,7 +350,7 @@ class _PostActionsMenuState extends State<PostActionsMenu>
         showGlobalToast(
           title: '차단 완료',
           message: '사용자를 차단했습니다.',
-          backgroundColor: Colors.orange,
+          backgroundColor: Theme.of(context).colorScheme.warning,
         );
       }
       
@@ -361,7 +362,7 @@ class _PostActionsMenuState extends State<PostActionsMenu>
         showGlobalToast(
           title: '차단 실패',
           message: '차단에 실패했습니다.',
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         );
       }
       print('Failed to block user: $e');

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
         titleSpacing: 16,
         title: Align(
           alignment: Alignment.centerLeft,
-          child: Text('플레이스', style: context.h1),
+          child: Text('플레이스', style: AppTextStyles.appBarTitle(context)),
         ),
         actions: [
           IconButton(
@@ -407,12 +408,12 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: context.h4),
+        Text(title, style: context.titleMedium),
         TextButton(
           onPressed: () {}, // UI only
           child: Text(
             'See All',
-            style: context.lead.copyWith(
+            style: context.bodyMedium.copyWith(
               color: cs.primary,
               fontWeight: FontWeight.w600,
             ),
@@ -499,7 +500,7 @@ class _ContinueLearningList extends StatelessWidget {
                         children: [
                           Text(
                             it['title'] as String,
-                            style: context.h3,
+                            style: context.titleMedium,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -514,7 +515,7 @@ class _ContinueLearningList extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             it['completed'] as String,
-                            style: context.caption,
+                            style: context.bodySmall,
                           ),
                         ],
                       ),
@@ -569,7 +570,7 @@ class _PopularMentorsList extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 m['name']!,
-                style: context.bodyText.copyWith(fontWeight: FontWeight.w600),
+                style: context.bodyLarge.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           );

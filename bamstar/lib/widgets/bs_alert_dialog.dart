@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 /// Material 3 공통 얼럿 다이얼로그
 /// - header(제목), body(본문)
@@ -41,26 +43,14 @@ class BsAlertDialog extends StatelessWidget {
           Expanded(
             child: Text(
               header,
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                color: cs.onSurface,
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-                height: 1.1,
-              ),
+              style: AppTextStyles.dialogTitle(context),
             ),
           ),
         ],
       ),
       content: Text(
         body,
-        style: TextStyle(
-          fontFamily: 'Pretendard',
-          color: cs.onSurfaceVariant,
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-          height: 1.4,
-        ),
+        style: AppTextStyles.dialogContent(context),
       ),
       actions: [
         Row(
@@ -83,7 +73,7 @@ class BsAlertDialog extends StatelessWidget {
                 ),
                 child: Text(
                   secondaryText!,
-                  style: TextStyle(color: cs.onSurfaceVariant),
+                  style: AppTextStyles.secondaryText(context),
                 ),
               ),
             const SizedBox(width: 12),

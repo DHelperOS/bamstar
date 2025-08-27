@@ -27,7 +27,7 @@ void showGlobalToast({
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
+              color: Theme.of(ctx).colorScheme.shadow.withValues(alpha: 0.26),
               blurRadius: 8,
               offset: Offset(0, 4),
             ),
@@ -40,7 +40,7 @@ void showGlobalToast({
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: Colors.white.withValues(alpha: 0.24),
                   shape: BoxShape.circle,
                 ),
                 child: icon,
@@ -60,7 +60,7 @@ void showGlobalToast({
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text(message, style: const TextStyle(color: Colors.white70)),
+                  Text(message, style: TextStyle(color: Colors.white.withValues(alpha: 0.7))),
                 ],
               ),
             ),

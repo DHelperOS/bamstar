@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:bamstar/theme/typography.dart';
 
 class EditInfoPage extends StatefulWidget {
@@ -47,7 +48,7 @@ class _EditInfoPageState extends State<EditInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title, style: context.h2),
+        title: Text(widget.title, style: AppTextStyles.appBarTitle(context)),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
       ),
@@ -82,7 +83,7 @@ class _EditInfoPageState extends State<EditInfoPage> {
                     horizontal: 20.0,
                     vertical: 12.0,
                   ),
-                  child: Text('저장', style: context.buttonText),
+                  child: Text('저장', style: context.labelLarge),
                 ),
               ),
             ],

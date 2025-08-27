@@ -18,7 +18,7 @@ class PrimaryTextButton extends StatelessWidget {
       child: FilledButton(
         style: FilledButton.styleFrom(
           backgroundColor: theme.colorScheme.secondary,
-          foregroundColor: Colors.white,
+          foregroundColor: theme.colorScheme.onSecondary,
           shape: const StadiumBorder(),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),

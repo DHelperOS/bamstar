@@ -10,6 +10,8 @@ import 'package:bamstar/utils/global_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui';
 import 'package:bamstar/services/user_service.dart';
+import '../../theme/typography.dart';
+import '../../theme/app_text_styles.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -265,9 +267,7 @@ class _CreatePostPageState extends State<CreatePostPage>
             const SizedBox(width: 12),
             Text(
               '추천 해시태그를 찾는 중...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontFamily: 'Pretendard',
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              style: AppTextStyles.secondaryText(context).copyWith(
               ),
             ),
           ],
@@ -281,9 +281,7 @@ class _CreatePostPageState extends State<CreatePostPage>
         alignment: Alignment.center,
         child: Text(
           '추천할 해시태그가 없습니다',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontFamily: 'Pretendard',
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          style: AppTextStyles.secondaryText(context).copyWith(
           ),
         ),
       );
@@ -717,11 +715,7 @@ class _CreatePostPageState extends State<CreatePostPage>
                   ),
                   child: Text(
                     '등록',
-                    style: TextStyle(
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
+                    style: AppTextStyles.buttonText(context),
                   ),
                 ),
         ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // app_theme import removed to avoid analyzer issues when package roots vary.
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 /// Formats Korean-style phone numbers as the user types.
 /// Examples:
@@ -106,26 +108,25 @@ class AuthTextfields {
             inputFormatters: inputFormatters,
             autofocus: autofocus,
             obscureText: false,
-            style: const TextStyle(fontSize: 16.0),
+            style: AppTextStyles.inputText(context),
             decoration: InputDecoration(
               labelText: labelText,
               hintText: hintText,
               prefixIcon: prefixIcon,
               contentPadding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 10.0),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: Theme.of(context).colorScheme.surface,
               floatingLabelBehavior: FloatingLabelBehavior.auto,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.0),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide(color: effectiveFocusColor, width: 2.0),
               ),
-              labelStyle: TextStyle(
-                color: focused ? effectiveFocusColor : Colors.grey.shade600,
-                fontSize: 16.0,
+              labelStyle: AppTextStyles.inputLabel(context).copyWith(
+                color: focused ? effectiveFocusColor : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -177,7 +178,7 @@ class AuthTextfields {
                 focusNode: focusNode,
                 keyboardType: TextInputType.text,
                 obscureText: obscureText,
-                style: const TextStyle(fontSize: 16.0),
+                style: AppTextStyles.inputText(context),
                 decoration: InputDecoration(
                   labelText: labelText,
                   contentPadding: const EdgeInsets.fromLTRB(
@@ -187,12 +188,12 @@ class AuthTextfields {
                     10.0,
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surface,
                   floatingLabelBehavior: FloatingLabelBehavior.auto,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(
-                      color: Colors.grey.shade300,
+                      color: Theme.of(context).colorScheme.outline,
                       width: 1.0,
                     ),
                   ),
@@ -203,16 +204,15 @@ class AuthTextfields {
                       width: 2.0,
                     ),
                   ),
-                  labelStyle: TextStyle(
-                    color: focused ? effectiveFocusColor : Colors.grey.shade600,
-                    fontSize: 16.0,
+                  labelStyle: AppTextStyles.inputLabel(context).copyWith(
+                    color: focused ? effectiveFocusColor : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: IconButton(
                       icon: Icon(
                         obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       ),
                       onPressed: () =>
                           obscureNotifier.value = !obscureNotifier.value,

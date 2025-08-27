@@ -10,6 +10,9 @@ import 'package:solar_icons/solar_icons.dart';
 import '../widgets/primary_text_button.dart';
 import '../widgets/social_auth_button.dart';
 import '../widgets/auth_fields.dart';
+import '../theme/app_color_scheme_extension.dart';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -68,7 +71,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     SolarIconsOutline.dangerTriangle,
                     color: Colors.white,
                   ),
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                 ),
               ),
               autoDismiss: true,
@@ -214,11 +217,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       const SizedBox(height: 24),
 
                       // Title & subtitle
-                      const Text(
+                      Text(
                         '가장 빛나는 밤, 가장 빛나는 나.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: AppTextStyles.sectionTitle(context).copyWith(
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -226,7 +228,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       Text(
                         '소셜 로그인으로 간편하게 시작하세요.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        style: AppTextStyles.secondaryText(context),
                       ),
                       const SizedBox(height: 24),
 
@@ -265,26 +267,25 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
                       // OR separator
                       Row(
-                        children: const [
+                        children: [
                           Expanded(
                             child: Divider(
-                              color: Color(0xFFE6E6E6),
+                              color: Theme.of(context).colorScheme.outline,
                               thickness: 1,
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
                             child: Text(
                               'OR',
-                              style: TextStyle(
-                                color: Color(0xFF9E9E9E),
+                              style: AppTextStyles.helperText(context).copyWith(
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
                           Expanded(
                             child: Divider(
-                              color: Color(0xFFE6E6E6),
+                              color: Theme.of(context).colorScheme.outline,
                               thickness: 1,
                             ),
                           ),
@@ -298,7 +299,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                       Text(
                         '소셜 계정 대신, 휴대폰 번호로 시작해보세요!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        style: AppTextStyles.secondaryText(context),
                       ),
                       const SizedBox(height: 20),
 
@@ -346,7 +347,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
                                     SolarIconsBold.phoneCallingRounded,
                                     color: Colors.white,
                                   ),
-                                  backgroundColor: Colors.deepOrange,
+                                  backgroundColor: Theme.of(context).colorScheme.warning,
                                 ),
                               ),
                               autoDismiss: true,
@@ -365,7 +366,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           if (asyncAuth.isLoading)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(alpha: 0.12),
+                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.12),
                 child: const Center(child: CircularProgressIndicator()),
               ),
             ),
@@ -400,7 +401,7 @@ class _ToastContent extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.26), blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -409,7 +410,7 @@ class _ToastContent extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: Colors.white.withValues(alpha: 0.24),
               shape: BoxShape.circle,
             ),
             child: icon,
@@ -422,7 +423,7 @@ class _ToastContent extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: AppTextStyles.buttonText(context).copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -430,7 +431,9 @@ class _ToastContent extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   message,
-                  style: const TextStyle(color: Colors.white70),
+                  style: AppTextStyles.captionText(context).copyWith(
+                    color: Colors.white.withValues(alpha: 0.7),
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

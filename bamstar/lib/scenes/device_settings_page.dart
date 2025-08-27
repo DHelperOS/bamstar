@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/theme/typography.dart';
+import 'package:bamstar/theme/app_text_styles.dart';
 
 class DeviceSettingsPage extends StatefulWidget {
   const DeviceSettingsPage({super.key});
@@ -17,7 +18,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('설정', style: context.h1),
+        title: Text('설정', style: AppTextStyles.appBarTitle(context)),
         backgroundColor: Colors.white,
         scrolledUnderElevation: 0,
       ),
@@ -27,7 +28,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('일반', style: context.h2),
+              Text('일반', style: AppTextStyles.sectionTitle(context)),
               const SizedBox(height: 16),
               _tile(
                 context,
@@ -95,7 +96,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
         ),
         title: Text(
           title,
-          style: context.lead.copyWith(
+          style: context.bodyMedium.copyWith(
             fontWeight: FontWeight.w600,
             color: cs.onSurface,
           ),

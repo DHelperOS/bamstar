@@ -18,6 +18,8 @@ import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/scenes/community/widgets/post_actions_menu.dart';
+import '../../theme/typography.dart';
+import '../../theme/app_text_styles.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
@@ -279,7 +281,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 child: Text(
                   '채널을 구독하고'
                   '\n 스타들과 소통해요 ',
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
                   textAlign: TextAlign.center,
                   softWrap: true,
                 ),
@@ -544,7 +546,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                                     horizontal: 6,
                                     vertical: 2,
                                   ),
-                                  labelStyle: TextStyle(
+                                  labelStyle: AppTextStyles.chipLabel(context).copyWith(
                                     fontSize: smallFont,
                                     color: isSelected
                                         ? csLocal.onPrimary
@@ -718,12 +720,13 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
 
 // Build a widget that renders text and turns hashtags into subtle tappable chips
 Widget _buildContentWithHashtags(
+  BuildContext context,
   String text,
   TextStyle? style,
   ColorScheme cs,
   ValueChanged<String>? onHashtagTap,
 ) {
-  final tStyle = style ?? const TextStyle();
+  final tStyle = style ?? AppTextStyles.primaryText(context);
   final regex = RegExp(r'(#[^\s#]+)');
   final parts = <InlineSpan>[];
   int lastEnd = 0;
@@ -929,10 +932,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 Expanded(
                   child: Text(
                     '이미지 선택 중 오류가 발생했습니다: $e',
-                    style: const TextStyle(
+                    style: AppTextStyles.primaryText(context).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -993,10 +995,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 Expanded(
                   child: Text(
                     '이미지 선택 중 오류가 발생했습니다: $e',
-                    style: const TextStyle(
+                    style: AppTextStyles.primaryText(context).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -1077,10 +1078,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     Expanded(
                       child: Text(
                         '이미지 업로드 실패: ${image.name}',
-                        style: TextStyle(
+                        style: AppTextStyles.primaryText(context).copyWith(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -1378,10 +1377,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     Expanded(
                       child: Text(
                         '댓글 전송에 실패했습니다',
-                        style: TextStyle(
+                        style: AppTextStyles.primaryText(context).copyWith(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -1426,7 +1423,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 Expanded(
                   child: Text(
                     '댓글 전송 중 오류가 발생했습니다: $e',
-                    style: TextStyle(
+                    style: AppTextStyles.primaryText(context).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1597,7 +1594,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 Expanded(
                   child: Text(
                     '답글 전송 중 오류가 발생했습니다: $e',
-                    style: TextStyle(
+                    style: AppTextStyles.primaryText(context).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                     ),
@@ -2083,10 +2080,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                                   Expanded(
                                                     child: Text(
                                                       '댓글이 삭제되었습니다.',
-                                                      style: TextStyle(
+                                                      style: AppTextStyles.primaryText(context).copyWith(
                                                         fontWeight: FontWeight.w600,
-                                                        fontSize: 14,
-                                                        color: Theme.of(context).colorScheme.onSurface,
                                                       ),
                                                     ),
                                                   ),
@@ -2747,7 +2742,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                             content: const Text('이 게시물을 삭제하시겠습니까?'),
                             actions: [
                               TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('취소')),
-                              TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('삭제', style: TextStyle(color: Colors.red))),
+                              TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text('삭제', style: AppTextStyles.buttonText(context).copyWith(color: Colors.red))),
                             ],
                           ),
                         );
@@ -2772,7 +2767,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     color: Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Text('게시물이 삭제되었습니다', style: TextStyle(color: Colors.white)),
+                                  child: Text('게시물이 삭제되었습니다', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
                                 ),
                               ).show(context);
                               // trigger a refresh of the feed
@@ -2790,7 +2785,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                     color: Theme.of(context).colorScheme.error,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Text('삭제에 실패했습니다', style: TextStyle(color: Colors.white)),
+                                  child: Text('삭제에 실패했습니다', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
                                 ),
                               ).show(context);
                             }
@@ -2806,7 +2801,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                   color: Theme.of(context).colorScheme.error,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text('삭제 중 오류가 발생했습니다: $e', style: const TextStyle(color: Colors.white)),
+                                child: Text('삭제 중 오류가 발생했습니다: $e', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
                               ),
                             ).show(context);
                           }
@@ -2834,6 +2829,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 340),
                     child: _buildContentWithHashtags(
+                      context,
                       displayTitle,
                       tt.bodyMedium?.copyWith(color: cs.onSurface),
                       cs,
@@ -2860,6 +2856,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                 Padding(
                   padding: EdgeInsets.only(left: 24, right: 24),
                   child: _buildContentWithHashtags(
+                    context,
                     displayBody,
                     tt.bodyMedium?.copyWith(color: cs.onSurface),
                     cs,
@@ -3716,7 +3713,7 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
                                 const SizedBox(height: 16),
                                 Text(
                                   '이미지를 불러올 수 없습니다',
-                                  style: TextStyle(color: Colors.white),
+                                  style: AppTextStyles.primaryText(context).copyWith(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -3740,7 +3737,7 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
               elevation: 0,
               title: Text(
                 '${_currentIndex + 1} / ${widget.imageUrls.length}',
-                style: const TextStyle(color: Colors.white),
+                style: AppTextStyles.primaryText(context).copyWith(color: Colors.white),
               ),
               iconTheme: const IconThemeData(color: Colors.white),
             ),

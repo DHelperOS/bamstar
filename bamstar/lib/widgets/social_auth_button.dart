@@ -9,6 +9,8 @@ Common use cases:
 */
 
 import 'package:flutter/material.dart';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 // Enum defining the types of buttons supported
 enum ButtonType { apple, google, facebook, kakao }
@@ -63,7 +65,7 @@ class SocialAuthButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           side: type == ButtonType.google
-              ? BorderSide(color: Colors.grey.shade300, width: 1)
+              ? BorderSide(color: Theme.of(context).colorScheme.outline, width: 1)
               : BorderSide.none,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -78,8 +80,7 @@ class SocialAuthButton extends StatelessWidget {
             Center(
               child: Text(
                 customText ?? _getDefaultButtonText(),
-                style: TextStyle(
-                  fontSize: 16,
+                style: AppTextStyles.buttonText(context).copyWith(
                   fontWeight: FontWeight.w400,
                   color: _getTextColor(),
                 ),

@@ -5,6 +5,8 @@ import 'package:solar_icons/solar_icons.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../theme/typography.dart';
+import '../theme/app_text_styles.dart';
 
 // 기존 Settings에서 Navigator.push(basicInfoSheetRoute()) 로 호출하는 진입점 유지
 Route<void> basicInfoSheetRoute() {
@@ -256,11 +258,8 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                     child: TextFormField(
                       controller: _phoneCtl,
-                      style: Theme.of(modalSheetContext).textTheme.bodyMedium
-                          ?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+                      style: AppTextStyles.primaryText(modalSheetContext)
+,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
@@ -268,19 +267,13 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                         labelStyle: Theme.of(modalSheetContext)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
+,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         hintText: '예: 010-1234-5678',
                         hintStyle: Theme.of(modalSheetContext)
                             .textTheme
                             .bodyMedium
-                            ?.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
+,
                         prefixIcon: Icon(
                           SolarIconsOutline.phone,
                           size: 20,
@@ -800,26 +793,20 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                   // 이름 (Material 3 테마로 복원)
                   TextFormField(
                     controller: _nameCtl,
-                    style: Theme.of(modalSheetContext).textTheme.bodyMedium
-                        ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                    style: AppTextStyles.primaryText(modalSheetContext)
+,
                     textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       labelText: '이름',
                       labelStyle: Theme.of(modalSheetContext)
                           .textTheme
                           .bodyMedium
-                          ?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+,
                       hintText: '이름을 입력해주세요',
                       hintStyle: Theme.of(modalSheetContext)
                           .textTheme
                           .bodyMedium
-                          ?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+,
                       helperText: '실명 또는 예명을 입력해주세요',
                       prefixIcon: Icon(
                         SolarIconsOutline.userCircle,
@@ -855,8 +842,8 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                   // 나이 (Material 3 테마로 복원)
                   TextFormField(
                     controller: _ageCtl,
-                    style: Theme.of(modalSheetContext).textTheme.bodyMedium
-                        ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                    style: AppTextStyles.primaryText(modalSheetContext)
+,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
@@ -864,18 +851,12 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
                       labelStyle: Theme.of(modalSheetContext)
                           .textTheme
                           .bodyMedium
-                          ?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+,
                       hintText: '숫자만 입력',
                       hintStyle: Theme.of(modalSheetContext)
                           .textTheme
                           .bodyMedium
-                          ?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+,
                       helperText: '만 나이 기준으로 입력해주세요',
                       prefixIcon: Icon(
                         SolarIconsOutline.calendarMinimalistic,
@@ -1034,13 +1015,13 @@ class _BasicInfoWoltEntryState extends State<_BasicInfoWoltEntry> {
               TextField(
                 controller: _introCtl,
                 style: Theme.of(modalSheetContext).textTheme.bodyMedium
-                    ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+,
                 maxLength: 140,
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: '취미, 관심사, 하고 싶은 것 등 자유롭게 적어주세요.',
                   hintStyle: Theme.of(modalSheetContext).textTheme.bodyMedium
-                      ?.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+  ,
                   // no filled background: rely on outline border only
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../theme/typography.dart';
+import '../../../theme/app_text_styles.dart';
 
 class ChannelChip extends StatelessWidget {
   final String name;
@@ -21,7 +23,7 @@ class ChannelChip extends StatelessWidget {
         selected: selected,
         onSelected: (_) => onTap?.call(),
         selectedColor: cs.primary,
-        labelStyle: TextStyle(color: selected ? cs.onPrimary : cs.onSurface),
+        labelStyle: AppTextStyles.chipLabel(context).copyWith(color: selected ? cs.onPrimary : cs.onSurface),
         backgroundColor: cs.surface,
         shape: StadiumBorder(
           side: BorderSide(color: selected ? cs.primary : cs.outlineVariant),
