@@ -176,4 +176,23 @@ Every Flutter code change MUST pass this checklist:
 
 ---
 
+## 🔗 개발 환경 & 도구
+
+### **Supabase 연결**
+- **연결 가이드**: `SUPABASE_CONNECTION_GUIDE.md` 참조
+- **CLI 토큰**: `SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b`
+- **MCP 토큰**: `MCP_AUTH_TOKEN=sb_secret_6gi2ZmG0XtspzcWuGVUkFw_OLfPWItH`
+- **프로젝트 ID**: `tflvicpgyycvhttctcek`
+
+### **빠른 명령어**
+```bash
+# CLI 연결 테스트
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
+
+# 데이터베이스 쿼리 (Claude Code MCP)
+mcp__supabase__execute_sql --project-id tflvicpgyycvhttctcek --query "SELECT * FROM member_profiles LIMIT 5;"
+```
+
+---
+
 **🎯 Remember: Consistency is key to maintainable, accessible, and professional Flutter applications.**

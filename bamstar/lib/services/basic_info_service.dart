@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
+import 'cloudinary.dart';
+
 class BasicInfo {
   final String? realName;
   final int? age;
@@ -152,7 +154,8 @@ class BasicInfoService {
       final data = basicInfo.toMap();
       data['user_id'] = userId;
       
-      // Add uploaded photo URLs if any
+      // Add uploaded photo URLs if any - this must come AFTER toMap()
+      // to avoid being overwritten by the empty profileImageUrls from BasicInfo
       if (uploadedUrls.isNotEmpty) {
         data['profile_image_urls'] = uploadedUrls;
       }
@@ -166,36 +169,55 @@ class BasicInfoService {
           .upsert(data);
 
       debugPrint('[BasicInfoService] Successfully saved basic info for user: $userId');
+      debugPrint('[BasicInfoService] Uploaded URLs: $uploadedUrls');
       return true;
     } catch (e) {
       debugPrint('[BasicInfoService] Error saving basic info: $e');
       return false;
     }
   }
-
-  /// Upload photo bytes to Supabase Storage and return URLs
+  /// Upload photo bytes to Cloudinary and return URLs
   Future<List<String>> _uploadPhotos(List<Uint8List> photoBytes, String userId) async {
     final List<String> urls = [];
     
     try {
-      final client = Supabase.instance.client;
+      // Get Cloudinary service instance
+      final cloudinary = CloudinaryService.instanceOrNull;
+      if (cloudinary == null) {
+        debugPrint('[BasicInfoService] Cloudinary not configured, skipping photo upload');
+        return urls;
+      }
       
       for (int i = 0; i < photoBytes.length; i++) {
         final fileName = 'profile_${userId}_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-        final filePath = 'profiles/$userId/$fileName';
         
-        // Upload to storage bucket 'profiles'
-        await client.storage
-            .from('profiles')
-            .uploadBinary(filePath, photoBytes[i]);
-        
-        // Get public URL
-        final url = client.storage
-            .from('profiles')
-            .getPublicUrl(filePath);
-        
-        urls.add(url);
-        debugPrint('[BasicInfoService] Uploaded photo: $filePath');
+        try {
+          // Upload to Cloudinary with progress tracking
+          final url = await cloudinary.uploadImageFromBytes(
+            photoBytes[i],
+            fileName: fileName,
+            folder: 'profiles/$userId', // Organize photos by user
+            context: {
+              'user_id': userId,
+              'type': 'profile',
+              'index': i.toString(),
+            },
+            onProgress: (progress) {
+              debugPrint('[BasicInfoService] Uploading $fileName: ${(progress * 100).toStringAsFixed(0)}%');
+            },
+          );
+          
+          urls.add(url);
+          debugPrint('[BasicInfoService] Successfully uploaded photo: $fileName → $url');
+          
+        } catch (e) {
+          debugPrint('[BasicInfoService] Error uploading individual photo $fileName: $e');
+          // Continue with other photos even if one fails
+          if (e is UnsafeImageException) {
+            debugPrint('[BasicInfoService] Unsafe image detected: ${e.reason}');
+            // Could throw or show user-friendly error message
+          }
+        }
       }
     } catch (e) {
       debugPrint('[BasicInfoService] Error uploading photos: $e');

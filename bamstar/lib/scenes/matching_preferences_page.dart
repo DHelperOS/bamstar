@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_text_styles.dart';
 import '../services/attribute_service.dart';
 import '../services/member_preferences_service.dart';
+import '../services/matching_conditions_service.dart';
 
 class MatchingPreferencesPage extends StatefulWidget {
   const MatchingPreferencesPage({super.key});
@@ -784,24 +785,43 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         payAmount = int.tryParse(_payAmountController.text);
       }
 
-      // Create preferences data
-      final preferencesData = MatchingPreferencesData(
-        selectedIndustryIds: selectedIndustryIds,
-        selectedJobIds: selectedJobIds,
-        selectedPayType: selectedPayType,
-        payAmount: payAmount,
-        selectedDays: selectedDays,
-        selectedStyleIds: selectedStyleIds,
-        selectedPlaceFeatureIds: selectedPlaceFeatureIds,
-        selectedWelfareIds: selectedWelfareIds,
-      );
+      // Convert UI pay type to database enum
+      String? dbPayType;
+      if (selectedPayType != null) {
+        switch (selectedPayType!) {
+          case 'TC':
+            dbPayType = 'TC';
+            break;
+          case '일급':
+            dbPayType = 'DAILY';
+            break;
+          case '월급':
+            dbPayType = 'MONTHLY';
+            break;
+          case '협의':
+            dbPayType = 'NEGOTIABLE';
+            break;
+        }
+      }
 
-      // Save to database
-      final success = await MemberPreferencesService.instance.saveMatchingPreferences(preferencesData);
+      // Call Edge Function API
+      final response = await MatchingConditionsService.instance.updateMatchingConditions(
+        desiredPayType: dbPayType,
+        desiredPayAmount: payAmount,
+        desiredWorkingDays: selectedDays.toList(),
+        selectedStyleAttributeIds: selectedStyleIds.toList(),
+        selectedPreferenceAttributeIds: [
+          ...selectedIndustryIds,
+          ...selectedJobIds,
+          ...selectedPlaceFeatureIds,
+          ...selectedWelfareIds,
+        ].toList(),
+        selectedAreaGroupIds: [], // Area groups can be added later if needed
+      );
 
       if (!mounted) return;
 
-      if (success) {
+      if (response.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -811,7 +831,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
                 const SizedBox(width: 8),
-                const Text('매칭 스타일이 저장되었습니다'),
+                Text(response.message ?? '매칭 스타일이 저장되었습니다'),
               ],
             ),
             backgroundColor: Colors.green,
@@ -822,7 +842,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         
         Navigator.of(context).pop();
       } else {
-        throw Exception('Failed to save preferences');
+        throw Exception(response.error ?? 'Failed to save preferences');
       }
     } catch (e) {
       debugPrint('Error saving preferences: $e');
