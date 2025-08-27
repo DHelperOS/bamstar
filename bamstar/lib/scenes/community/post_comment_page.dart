@@ -17,8 +17,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import '../../theme/typography.dart';
-import '../../theme/app_text_styles.dart';
+// Theme imports removed as they're not used in current design implementation
 
 // Image layout constants for comments (match feed gallery)
 final double _commentSingleMaxHeight = CommunitySizes.imageSingleMaxHeight;
