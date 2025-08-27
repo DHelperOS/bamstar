@@ -166,36 +166,44 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            UserService.instance.displayName,
-                            style: const TextStyle(
-                              color: Color(0xFF1C252E),
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        // Display name with pen icon immediately to its right
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  UserService.instance.displayName,
+                                  style: const TextStyle(
+                                    color: Color(0xFF1C252E),
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              IconButton(
+                                onPressed: () => showEditProfileModal(
+                                  context,
+                                  _profileImage,
+                                  onImagePicked: (img) {
+                                    if (!mounted) return;
+                                    setState(() => _profileImage = img);
+                                  },
+                                ),
+                                icon: Icon(
+                                  SolarIconsOutline.pen,
+                                  size: 18,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                                padding: const EdgeInsets.all(6),
+                                constraints: const BoxConstraints(),
+                                tooltip: '프로필 편집',
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        // Pen icon placed immediately beside the display name, using theme gray
-                        IconButton(
-                          onPressed: () => showEditProfileModal(
-                            context,
-                            _profileImage,
-                            onImagePicked: (img) {
-                              if (!mounted) return;
-                              setState(() => _profileImage = img);
-                            },
-                          ),
-                          icon: Icon(
-                            SolarIconsOutline.pen,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          padding: const EdgeInsets.all(6),
-                          constraints: const BoxConstraints(),
-                          tooltip: '프로필 편집',
                         ),
                       ],
                     ),
