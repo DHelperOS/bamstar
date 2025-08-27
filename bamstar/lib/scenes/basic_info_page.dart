@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import '../theme/app_text_styles.dart';
+import '../services/basic_info_service.dart';
 
 /// Single-page basic info form with clean design matching edit_profile_modal
 class BasicInfoPage extends StatefulWidget {
@@ -38,6 +37,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   void initState() {
     super.initState();
     _phoneCtl.addListener(_formatPhoneNumber);
+    _loadBasicInfo();
   }
 
   @override
@@ -50,19 +50,6 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     super.dispose();
   }
 
-  Future<void> _loadAvatarFallback() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final b64 = prefs.getString('avatar_b64');
-      if (b64 == null || b64.isEmpty) return;
-      final bytes = base64Decode(b64);
-      if (bytes.isNotEmpty && _photos.isEmpty) {
-        setState(() => _photos.add(bytes));
-      }
-    } catch (e) {
-      debugPrint('avatar fallback load error: $e');
-    }
-  }
 
   void _formatPhoneNumber() {
     final text = _phoneCtl.text;
@@ -135,27 +122,60 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     setState(() => _photos.removeAt(index));
   }
 
+  Future<void> _loadBasicInfo() async {
+    try {
+      final basicInfo = await BasicInfoService.instance.loadBasicInfo();
+      if (basicInfo != null && mounted) {
+        setState(() {
+          _nameCtl.text = basicInfo.realName ?? '';
+          _ageCtl.text = basicInfo.age?.toString() ?? '';
+          _phoneCtl.text = basicInfo.contactPhone ?? '';
+          _selectedGender = basicInfo.gender ?? '남';
+          _selectedSns = basicInfo.socialService ?? '카카오톡';
+          _snsHandleCtl.text = basicInfo.socialHandle ?? '';
+          _introCtl.text = basicInfo.bio ?? '';
+        });
+      }
+    } catch (e) {
+      debugPrint('load basic info error: $e');
+    }
+  }
+
   Future<void> _saveBasicInfo() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Save basic info to database
-      await Future.delayed(const Duration(seconds: 1)); // Simulate API call
+      // Create BasicInfo object from form data
+      final basicInfo = BasicInfo(
+        realName: _nameCtl.text.trim().isEmpty ? null : _nameCtl.text.trim(),
+        age: _ageCtl.text.trim().isEmpty ? null : int.tryParse(_ageCtl.text.trim()),
+        gender: _selectedGender,
+        contactPhone: _phoneCtl.text.trim().isEmpty ? null : _phoneCtl.text.trim(),
+        socialService: _selectedSns.isEmpty ? null : _selectedSns,
+        socialHandle: _snsHandleCtl.text.trim().isEmpty ? null : _snsHandleCtl.text.trim(),
+        bio: _introCtl.text.trim().isEmpty ? null : _introCtl.text.trim(),
+      );
+
+      // Save to database
+      final success = await BasicInfoService.instance.saveBasicInfo(basicInfo, _photos);
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('기본 정보가 저장되었습니다')));
-        Navigator.of(context).pop();
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('기본 정보가 저장되었습니다')));
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+        }
       }
     } catch (e) {
       debugPrint('save basic info error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
       }
     } finally {
       if (mounted) {
@@ -571,7 +591,12 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              validator: (v) => null, // Optional field
+              validator: (v) {
+                final text = v?.trim() ?? '';
+                if (text.isEmpty) return null; // Optional field
+                if (text.length < 2) return '이름은 2글자 이상 입력해주세요';
+                return null;
+              },
             ),
           ),
           const SizedBox(height: 20),
@@ -609,7 +634,15 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              validator: (v) => null, // Optional field
+              validator: (v) {
+                final text = v?.trim() ?? '';
+                if (text.isEmpty) return null; // Optional field
+                final age = int.tryParse(text);
+                if (age == null || age < 18 || age > 100) {
+                  return '18세 이상 100세 이하의 나이를 입력해주세요';
+                }
+                return null;
+              },
             ),
           ),
           const SizedBox(height: 20),
@@ -764,7 +797,9 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                         onChanged: (v) {
                           setState(() {
                             _selectedSns = v ?? '';
-                            if (_selectedSns.isEmpty) _snsHandleCtl.clear();
+                            if (_selectedSns.isEmpty) {
+                              _snsHandleCtl.clear();
+                            }
                           });
                         },
                         decoration: const InputDecoration(

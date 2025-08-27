@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_text_styles.dart';
+import '../services/attribute_service.dart';
+import '../services/member_preferences_service.dart';
 
 class MatchingPreferencesPage extends StatefulWidget {
   const MatchingPreferencesPage({super.key});
@@ -24,9 +26,20 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
   Set<String> selectedPlaceFeatures = {};
   Set<String> selectedBenefits = {};
 
+  // Data loading state
+  bool _isLoading = true;
+  bool _isSaving = false;
+
   // Animation controllers
   AnimationController? _fadeController;
   Animation<double>? _fadeAnimation;
+
+  // Data from services
+  List<Map<String, dynamic>> industries = [];
+  List<Map<String, dynamic>> jobs = [];
+  List<Map<String, dynamic>> styles = [];
+  List<Map<String, dynamic>> placeFeatures = [];
+  List<Map<String, dynamic>> benefits = [];
 
   @override
   void initState() {
@@ -38,7 +51,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController!, curve: Curves.easeOutCubic),
     );
-    _fadeController!.forward();
+    _loadData();
   }
 
   @override
@@ -48,76 +61,97 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     super.dispose();
   }
 
-  // Data matching the nightlife/entertainment industry
-  final List<Map<String, dynamic>> industries = [
-    {'id': '1', 'name': '모던 바', 'icon': '🍸'},
-    {'id': '2', 'name': '토크 바', 'icon': '💬'},
-    {'id': '3', 'name': '캐주얼 펍', 'icon': '🍺'},
-    {'id': '4', 'name': '가라오케', 'icon': '🎤'},
-    {'id': '5', 'name': '카페', 'icon': '☕'},
-    {'id': '6', 'name': '테라피', 'icon': '💆'},
-    {'id': '7', 'name': '라이브 방송', 'icon': '📹'},
-    {'id': '8', 'name': '이벤트', 'icon': '🎉'},
-  ];
-
-  final List<Map<String, dynamic>> jobs = [
-    {'id': '9', 'name': '매니저', 'icon': '👔'},
-    {'id': '10', 'name': '실장', 'icon': '👑'},
-    {'id': '11', 'name': '바텐더', 'icon': '🍹'},
-    {'id': '12', 'name': '스탭', 'icon': '👥'},
-    {'id': '13', 'name': '가드', 'icon': '🛡️'},
-    {'id': '14', 'name': '주방', 'icon': '👨‍🍳'},
-    {'id': '15', 'name': 'DJ', 'icon': '🎧'},
-  ];
-
+  // Static data for working days (not in database)
   final List<String> payTypes = ['TC', '일급', '월급', '협의'];
 
   final List<Map<String, String>> daysTop = [
-    {'id': '23', 'name': '전체'},
-    {'id': '16', 'name': '월'},
-    {'id': '17', 'name': '화'},
-    {'id': '18', 'name': '수'},
+    {'id': '전체', 'name': '전체'},
+    {'id': '월', 'name': '월'},
+    {'id': '화', 'name': '화'},
+    {'id': '수', 'name': '수'},
   ];
 
   final List<Map<String, String>> daysBottom = [
-    {'id': '19', 'name': '목'},
-    {'id': '20', 'name': '금'},
-    {'id': '21', 'name': '토'},
-    {'id': '22', 'name': '일'},
+    {'id': '목', 'name': '목'},
+    {'id': '금', 'name': '금'},
+    {'id': '토', 'name': '토'},
+    {'id': '일', 'name': '일'},
   ];
 
-  final List<Map<String, String>> styles = [
-    {'id': '24', 'name': '긍정적'},
-    {'id': '25', 'name': '활발함'},
-    {'id': '26', 'name': '성실함'},
-    {'id': '27', 'name': '대화리드'},
-    {'id': '28', 'name': '패션센스'},
-    {'id': '29', 'name': '좋은비율'},
-  ];
+  /// Load all data from services
+  Future<void> _loadData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-  final List<Map<String, String>> placeFeatures = [
-    {'id': '29', 'name': '초보환영'},
-    {'id': '30', 'name': '텃세없음'},
-    {'id': '31', 'name': '술강요없음'},
-    {'id': '32', 'name': '가족같은'},
-    {'id': '33', 'name': '고급스러운'},
-    {'id': '34', 'name': '자유복장'},
-  ];
+      // Clear cache to ensure fresh data with emojis
+      AttributeService.instance.clearCache();
 
-  final List<Map<String, String>> benefits = [
-    {'id': '35', 'name': '당일지급'},
-    {'id': '36', 'name': '선불/마이킹'},
-    {'id': '37', 'name': '인센티브'},
-    {'id': '38', 'name': '숙소 제공'},
-    {'id': '39', 'name': '교통비 지원'},
-    {'id': '40', 'name': '식사 제공'},
-    {'id': '41', 'name': '의상/유니폼'},
-    {'id': '42', 'name': '헤어/메이크업'},
-    {'id': '43', 'name': '성형 지원'},
-    {'id': '44', 'name': '4대보험'},
-    {'id': '45', 'name': '퇴직금'},
-    {'id': '46', 'name': '휴가/월차'},
-  ];
+      // Load attributes data from service
+      final industryData = AttributeService.instance.getAttributesForUI('INDUSTRY');
+      final jobData = AttributeService.instance.getAttributesForUI('JOB_ROLE');
+      final styleData = AttributeService.instance.getAttributesForUI('MEMBER_STYLE');
+      final placeFeatureData = AttributeService.instance.getAttributesForUI('PLACE_FEATURE');
+      final benefitData = AttributeService.instance.getAttributesForUI('WELFARE');
+
+      // Load existing user preferences
+      final existingPreferences = MemberPreferencesService.instance.loadMatchingPreferences();
+
+      // Wait for all data to load
+      final results = await Future.wait([
+        industryData,
+        jobData,
+        styleData,
+        placeFeatureData,
+        benefitData,
+        existingPreferences,
+      ]);
+
+      setState(() {
+        industries = results[0] as List<Map<String, dynamic>>;
+        jobs = results[1] as List<Map<String, dynamic>>;
+        styles = results[2] as List<Map<String, dynamic>>;
+        placeFeatures = results[3] as List<Map<String, dynamic>>;
+        benefits = results[4] as List<Map<String, dynamic>>;
+        
+        // Load existing preferences if available
+        final prefs = results[5] as MatchingPreferencesData?;
+        if (prefs != null) {
+          selectedIndustries = prefs.selectedIndustryIds.map((id) => id.toString()).toSet();
+          selectedJobs = prefs.selectedJobIds.map((id) => id.toString()).toSet();
+          selectedPayType = prefs.selectedPayType;
+          if (prefs.payAmount != null) {
+            _payAmountController.text = prefs.payAmount.toString();
+          }
+          selectedDays = prefs.selectedDays;
+          selectedStyles = prefs.selectedStyleIds.map((id) => id.toString()).toSet();
+          selectedPlaceFeatures = prefs.selectedPlaceFeatureIds.map((id) => id.toString()).toSet();
+          selectedBenefits = prefs.selectedWelfareIds.map((id) => id.toString()).toSet();
+        }
+        
+        _isLoading = false;
+      });
+
+      // Start fade animation after data is loaded
+      _fadeController!.forward();
+    } catch (e) {
+      debugPrint('Error loading matching preferences data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('데이터 로딩 중 오류가 발생했습니다'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +169,23 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: _fadeAnimation != null
+      body: _isLoading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '매칭 스타일 정보를 불러오는 중...',
+                    style: AppTextStyles.secondaryText(context),
+                  ),
+                ],
+              ),
+            )
+          : _fadeAnimation != null
           ? FadeTransition(
               opacity: _fadeAnimation!,
               child: SingleChildScrollView(
@@ -664,26 +714,45 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: _savePreferences,
+          onTap: _isSaving ? null : _savePreferences,
           child: Container(
             alignment: Alignment.center,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.favorite_rounded,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '매칭 스타일 저장하기',
-                  style: AppTextStyles.buttonText(context).copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+              children: _isSaving
+                  ? [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '저장 중...',
+                        style: AppTextStyles.buttonText(context).copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ]
+                  : [
+                      Icon(
+                        Icons.favorite_rounded,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '매칭 스타일 저장하기',
+                        style: AppTextStyles.buttonText(context).copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
             ),
           ),
         ),
@@ -691,29 +760,97 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     );
   }
 
-  void _savePreferences() {
+  Future<void> _savePreferences() async {
     // Add haptic feedback
     HapticFeedback.mediumImpact();
 
-    // TODO: Implement Supabase data persistence
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            const SizedBox(width: 8),
-            const Text('매칭 스타일이 저장되었습니다'),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    if (_isSaving) return;
 
-    Navigator.of(context).pop();
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // Parse selected IDs to integers
+      final selectedIndustryIds = selectedIndustries.map((id) => int.parse(id)).toSet();
+      final selectedJobIds = selectedJobs.map((id) => int.parse(id)).toSet();
+      final selectedStyleIds = selectedStyles.map((id) => int.parse(id)).toSet();
+      final selectedPlaceFeatureIds = selectedPlaceFeatures.map((id) => int.parse(id)).toSet();
+      final selectedWelfareIds = selectedBenefits.map((id) => int.parse(id)).toSet();
+      
+      // Parse pay amount
+      int? payAmount;
+      if (_payAmountController.text.isNotEmpty) {
+        payAmount = int.tryParse(_payAmountController.text);
+      }
+
+      // Create preferences data
+      final preferencesData = MatchingPreferencesData(
+        selectedIndustryIds: selectedIndustryIds,
+        selectedJobIds: selectedJobIds,
+        selectedPayType: selectedPayType,
+        payAmount: payAmount,
+        selectedDays: selectedDays,
+        selectedStyleIds: selectedStyleIds,
+        selectedPlaceFeatureIds: selectedPlaceFeatureIds,
+        selectedWelfareIds: selectedWelfareIds,
+      );
+
+      // Save to database
+      final success = await MemberPreferencesService.instance.saveMatchingPreferences(preferencesData);
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_outline,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                const SizedBox(width: 8),
+                const Text('매칭 스타일이 저장되었습니다'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+        
+        Navigator.of(context).pop();
+      } else {
+        throw Exception('Failed to save preferences');
+      }
+    } catch (e) {
+      debugPrint('Error saving preferences: $e');
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.onError,
+              ),
+              const SizedBox(width: 8),
+              const Text('저장 중 오류가 발생했습니다'),
+            ],
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 }

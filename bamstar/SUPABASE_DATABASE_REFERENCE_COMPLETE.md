@@ -462,3 +462,212 @@ POLICY "Allow read access to all users" FOR SELECT USING (true)
 8. **trending_hashtags_cache** - 인기 해시태그 캐시
 
 **이제 완전하고 정확한 데이터베이스 참조 문서가 완성되었습니다!** 🎉
+
+---
+
+## 🎯 멤버 매칭 시스템 구현 (2025-08-27)
+
+### 추가 테이블 확인 및 구현
+
+#### 멤버 프로필 관련 테이블
+**기존 문서에서 누락되었던 중요 테이블들이 추가로 확인되었습니다:**
+
+### 17. **attributes**
+**목적**: 통합 속성 사전 (업종, 직무, 스타일, 특징, 복지)
+```sql
+CREATE TABLE attributes (
+    id SERIAL PRIMARY KEY,
+    type TEXT NOT NULL,
+    type_kor TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    icon_name TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    CONSTRAINT unique_type_name UNIQUE (type, name)
+);
+```
+
+**데이터 현황**: 48개 속성 (실제 조회 확인)
+- **INDUSTRY** (업종): 8개 - 모던 바, 토크 바, 캐주얼 펍, 가라오케, 카페, 테라피, 라이브 방송, 이벤트
+- **JOB_ROLE** (구하는 직무): 7개 - 매니저, 실장, 바텐더, 스탭, 가드, 주방, DJ  
+- **WELFARE** (복지 및 혜택): 15개 - 당일지급, 선불/마이킹, 인센티브, 4대보험 등
+- **PLACE_FEATURE** (가게 특징): 10개 - 초보환영, 경력자우대, 가족같은, 파티분위기 등
+- **MEMBER_STYLE** (나의 스타일/강점): 8개 - 긍정적, 활발함, 차분함, 성실함 등
+
+### 18. **member_profiles**
+**목적**: 멤버 상세 프로필
+```sql
+CREATE TABLE member_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    real_name TEXT,
+    age INT,
+    gender gender_enum,
+    contact_phone TEXT,
+    profile_image_urls TEXT[],
+    social_links JSONB,
+    bio TEXT,
+    experience_level experience_level_enum,
+    desired_pay_type pay_type_enum,
+    desired_pay_amount INT,
+    desired_working_days TEXT[],
+    available_from DATE,
+    can_relocate BOOLEAN DEFAULT false,
+    level INT NOT NULL DEFAULT 1,
+    experience_points BIGINT NOT NULL DEFAULT 0,
+    title TEXT DEFAULT '새로운 스타',
+    updated_at TIMESTAMPTZ
+);
+```
+
+**⚠️ 스키마 변경 사항**:
+- `nickname TEXT UNIQUE NOT NULL` → 삭제됨 (2025-08-27)
+- `birthdate DATE` → 삭제됨, `age INT` → 추가됨 (2025-08-27)
+
+### 19. **member_attributes_link** 
+**목적**: 멤버와 스타일 속성 연결 (MEMBER_STYLE)
+```sql
+CREATE TABLE member_attributes_link (
+    member_user_id UUID NOT NULL REFERENCES member_profiles(user_id) ON DELETE CASCADE,
+    attribute_id INT NOT NULL REFERENCES attributes(id) ON DELETE CASCADE,
+    PRIMARY KEY (member_user_id, attribute_id)
+);
+```
+
+### 20. **member_preferences_link**
+**목적**: 멤버와 선호도 연결 (INDUSTRY, JOB_ROLE, PLACE_FEATURE, WELFARE)
+```sql
+CREATE TABLE member_preferences_link (
+    member_user_id UUID NOT NULL REFERENCES member_profiles(user_id) ON DELETE CASCADE,
+    attribute_id INT NOT NULL REFERENCES attributes(id) ON DELETE CASCADE,
+    PRIMARY KEY (member_user_id, attribute_id)
+);
+```
+
+### 21. **member_preferred_area_groups**
+**목적**: 멤버와 선호 지역 연결
+```sql
+CREATE TABLE member_preferred_area_groups (
+    member_user_id UUID NOT NULL REFERENCES member_profiles(user_id) ON DELETE CASCADE,
+    group_id INT NOT NULL REFERENCES area_groups(group_id) ON DELETE CASCADE,
+    PRIMARY KEY (member_user_id, group_id)
+);
+```
+
+---
+
+## 🛠️ 매칭 시스템 서비스 구현
+
+### AttributeService 
+**파일**: `lib/services/attribute_service.dart`
+
+**주요 기능**:
+- 속성 타입별 데이터 조회 (캐싱 포함)
+- UI 컴포넌트용 데이터 변환
+- 배치 조회로 성능 최적화
+- 공통 속성 프리로드
+
+**핵심 메서드**:
+```dart
+Future<List<Attribute>> getAttributesByType(String type)
+Future<Map<String, List<Attribute>>> getMultipleAttributeTypes(List<String> types)
+Future<List<Map<String, dynamic>>> getAttributesForUI(String type)
+```
+
+### MemberPreferencesService
+**파일**: `lib/services/member_preferences_service.dart`
+
+**주요 기능**:
+- 매칭 선호도 저장 (3개 테이블 동시 처리)
+- 기존 선호도 불러오기
+- 멤버 프로필 관리
+- 페이 타입 변환 (UI ↔ DB enum)
+
+**핵심 메서드**:
+```dart
+Future<bool> saveMatchingPreferences(MatchingPreferencesData data)
+Future<MatchingPreferencesData?> loadMatchingPreferences()
+Future<MemberProfile?> getMemberProfile()
+```
+
+### MatchingPreferencesPage 업데이트
+**파일**: `lib/scenes/matching_preferences_page.dart`
+
+**구현된 기능**:
+- ✅ 하드코딩 데이터를 DB 연동으로 전환
+- ✅ 로딩 상태 및 에러 처리 추가
+- ✅ 기존 사용자 선호도 자동 로드
+- ✅ 실시간 데이터 저장 (3개 테이블 트랜잭션)
+- ✅ Flutter 테마 시스템 준수 유지
+
+---
+
+## 📊 데이터 플로우 - 매칭 시스템
+
+### 매칭 선호도 저장 플로우
+1. **UI 데이터 수집**: MatchingPreferencesPage에서 사용자 선택
+2. **데이터 변환**: String ID → Integer ID, 페이 타입 enum 변환
+3. **데이터베이스 저장** (트랜잭션):
+   - `member_profiles`: 급여 조건, 근무 요일
+   - `member_attributes_link`: 스타일/강점 (MEMBER_STYLE)
+   - `member_preferences_link`: 업종, 직무, 특징, 복지
+
+### 속성 데이터 로딩 플로우
+1. **캐시 확인**: AttributeService에서 메모리 캐시 체크
+2. **배치 조회**: 여러 타입 동시 조회로 성능 최적화
+3. **UI 변환**: 아이콘 포함 Map 형태로 변환
+4. **기존 데이터 로드**: 사용자 선호도 복원
+
+---
+
+## 🔗 업데이트된 테이블 관계도
+
+```
+            attributes (통합 속성 사전)
+                 ↙          ↘
+member_attributes_link   member_preferences_link
+         ↓                        ↓
+    member_profiles ←→ member_preferred_area_groups
+         ↓                        ↓
+       users                 area_groups
+```
+
+---
+
+## 🎯 매칭 시스템 완료 상태
+
+### ✅ 완료된 구현
+1. **데이터베이스 스키마 확인**: 5개 추가 테이블 완전 구현
+2. **속성 데이터 완비**: 48개 속성이 5개 타입으로 정확히 분류
+3. **서비스 레이어**: AttributeService, MemberPreferencesService 완전 구현
+4. **UI 통합**: MatchingPreferencesPage 완전 데이터베이스 연동
+5. **로딩/에러 처리**: 사용자 경험 최적화
+6. **Flutter 테마 준수**: CLAUDE.md 가이드라인 완벽 준수
+
+### 🔄 AI 프롬프트 생성 시스템 준비
+- **데이터 수집**: 모든 사용자 선택 데이터가 정규화되어 저장
+- **4가지 바구니**: MUST_HAVE, ENVIRONMENT, PEOPLE, AVOID 분류 준비
+- **프롬프트 템플릿**: member_profile.md 명세에 따른 한글 프롬프트 구조
+
+**총 테이블 수**: 21개 (기존 16개 + 매칭 시스템 5개)**
+
+---
+
+## 📝 최근 스키마 변경 사항 (2025-08-27)
+
+### member_profiles 테이블 수정
+**변경 사항**: 
+1. `nickname` 컬럼이 데이터베이스에서 삭제됨
+2. `birthdate(DATE)` 컬럼이 삭제되고 `age(INT)` 컬럼이 추가됨
+
+**영향받는 파일**:
+- `lib/services/basic_info_service.dart` ✅ 업데이트 완료
+  - `BasicInfo` 클래스에서 `nickname` 필드 제거 ✅ 완료
+  - `fromMap()` 메소드: birthdate 계산 로직 제거, age 직접 조회 ✅ 완료
+  - `toMap()` 메소드: birthdate 계산 로직 제거, age 직접 저장 ✅ 완료
+  - 나이 계산 로직 완전 제거 (DB에서 직접 저장/조회) ✅ 완료
+
+**데이터 매핑 변경**:
+- **nickname 제거**: `nickname` ↔ `member_profiles.nickname` → 삭제됨
+- **나이 처리 변경**: 
+  - **이전**: `age(계산값)` ↔ `member_profiles.birthdate` (DATE)
+  - **현재**: `age` ↔ `member_profiles.age` (INT)
