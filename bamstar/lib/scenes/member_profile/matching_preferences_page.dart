@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../theme/app_text_styles.dart';
-import '../services/attribute_service.dart';
-import '../services/member_preferences_service.dart';
-import '../services/matching_conditions_service.dart';
+import '../../theme/app_text_styles.dart';
+import '../../services/attribute_service.dart';
+import 'services/member_preferences_service.dart';
+import 'services/matching_conditions_service.dart';
 
 class MatchingPreferencesPage extends StatefulWidget {
   const MatchingPreferencesPage({super.key});
@@ -15,7 +15,7 @@ class MatchingPreferencesPage extends StatefulWidget {
 
 class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
+
 
   // Form state variables
   Set<String> selectedIndustries = {};

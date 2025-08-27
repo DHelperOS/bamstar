@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
 // Typography import removed as it's not used in current implementation
-import 'package:bamstar/scenes/edit_info_page.dart';
-import 'package:bamstar/scenes/basic_info_sheet_flow.dart';
+import 'package:bamstar/scenes/member_profile/edit_info_page.dart';
+import 'package:bamstar/scenes/member_profile/basic_info_sheet_flow.dart';
 import 'package:bamstar/scenes/region_preference_sheet.dart';
 import 'package:bamstar/services/user_service.dart';
-import 'package:bamstar/scenes/edit_profile_modal.dart';
+import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
-import 'package:bamstar/scenes/matching_preferences_page.dart';
+import 'package:bamstar/scenes/member_profile/matching_preferences_page.dart';
 
 // Enhanced user settings page with modern card design and tab navigation
 // - Clean white background with card-based layout

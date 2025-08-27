@@ -6,7 +6,7 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'package:bamstar/services/avatar_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../theme/app_text_styles.dart';
+import '../../theme/app_text_styles.dart';
 
 /// Enhanced edit profile modal with clean white theme and modern card design
 Future<void> showEditProfileModal(
@@ -23,7 +23,7 @@ Future<void> showEditProfileModal(
   );
 
   ImageProvider? preview = initialImage;
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   await WoltModalSheet.show(
     context: context,
@@ -86,7 +86,7 @@ Future<void> showEditProfileModal(
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () async {
-                  if (!(_formKey.currentState?.validate() ?? false)) return;
+                  if (!(formKey.currentState?.validate() ?? false)) return;
                   final name = nameCtl.text.trim();
                   final email = emailCtl.text.trim();
                   try {
@@ -300,7 +300,7 @@ Future<void> showEditProfileModal(
                     ],
                   ),
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

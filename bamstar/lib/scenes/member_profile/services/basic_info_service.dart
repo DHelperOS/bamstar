@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
-import 'cloudinary.dart';
+import '../../../services/cloudinary.dart';
 
 class BasicInfo {
   final String? realName;

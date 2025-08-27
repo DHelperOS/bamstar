@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:solar_icons/solar_icons.dart';
 
-import '../theme/app_text_styles.dart';
-import '../services/basic_info_service.dart';
+import '../../theme/app_text_styles.dart';
+import 'services/basic_info_service.dart';
 
 /// Single-page basic info form with clean design matching edit_profile_modal
 class BasicInfoPage extends StatefulWidget {
@@ -19,8 +19,8 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
 
   // Photo management
   final ImagePicker _picker = ImagePicker();
-  final List<Uint8List> _photos = <Uint8List>[];  // New photos to upload
-  final List<String> _loadedImageUrls = <String>[];  // Existing photos from database
+  final List<Uint8List> _photos = <Uint8List>[];
+  final List<String> _loadedImageUrls = <String>[];  // Existing images from database
 
   // Form controllers
   final TextEditingController _nameCtl = TextEditingController();
@@ -93,8 +93,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
       if (imgs.isEmpty) return;
 
       for (final img in imgs) {
-        final totalImages = _loadedImageUrls.length + _photos.length;
-        if (totalImages >= 5) break;
+        if (_photos.length >= 5) break;
         final bytes = await img.readAsBytes();
         setState(() => _photos.add(bytes));
       }
@@ -112,8 +111,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
       if (img == null) return;
 
       final bytes = await img.readAsBytes();
-      final totalImages = _loadedImageUrls.length + _photos.length;
-      if (totalImages < 5) {
+      if (_photos.length < 5) {
         setState(() => _photos.add(bytes));
       }
     } catch (e) {
@@ -126,7 +124,9 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   }
 
   void _removeLoadedImage(int index) {
-    setState(() => _loadedImageUrls.removeAt(index));
+    setState(() {
+      _loadedImageUrls.removeAt(index);
+    });
   }
 
   Future<void> _loadBasicInfo() async {
@@ -169,64 +169,24 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
         bio: _introCtl.text.trim().isEmpty ? null : _introCtl.text.trim(),
       );
 
-      // Show upload progress message if there are photos
-      if (_photos.isNotEmpty && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('사진 ${_photos.length}장을 업로드하고 있습니다...'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-
-      // Save to database (includes photo upload to Cloudinary)
+      // Save to database
       final success = await BasicInfoService.instance.saveBasicInfo(basicInfo, _photos);
 
       if (mounted) {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(_photos.isEmpty 
-                  ? '기본 정보가 저장되었습니다' 
-                  : '기본 정보와 사진 ${_photos.length}장이 저장되었습니다'),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-            ),
-          );
+            const SnackBar(content: Text('기본 정보가 저장되었습니다')));
           Navigator.of(context).pop();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('저장 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+            const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
         }
       }
     } catch (e) {
       debugPrint('save basic info error: $e');
       if (mounted) {
-        String errorMessage = '저장 중 오류가 발생했습니다';
-        
-        // Provide more specific error messages
-        if (e.toString().contains('UnsafeImageException')) {
-          errorMessage = '업로드한 이미지에 부적절한 내용이 감지되었습니다';
-        } else if (e.toString().contains('network') || e.toString().contains('connection')) {
-          errorMessage = '네트워크 연결을 확인해주세요';
-        } else if (e.toString().contains('Cloudinary')) {
-          errorMessage = '이미지 업로드에 실패했습니다. 다시 시도해주세요.';
-        }
-        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: '재시도',
-              textColor: Colors.white,
-              onPressed: () => _saveBasicInfo(),
-            ),
-          ),
-        );
+          const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
       }
     } finally {
       if (mounted) {
@@ -516,130 +476,9 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   }
 
   Widget _buildPhotoThumbnails() {
-    // Calculate total images (loaded from database + new photos)
-    final int totalImages = _loadedImageUrls.length + _photos.length;
+    final totalImageCount = _loadedImageUrls.length + _photos.length;
     
-    if (totalImages == 0) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-            ),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          ),
-          child: Icon(
-            SolarIconsOutline.userCircle,
-            size: 32,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: totalImages,
-      separatorBuilder: (_, __) => const SizedBox(width: 8),
-      itemBuilder: (context, index) {
-        final bool isLoadedImage = index < _loadedImageUrls.length;
-        
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: isLoadedImage
-                  ? Image.network(
-                      _loadedImageUrls[index],
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Icon(
-                            SolarIconsOutline.closeCircle,
-                            size: 24,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        );
-                      },
-                    )
-                  : Image.memory(
-                      _photos[index - _loadedImageUrls.length],
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
-            ),
-            Positioned(
-              top: -6,
-              right: -6,
-              child: GestureDetector(
-                onTap: () => isLoadedImage 
-                    ? _removeLoadedImage(index)
-                    : _removePhoto(index - _loadedImageUrls.length),
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.surface,
-                      width: 2,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onError,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }() {
-    if (_photos.isEmpty) {
+    if (totalImageCount == 0) {
       return Align(
         alignment: Alignment.centerLeft,
         child: Container(
@@ -665,26 +504,67 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
 
     return ListView.separated(
       scrollDirection: Axis.horizontal,
-      itemCount: _photos.length,
+      itemCount: totalImageCount,
       separatorBuilder: (_, __) => const SizedBox(width: 8),
       itemBuilder: (context, index) {
+        final isLoadedImage = index < _loadedImageUrls.length;
+        
         return Stack(
           clipBehavior: Clip.none,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.memory(
-                _photos[index],
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
+              child: isLoadedImage
+                  ? Image.network(
+                      _loadedImageUrls[index],
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.error_outline,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                            size: 24,
+                          ),
+                        );
+                      },
+                    )
+                  : Image.memory(
+                      _photos[index - _loadedImageUrls.length],
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
             ),
             Positioned(
               top: -6,
               right: -6,
               child: GestureDetector(
-                onTap: () => _removePhoto(index),
+                onTap: () => isLoadedImage ? _removeLoadedImage(index) : _removePhoto(index - _loadedImageUrls.length),
                 child: Container(
                   width: 24,
                   height: 24,
