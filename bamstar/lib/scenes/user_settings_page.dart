@@ -178,37 +178,24 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Small bordered icon button (no text) aligned to the right of the name
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1,
-                            ),
+                        // Small icon button (pen only, no border)
+                        IconButton(
+                          onPressed: () => showEditProfileModal(
+                            context,
+                            _profileImage,
+                            onImagePicked: (img) {
+                              if (!mounted) return;
+                              setState(() => _profileImage = img);
+                            },
                           ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => showEditProfileModal(
-                                context,
-                                _profileImage,
-                                onImagePicked: (img) {
-                                  if (!mounted) return;
-                                  setState(() => _profileImage = img);
-                                },
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Icon(
-                                  SolarIconsOutline.pen,
-                                  size: 16,
-                                  color: Color(0xFF1C252E),
-                                ),
-                              ),
-                            ),
+                          icon: Icon(
+                            SolarIconsOutline.pen,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
+                          padding: const EdgeInsets.all(8),
+                          constraints: const BoxConstraints(),
+                          tooltip: '프로필 편집',
                         ),
                       ],
                     ),
