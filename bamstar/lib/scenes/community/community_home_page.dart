@@ -255,15 +255,20 @@ class _CommunityHomePageState extends State<CommunityHomePage>
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFFFFFFFF), // Clean white base from sample
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        forceMaterialTransparency: true,
+        backgroundColor: const Color(0xFFFFFFFF),
+        forceMaterialTransparency: false,
         surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        foregroundColor: cs.onSurface,
-        elevation: 0,
+        shadowColor: const Color(0x0A000000), // Subtle shadow for depth
+        foregroundColor: const Color(0xFF1C252E), // High contrast text
+        elevation: 0.5,
+        titleTextStyle: const TextStyle(
+          color: Color(0xFF1C252E),
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
         title: const Text('커뮤니티'),
         actions: <Widget>[
           JustTheTooltip(
@@ -341,7 +346,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
         children: [
           SafeArea(
             child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              constraints: const BoxConstraints.expand(),
+              color: const Color(0xFFFFFFFF), // Sample's clean white background
               child: RefreshIndicator(
                 color: Colors.grey, // neutral spinner instead of primary (purple)
                 backgroundColor: Colors.white,
@@ -360,115 +366,51 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                   SliverToBoxAdapter(
                     child: AnimatedCrossFade(
                       firstChild: const SizedBox.shrink(),
-                      secondChild: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
-                                height: 40,
-                                child: TextField(
-                                  focusNode: _searchFocusNode,
-                                  controller: _searchController,
-                                  decoration: InputDecoration(
-                                    hintText: '게시물 내용으로 검색',
-                                    prefixIcon: const Icon(
-                                      SolarIconsOutline.magnifier,
-                                      size: 20,
-                                    ),
-                                    suffixIcon: _searchController.text.isEmpty
-                                        ? null
-                                        : IconButton(
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                            ),
-                                            constraints: const BoxConstraints(
-                                              minWidth: 28,
-                                              minHeight: 28,
-                                            ),
-                                            icon: const Icon(
-                                              Icons.clear,
-                                              size: 16,
-                                            ),
-                                            onPressed: () {
-                                              _searchController.clear();
-                                              setState(() {
-                                                _contentQuery = null;
-                                              });
-                                            },
-                                          ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(999),
-                                      borderSide: BorderSide(
-                                        color: cs.outlineVariant.withValues(
-                                          alpha: 0.12,
-                                        ),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(999),
-                                      borderSide: BorderSide(
-                                        color: cs.outlineVariant.withValues(
-                                          alpha: 0.10,
-                                        ),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    filled: true,
-                                    fillColor: cs.surface,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 6,
-                                      horizontal: 12,
-                                    ),
-                                  ),
-                                  textInputAction: TextInputAction.search,
-                                  onSubmitted: (v) {
-                                    final text = v.trim();
-                                    setState(() {
-                                      _contentQuery = text.isEmpty
-                                          ? null
-                                          : text;
-                                      _selectedTag = null;
-                                      _selectedTabIndex = 0;
-                                      _showSearch = false;
-                                    });
-                                    FocusScope.of(context).unfocus();
-                                    _loadInitial();
-                                  },
-                                ),
-                              ),
+                      secondChild: Container(
+                        margin: const EdgeInsets.only(top: 16, bottom: 12, left: 16, right: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: const Color(0x0F919EAB), // Subtle background
+                          border: Border.all(
+                            color: const Color(0x26919EAB),
+                            width: 1,
+                          ),
+                        ),
+                        child: TextField(
+                          focusNode: _searchFocusNode,
+                          controller: _searchController,
+                          style: const TextStyle(
+                            color: Color(0xFF1C252E),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          decoration: const InputDecoration(
+                            hintText: '게시물 내용으로 검색',
+                            hintStyle: TextStyle(
+                              color: Color(0x80919EAB),
+                              fontSize: 14,
                             ),
-                            const SizedBox(width: 8),
-                            // search button sized to match input height
-                            SizedBox(
-                              height: 40,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  final text = _searchController.text.trim();
-                                  setState(() {
-                                    _contentQuery = text.isEmpty ? null : text;
-                                    _selectedTag = null;
-                                    _selectedTabIndex = 0;
-                                    _showSearch = false;
-                                  });
-                                  FocusScope.of(context).unfocus();
-                                  _loadInitial();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shape: const StadiumBorder(),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 6,
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Text('검색'),
-                              ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                            prefixIcon: Icon(
+                              SolarIconsOutline.magnifier,
+                              size: 18,
+                              color: Color(0xFF919EAB),
                             ),
-                          ],
+                          ),
+                          textInputAction: TextInputAction.search,
+                          onSubmitted: (v) {
+                            final text = v.trim();
+                            setState(() {
+                              _contentQuery = text.isEmpty ? null : text;
+                              _selectedTag = null;
+                              _selectedTabIndex = 0;
+                              _showSearch = false;
+                            });
+                            FocusScope.of(context).unfocus();
+                            _loadInitial();
+                          },
                         ),
                       ),
                       crossFadeState: _showSearch
@@ -750,23 +692,25 @@ Widget _buildContentWithHashtags(
       WidgetSpan(
         alignment: PlaceholderAlignment.middle,
         child: Padding(
-          padding: const EdgeInsets.only(right: 6, left: 2),
-          child: Container(
-            decoration: BoxDecoration(
-              color: cs.surface.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.08),
-                width: 1,
+          padding: const EdgeInsets.only(right: 8, left: 2),
+          child: IntrinsicWidth(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: const Color(0x26919EAB), // Sample's subtle background
               ),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: onHashtagTap == null ? null : () => onHashtagTap(tag),
-              splashFactory: InkRipple.splashFactory,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                child: Text(tag, style: tagStyle),
+              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: onHashtagTap == null ? null : () => onHashtagTap(tag),
+                child: Text(
+                  tag, 
+                  style: tagStyle.copyWith(
+                    color: const Color(0xFF1C252E), // High contrast text from sample
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600, // Sample's bold weight
+                  ),
+                ),
               ),
             ),
           ),
@@ -2514,23 +2458,28 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   final hasImages = post.imageUrls.isNotEmpty;
 
     final _cardInner = Container(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.08),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+        margin: const EdgeInsets.only(top: 12, bottom: 16, left: 16, right: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFFFF), // Clean white background from sample
+          borderRadius: BorderRadius.circular(10), // Sample's rounded corners
+          border: Border.all(
+            color: const Color(0x0F919EAB), // Subtle border
+            width: 0.5,
           ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: null,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x08000000), // Very subtle shadow
+              blurRadius: 8,
+              offset: Offset(0, 2),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 4), // More generous padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -3347,49 +3296,78 @@ class _ChannelTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    // Build list of tabs ("전체" + channels)
+    // Build list of tabs ("전체" + channels) with improved styling
     final tabWidgets = <Widget>[
-      const Tab(text: '전체'),
-      ...channels.map((channel) => Tab(text: '#${channel.name}')),
-      // "+" tab as circular icon
       Tab(
         child: Container(
-          width: 17,
-          height: 17,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: cs.primary, width: 0.7),
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0x0F919EAB), // Subtle background from sample
           ),
-          child: Center(child: Icon(Icons.add, size: 9, color: cs.primary)),
+          child: const Text(
+            '전체',
+            style: TextStyle(
+              color: Color(0xFF1C252E), // High contrast text
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+      ...channels.map((channel) => Tab(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0x0F919EAB), // Consistent styling
+          ),
+          child: Text(
+            '#${channel.name}',
+            style: const TextStyle(
+              color: Color(0xFF1C252E),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      )),
+      // "+" tab with sample design
+      Tab(
+        child: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: const Color(0x0F919EAB),
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.add, 
+              size: 16, 
+              color: Color(0xFF1C252E),
+            ),
+          ),
         ),
       ),
     ];
 
     final tabsCount = tabWidgets.length;
 
-    // If the provided controller already matches the number of tabs, use it.
-    // Otherwise wrap TabBar with a DefaultTabController to avoid assertion
-    // failures during controller length changes.
+    // TabBar with clean sample design
     final tabBar = TabBar(
       controller: (controller.length == tabsCount) ? controller : null,
       isScrollable: true,
-      padding: EdgeInsets.zero,
-      labelPadding: const EdgeInsets.only(left: 8, right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      labelPadding: const EdgeInsets.only(left: 6, right: 6),
       indicatorPadding: EdgeInsets.zero,
-      // show primary-colored underline for the selected tab
-      indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(color: cs.primary, width: 2),
-        insets: const EdgeInsets.symmetric(horizontal: 12),
-      ),
+      indicator: const BoxDecoration(), // No underline indicator - using container backgrounds
       dividerColor: Colors.transparent,
       tabAlignment: TabAlignment.start,
-      labelColor: cs.primary,
-      unselectedLabelColor: cs.onSurfaceVariant,
-      // indicatorColor is ignored when 'indicator' is provided, keep clean
-      labelStyle: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-      unselectedLabelStyle: tt.bodyMedium?.copyWith(
-        fontWeight: FontWeight.normal,
-      ),
+      labelColor: const Color(0xFF1C252E), // High contrast from sample
+      unselectedLabelColor: const Color(0xFF919EAB), // Muted color
+      splashFactory: NoSplash.splashFactory, // Clean tap without ripple
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
       tabs: tabWidgets,
       onTap: onTap,
     );
