@@ -205,13 +205,14 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                         ),
                       ],
                     ),
-                    // Reduce vertical gap between name and email to bring them closer
-                    const SizedBox(height: 4),
+                    // Minimize vertical gap so email sits immediately below name
+                    const SizedBox(height: 0),
                     Text(
                       UserService.instance.user?.email ?? '이메일 없음',
                       style: const TextStyle(
                         color: Color(0xFF919EAB),
-                        fontSize: 14,
+                        fontSize: 13,
+                        height: 1.0,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
