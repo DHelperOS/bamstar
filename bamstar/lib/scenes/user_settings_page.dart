@@ -8,6 +8,7 @@ import 'package:bamstar/scenes/region_preference_sheet.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
+import 'package:bamstar/scenes/matching_preferences_page.dart';
 
 // Enhanced user settings page with modern card design and tab navigation
 // - Clean white background with card-based layout
@@ -21,7 +22,7 @@ class UserSettingsPage extends StatefulWidget {
   State<UserSettingsPage> createState() => _UserSettingsPageState();
 }
 
-class _UserSettingsPageState extends State<UserSettingsPage> 
+class _UserSettingsPageState extends State<UserSettingsPage>
     with SingleTickerProviderStateMixin {
   ImageProvider? _profileImage;
   late TabController _tabController;
@@ -68,7 +69,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
         backgroundColor: const Color(0xFFFFFFFF),
         elevation: 0,
         title: Text(
-          '프로필', 
+          '프로필',
           style: TextStyle(
             color: const Color(0xFF1C252E),
             fontSize: 18,
@@ -95,10 +96,10 @@ class _UserSettingsPageState extends State<UserSettingsPage>
             children: [
               // Enhanced Profile Header Card
               _buildProfileHeader(context),
-              
+
               // Tab Bar
               _buildTabBar(context),
-              
+
               // Tab Content
               Expanded(
                 child: TabBarView(
@@ -132,10 +133,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: const Color(0x0F919EAB),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0x0F919EAB), width: 1),
       ),
       child: Column(
         children: [
@@ -145,10 +143,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0x26919EAB),
-                    width: 2,
-                  ),
+                  border: Border.all(color: const Color(0x26919EAB), width: 2),
                 ),
                 child: CircleAvatar(
                   radius: 32, // reduced from 40 -> ~80%
@@ -157,7 +152,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                 ),
               ),
               const SizedBox(width: 20),
-              
+
               // Profile Info with edit icon placed to the right of the name
               Expanded(
                 child: Column(
@@ -183,7 +178,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 2),
                               IconButton(
                                 onPressed: () => showEditProfileModal(
                                   context,
@@ -196,7 +191,9 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                                 icon: Icon(
                                   SolarIconsOutline.pen,
                                   size: 18,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                                 padding: const EdgeInsets.all(6),
                                 constraints: const BoxConstraints(),
@@ -232,10 +229,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0x0F919EAB),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0x0F919EAB), width: 1),
       ),
       child: TabBar(
         controller: _tabController,
@@ -246,10 +240,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
         ),
         labelColor: const Color(0xFFFFFFFF),
         unselectedLabelColor: const Color(0xFF919EAB),
-        labelStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -271,53 +262,62 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '내 정보',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+          Text('내 정보', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
-          
+
           // 기본 정보 카드
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.user,
-            title: '기본 정보',
-            subtitle: '나의 간단한 기본 정보를 넣어주세요.',
-            trailing: const Icon(SolarIconsOutline.dangerTriangle, color: Colors.amber),
-            onTap: () => Navigator.of(context, rootNavigator: true)
-                .push(basicInfoSheetRoute()),
+            title: '프로필 시작하기',
+            subtitle: '플레이스와 연결을 위해 꼭 필요한 정보예요.',
+            trailing: const Icon(
+              SolarIconsOutline.dangerTriangle,
+              color: Colors.amber,
+            ),
+            onTap: () => Navigator.of(
+              context,
+              rootNavigator: true,
+            ).push(basicInfoSheetRoute()),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 상세 정보 카드
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.menuDots,
-            title: '상세 정보',
-            subtitle: 'AI 매칭에 필요한 상세한 정보를 넣어주세요',
-            trailing: Icon(SolarIconsOutline.dangerTriangle, 
-                color: Theme.of(context).colorScheme.error),
+            title: '매칭 조건 설정하기',
+            subtitle: '자세히 설정할수록, 빨리 매칭될 수 있어요.',
+            trailing: Icon(
+              SolarIconsOutline.dangerTriangle,
+              color: Theme.of(context).colorScheme.error,
+            ),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => EditInfoPage(title: '상세 정보', fields: {}),
+                builder: (_) => const MatchingPreferencesPage(),
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // 선호 지역 카드
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.mapPoint,
-            title: '선호 지역',
-            subtitle: '매칭에 반영할 선호 지역을 설정하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            title: '어디에서 빛나고 싶으신가요?',
+            subtitle: '선호 지역을 중심으로 추천해 드려요.',
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () async {
-              final res = await Navigator.of(context, rootNavigator: true)
-                  .push(preferredRegionSheetRoute());
+              final res = await Navigator.of(
+                context,
+                rootNavigator: true,
+              ).push(preferredRegionSheetRoute());
               if (!context.mounted) return;
               if (res is List) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -326,35 +326,38 @@ class _UserSettingsPageState extends State<UserSettingsPage>
               }
             },
           ),
-          
+
           const SizedBox(height: 24),
-          
-          Text(
-            '기타',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+
+          Text('기타', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.questionCircle,
             title: '자주 묻는 질문',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '자주 묻는 질문'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.chatRoundCall,
             title: '도움말 및 지원',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '도움말 및 지원'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.logout,
@@ -372,40 +375,46 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '지원 현황',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+          Text('지원 현황', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.documentText,
             title: '지원한 공고',
             subtitle: '총 0개의 공고에 지원하였습니다',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '지원한 공고'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.eye,
             title: '조회한 공고',
             subtitle: '최근 조회한 공고를 확인하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '조회한 공고'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.heart,
             title: '관심 공고',
             subtitle: '관심있는 공고를 저장하고 관리하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '관심 공고'),
           ),
         ],
@@ -419,40 +428,46 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '내가 쓴 글',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+          Text('내가 쓴 글', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.documentText,
             title: '작성한 게시글',
             subtitle: '커뮤니티에 작성한 게시글을 확인하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '작성한 게시글'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.chatRoundDots,
             title: '작성한 댓글',
             subtitle: '다른 게시글에 작성한 댓글을 확인하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '작성한 댓글'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.heart,
             title: '좋아요한 게시글',
             subtitle: '좋아요를 누른 게시글을 확인하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '좋아요한 게시글'),
           ),
         ],
@@ -466,40 +481,46 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '차단 목록',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+          Text('차단 목록', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.forbiddenCircle,
             title: '차단한 사용자',
             subtitle: '차단한 사용자 목록을 관리하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '차단한 사용자'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.shieldMinus,
             title: '신고한 게시글',
             subtitle: '신고한 게시글의 처리 현황을 확인하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '신고한 게시글'),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.settings,
             title: '프라이버시 설정',
             subtitle: '계정 보안 및 프라이버시 설정을 관리하세요',
-            trailing: const Icon(SolarIconsOutline.arrowRight, color: Color(0xFF919EAB)),
+            trailing: const Icon(
+              SolarIconsOutline.arrowRight,
+              color: Color(0xFF919EAB),
+            ),
             onTap: () => _showToast(context, '프라이버시 설정'),
           ),
         ],
@@ -526,10 +547,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(
-          color: const Color(0x0F919EAB),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0x0F919EAB), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -547,11 +565,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                     color: const Color(0xFFF8F9FA),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: const Color(0xFF637381),
-                  ),
+                  child: Icon(icon, size: 20, color: const Color(0xFF637381)),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -580,10 +594,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                     ],
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 8),
-                  trailing,
-                ],
+                if (trailing != null) ...[const SizedBox(width: 8), trailing],
               ],
             ),
           ),
@@ -593,8 +604,8 @@ class _UserSettingsPageState extends State<UserSettingsPage>
   }
 
   void _showToast(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

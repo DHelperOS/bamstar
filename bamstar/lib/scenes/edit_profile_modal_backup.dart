@@ -6,9 +6,10 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'package:bamstar/services/avatar_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../theme/app_text_styles.dart';
+// ...existing code... (removed unused cached_network_image and solar_icons imports)
 
-/// Enhanced edit profile modal with clean white theme and modern card design
+/// Show the edit profile modal (photo + name/email). Calls [onImagePicked]
+/// when the user picks a new image so callers can update preview state.
 Future<void> showEditProfileModal(
   BuildContext context,
   ImageProvider? initialImage, {
@@ -22,6 +23,8 @@ Future<void> showEditProfileModal(
     text: UserService.instance.user?.email ?? '',
   );
 
+  // ...existing code... (helper removed after single-page refactor)ㄱ
+
   ImageProvider? preview = initialImage;
   final _formKey = GlobalKey<FormState>();
 
@@ -29,37 +32,42 @@ Future<void> showEditProfileModal(
     context: context,
     pageListBuilder: (modalCtx) => [
       WoltModalSheetPage(
-        backgroundColor: Theme.of(modalCtx).colorScheme.surface,
+        backgroundColor: const Color(0xFFFFFFFF), // Clean white background
         surfaceTintColor: Colors.transparent,
-        pageTitle: null,
-        leadingNavBarWidget: Padding(
-          padding: const EdgeInsets.only(left: 20.0),
+        pageTitle: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Text(
             '프로필 수정',
-            style: AppTextStyles.dialogTitle(modalCtx),
+            style: const TextStyle(
+              color: Color(0xFF1C252E),
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
           ),
         ),
+        leadingNavBarWidget: null,
         trailingNavBarWidget: Container(
           margin: const EdgeInsets.only(right: 20.0),
           child: IconButton(
             visualDensity: VisualDensity.compact,
             padding: const EdgeInsets.all(8),
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            icon: Icon(
+            icon: const Icon(
               Icons.close_rounded,
               size: 20,
-              color: Theme.of(modalCtx).colorScheme.onSurfaceVariant,
+              color: Color(0xFF637381),
             ),
             onPressed: () => Navigator.of(modalCtx).pop(),
           ),
         ),
         stickyActionBar: Container(
           padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 32.0),
-          decoration: BoxDecoration(
-            color: Theme.of(modalCtx).colorScheme.surface,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFFFFF),
             border: Border(
               top: BorderSide(
-                color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.1),
+                color: Color(0x0F919EAB),
                 width: 1,
               ),
             ),
@@ -70,12 +78,12 @@ Future<void> showEditProfileModal(
               gradient: LinearGradient(
                 colors: [
                   Theme.of(modalCtx).colorScheme.primary,
-                  Theme.of(modalCtx).colorScheme.primary.withValues(alpha: 0.8),
+                  Theme.of(modalCtx).colorScheme.primary.withOpacity(0.8),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(modalCtx).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(modalCtx).colorScheme.primary.withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -113,14 +121,16 @@ Future<void> showEditProfileModal(
                     }
                   }
                 },
-                child: SizedBox(
+                child: const SizedBox(
                   height: 52,
                   width: double.infinity,
                   child: Center(
                     child: Text(
                       '저장',
-                      style: AppTextStyles.buttonText(modalCtx).copyWith(
-                        color: Theme.of(modalCtx).colorScheme.onPrimary,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -130,24 +140,31 @@ Future<void> showEditProfileModal(
           ),
         ),
         child: SizedBox(
-          height: MediaQuery.of(modalCtx).size.height * 0.65,
+          height: MediaQuery.of(modalCtx).size.height * 0.42,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 8),
                 Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Local helper: pick from gallery, upload to Cloudinary, update DB + preview
+                      // Note: shows immediate local preview, then swaps to cached network image after upload
+                      FutureBuilder<void>(
+                        future: Future.value(),
+                        builder: (ctx, _) => const SizedBox.shrink(),
+                      ),
                       // Enhanced Avatar with clean card design
                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(modalCtx).colorScheme.shadow,
+                              color: const Color(0x08000000),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -166,22 +183,22 @@ Future<void> showEditProfileModal(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.15),
+                                    color: const Color(0x26919EAB),
                                     width: 3,
                                   ),
-                                  color: Theme.of(modalCtx).colorScheme.surfaceContainerHighest,
+                                  color: const Color(0xFFF8F9FA),
                                 ),
                                 child: ClipOval(
                                   child: Center(
                                     child: CircleAvatar(
                                       radius: 57,
                                       backgroundImage: preview,
-                                      backgroundColor: Theme.of(modalCtx).colorScheme.surface,
+                                      backgroundColor: const Color(0xFFF4F6F8),
                                       child: preview == null
-                                          ? Icon(
+                                          ? const Icon(
                                               Icons.person,
                                               size: 48,
-                                              color: Theme.of(modalCtx).colorScheme.onSurfaceVariant,
+                                              color: Color(0xFF919EAB),
                                             )
                                           : null,
                                     ),
@@ -210,20 +227,20 @@ Future<void> showEditProfileModal(
                                     width: 36,
                                     height: 36,
                                     decoration: BoxDecoration(
-                                      color: Theme.of(modalCtx).colorScheme.surface,
+                                      color: const Color(0xFFFFFFFF),
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.15),
+                                        color: const Color(0x26919EAB),
                                         width: 1,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Theme.of(modalCtx).colorScheme.shadow.withValues(alpha: 0.08),
+                                          color: const Color(0x08000000),
                                           blurRadius: 8,
                                           offset: const Offset(0, 2),
                                         ),
                                         BoxShadow(
-                                          color: Theme.of(modalCtx).colorScheme.shadow.withValues(alpha: 0.12),
+                                          color: const Color(0x12000000),
                                           blurRadius: 16,
                                           spreadRadius: 1,
                                           offset: const Offset(0, 4),
@@ -246,8 +263,8 @@ Future<void> showEditProfileModal(
                                   color: Colors.transparent,
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(60),
-                                    splashColor: Theme.of(modalCtx).colorScheme.primary.withValues(alpha: 0.1),
-                                    highlightColor: Theme.of(modalCtx).colorScheme.primary.withValues(alpha: 0.05),
+                                    splashColor: Theme.of(modalCtx).colorScheme.primary.withOpacity(0.1),
+                                    highlightColor: Theme.of(modalCtx).colorScheme.primary.withOpacity(0.05),
                                     onTap: () async {
                                       await _pickAndUpload(
                                         modalCtx: modalCtx,
@@ -271,124 +288,122 @@ Future<void> showEditProfileModal(
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
                 // Helper text
                 Text(
                   '프로필 사진을 탭하여 변경하세요',
-                  style: AppTextStyles.captionText(modalCtx).copyWith(
-                    color: Theme.of(modalCtx).colorScheme.onSurfaceVariant,
+                  style: const TextStyle(
+                    color: Color(0xFF919EAB),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
-                // Enhanced form with card styling
-                Container(
-                  padding: const EdgeInsets.all(20.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(modalCtx).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.1),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(modalCtx).colorScheme.shadow.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                const SizedBox(height: 32),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: nameCtl,
+                        style: Theme.of(modalCtx).textTheme.bodyLarge,
+                        decoration: InputDecoration(
+                          labelText: '닉네임',
+                          labelStyle: Theme.of(modalCtx).textTheme.labelSmall,
+                          floatingLabelStyle: Theme.of(
+                            modalCtx,
+                          ).textTheme.labelSmall,
+                          floatingLabelBehavior: FloatingLabelBehavior.auto,
+                          isDense: true,
+                          alignLabelWithHint: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          border: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                          enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                        ),
+                        validator: (v) {
+                          final s = v?.trim() ?? '';
+                          if (s.isEmpty) return '닉네임을 입력하세요';
+                          if (s.length < 2) return '닉네임은 최소 2자 이상이어야 합니다';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: emailCtl,
+                        style: Theme.of(modalCtx).textTheme.bodyLarge,
+                        decoration: InputDecoration(
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '이메일',
+                                style: Theme.of(modalCtx).textTheme.labelSmall,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '(이메일은 공개되지 않습니다)',
+                                style: Theme.of(modalCtx).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          floatingLabelStyle: Theme.of(
+                            modalCtx,
+                          ).textTheme.labelSmall,
+                          floatingLabelBehavior: FloatingLabelBehavior.auto,
+                          isDense: true,
+                          alignLabelWithHint: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          border: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                          enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 0.2,
+                            ),
+                          ),
+                        ),
+                        validator: (v) {
+                          final s = v?.trim() ?? '';
+                          if (s.isEmpty) return '이메일을 입력하세요';
+                          final emailRegex = RegExp(
+                            r"^[\w\-\.]+@([\w\-]+\.)+[A-Za-z]{2,}",
+                          );
+                          if (!emailRegex.hasMatch(s)) return '유효한 이메일을 입력하세요';
+                          return null;
+                        },
                       ),
                     ],
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Nickname field
-                        Text(
-                          '닉네임',
-                          style: AppTextStyles.formLabel(modalCtx),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(modalCtx).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.1),
-                              width: 1,
-                            ),
-                          ),
-                          child: TextFormField(
-                            controller: nameCtl,
-                            style: AppTextStyles.primaryText(modalCtx),
-                            decoration: InputDecoration(
-                              hintText: '닉네임을 입력하세요',
-                              hintStyle: AppTextStyles.secondaryText(modalCtx),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                            validator: (v) {
-                              final s = v?.trim() ?? '';
-                              if (s.isEmpty) return '닉네임을 입력하세요';
-                              if (s.length < 2) return '닉네임은 최소 2자 이상이어야 합니다';
-                              return null;
-                            },
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 20),
-                        
-                        // Email field
-                        Row(
-                          children: [
-                            Text(
-                              '이메일',
-                              style: AppTextStyles.formLabel(modalCtx),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '(공개되지 않음)',
-                              style: AppTextStyles.captionText(modalCtx),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(modalCtx).colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.1),
-                              width: 1,
-                            ),
-                          ),
-                          child: TextFormField(
-                            controller: emailCtl,
-                            style: AppTextStyles.primaryText(modalCtx),
-                            decoration: InputDecoration(
-                              hintText: '이메일을 입력하세요',
-                              hintStyle: AppTextStyles.secondaryText(modalCtx),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                            validator: (v) {
-                              final s = v?.trim() ?? '';
-                              if (s.isEmpty) return '이메일을 입력하세요';
-                              final emailRegex = RegExp(r"^[\w\-\.]+@([\w\-]+\.)+[A-Za-z]{2,}");
-                              if (!emailRegex.hasMatch(s)) return '유효한 이메일을 입력하세요';
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],

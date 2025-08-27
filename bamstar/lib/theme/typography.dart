@@ -48,28 +48,28 @@ class AppTypography {
   // ===== HEADLINE STYLES (주요 헤딩) =====
   static TextStyle headlineLarge(ColorScheme cs, {String? fontFamily, Color? color}) => TextStyle(
     fontFamily: fontFamily ?? AppTypography.fontFamily,
-    fontSize: 32,        // 2rem
+    fontSize: 24,        // 1.5rem
     fontWeight: FontWeight.w600,
     letterSpacing: 0.0,
-    height: 1.25,        // 40/32
+    height: 1.33,        // 32/24
     color: color ?? cs.onSurface,
   );
 
   static TextStyle headlineMedium(ColorScheme cs, {String? fontFamily, Color? color}) => TextStyle(
     fontFamily: fontFamily ?? AppTypography.fontFamily,
-    fontSize: 28,        // 1.75rem
+    fontSize: 22,        // 1.375rem
     fontWeight: FontWeight.w600,
     letterSpacing: 0.0,
-    height: 1.29,        // 36/28
+    height: 1.27,        // 28/22
     color: color ?? cs.onSurface,
   );
 
   static TextStyle headlineSmall(ColorScheme cs, {String? fontFamily, Color? color}) => TextStyle(
     fontFamily: fontFamily ?? AppTypography.fontFamily,
-    fontSize: 24,        // 1.5rem
+    fontSize: 20,        // 1.25rem
     fontWeight: FontWeight.w600,
     letterSpacing: 0.0,
-    height: 1.33,        // 32/24
+    height: 1.40,        // 28/20
     color: color ?? cs.onSurface,
   );
 

@@ -12,7 +12,7 @@ class AppTextStyles {
       context.headlineLarge;
 
   static TextStyle sectionTitle(BuildContext context) =>
-      context.headlineMedium;
+      context.headlineSmall;
 
   static TextStyle cardTitle(BuildContext context) =>
       context.titleLarge;

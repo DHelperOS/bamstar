@@ -38,7 +38,6 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
   void initState() {
     super.initState();
     _phoneCtl.addListener(_formatPhoneNumber);
-    _loadAvatarFallback();
   }
 
   @override
@@ -169,7 +168,9 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+        color: Theme.of(
+          context,
+        ).colorScheme.primaryContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
@@ -198,11 +199,14 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
             ],
           ),
           const SizedBox(height: 10),
-          _buildInfoRow(SolarIconsOutline.eye, '사진은 지원한 플레이스에만 공개돼요'),
+          _buildInfoRow(SolarIconsOutline.eye, '지원하신 곳에만 정보가 공개되니 안심하세요.'),
           const SizedBox(height: 6),
-          _buildInfoRow(SolarIconsOutline.checkCircle, '가장 매력적인 선명한 사진을 올려주세요'),
+          _buildInfoRow(
+            SolarIconsOutline.checkCircle,
+            '진솔한 정보는 신뢰를 줘요. 사실대로만 적어주세요.',
+          ),
           const SizedBox(height: 6),
-          _buildInfoRow(SolarIconsOutline.lock, '프로필 사진은 암호화하여 저장됩니다'),
+          _buildInfoRow(SolarIconsOutline.lock, '개인정보, 저희가 책임지고 안전하게 지킬게요.'),
         ],
       ),
     );
@@ -243,7 +247,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                       // Info Card Section
                       _buildInfoCard(),
                       const SizedBox(height: 24),
-                      
+
                       // Photos Section
                       _buildPhotoSection(),
                       const SizedBox(height: 32),
@@ -442,7 +446,27 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
 
   Widget _buildPhotoThumbnails() {
     if (_photos.isEmpty) {
-      return const SizedBox.shrink(); // No placeholder when empty
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.3),
+            ),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          ),
+          child: Icon(
+            SolarIconsOutline.userCircle,
+            size: 32,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
     }
 
     return ListView.separated(
@@ -786,9 +810,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
                         style: AppTextStyles.primaryText(context),
                         enabled: _selectedSns.isNotEmpty,
                         decoration: InputDecoration(
-                          hintText: _selectedSns.isNotEmpty
-                              ? '아이디'
-                              : '미선택',
+                          hintText: _selectedSns.isNotEmpty ? '아이디' : '미선택',
                           hintStyle: AppTextStyles.secondaryText(context),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
