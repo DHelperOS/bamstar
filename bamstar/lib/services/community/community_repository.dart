@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:typed_data' show Uint8List;
 
 // Simple in-memory cache entry for avatars with fetch timestamp.
 class _AvatarsCacheEntry {
@@ -1509,7 +1509,7 @@ class CommunityRepository {
       }
     } catch (e) {
       // 해시태그 처리 실패해도 포스트 생성은 성공한 상태이므로 로그만 남김
-      print('Failed to process hashtags: $e');
+      debugPrint('Failed to process hashtags: $e');
     }
   }
 
@@ -2044,7 +2044,7 @@ class CommunityRepository {
           .where((tag) => tag.isNotEmpty)
           .toList();
     } catch (e) {
-      print('Failed to get hashtag recommendations: $e');
+      debugPrint('Failed to get hashtag recommendations: $e');
       return [];
     }
   }
@@ -2084,7 +2084,7 @@ class CommunityRepository {
           .where((tag) => tag.isNotEmpty)
           .toList();
     } catch (e) {
-      print('Failed to get cached trending hashtags: $e');
+      debugPrint('Failed to get cached trending hashtags: $e');
       return [];
     }
   }
@@ -2143,7 +2143,7 @@ class CommunityRepository {
 
       return recommendations.take(limit).toList();
     } catch (e) {
-      print('Failed to get personalized recommendations: $e');
+      debugPrint('Failed to get personalized recommendations: $e');
       // Fallback to basic trending
       final trending = await getCachedTrendingHashtags(limit: limit);
       return trending.take(limit).toList();
@@ -2175,7 +2175,7 @@ class CommunityRepository {
               })
           .toList();
     } catch (e) {
-      print('Failed to get trending hashtags: $e');
+      debugPrint('Failed to get trending hashtags: $e');
       return [];
     }
   }
@@ -2204,7 +2204,7 @@ class CommunityRepository {
               })
           .toList();
     } catch (e) {
-      print('Failed to search hashtags: $e');
+      debugPrint('Failed to search hashtags: $e');
       // Fallback to basic search using existing method
       final basic = await searchHashtags(searchTerm, limit: limitCount);
       return basic
@@ -2239,7 +2239,7 @@ class CommunityRepository {
       // If no curation exists for today, return null
       return null;
     } catch (e) {
-      print('Failed to get daily curation: $e');
+      debugPrint('Failed to get daily curation: $e');
       return null;
     }
   }
@@ -2271,7 +2271,7 @@ class CommunityRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to get popular hashtags: $e');
+      debugPrint('Failed to get popular hashtags: $e');
       return [];
     }
   }
@@ -2310,9 +2310,9 @@ class CommunityRepository {
         'report_details': reportDetails,
       });
 
-      print('Post reported successfully: post_id=$postId, reason=$reportReason');
+      debugPrint('Post reported successfully: post_id=$postId, reason=$reportReason');
     } catch (e) {
-      print('Failed to report post: $e');
+      debugPrint('Failed to report post: $e');
       rethrow;
     }
   }
@@ -2339,9 +2339,9 @@ class CommunityRepository {
       // Clear blocked users cache since the list has changed
       _clearBlockedUsersCache();
       
-      print('User blocked successfully: $blockedUserId');
+      debugPrint('User blocked successfully: $blockedUserId');
     } catch (e) {
-      print('Failed to block user: $e');
+      debugPrint('Failed to block user: $e');
       rethrow;
     }
   }
@@ -2361,9 +2361,9 @@ class CommunityRepository {
       // Clear blocked users cache since the list has changed
       _clearBlockedUsersCache();
       
-      print('User unblocked successfully: $blockedUserId');
+      debugPrint('User unblocked successfully: $blockedUserId');
     } catch (e) {
-      print('Failed to unblock user: $e');
+      debugPrint('Failed to unblock user: $e');
       rethrow;
     }
   }
@@ -2383,7 +2383,7 @@ class CommunityRepository {
           .map((block) => block['blocked_user_id'] as String)
           .toList();
     } catch (e) {
-      print('Failed to get blocked users: $e');
+      debugPrint('Failed to get blocked users: $e');
       return [];
     }
   }
@@ -2418,7 +2418,7 @@ class CommunityRepository {
       
       return blockedIds;
     } catch (e) {
-      print('Failed to get blocked users for filtering: $e');
+      debugPrint('Failed to get blocked users for filtering: $e');
       // Return empty list on error to avoid showing blocked content
       return [];
     }
@@ -2444,7 +2444,7 @@ class CommunityRepository {
 
       return response.isNotEmpty;
     } catch (e) {
-      print('Failed to check if user is blocked: $e');
+      debugPrint('Failed to check if user is blocked: $e');
       return false;
     }
   }
@@ -2463,7 +2463,7 @@ class CommunityRepository {
 
       return (response as List).cast<Map<String, dynamic>>();
     } catch (e) {
-      print('Failed to get user reports: $e');
+      debugPrint('Failed to get user reports: $e');
       return [];
     }
   }

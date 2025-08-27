@@ -210,8 +210,8 @@ class AuthController extends StateNotifier<AsyncValue<AuthState>> {
                 String norm = payloadSeg.padRight(payloadSeg.length + (4 - payloadSeg.length % 4) % 4, '=');
                 final decoded = String.fromCharCodes(base64Url.decode(norm));
                 // Extract minimal fields aud & iss for diagnostics
-                final audMatch = RegExp('"aud"\s*:\s*"([^"]+)"').firstMatch(decoded);
-                final issMatch = RegExp('"iss"\s*:\s*"([^"]+)"').firstMatch(decoded);
+                final audMatch = RegExp(r'"aud"\s*:\s*"([^"]+)"').firstMatch(decoded);
+                final issMatch = RegExp(r'"iss"\s*:\s*"([^"]+)"').firstMatch(decoded);
                 log.info('Google id_token payload aud=${audMatch?.group(1)} iss=${issMatch?.group(1)}');
               }
             } catch (e) {

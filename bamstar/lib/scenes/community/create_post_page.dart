@@ -10,7 +10,6 @@ import 'package:bamstar/utils/global_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui';
 import 'package:bamstar/services/user_service.dart';
-import '../../theme/typography.dart';
 import '../../theme/app_text_styles.dart';
 
 class CreatePostPage extends StatefulWidget {

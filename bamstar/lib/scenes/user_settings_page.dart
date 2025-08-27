@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
 // Typography import removed as it's not used in current implementation
-import 'package:bamstar/scenes/member_profile/edit_info_page.dart';
 import 'package:bamstar/scenes/member_profile/basic_info_sheet_flow.dart';
 import 'package:bamstar/scenes/region_preference_sheet.dart';
 import 'package:bamstar/services/user_service.dart';

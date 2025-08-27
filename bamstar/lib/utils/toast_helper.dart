@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:delightful_toast/delight_toast.dart';
-import 'package:delightful_toast/toast/components/toast_card.dart';
 import '../theme/app_text_styles.dart';
 
 /// Global toast utility for consistent app-wide toast notifications

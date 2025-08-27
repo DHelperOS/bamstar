@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
-import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
 
 /// Material 3 공통 얼럿 다이얼로그

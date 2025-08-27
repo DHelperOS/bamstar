@@ -3,7 +3,7 @@
 // Test script to verify profile_image_urls update functionality
 // This script simulates the BasicInfoService upload process
 
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
 // Mock BasicInfo class for testing
@@ -51,10 +51,10 @@ class BasicInfo {
 }
 
 void main() {
-  print('Testing BasicInfo upload flow...\n');
+  debugPrint('Testing BasicInfo upload flow...\n');
 
   // Simulate the problem scenario
-  print('=== ORIGINAL PROBLEM ===');
+  debugPrint('=== ORIGINAL PROBLEM ===');
   final basicInfo = BasicInfo(
     realName: 'Test User',
     age: 25,
@@ -73,23 +73,23 @@ void main() {
   var data1 = basicInfo.toMap();
   data1['user_id'] = 'test-user-id';
   data1['profile_image_urls'] = uploadedUrls; // Add uploaded URLs
-  print('Step 1 - Added uploaded URLs: ${data1['profile_image_urls']}');
+  debugPrint('Step 1 - Added uploaded URLs: ${data1['profile_image_urls']}');
   
   // toMap() would overwrite if called again (this was the problem)
   data1.addAll(basicInfo.toMap()); // This overwrites profile_image_urls!
-  print('Step 2 - After toMap() overwrite: ${data1['profile_image_urls']}');
-  print('❌ Problem: Uploaded URLs were overwritten by empty array!\n');
+  debugPrint('Step 2 - After toMap() overwrite: ${data1['profile_image_urls']}');
+  debugPrint('❌ Problem: Uploaded URLs were overwritten by empty array!\n');
 
   // Fixed flow
-  print('=== FIXED SOLUTION ===');
+  debugPrint('=== FIXED SOLUTION ===');
   var data2 = basicInfo.toMap(); // Call toMap() first
   data2['user_id'] = 'test-user-id';
   data2['profile_image_urls'] = uploadedUrls; // Add uploaded URLs AFTER toMap()
-  print('Step 1 - Called toMap() first: ${data2['profile_image_urls']}');
-  print('Step 2 - Added uploaded URLs after: ${data2['profile_image_urls']}');
-  print('✅ Fixed: Uploaded URLs are preserved!\n');
+  debugPrint('Step 1 - Called toMap() first: ${data2['profile_image_urls']}');
+  debugPrint('Step 2 - Added uploaded URLs after: ${data2['profile_image_urls']}');
+  debugPrint('✅ Fixed: Uploaded URLs are preserved!\n');
 
-  print('=== FINAL DATA FOR DATABASE ===');
+  debugPrint('=== FINAL DATA FOR DATABASE ===');
   data2.removeWhere((key, value) => value == null);
-  print(json.encode(data2));
+  debugPrint(json.encode(data2));
 }

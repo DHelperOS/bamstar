@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:bamstar/services/community/community_repository.dart';
 
 /// Hashtag recommendation and suggestion service
@@ -101,7 +102,7 @@ class HashtagService {
             }
           }
         } catch (e) {
-          print('Failed to get popular fallback suggestions: $e');
+          debugPrint('Failed to get popular fallback suggestions: $e');
           // return empty list if fallback also fails
         }
       }
@@ -115,7 +116,7 @@ class HashtagService {
 
       return suggestions;
     } catch (e) {
-      print('Failed to get smart suggestions: $e');
+      debugPrint('Failed to get smart suggestions: $e');
       return [];
     }
   }
@@ -140,7 +141,7 @@ class HashtagService {
               ))
           .toList();
     } catch (e) {
-      print('Failed to get trending with metadata: $e');
+      debugPrint('Failed to get trending with metadata: $e');
       return [];
     }
   }
@@ -164,7 +165,7 @@ class HashtagService {
               ))
           .toList();
     } catch (e) {
-      print('Failed to search hashtags: $e');
+      debugPrint('Failed to search hashtags: $e');
       return [];
     }
   }
@@ -196,7 +197,7 @@ class HashtagService {
             DateTime.now(),
       );
     } catch (e) {
-      print('Failed to get daily curation: $e');
+      debugPrint('Failed to get daily curation: $e');
       return null;
     }
   }

@@ -838,7 +838,7 @@ class _PopInState extends State<_PopIn> with SingleTickerProviderStateMixin {
 
 // 안내용 가이드 카드 (탭바 상단에 위치)
 class _EmptyGuideCard extends StatelessWidget {
-  const _EmptyGuideCard({Key? key}) : super(key: key);
+  const _EmptyGuideCard({super.key});
 
   @override
   Widget build(BuildContext context) {

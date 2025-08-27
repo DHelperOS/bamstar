@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // app_theme import removed to avoid analyzer issues when package roots vary.
-import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
 
 /// Formats Korean-style phone numbers as the user types.

@@ -121,12 +121,12 @@ class VerticalDashedLine extends StatelessWidget {
   final double dashHeight;
   final double dashGap;
   const VerticalDashedLine({
-    Key? key,
+    super.key,
     required this.color,
     this.thickness = 1.0,
     this.dashHeight = 4.0,
     this.dashGap = 4.0,
-  }) : super(key: key);
+  });
 
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -1557,8 +1557,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
 // inside the modal container.
 class _PostCommentModalChild extends StatefulWidget {
   final CommunityPost post;
-  const _PostCommentModalChild({Key? key, required this.post})
-    : super(key: key);
+  const _PostCommentModalChild({super.key, required this.post});
 
   State<_PostCommentModalChild> createState() => _PostCommentModalChildState();
 }

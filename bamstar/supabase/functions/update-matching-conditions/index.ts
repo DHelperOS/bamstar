@@ -76,16 +76,31 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user role is MEMBER
+    // Check if user exists and has appropriate role (MEMBER, STAR, or PLACE)
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (userError || userData?.role !== 'MEMBER') {
+    // Allow MEMBER, STAR, or PLACE roles, or if role is null (default for new users)
+    const allowedRoles = ['MEMBER', 'STAR', 'PLACE'];
+    const userRole = userData?.role;
+    
+    if (userError) {
+      console.error('Error fetching user role:', userError);
       return new Response(
-        JSON.stringify({ success: false, error: '멤버 권한이 필요합니다.' }),
+        JSON.stringify({ success: false, error: '사용자 정보를 조회할 수 없습니다.' }),
+        { 
+          status: 403, 
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (userRole && !allowedRoles.includes(userRole)) {
+      return new Response(
+        JSON.stringify({ success: false, error: '매칭 조건을 설정할 권한이 없습니다.' }),
         { 
           status: 403, 
           headers: { 'Content-Type': 'application/json' }

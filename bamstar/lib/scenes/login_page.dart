@@ -13,6 +13,7 @@ import '../widgets/auth_fields.dart';
 import '../theme/app_color_scheme_extension.dart';
 import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/responsive_utils.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -98,279 +99,500 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final primaryColor = theme.colorScheme.primary;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // subtle background gradient so glass effect has something to blur
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFF6F7FB), Color(0xFFF0EEFF)],
+      body: SafeArea(
+        child: _buildResponsiveLayout(context, asyncAuth, theme, primaryColor),
+      ),
+    );
+  }
+
+  Widget _buildResponsiveLayout(
+    BuildContext context,
+    AsyncValue<AuthState> asyncAuth,
+    ThemeData theme,
+    Color primaryColor,
+  ) {
+    if (ResponsiveUtils.isDesktop(context)) {
+      return _buildDesktopLayout(context, asyncAuth, theme, primaryColor);
+    } else {
+      return _buildMobileTabletLayout(context, asyncAuth, theme, primaryColor);
+    }
+  }
+
+  Widget _buildDesktopLayout(
+    BuildContext context,
+    AsyncValue<AuthState> asyncAuth,
+    ThemeData theme,
+    Color primaryColor,
+  ) {
+    return Stack(
+      children: [
+        _buildBackground(context),
+        Row(
+          children: [
+            // Left side - Branding/illustration area
+            Expanded(
+              flex: ResponsiveUtils.isWideDesktop(context) ? 3 : 2,
+              child: Container(
+                padding: const EdgeInsets.all(48),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Enhanced branding section for desktop
+                    Text(
+                      'BamStar',
+                      style: AppTextStyles.pageTitle(context).copyWith(
+                        fontSize: 56,
+                        fontWeight: FontWeight.w900,
+                        foreground: Paint()
+                          ..shader = LinearGradient(
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.secondary,
+                            ],
+                          ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      '당신만의 특별한 순간을 만들어가세요.\n가장 빛나는 밤, 가장 빛나는 당신이 되어보세요.',
+                      style: AppTextStyles.secondaryText(context).copyWith(
+                        fontSize: 18,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    // Feature highlights for desktop
+                    _buildFeatureList(context),
+                  ],
+                ),
               ),
             ),
+            // Right side - Login form
+            Expanded(
+              flex: ResponsiveUtils.isWideDesktop(context) ? 2 : 3,
+              child: Container(
+                padding: EdgeInsets.all(ResponsiveUtils.getHorizontalPadding(context)),
+                child: Center(
+                  child: _buildLoginCard(context, theme, primaryColor),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (asyncAuth.isLoading) _buildLoadingOverlay(context),
+      ],
+    );
+  }
+
+  Widget _buildMobileTabletLayout(
+    BuildContext context,
+    AsyncValue<AuthState> asyncAuth,
+    ThemeData theme,
+    Color primaryColor,
+  ) {
+    return Stack(
+      children: [
+        _buildBackground(context),
+        Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtils.getHorizontalPadding(context),
+              vertical: ResponsiveUtils.isMobile(context) ? 32 : 48,
+            ),
+            child: _buildLoginCard(context, theme, primaryColor),
           ),
-          // subtle diagonal overlay to provide texture/pattern for the blur
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Opacity(
-                opacity: 0.06,
-                child: Transform.rotate(
-                  angle: -0.18,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          // faint tinted bands to make blur more noticeable
-                          Color(0xFFDCE7FF).withValues(alpha: 0.02),
-                          Colors.transparent,
-                          Color(0xFFF6F0FF).withValues(alpha: 0.02),
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
-                      ),
+        ),
+        if (asyncAuth.isLoading) _buildLoadingOverlay(context),
+      ],
+    );
+  }
+
+  Widget _buildBackground(BuildContext context) {
+    return Stack(
+      children: [
+        // Enhanced gradient background
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: ResponsiveUtils.isDesktop(context)
+                  ? [
+                      const Color(0xFFF6F7FB),
+                      const Color(0xFFF0EEFF),
+                      const Color(0xFFEEF2FF),
+                    ]
+                  : [const Color(0xFFF6F7FB), const Color(0xFFF0EEFF)],
+            ),
+          ),
+        ),
+        // Texture overlay
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.rotate(
+                angle: -0.18,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFDCE7FF).withValues(alpha: 0.02),
+                        Colors.transparent,
+                        Color(0xFFF6F0FF).withValues(alpha: 0.02),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          Center(
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 74),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 28,
-                    vertical: 68,
-                  ),
-                  decoration: BoxDecoration(
-                    // make the card more translucent so backdrop blur is more visible
-                    color: Colors.white.withValues(alpha: 0.86),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Top logo circle with glassmorphism effect; animate only the inner image
-                      ClipOval(
-                        child: BackdropFilter(
-                          // increase blur to make frosted effect stronger
-                          filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-                          child: Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              // subtle frosted glass look
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                // reduce inner opacity so the blurred backdrop shows
-                                colors: [
-                                  theme.colorScheme.primary.withValues(
-                                    alpha: 0.04,
-                                  ),
-                                  const Color.fromARGB(
-                                    255,
-                                    209,
-                                    163,
-                                    218,
-                                  ).withValues(alpha: 0.5),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.04),
-                              ),
-                            ),
-                            child: Center(
-                              child: AnimatedBuilder(
-                                animation: _logoController,
-                                builder: (context, child) {
-                                  final rotate = _logoRotateAnim.value;
-                                  return Transform.rotate(
-                                    angle: rotate,
-                                    child: child,
-                                  );
-                                },
-                                child: Image.asset(
-                                  'assets/images/icon/app_icon.png',
-                                  width: 38,
-                                  height: 38,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+        ),
+      ],
+    );
+  }
 
-                      // Title & subtitle
-                      Text(
-                        '가장 빛나는 밤, 가장 빛나는 나.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.sectionTitle(context).copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '소셜 로그인으로 간편하게 시작하세요.',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.secondaryText(context),
-                      ),
-                      const SizedBox(height: 24),
+  Widget _buildLoginCard(BuildContext context, ThemeData theme, Color primaryColor) {
+    final cardMaxWidth = ResponsiveUtils.getCardMaxWidth(context);
+    final logoSize = ResponsiveUtils.getLogoSize(context);
+    final verticalSpacing = ResponsiveUtils.getVerticalSpacing(context);
+    
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: cardMaxWidth),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveUtils.isMobile(context) ? 24 : 32,
+          vertical: ResponsiveUtils.isMobile(context) ? 32 : 48,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(
+            alpha: ResponsiveUtils.isDesktop(context) ? 0.92 : 0.86,
+          ),
+          borderRadius: BorderRadius.circular(
+            ResponsiveUtils.isMobile(context) ? 16 : 20,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: ResponsiveUtils.isDesktop(context) ? 0.06 : 0.04,
+              ),
+              blurRadius: ResponsiveUtils.isDesktop(context) ? 32 : 20,
+              offset: Offset(0, ResponsiveUtils.isDesktop(context) ? 8 : 6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildLogo(context, theme, logoSize),
+            SizedBox(height: verticalSpacing),
+            _buildTitleSection(context),
+            SizedBox(height: verticalSpacing),
+            _buildSocialButtons(context),
+            SizedBox(height: verticalSpacing),
+            _buildDivider(context),
+            SizedBox(height: verticalSpacing * 0.75),
+            _buildPhoneSection(context, primaryColor),
+          ],
+        ),
+      ),
+    );
+  }
 
-                      // Social buttons
-                      Consumer(
-                        builder: (context, ref, _) {
-                          final auth = ref.read(
-                            authControllerProvider.notifier,
-                          );
-                          return Column(
-                            children: [
-                              SocialAuthButton.kakao(
-                                onPressed: () {
-                                  auth.signInWithKakao();
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              SocialAuthButton(
-                                type: ButtonType.google,
-                                onPressed: () {
-                                  auth.signInWithGoogle();
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                              SocialAuthButton.apple(
-                                onPressed: () {
-                                  auth.signInWithApple();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      const SizedBox(height: 24),
-
-                      // OR separator
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: Theme.of(context).colorScheme.outline,
-                              thickness: 1,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text(
-                              'OR',
-                              style: AppTextStyles.helperText(context).copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: Theme.of(context).colorScheme.outline,
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      const SizedBox(height: 12),
-
-                      // helper title above phone input (same style as subtitle)
-                      Text(
-                        '소셜 계정 대신, 휴대폰 번호로 시작해보세요!',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.secondaryText(context),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Phone input for sign-up
-                      AuthTextfields().buildTextField(
-                        controller: _phoneController,
-                        labelText: '휴대폰 번호를 입력해주세요',
-                        hintText: '휴대폰 번호를 입력해주세요',
-                        focusColor: primaryColor,
-                        context: context,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(11),
-                          PhoneNumberTextInputFormatter(),
-                        ],
-                        prefixIcon: Icon(
-                          // use solar_icons package icon per project policy
-                          // mapped from `.solar--phone-calling-rounded-bold-duotone`
-                          SolarIconsBold.phoneCallingRounded,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      const SizedBox(height: 8),
-
-                      // Login button with simple phone validation
-                      PrimaryTextButton(
-                        text: '휴대폰 번호 로그인',
-                        onPressed: () {
-                          final digitsOnly = _phoneController.text.replaceAll(
-                            RegExp(r'\D'),
-                            '',
-                          );
-                          if (digitsOnly.length < 10 ||
-                              digitsOnly.length > 11) {
-                            DelightToastBar(
-                              builder: (ctx) => Material(
-                                color: Colors.transparent,
-                                child: _ToastContent(
-                                  title: '입력 오류',
-                                  message: '전화 번호는 숫자 10~11자리여야 합니다.',
-                                  icon: Icon(
-                                    SolarIconsBold.phoneCallingRounded,
-                                    color: Colors.white,
-                                  ),
-                                  backgroundColor: Theme.of(context).colorScheme.warning,
-                                ),
-                              ),
-                              autoDismiss: true,
-                            ).show(context);
-                            return;
-                          }
-                          // TODO: 실제 인증 로직 연결
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+  Widget _buildLogo(BuildContext context, ThemeData theme, double size) {
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: ResponsiveUtils.isDesktop(context) ? 24.0 : 20.0,
+          sigmaY: ResponsiveUtils.isDesktop(context) ? 24.0 : 20.0,
+        ),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                theme.colorScheme.primary.withValues(alpha: 0.04),
+                const Color.fromARGB(255, 209, 163, 218).withValues(alpha: 0.5),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(size / 2),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.04),
+            ),
+          ),
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _logoController,
+              builder: (context, child) {
+                final rotate = _logoRotateAnim.value;
+                return Transform.rotate(
+                  angle: rotate,
+                  child: child,
+                );
+              },
+              child: Image.asset(
+                'assets/images/icon/app_icon.png',
+                width: size * 0.475,
+                height: size * 0.475,
               ),
             ),
           ),
-          if (asyncAuth.isLoading)
-            Positioned.fill(
-              child: Container(
-                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.12),
-                child: const Center(child: CircularProgressIndicator()),
-              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitleSection(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          '가장 빛나는 밤, 가장 빛나는 나.',
+          textAlign: TextAlign.center,
+          style: ResponsiveUtils.getResponsiveTextStyle(
+            context,
+            AppTextStyles.sectionTitle(context).copyWith(
+              fontWeight: FontWeight.w800,
             ),
+            tabletScale: 1.1,
+            desktopScale: 1.2,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '소셜 로그인으로 간편하게 시작하세요.',
+          textAlign: TextAlign.center,
+          style: ResponsiveUtils.getResponsiveTextStyle(
+            context,
+            AppTextStyles.secondaryText(context),
+            tabletScale: 1.05,
+            desktopScale: 1.1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialButtons(BuildContext context) {
+    final auth = ref.read(authControllerProvider.notifier);
+    final isTabletOrDesktop = !ResponsiveUtils.isMobile(context);
+    
+    if (isTabletOrDesktop && ResponsiveUtils.isDesktop(context)) {
+      // Two-column layout for desktop
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: SocialAuthButton.kakao(
+                  onPressed: () => auth.signInWithKakao(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SocialAuthButton(
+                  type: ButtonType.google,
+                  onPressed: () => auth.signInWithGoogle(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SocialAuthButton.apple(
+            onPressed: () => auth.signInWithApple(),
+          ),
         ],
+      );
+    } else {
+      // Single column layout for mobile and tablet
+      return Column(
+        children: [
+          SocialAuthButton.kakao(
+            onPressed: () => auth.signInWithKakao(),
+          ),
+          const SizedBox(height: 12),
+          SocialAuthButton(
+            type: ButtonType.google,
+            onPressed: () => auth.signInWithGoogle(),
+          ),
+          const SizedBox(height: 12),
+          SocialAuthButton.apple(
+            onPressed: () => auth.signInWithApple(),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildDivider(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Divider(
+            color: Theme.of(context).colorScheme.outline,
+            thickness: 1,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Text(
+            'OR',
+            style: AppTextStyles.helperText(context).copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Divider(
+            color: Theme.of(context).colorScheme.outline,
+            thickness: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneSection(BuildContext context, Color primaryColor) {
+    return Column(
+      children: [
+        Text(
+          '소셜 계정 대신, 휴대폰 번호로 시작해보세요!',
+          textAlign: TextAlign.center,
+          style: ResponsiveUtils.getResponsiveTextStyle(
+            context,
+            AppTextStyles.secondaryText(context),
+            tabletScale: 1.05,
+            desktopScale: 1.1,
+          ),
+        ),
+        const SizedBox(height: 20),
+        AuthTextfields().buildTextField(
+          controller: _phoneController,
+          labelText: '휴대폰 번호를 입력해주세요',
+          hintText: '휴대폰 번호를 입력해주세요',
+          focusColor: primaryColor,
+          context: context,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(11),
+            PhoneNumberTextInputFormatter(),
+          ],
+          prefixIcon: Icon(
+            SolarIconsBold.phoneCallingRounded,
+            color: primaryColor,
+          ),
+        ),
+        const SizedBox(height: 16),
+        PrimaryTextButton(
+          text: '휴대폰 번호 로그인',
+          onPressed: () {
+            final digitsOnly = _phoneController.text.replaceAll(
+              RegExp(r'\D'),
+              '',
+            );
+            if (digitsOnly.length < 10 || digitsOnly.length > 11) {
+              DelightToastBar(
+                builder: (ctx) => Material(
+                  color: Colors.transparent,
+                  child: _ToastContent(
+                    title: '입력 오류',
+                    message: '전화 번호는 숫자 10~11자리여야 합니다.',
+                    icon: Icon(
+                      SolarIconsBold.phoneCallingRounded,
+                      color: Colors.white,
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.warning,
+                  ),
+                ),
+                autoDismiss: true,
+              ).show(context);
+              return;
+            }
+            // TODO: 실제 인증 로직 연결
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureList(BuildContext context) {
+    final features = [
+      {
+        'icon': SolarIconsBold.star,
+        'title': 'AI 맞춤 추천',
+        'description': '당신에게 완벽한 플레이스를 찾아드립니다',
+      },
+      {
+        'icon': SolarIconsBold.usersGroupTwoRounded,
+        'title': '커뮤니티',
+        'description': '같은 관심사를 가진 사람들과 소통하세요',
+      },
+      {
+        'icon': SolarIconsBold.shield,
+        'title': '안전한 환경',
+        'description': '검증된 플레이스에서 안심하고 즐기세요',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: features.map((feature) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  feature['icon'] as IconData,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      feature['title'] as String,
+                      style: AppTextStyles.subtitle(context).copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      feature['description'] as String,
+                      style: AppTextStyles.captionText(context),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildLoadingOverlay(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.12),
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
   }

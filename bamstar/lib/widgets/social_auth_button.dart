@@ -9,7 +9,6 @@ Common use cases:
 */
 
 import 'package:flutter/material.dart';
-import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
 
 // Enum defining the types of buttons supported

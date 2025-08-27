@@ -322,7 +322,7 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 Future.delayed(const Duration(milliseconds: 50), () {
                   if (mounted) {
                     try {
-                      FocusScope.of(context).requestFocus(_searchFocusNode);
+                      _searchFocusNode.requestFocus();
                     } catch (_) {}
                   }
                 });
@@ -852,8 +852,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       _commentController.dispose();
     } catch (_) {}
     try {
-      if (_replyFocusListener != null)
+      if (_replyFocusListener != null) {
         _replyFocusNode.removeListener(_replyFocusListener!);
+      }
     } catch (_) {}
     try {
       _replyController.dispose();
@@ -1661,10 +1662,12 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             if (p != null && p.isNotEmpty) candidateUrl = p;
           }
           if ((candidateUrl == null || candidateUrl.isEmpty) &&
-              fallbackAvatar.isNotEmpty)
+              fallbackAvatar.isNotEmpty) {
             candidateUrl = fallbackAvatar;
-          if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty))
+          }
+          if (isAnonymous && (candidateUrl == null || candidateUrl.isEmpty)) {
             candidateUrl = null;
+          }
 
           ImageProvider? avatarImage;
           if (candidateUrl != null && candidateUrl.isNotEmpty) {
@@ -1774,8 +1777,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                 imageUrls = [c['image_url'].toString()];
                               }
 
-                              if (imageUrls.isEmpty)
+                              if (imageUrls.isEmpty) {
                                 return const SizedBox.shrink();
+                              }
 
                               return GridView.builder(
                                 shrinkWrap: true,
@@ -1941,9 +1945,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                                       () {
                                         if (mounted) {
                                           try {
-                                            FocusScope.of(
-                                              context,
-                                            ).requestFocus(_replyFocusNode);
+                                            _replyFocusNode.requestFocus();
                                           } catch (_) {}
                                         }
                                       },
