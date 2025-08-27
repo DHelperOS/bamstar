@@ -286,7 +286,11 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                 child: Text(
                   '채널을 구독하고'
                   '\n 스타들과 소통해요 ',
-                  style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
                   textAlign: TextAlign.center,
                   softWrap: true,
                 ),
@@ -349,227 +353,241 @@ class _CommunityHomePageState extends State<CommunityHomePage>
               constraints: const BoxConstraints.expand(),
               color: const Color(0xFFFFFFFF), // Sample's clean white background
               child: RefreshIndicator(
-                color: Colors.grey, // neutral spinner instead of primary (purple)
+                color:
+                    Colors.grey, // neutral spinner instead of primary (purple)
                 backgroundColor: Colors.white,
                 onRefresh: _refresh,
                 child: NotificationListener<OverscrollIndicatorNotification>(
-              onNotification: (overscroll) {
-                // Suppress default glow (we already provide a neutral one globally)
-                overscroll.disallowIndicator();
-                return true;
-              },
-              child: CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  // Search input (togglable) - moved above the tab bar so it appears
-                  // visually above tabs as requested.
-                  SliverToBoxAdapter(
-                    child: AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: Container(
-                        margin: const EdgeInsets.only(top: 16, bottom: 12, left: 16, right: 16),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: const Color(0x0F919EAB), // Subtle background
-                          border: Border.all(
-                            color: const Color(0x26919EAB),
-                            width: 1,
-                          ),
-                        ),
-                        child: TextField(
-                          focusNode: _searchFocusNode,
-                          controller: _searchController,
-                          style: const TextStyle(
-                            color: Color(0xFF1C252E),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: const InputDecoration(
-                            hintText: '게시물 내용으로 검색',
-                            hintStyle: TextStyle(
-                              color: Color(0x80919EAB),
-                              fontSize: 14,
+                  onNotification: (overscroll) {
+                    // Suppress default glow (we already provide a neutral one globally)
+                    overscroll.disallowIndicator();
+                    return true;
+                  },
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      // Search input (togglable) - moved above the tab bar so it appears
+                      // visually above tabs as requested.
+                      SliverToBoxAdapter(
+                        child: AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: Container(
+                            margin: const EdgeInsets.only(
+                              top: 16,
+                              bottom: 12,
+                              left: 16,
+                              right: 16,
                             ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                            prefixIcon: Icon(
-                              SolarIconsOutline.magnifier,
-                              size: 18,
-                              color: Color(0xFF919EAB),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                          ),
-                          textInputAction: TextInputAction.search,
-                          onSubmitted: (v) {
-                            final text = v.trim();
-                            setState(() {
-                              _contentQuery = text.isEmpty ? null : text;
-                              _selectedTag = null;
-                              _selectedTabIndex = 0;
-                              _showSearch = false;
-                            });
-                            FocusScope.of(context).unfocus();
-                            _loadInitial();
-                          },
-                        ),
-                      ),
-                      crossFadeState: _showSearch
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 260),
-                    ),
-                  ),
-                  // Tab bar moved below search
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: _ChannelTabBar(
-                        controller: _tabController,
-                        channels: _channels,
-                        onTap: _onTabChanged,
-                      ),
-                    ),
-                  ),
-                  // Sort choice chips: 최신 순(default), 인기 순(주간 댓글수), 좋아요 순(주간 좋아요수)
-                  SliverToBoxAdapter(
-                    child: AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: List.generate(3, (i) {
-                              final labels = ['최신 순', '인기 순', '좋아요순'];
-                              final csLocal = Theme.of(context).colorScheme;
-                              final double smallFont = 12.0;
-                              final SortMode mode = (i == 0)
-                                  ? SortMode.latest
-                                  : (i == 1
-                                        ? SortMode.popular
-                                        : SortMode.liked);
-                              final bool isSelected = _selectedSort == mode;
-
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  selected: false,
-                                  onSelected: (_) {
-                                    if (mode != _selectedSort) {
-                                      setState(() {
-                                        _selectedSort = mode;
-                                      });
-                                      _loadInitial();
-                                    }
-                                  },
-                                  label: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (isSelected) ...[
-                                        Icon(
-                                          Icons.check,
-                                          size: (smallFont - 2).clamp(
-                                            8.0,
-                                            12.0,
-                                          ),
-                                          color: csLocal.onPrimary,
-                                        ),
-                                        const SizedBox(width: 6),
-                                      ],
-                                      Text(labels[i]),
-                                    ],
-                                  ),
-                                  selectedColor: csLocal.primary,
-                                  backgroundColor: isSelected
-                                      ? csLocal.primary
-                                      : csLocal.surface.withValues(alpha: 0.06),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  labelStyle: AppTextStyles.chipLabel(context).copyWith(
-                                    fontSize: smallFont,
-                                    color: isSelected
-                                        ? csLocal.onPrimary
-                                        : csLocal.onSurface.withValues(
-                                            alpha: 0.8,
-                                          ),
-                                  ),
-                                  side: BorderSide(
-                                    color: isSelected
-                                        ? csLocal.primary
-                                        : csLocal.outlineVariant.withValues(
-                                            alpha: 0.06,
-                                          ),
-                                  ),
-                                  visualDensity: VisualDensity.compact,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color(
+                                0x0F919EAB,
+                              ), // Subtle background
+                              border: Border.all(
+                                color: const Color(0x26919EAB),
+                                width: 1,
+                              ),
+                            ),
+                            child: TextField(
+                              focusNode: _searchFocusNode,
+                              controller: _searchController,
+                              style: const TextStyle(
+                                color: Color(0xFF1C252E),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              decoration: const InputDecoration(
+                                hintText: '게시물 내용으로 검색',
+                                hintStyle: TextStyle(
+                                  color: Color(0x80919EAB),
+                                  fontSize: 14,
                                 ),
-                              );
-                            }),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                prefixIcon: Icon(
+                                  SolarIconsOutline.magnifier,
+                                  size: 18,
+                                  color: Color(0xFF919EAB),
+                                ),
+                              ),
+                              textInputAction: TextInputAction.search,
+                              onSubmitted: (v) {
+                                final text = v.trim();
+                                setState(() {
+                                  _contentQuery = text.isEmpty ? null : text;
+                                  _selectedTag = null;
+                                  _selectedTabIndex = 0;
+                                  _showSearch = false;
+                                });
+                                FocusScope.of(context).unfocus();
+                                _loadInitial();
+                              },
+                            ),
+                          ),
+                          crossFadeState: _showSearch
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 260),
+                        ),
+                      ),
+                      // Tab bar moved below search
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: _ChannelTabBar(
+                            controller: _tabController,
+                            channels: _channels,
+                            onTap: _onTabChanged,
                           ),
                         ),
                       ),
-                      crossFadeState: _showSort
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 260),
-                    ),
-                  ),
-                  // Removed the empty-subscriptions helper message per request.
-                  if (_isLoading)
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => Skeletonizer(
-                          enabled: true,
-                          child: _PostSkeleton(cs: cs),
+                      // Sort choice chips: 최신 순(default), 인기 순(주간 댓글수), 좋아요 순(주간 좋아요수)
+                      SliverToBoxAdapter(
+                        child: AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                children: List.generate(3, (i) {
+                                  final labels = ['최신 순', '인기 순', '좋아요순'];
+                                  final csLocal = Theme.of(context).colorScheme;
+                                  final double smallFont = 12.0;
+                                  final SortMode mode = (i == 0)
+                                      ? SortMode.latest
+                                      : (i == 1
+                                            ? SortMode.popular
+                                            : SortMode.liked);
+                                  final bool isSelected = _selectedSort == mode;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: ChoiceChip(
+                                      selected: false,
+                                      onSelected: (_) {
+                                        if (mode != _selectedSort) {
+                                          setState(() {
+                                            _selectedSort = mode;
+                                          });
+                                          _loadInitial();
+                                        }
+                                      },
+                                      label: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (isSelected) ...[
+                                            Icon(
+                                              Icons.check,
+                                              size: (smallFont - 2).clamp(
+                                                8.0,
+                                                12.0,
+                                              ),
+                                              color: csLocal.onPrimary,
+                                            ),
+                                            const SizedBox(width: 6),
+                                          ],
+                                          Text(labels[i]),
+                                        ],
+                                      ),
+                                      selectedColor: csLocal.primary,
+                                      backgroundColor: isSelected
+                                          ? csLocal.primary
+                                          : csLocal.surface.withValues(
+                                              alpha: 0.06,
+                                            ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      labelStyle:
+                                          AppTextStyles.chipLabel(
+                                            context,
+                                          ).copyWith(
+                                            fontSize: smallFont,
+                                            color: isSelected
+                                                ? csLocal.onPrimary
+                                                : csLocal.onSurface.withValues(
+                                                    alpha: 0.8,
+                                                  ),
+                                          ),
+                                      side: BorderSide(
+                                        color: isSelected
+                                            ? csLocal.primary
+                                            : csLocal.outlineVariant.withValues(
+                                                alpha: 0.06,
+                                              ),
+                                      ),
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ),
+                          crossFadeState: _showSort
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 260),
                         ),
-                        childCount: 6,
                       ),
-                    ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      if (index < _posts.length) {
-                        final post = _posts[index];
-                        return _PostHtmlCard(
-                          post: post,
-                          onTap: null,
-                          onHashtagTap: (tag) {
-                            // parent handles hashtag taps: set as content query and reload
-                            setState(() {
-                              _contentQuery = tag;
-                              _selectedTag = null;
-                              _selectedTabIndex = 0;
-                              _showSearch = false;
-                            });
-                            _searchController.text = tag;
-                            _loadInitial();
-                          },
-                          onDeleted: () {
-                            _loadInitial();
-                          },
-                        );
-                      }
-                      // loading footer
-                      if (_isLoadingMore) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
+                      // Removed the empty-subscriptions helper message per request.
+                      if (_isLoading)
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => Skeletonizer(
+                              enabled: true,
+                              child: _PostSkeleton(cs: cs),
+                            ),
+                            childCount: 6,
+                          ),
+                        ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index < _posts.length) {
+                            final post = _posts[index];
+                            return _PostHtmlCard(
+                              post: post,
+                              onTap: null,
+                              onHashtagTap: (tag) {
+                                // parent handles hashtag taps: set as content query and reload
+                                setState(() {
+                                  _contentQuery = tag;
+                                  _selectedTag = null;
+                                  _selectedTabIndex = 0;
+                                  _showSearch = false;
+                                });
+                                _searchController.text = tag;
+                                _loadInitial();
+                              },
+                              onDeleted: () {
+                                _loadInitial();
+                              },
+                            );
+                          }
+                          // loading footer
+                          if (_isLoadingMore) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
+                      ),
+
+                      // Empty state when no posts available
+                      if (!_isLoading && _posts.isEmpty)
+                        SliverToBoxAdapter(child: _EmptyStateWidget()),
+                    ],
                   ),
-                  
-                  // Empty state when no posts available
-                  if (!_isLoading && _posts.isEmpty)
-                    SliverToBoxAdapter(
-                      child: _EmptyStateWidget(),
-                    ),
-                ],
+                ),
               ),
-            ),
-          ),
             ),
           ),
           // 고정 위치의 FloatingActionButton
@@ -705,14 +723,21 @@ Widget _buildContentWithHashtags(
                 borderRadius: BorderRadius.circular(10),
                 color: const Color(0x26919EAB), // Sample's subtle background
               ),
-              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 8, right: 8),
+              padding: const EdgeInsets.only(
+                top: 4,
+                bottom: 4,
+                left: 8,
+                right: 8,
+              ),
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
                 onTap: onHashtagTap == null ? null : () => onHashtagTap(tag),
                 child: Text(
-                  tag, 
+                  tag,
                   style: tagStyle.copyWith(
-                    color: const Color(0xFF1C252E), // High contrast text from sample
+                    color: const Color(
+                      0xFF1C252E,
+                    ), // High contrast text from sample
                     fontSize: 12,
                     fontWeight: FontWeight.w600, // Sample's bold weight
                   ),
@@ -741,7 +766,12 @@ class _PostHtmlCard extends StatefulWidget {
   final VoidCallback? onTap;
   final ValueChanged<String>? onHashtagTap;
   final VoidCallback? onDeleted;
-  const _PostHtmlCard({required this.post, this.onTap, this.onHashtagTap, this.onDeleted});
+  const _PostHtmlCard({
+    required this.post,
+    this.onTap,
+    this.onHashtagTap,
+    this.onDeleted,
+  });
 
   @override
   State<_PostHtmlCard> createState() => _PostHtmlCardState();
@@ -1028,9 +1058,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     Expanded(
                       child: Text(
                         '이미지 업로드 실패: ${image.name}',
-                        style: AppTextStyles.primaryText(context).copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTextStyles.primaryText(
+                          context,
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -1055,7 +1085,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   Future<void> _submitComment() async {
     // 키보드 내리기
     FocusScope.of(context).unfocus();
-    
+
     final text = _commentController.text.trim();
     // 텍스트가 비어있으면 이미지가 있어도 업로드 안됨
     if (text.isEmpty) {
@@ -1327,9 +1357,9 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                     Expanded(
                       child: Text(
                         '댓글 전송에 실패했습니다',
-                        style: AppTextStyles.primaryText(context).copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: AppTextStyles.primaryText(
+                          context,
+                        ).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -1393,7 +1423,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
   Future<void> _submitReply({required int parentCommentId}) async {
     // 키보드 내리기
     FocusScope.of(context).unfocus();
-    
+
     final text = _replyController.text.trim();
     if (text.isEmpty && _selectedReplyImages.isEmpty) return;
     if (_isPostingComment) return;
@@ -1733,53 +1763,68 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                           Builder(
                             builder: (context) {
                               List<String> imageUrls = [];
-                              
+
                               // image_url이 배열인지 단일 문자열인지 확인
                               if (c['image_url'] is List) {
                                 imageUrls = (c['image_url'] as List)
                                     .map((e) => e.toString())
                                     .where((url) => url.isNotEmpty)
                                     .toList();
-                              } else if (c['image_url'] is String && c['image_url'].toString().isNotEmpty) {
+                              } else if (c['image_url'] is String &&
+                                  c['image_url'].toString().isNotEmpty) {
                                 imageUrls = [c['image_url'].toString()];
                               }
-                              
-                              if (imageUrls.isEmpty) return const SizedBox.shrink();
-                              
+
+                              if (imageUrls.isEmpty)
+                                return const SizedBox.shrink();
+
                               return GridView.builder(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: imageUrls.length == 1 ? 1 : 2,
-                                  crossAxisSpacing: 4,
-                                  mainAxisSpacing: 4,
-                                  childAspectRatio: imageUrls.length == 1 ? 1.5 : 1.0,
-                                ),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: imageUrls.length == 1
+                                          ? 1
+                                          : 2,
+                                      crossAxisSpacing: 4,
+                                      mainAxisSpacing: 4,
+                                      childAspectRatio: imageUrls.length == 1
+                                          ? 1.5
+                                          : 1.0,
+                                    ),
                                 itemCount: imageUrls.length,
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () {
-                                      _showImageViewer(context, imageUrls, index);
+                                      _showImageViewer(
+                                        context,
+                                        imageUrls,
+                                        index,
+                                      );
                                     },
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: SizedBox(
-                                        height: imageUrls.length == 1 ? 100 : 80,
+                                        height: imageUrls.length == 1
+                                            ? 100
+                                            : 80,
                                         child: Image.network(
                                           imageUrls[index],
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return Container(
-                                              color: cs.surfaceContainer,
-                                              child: Center(
-                                                child: Icon(
-                                                  SolarIconsOutline.gallery,
-                                                  color: cs.onSurfaceVariant,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Container(
+                                                  color: cs.surfaceContainer,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      SolarIconsOutline.gallery,
+                                                      color:
+                                                          cs.onSurfaceVariant,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                         ),
                                       ),
                                     ),
@@ -1927,185 +1972,233 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                               const SizedBox(width: 12),
                             ],
                             // 삭제 아이콘 (휴지통 모양) - 본인 댓글일 때만 표시 (댓글과 대댓글 모두)
-                            if (authorId != null && 
-                                Supabase.instance.client.auth.currentUser?.id == authorId)
-                                GestureDetector(
-                                  onTap: () async {
-                                    // 삭제 확인 다이얼로그
-                                    final confirmed = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('댓글 삭제'),
-                                        content: const Text('이 댓글을 삭제하시겠습니까?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: const Text('취소'),
+                            if (authorId != null &&
+                                Supabase.instance.client.auth.currentUser?.id ==
+                                    authorId)
+                              GestureDetector(
+                                onTap: () async {
+                                  // 삭제 확인 다이얼로그
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('댓글 삭제'),
+                                      content: const Text('이 댓글을 삭제하시겠습니까?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: const Text('취소'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: Colors.red,
                                           ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            style: TextButton.styleFrom(
-                                              foregroundColor: Colors.red,
-                                            ),
-                                            child: const Text('삭제'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                    
-                                    if (confirmed == true) {
-                                      final cid = (c['id'] as int?) ?? -1;
-                                      if (cid < 0) return;
-                                      
-                                      try {
-                                        await CommunityRepository.instance.deleteComment(
-                                          commentId: cid,
-                                          postId: post.id,
-                                        );
-                                        
-                                        // 댓글 목록 새로고침
-                                        setState(() {
-                                          _commentsFuture = CommunityRepository.instance
-                                              .fetchCommentsForPost(post.id, limit: 6)
-                                              .then((comments) async {
-                                                await _prefetchCommentAuthors(comments);
-                                                try {
-                                                  final ids = comments
-                                                      .map((c) => (c['id'] as int?) ?? -1)
-                                                      .where((id) => id > 0)
-                                                      .toList();
-                                                  if (ids.isNotEmpty) {
-                                                    final counts = await CommunityRepository.instance
-                                                        .getCommentLikeCounts(ids);
-                                                    final liked = await CommunityRepository.instance
-                                                        .getUserLikedComments(ids);
-                                                    if (mounted) {
-                                                      setState(() {
-                                                        _commentLikeCounts.clear();
-                                                        _likedCommentIds.clear();
-                                                        for (final e in counts.entries) {
-                                                          _commentLikeCounts[e.key] = e.value;
-                                                        }
-                                                        _likedCommentIds.addAll(liked);
-                                                      });
-                                                    }
+                                          child: const Text('삭제'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirmed == true) {
+                                    final cid = (c['id'] as int?) ?? -1;
+                                    if (cid < 0) return;
+
+                                    try {
+                                      await CommunityRepository.instance
+                                          .deleteComment(
+                                            commentId: cid,
+                                            postId: post.id,
+                                          );
+
+                                      // 댓글 목록 새로고침
+                                      setState(() {
+                                        _commentsFuture = CommunityRepository
+                                            .instance
+                                            .fetchCommentsForPost(
+                                              post.id,
+                                              limit: 6,
+                                            )
+                                            .then((comments) async {
+                                              await _prefetchCommentAuthors(
+                                                comments,
+                                              );
+                                              try {
+                                                final ids = comments
+                                                    .map(
+                                                      (c) =>
+                                                          (c['id'] as int?) ??
+                                                          -1,
+                                                    )
+                                                    .where((id) => id > 0)
+                                                    .toList();
+                                                if (ids.isNotEmpty) {
+                                                  final counts =
+                                                      await CommunityRepository
+                                                          .instance
+                                                          .getCommentLikeCounts(
+                                                            ids,
+                                                          );
+                                                  final liked =
+                                                      await CommunityRepository
+                                                          .instance
+                                                          .getUserLikedComments(
+                                                            ids,
+                                                          );
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      _commentLikeCounts
+                                                          .clear();
+                                                      _likedCommentIds.clear();
+                                                      for (final e
+                                                          in counts.entries) {
+                                                        _commentLikeCounts[e
+                                                                .key] =
+                                                            e.value;
+                                                      }
+                                                      _likedCommentIds.addAll(
+                                                        liked,
+                                                      );
+                                                    });
                                                   }
-                                                } catch (_) {}
-                                                return comments;
-                                              });
-                                        });
-                                        
-                                        if (mounted) {
-                                          DelightToastBar(
-                                            autoDismiss: true,
-                                            animationDuration: const Duration(milliseconds: 300),
-                                            snackbarDuration: const Duration(seconds: 5),
-                                            builder: (context) => Container(
-                                              margin: const EdgeInsets.only(
-                                                left: 16,
-                                                right: 16,
-                                                top: 8,
-                                                bottom: 8,
-                                              ),
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                borderRadius: BorderRadius.circular(12),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withValues(alpha: 0.1),
-                                                    blurRadius: 8,
-                                                    offset: const Offset(0, 4),
+                                                }
+                                              } catch (_) {}
+                                              return comments;
+                                            });
+                                      });
+
+                                      if (mounted) {
+                                        DelightToastBar(
+                                          autoDismiss: true,
+                                          animationDuration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          snackbarDuration: const Duration(
+                                            seconds: 5,
+                                          ),
+                                          builder: (context) => Container(
+                                            margin: const EdgeInsets.only(
+                                              left: 16,
+                                              right: 16,
+                                              top: 8,
+                                              bottom: 8,
+                                            ),
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.1),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  SolarIconsOutline.checkCircle,
+                                                  color: Colors.white,
+                                                  size: 24,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    '댓글이 삭제되었습니다.',
+                                                    style:
+                                                        AppTextStyles.primaryText(
+                                                          context,
+                                                        ).copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
                                                   ),
-                                                ],
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    SolarIconsOutline.checkCircle,
-                                                    color: Colors.white,
-                                                    size: 24,
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Expanded(
-                                                    child: Text(
-                                                      '댓글이 삭제되었습니다.',
-                                                      style: AppTextStyles.primaryText(context).copyWith(
-                                                        fontWeight: FontWeight.w600,
-                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ).show(context);
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        DelightToastBar(
+                                          builder: (context) => Container(
+                                            margin: const EdgeInsets.only(
+                                              left: 16,
+                                              right: 16,
+                                              top: 8,
+                                              bottom: 8,
+                                            ),
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.1),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  SolarIconsOutline
+                                                      .dangerCircle,
+                                                  color: Colors.red,
+                                                  size: 24,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    '댓글 삭제 중 오류가 발생했습니다: $e',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 14,
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
-                                          ).show(context);
-                                        }
-                                      } catch (e) {
-                                        if (mounted) {
-                                          DelightToastBar(
-                                            builder: (context) => Container(
-                                              margin: const EdgeInsets.only(
-                                                left: 16,
-                                                right: 16,
-                                                top: 8,
-                                                bottom: 8,
-                                              ),
-                                              padding: const EdgeInsets.all(16),
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                borderRadius: BorderRadius.circular(12),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black.withValues(alpha: 0.1),
-                                                    blurRadius: 8,
-                                                    offset: const Offset(0, 4),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    SolarIconsOutline.dangerCircle,
-                                                    color: Colors.red,
-                                                    size: 24,
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Expanded(
-                                                    child: Text(
-                                                      '댓글 삭제 중 오류가 발생했습니다: $e',
-                                                      style: const TextStyle(
-                      color: Colors.white,
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ).show(context);
-                                        }
+                                          ),
+                                        ).show(context);
                                       }
                                     }
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        SolarIconsOutline.trashBinMinimalistic,
-                                        size: 14,
-                                        color: Colors.red.withValues(alpha: 0.7),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '삭제하기',
-                                        style: tt.bodySmall?.copyWith(
-                                          color: Colors.red.withValues(alpha: 0.7),
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      SolarIconsOutline.trashBinMinimalistic,
+                                      size: 14,
+                                      color: Colors.red.withValues(alpha: 0.7),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '삭제하기',
+                                      style: tt.bodySmall?.copyWith(
+                                        color: Colors.red.withValues(
+                                          alpha: 0.7,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
+                              ),
                           ],
                         ),
                       ],
@@ -2460,32 +2553,35 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       displayBody = displayTitle;
       displayTitle = '';
     }
-  final twoThumbs = post.imageUrls.length >= 2;
-  final hasImages = post.imageUrls.isNotEmpty;
+    final twoThumbs = post.imageUrls.length >= 2;
+    final hasImages = post.imageUrls.isNotEmpty;
 
     final _cardInner = Container(
-        margin: const EdgeInsets.only(top: 12, bottom: 16, left: 16, right: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF), // Clean white background from sample
-          borderRadius: BorderRadius.circular(10), // Sample's rounded corners
-          border: Border.all(
-            color: const Color(0x0F919EAB), // Subtle border
-            width: 0.5,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x08000000), // Very subtle shadow
-              blurRadius: 8,
-              offset: Offset(0, 2),
-              spreadRadius: 0,
-            ),
-          ],
+      margin: const EdgeInsets.only(top: 12, bottom: 16, left: 16, right: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF), // Clean white background from sample
+        borderRadius: BorderRadius.circular(10), // Sample's rounded corners
+        border: Border.all(
+          color: const Color(0x0F919EAB), // Subtle border
+          width: 0.5,
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: null,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 4), // More generous padding
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000), // Very subtle shadow
+            blurRadius: 8,
+            offset: Offset(0, 2),
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 4,
+          ), // More generous padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2674,108 +2770,185 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       postId: post.id,
                       reportedUserId: post.isAnonymous ? null : post.authorId,
                       // 자기 자신의 게시물에 대해서는 신고/차단 메뉴 비활성화
-                      onReport: post.authorId != null && 
-                          Supabase.instance.client.auth.currentUser?.id != post.authorId 
+                      onReport:
+                          post.authorId != null &&
+                              Supabase.instance.client.auth.currentUser?.id !=
+                                  post.authorId
                           ? (reason) {
                               // 신고 처리는 PostActionsMenu에서 자동 처리
-                            } : null,
-                      onBlock: post.authorId != null && 
-                          Supabase.instance.client.auth.currentUser?.id != post.authorId 
+                            }
+                          : null,
+                      onBlock:
+                          post.authorId != null &&
+                              Supabase.instance.client.auth.currentUser?.id !=
+                                  post.authorId
                           ? () {
                               // 차단 처리는 PostActionsMenu에서 자동 처리
-                            } : null,
-                      // Show delete option only when current user is the author
-                      showDelete: post.authorId != null &&
-                          Supabase.instance.client.auth.currentUser?.id == post.authorId,
-                      onDelete: post.authorId != null &&
-                          Supabase.instance.client.auth.currentUser?.id == post.authorId
-                          ? () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('게시물 삭제'),
-                            content: const Text('이 게시물을 삭제하시겠습니까?'),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('취소')),
-                              TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text('삭제', style: AppTextStyles.buttonText(context).copyWith(color: Colors.red))),
-                            ],
-                          ),
-                        );
-                        if (confirmed == true) {
-                          try {
-                            final ok = await CommunityRepository.instance.deletePost(postId: post.id);
-                            if (ok) {
-                              // refresh the feed: remove post locally and trigger parent reload
-                              setState(() {
-                                // optimistic removal from UI
-                                // actual refresh handled by parent on its next refresh
-                                // Remove from local posts list if present
-                              });
-                              DelightToastBar(
-                                autoDismiss: true,
-                                animationDuration: const Duration(milliseconds: 260),
-                                snackbarDuration: const Duration(seconds: 3),
-                                builder: (context) => Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text('게시물이 삭제되었습니다', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
-                                ),
-                              ).show(context);
-                              // trigger a refresh of the feed
-                              // notify parent to refresh the feed
-                              widget.onDeleted?.call();
-                            } else {
-                              DelightToastBar(
-                                autoDismiss: true,
-                                animationDuration: const Duration(milliseconds: 260),
-                                snackbarDuration: const Duration(seconds: 3),
-                                builder: (context) => Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.error,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text('삭제에 실패했습니다', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
-                                ),
-                              ).show(context);
                             }
-                          } catch (e) {
-                            DelightToastBar(
-                              autoDismiss: true,
-                              animationDuration: const Duration(milliseconds: 260),
-                              snackbarDuration: const Duration(seconds: 3),
-                              builder: (context) => Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.error,
-                                  borderRadius: BorderRadius.circular(10),
+                          : null,
+                      // Show delete option only when current user is the author
+                      showDelete:
+                          post.authorId != null &&
+                          Supabase.instance.client.auth.currentUser?.id ==
+                              post.authorId,
+                      onDelete:
+                          post.authorId != null &&
+                              Supabase.instance.client.auth.currentUser?.id ==
+                                  post.authorId
+                          ? () async {
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('게시물 삭제'),
+                                  content: const Text('이 게시물을 삭제하시겠습니까?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: const Text('취소'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                      child: Text(
+                                        '삭제',
+                                        style: AppTextStyles.buttonText(
+                                          context,
+                                        ).copyWith(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                child: Text('삭제 중 오류가 발생했습니다: $e', style: AppTextStyles.primaryText(context).copyWith(color: Colors.white)),
-                              ),
-                            ).show(context);
-                          }
-                        }
-                          } : null,
+                              );
+                              if (confirmed == true) {
+                                try {
+                                  final ok = await CommunityRepository.instance
+                                      .deletePost(postId: post.id);
+                                  if (ok) {
+                                    // refresh the feed: remove post locally and trigger parent reload
+                                    setState(() {
+                                      // optimistic removal from UI
+                                      // actual refresh handled by parent on its next refresh
+                                      // Remove from local posts list if present
+                                    });
+                                    DelightToastBar(
+                                      autoDismiss: true,
+                                      animationDuration: const Duration(
+                                        milliseconds: 260,
+                                      ),
+                                      snackbarDuration: const Duration(
+                                        seconds: 3,
+                                      ),
+                                      builder: (context) => Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '게시물이 삭제되었습니다',
+                                          style: AppTextStyles.primaryText(
+                                            context,
+                                          ).copyWith(color: Colors.white),
+                                        ),
+                                      ),
+                                    ).show(context);
+                                    // trigger a refresh of the feed
+                                    // notify parent to refresh the feed
+                                    widget.onDeleted?.call();
+                                  } else {
+                                    DelightToastBar(
+                                      autoDismiss: true,
+                                      animationDuration: const Duration(
+                                        milliseconds: 260,
+                                      ),
+                                      snackbarDuration: const Duration(
+                                        seconds: 3,
+                                      ),
+                                      builder: (context) => Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '삭제에 실패했습니다',
+                                          style: AppTextStyles.primaryText(
+                                            context,
+                                          ).copyWith(color: Colors.white),
+                                        ),
+                                      ),
+                                    ).show(context);
+                                  }
+                                } catch (e) {
+                                  DelightToastBar(
+                                    autoDismiss: true,
+                                    animationDuration: const Duration(
+                                      milliseconds: 260,
+                                    ),
+                                    snackbarDuration: const Duration(
+                                      seconds: 3,
+                                    ),
+                                    builder: (context) => Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 8,
+                                      ),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        '삭제 중 오류가 발생했습니다: $e',
+                                        style: AppTextStyles.primaryText(
+                                          context,
+                                        ).copyWith(color: Colors.white),
+                                      ),
+                                    ),
+                                  ).show(context);
+                                }
+                              }
+                            }
+                          : null,
                     ),
                   ],
                 ),
               ),
               // Media section (multi 이미지일 때: 댓글 썸네일 스타일, 1장일 때는 아래에서 Aspect 유지 렌더)
               if (twoThumbs) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0), // add extra top padding for visual breathing room
-                          child: _PostImageGallery(
-                            imageUrls: post.imageUrls,
-                            onTap: (index) => _showImageViewer(context, post.imageUrls, index),
-                            isGrid: true,
-                          ),
-                        ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    24,
+                    12,
+                    24,
+                    0,
+                  ), // add extra top padding for visual breathing room
+                  child: _PostImageGallery(
+                    imageUrls: post.imageUrls,
+                    onTap: (index) =>
+                        _showImageViewer(context, post.imageUrls, index),
+                    isGrid: true,
+                  ),
+                ),
               ],
               // Title (only when short or explicitly provided)
               if (displayTitle.isNotEmpty) ...[
@@ -2801,7 +2974,8 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: _PostImageGallery(
                     imageUrls: post.imageUrls,
-                    onTap: (index) => _showImageViewer(context, post.imageUrls, index),
+                    onTap: (index) =>
+                        _showImageViewer(context, post.imageUrls, index),
                     isGrid: false,
                   ),
                 ),
@@ -3274,13 +3448,15 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     return '${d.inDays}일 전';
   }
 
-  void _showImageViewer(BuildContext context, List<String> imageUrls, int initialIndex) {
+  void _showImageViewer(
+    BuildContext context,
+    List<String> imageUrls,
+    int initialIndex,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => _ImageViewerPage(
-          imageUrls: imageUrls,
-          initialIndex: initialIndex,
-        ),
+        builder: (context) =>
+            _ImageViewerPage(imageUrls: imageUrls, initialIndex: initialIndex),
         fullscreenDialog: true,
       ),
     );
@@ -3304,10 +3480,7 @@ class _ChannelTabBar extends StatelessWidget {
     // Build list of tabs with proper selected/unselected states
     final tabWidgets = <Widget>[
       Tab(
-        child: _TabContent(
-          text: '전체',
-          isSelected: controller.index == 0,
-        ),
+        child: _TabContent(text: '전체', isSelected: controller.index == 0),
       ),
       ...channels.asMap().entries.map((entry) {
         final index = entry.key + 1; // +1 because "전체" is at index 0
@@ -3343,48 +3516,126 @@ class _ChannelTabBar extends StatelessWidget {
 
     final tabsCount = tabWidgets.length;
 
-    // TabBar with clean sample design
-    final tabBar = TabBar(
-      controller: (controller.length == tabsCount) ? controller : null,
-      isScrollable: true,
-      // Slightly larger padding so tabs have more breathing room and avoid clipping on small screens
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      // Increase label padding to expand hit area and prevent text truncation
-      labelPadding: const EdgeInsets.symmetric(horizontal: 10),
-      indicatorPadding: EdgeInsets.zero,
-      indicator: const BoxDecoration(), // No underline indicator - using container backgrounds
-      dividerColor: Colors.transparent,
-      tabAlignment: TabAlignment.start,
-      labelColor: const Color(0xFF1C252E), // High contrast from sample
-      unselectedLabelColor: const Color(0xFF919EAB), // Muted color
-      splashFactory: NoSplash.splashFactory, // Clean tap without ripple
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      tabs: tabWidgets,
-      onTap: onTap,
-    );
-
+    // If the provided controller already matches the tab count, build a
+    // TabBar wired to that controller and wrap each tab child in an
+    // AnimatedBuilder so the tab content rebuilds when selection changes.
     if (controller.length == tabsCount) {
+      final activeTabBar = TabBar(
+        controller: controller,
+        isScrollable: true,
+        // Reduce left/right padding to minimize extra spacing at the ends
+        padding: const EdgeInsets.only(left: 8, right: 4, top: 8, bottom: 8),
+        // Make label padding tighter so each tab uses less horizontal space
+        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+        indicatorPadding: EdgeInsets.zero,
+        indicator:
+            const BoxDecoration(), // No underline indicator - using container backgrounds
+        dividerColor: Colors.transparent,
+        tabAlignment: TabAlignment.start,
+        labelColor: const Color(0xFF1C252E), // High contrast from sample
+        unselectedLabelColor: const Color(0xFF919EAB), // Muted color
+        splashFactory: NoSplash.splashFactory, // Clean tap without ripple
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        tabs: tabWidgets.map((w) {
+          // If the tab child is a Tab with _TabContent, wrap in AnimatedBuilder
+          if (w is Tab) {
+            return Tab(
+              child: AnimatedBuilder(
+                animation:
+                    controller.animation ?? const AlwaysStoppedAnimation(0.0),
+                builder: (context, _) {
+                  // Re-evaluate selection state based on controller.index
+                  final idx = tabWidgets.indexOf(w);
+                  // For safety, clamp index
+                  final safe = (idx < 0 || idx >= tabsCount) ? 0 : idx;
+                  // If original child was a _TabContent, rebuild with updated isSelected
+                  if (w.child is _TabContent) {
+                    return _TabContent(
+                      text: (w.child as _TabContent).text,
+                      isSelected: controller.index == safe,
+                    );
+                  }
+                  // fallback: non-null child
+                  return w.child ?? const SizedBox.shrink();
+                },
+              ),
+            );
+          }
+          return w;
+        }).toList(),
+        onTap: onTap,
+      );
+
       return SizedBox(
-        // Increase overall tab bar height to accommodate larger padding and avoid visual compression
         height: 56,
-        child: Align(alignment: Alignment.centerLeft, child: tabBar),
+        child: Align(alignment: Alignment.centerLeft, child: activeTabBar),
       );
     }
 
-    // Controller length mismatch: create a DefaultTabController for this
-    // build so TabBar has a matching controller. Use a safe initialIndex
-    // clamped into range.
+    // Controller length mismatch: build using DefaultTabController and create
+    // the TabBar inside a Builder so we can access the internal controller
+    // (DefaultTabController.of(context)). Use AnimatedBuilder on that controller
+    // to ensure tabs rebuild when selection changes.
     int initIndex = controller.index;
     if (initIndex < 0) initIndex = 0;
     if (initIndex > tabsCount - 1) initIndex = tabsCount - 1;
 
     return SizedBox(
-      // Keep consistent taller height for controller-mismatch case too
       height: 56,
       child: DefaultTabController(
         length: tabsCount,
         initialIndex: initIndex,
-        child: Align(alignment: Alignment.centerLeft, child: tabBar),
+        child: Builder(
+          builder: (ctx) {
+            final inner = DefaultTabController.of(ctx);
+            final innerTabs = tabWidgets.map((w) {
+              if (w is Tab) {
+                return Tab(
+                  child: AnimatedBuilder(
+                    animation:
+                        inner.animation ?? const AlwaysStoppedAnimation(0.0),
+                    builder: (context, _) {
+                      final idx = tabWidgets.indexOf(w);
+                      final safe = (idx < 0 || idx >= tabsCount) ? 0 : idx;
+                      if (w.child is _TabContent) {
+                        return _TabContent(
+                          text: (w.child as _TabContent).text,
+                          isSelected: inner.index == safe,
+                        );
+                      }
+                      return (w.child ?? const SizedBox.shrink());
+                    },
+                  ),
+                );
+              }
+              return w;
+            }).toList();
+
+            final innerTabBar = TabBar(
+              controller: inner,
+              isScrollable: true,
+              padding: const EdgeInsets.only(
+                left: 12,
+                right: 8,
+                top: 10,
+                bottom: 10,
+              ),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+              indicatorPadding: EdgeInsets.zero,
+              indicator: const BoxDecoration(),
+              dividerColor: Colors.transparent,
+              tabAlignment: TabAlignment.start,
+              labelColor: const Color(0xFF1C252E),
+              unselectedLabelColor: const Color(0xFF919EAB),
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              tabs: innerTabs,
+              onTap: onTap,
+            );
+
+            return Align(alignment: Alignment.centerLeft, child: innerTabBar);
+          },
+        ),
       ),
     );
   }
@@ -3414,20 +3665,20 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
     final cs = Theme.of(context).colorScheme;
     if (widget.imageUrls.isEmpty) return const SizedBox.shrink();
 
-  final singleMaxHeight = CommunitySizes.imageSingleMaxHeight;
-  final thumbSize = CommunitySizes.imageThumbSize;
-  final spacing = CommunitySizes.imageThumbSpacing;
+    final singleMaxHeight = CommunitySizes.imageSingleMaxHeight;
+    final thumbSize = CommunitySizes.imageThumbSize;
+    final spacing = CommunitySizes.imageThumbSpacing;
 
     if (widget.isGrid) {
       final urls = widget.imageUrls.take(4).toList(); // 최대 4개 표시 (댓글 스타일)
-  final rows = (urls.length / 2).ceil();
-  final gridHeight = rows * thumbSize + (rows - 1) * spacing;
+      final rows = (urls.length / 2).ceil();
+      final gridHeight = rows * thumbSize + (rows - 1) * spacing;
       // 댓글/대댓글 썸네일 레이아웃과 완전히 동일하게: 고정 100px 정사각 Wrap (2열 흐름)
       return SizedBox(
         height: gridHeight,
         child: Wrap(
           spacing: spacing,
-            runSpacing: spacing,
+          runSpacing: spacing,
           children: [
             for (int index = 0; index < urls.length; index++)
               SizedBox(
@@ -3467,7 +3718,7 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
     final url = widget.imageUrls.first;
     final aspect = _aspectCache[url];
     Widget content;
-      if (aspect != null) {
+    if (aspect != null) {
       content = ConstrainedBox(
         constraints: BoxConstraints(maxHeight: singleMaxHeight),
         child: AspectRatio(
@@ -3480,13 +3731,10 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
         future: _resolveAspect(url),
         builder: (context, snap) {
           final ar = snap.data;
-            if (ar != null) {
+          if (ar != null) {
             return ConstrainedBox(
               constraints: BoxConstraints(maxHeight: singleMaxHeight),
-              child: AspectRatio(
-                aspectRatio: ar,
-                child: _buildSingle(url, ar),
-              ),
+              child: AspectRatio(aspectRatio: ar, child: _buildSingle(url, ar)),
             );
           }
           // 로딩 중 placeholder (높이 비율)
@@ -3506,7 +3754,10 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
       child: InkWell(
         onTap: widget.onTap == null ? null : () => widget.onTap!(0),
         borderRadius: BorderRadius.circular(8),
-        child: ClipRRect(borderRadius: BorderRadius.circular(8), child: content),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: content,
+        ),
       ),
     );
   }
@@ -3533,21 +3784,24 @@ class _PostImageGalleryState extends State<_PostImageGallery> {
     final img = Image.network(url);
     final stream = img.image.resolve(const ImageConfiguration());
     late ImageStreamListener l;
-    l = ImageStreamListener((ImageInfo info, bool sync) {
-      final w = info.image.width.toDouble();
-      final h = info.image.height.toDouble();
-      if (w > 0 && h > 0) {
-        final ar = w / h;
-        _aspectCache[url] = ar;
-        c.complete(ar);
-      } else {
-        c.complete(1.6); // fallback
-      }
-      stream.removeListener(l);
-    }, onError: (error, stack) {
-      if (!c.isCompleted) c.complete(1.6);
-      stream.removeListener(l);
-    });
+    l = ImageStreamListener(
+      (ImageInfo info, bool sync) {
+        final w = info.image.width.toDouble();
+        final h = info.image.height.toDouble();
+        if (w > 0 && h > 0) {
+          final ar = w / h;
+          _aspectCache[url] = ar;
+          c.complete(ar);
+        } else {
+          c.complete(1.6); // fallback
+        }
+        stream.removeListener(l);
+      },
+      onError: (error, stack) {
+        if (!c.isCompleted) c.complete(1.6);
+        stream.removeListener(l);
+      },
+    );
     stream.addListener(l);
     return c.future;
   }
@@ -3615,10 +3869,7 @@ class _ImageViewerPage extends StatefulWidget {
   final List<String> imageUrls;
   final int initialIndex;
 
-  const _ImageViewerPage({
-    required this.imageUrls,
-    required this.initialIndex,
-  });
+  const _ImageViewerPage({required this.imageUrls, required this.initialIndex});
 
   @override
   State<_ImageViewerPage> createState() => _ImageViewerPageState();
@@ -3644,7 +3895,7 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -3684,7 +3935,9 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
                                 const SizedBox(height: 16),
                                 Text(
                                   '이미지를 불러올 수 없습니다',
-                                  style: AppTextStyles.primaryText(context).copyWith(color: Colors.white),
+                                  style: AppTextStyles.primaryText(
+                                    context,
+                                  ).copyWith(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -3708,7 +3961,9 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
               elevation: 0,
               title: Text(
                 '${_currentIndex + 1} / ${widget.imageUrls.length}',
-                style: AppTextStyles.primaryText(context).copyWith(color: Colors.white),
+                style: AppTextStyles.primaryText(
+                  context,
+                ).copyWith(color: Colors.white),
               ),
               iconTheme: const IconThemeData(color: Colors.white),
             ),
@@ -3724,35 +3979,32 @@ class _TabContent extends StatelessWidget {
   final String text;
   final bool isSelected;
 
-  const _TabContent({
-    required this.text,
-    required this.isSelected,
-  });
+  const _TabContent({required this.text, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: isSelected 
-            ? cs.primary                    // Selected: Primary color background
-            : cs.surfaceContainerHighest,   // Unselected: Gray background
+        color: isSelected
+            ? cs
+                  .primary // Selected: Primary color background
+            : cs.surfaceContainerHighest, // Unselected: Gray background
         border: Border.all(
-          color: isSelected 
-              ? cs.primary 
-              : cs.outline.withValues(alpha: 0.2),
+          color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.2),
           width: isSelected ? 0 : 1,
         ),
       ),
       child: Text(
         text,
         style: AppTextStyles.chipLabel(context).copyWith(
-          color: isSelected 
-              ? cs.onPrimary              // Selected: White text
-              : cs.onSurfaceVariant,      // Unselected: Gray text
+          color: isSelected
+              ? cs
+                    .onPrimary // Selected: White text
+              : cs.onSurfaceVariant, // Unselected: Gray text
           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
         ),
       ),
@@ -3778,9 +4030,9 @@ class _EmptyStateWidget extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             '게시글이 없어요',
-            style: AppTextStyles.sectionTitle(context).copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: AppTextStyles.sectionTitle(
+              context,
+            ).copyWith(color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 12),
           Text(
