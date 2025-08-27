@@ -25,8 +25,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _phoneController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
-  final GlobalKey _phoneFieldKey = GlobalKey();
-  final GlobalKey _phoneLoginButtonKey = GlobalKey();
 
   late final AnimationController _logoController;
   late final Animation<double> _logoRotateAnim;
@@ -48,31 +46,12 @@ class _LoginPageState extends ConsumerState<LoginPage>
     // small, cute rotation animation (radians)
     _logoRotateAnim = Tween<double>(begin: -0.12, end: 0.12).animate(curved);
     
-    // Listen for focus changes to scroll to text field
+    // Listen for focus changes to update UI
     _phoneFocusNode.addListener(() {
-      if (_phoneFocusNode.hasFocus) {
-        _scrollToTextField();
-      }
       setState(() {}); // Update UI when focus changes
     });
   }
 
-  void _scrollToTextField() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final phoneFieldContext = _phoneFieldKey.currentContext;
-        if (phoneFieldContext != null) {
-          // Scroll the input field to top third of screen to ensure button is visible
-          Scrollable.ensureVisible(
-            phoneFieldContext,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutCubic,
-            alignment: 0.3, // Position input in upper third so button below is visible
-          );
-        }
-      }
-    });
-  }
 
   @override
   void dispose() {
@@ -135,6 +114,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final primaryColor = theme.colorScheme.primary;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Listener(
         behavior: HitTestBehavior.opaque,
         onPointerDown: (event) {
@@ -269,7 +249,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
                 right: ResponsiveUtils.getHorizontalPadding(context),
                 top: ResponsiveUtils.isMobile(context) ? 32 : 48,
                 bottom: MediaQuery.of(context).viewInsets.bottom + 
-                        (ResponsiveUtils.isMobile(context) ? 32 : 48),
+                        (ResponsiveUtils.isMobile(context) ? 32 : 48) +
+                        (_phoneFocusNode.hasFocus ? 150 : 0), // Extra space when phone field focused
               ),
               child: _buildLoginCard(context, theme, primaryColor),
             ),
@@ -534,7 +515,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   Widget _buildPhoneSection(BuildContext context, Color primaryColor) {
     // Add extra padding when keyboard is visible to push button up
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final additionalPadding = keyboardHeight > 0 ? 100.0 : 0.0;
+    final additionalPadding = keyboardHeight > 0 ? 200.0 : 0.0;
     
     return Column(
       children: [
@@ -550,7 +531,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 20),
         Container(
-          key: _phoneFieldKey,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             boxShadow: _phoneFocusNode.hasFocus
@@ -606,7 +586,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 16),
         PrimaryTextButton(
-          key: _phoneLoginButtonKey,
           text: '휴대폰 번호 로그인',
           onPressed: () {
             final digitsOnly = _phoneController.text.replaceAll(
