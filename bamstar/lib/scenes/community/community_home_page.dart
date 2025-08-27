@@ -18,7 +18,7 @@ import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
 import 'package:bamstar/scenes/community/widgets/post_actions_menu.dart';
-import '../../theme/typography.dart';
+// Typography import removed as it's not used in current design implementation
 import '../../theme/app_text_styles.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:bamstar/services/cloudinary.dart';
@@ -560,6 +560,12 @@ class _CommunityHomePageState extends State<CommunityHomePage>
                       return const SizedBox.shrink();
                     }, childCount: _posts.length + (_isLoadingMore ? 1 : 0)),
                   ),
+                  
+                  // Empty state when no posts available
+                  if (!_isLoading && _posts.isEmpty)
+                    SliverToBoxAdapter(
+                      child: _EmptyStateWidget(),
+                    ),
                 ],
               ),
             ),
@@ -3295,58 +3301,41 @@ class _ChannelTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    // Build list of tabs ("전체" + channels) with improved styling
+    // Build list of tabs with proper selected/unselected states
     final tabWidgets = <Widget>[
       Tab(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0x0F919EAB), // Subtle background from sample
-          ),
-          child: const Text(
-            '전체',
-            style: TextStyle(
-              color: Color(0xFF1C252E), // High contrast text
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        child: _TabContent(
+          text: '전체',
+          isSelected: controller.index == 0,
         ),
       ),
-      ...channels.map((channel) => Tab(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: const Color(0x0F919EAB), // Consistent styling
+      ...channels.asMap().entries.map((entry) {
+        final index = entry.key + 1; // +1 because "전체" is at index 0
+        final channel = entry.value;
+        return Tab(
+          child: _TabContent(
+            text: '#${channel.name}',
+            isSelected: controller.index == index,
           ),
-          child: Text(
-            '#${channel.name}',
-            style: const TextStyle(
-              color: Color(0xFF1C252E),
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      )),
-      // "+" tab with sample design
+        );
+      }),
+      // "+" tab for adding new channels
       Tab(
         child: Container(
-          width: 28,
-          height: 28,
+          width: 32,
+          height: 32,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: const Color(0x0F919EAB),
-          ),
-          child: const Center(
-            child: Icon(
-              Icons.add, 
-              size: 16, 
-              color: Color(0xFF1C252E),
+            color: cs.surfaceContainerHighest,
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.3),
+              width: 1,
             ),
+          ),
+          child: Icon(
+            SolarIconsOutline.addCircle,
+            size: 18,
+            color: cs.onSurfaceVariant,
           ),
         ),
       ),
@@ -3358,8 +3347,10 @@ class _ChannelTabBar extends StatelessWidget {
     final tabBar = TabBar(
       controller: (controller.length == tabsCount) ? controller : null,
       isScrollable: true,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      labelPadding: const EdgeInsets.only(left: 6, right: 6),
+      // Slightly larger padding so tabs have more breathing room and avoid clipping on small screens
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      // Increase label padding to expand hit area and prevent text truncation
+      labelPadding: const EdgeInsets.symmetric(horizontal: 10),
       indicatorPadding: EdgeInsets.zero,
       indicator: const BoxDecoration(), // No underline indicator - using container backgrounds
       dividerColor: Colors.transparent,
@@ -3374,7 +3365,8 @@ class _ChannelTabBar extends StatelessWidget {
 
     if (controller.length == tabsCount) {
       return SizedBox(
-        height: 46,
+        // Increase overall tab bar height to accommodate larger padding and avoid visual compression
+        height: 56,
         child: Align(alignment: Alignment.centerLeft, child: tabBar),
       );
     }
@@ -3387,7 +3379,8 @@ class _ChannelTabBar extends StatelessWidget {
     if (initIndex > tabsCount - 1) initIndex = tabsCount - 1;
 
     return SizedBox(
-      height: 46,
+      // Keep consistent taller height for controller-mismatch case too
+      height: 56,
       child: DefaultTabController(
         length: tabsCount,
         initialIndex: initIndex,
@@ -3720,6 +3713,82 @@ class _ImageViewerPageState extends State<_ImageViewerPage> {
               iconTheme: const IconThemeData(color: Colors.white),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tab content widget with proper selected/unselected states
+class _TabContent extends StatelessWidget {
+  final String text;
+  final bool isSelected;
+
+  const _TabContent({
+    required this.text,
+    required this.isSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: isSelected 
+            ? cs.primary                    // Selected: Primary color background
+            : cs.surfaceContainerHighest,   // Unselected: Gray background
+        border: Border.all(
+          color: isSelected 
+              ? cs.primary 
+              : cs.outline.withValues(alpha: 0.2),
+          width: isSelected ? 0 : 1,
+        ),
+      ),
+      child: Text(
+        text,
+        style: AppTextStyles.chipLabel(context).copyWith(
+          color: isSelected 
+              ? cs.onPrimary              // Selected: White text
+              : cs.onSurfaceVariant,      // Unselected: Gray text
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
+
+/// Empty state widget shown when no posts are available
+class _EmptyStateWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 60),
+          Icon(
+            SolarIconsOutline.documentText,
+            size: 64,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 24),
+          Text(
+            '게시글이 없어요',
+            style: AppTextStyles.sectionTitle(context).copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '처음으로 글을 남겨보세요!',
+            style: AppTextStyles.secondaryText(context),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 60),
         ],
       ),
     );
