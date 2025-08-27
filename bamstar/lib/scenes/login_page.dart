@@ -26,6 +26,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   final TextEditingController _phoneController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
   final GlobalKey _phoneFieldKey = GlobalKey();
+  final GlobalKey _phoneLoginButtonKey = GlobalKey();
 
   late final AnimationController _logoController;
   late final Animation<double> _logoRotateAnim;
@@ -58,13 +59,17 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   void _scrollToTextField() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final context = _phoneFieldKey.currentContext;
-      if (context != null) {
-        Scrollable.ensureVisible(
-          context,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+      if (mounted) {
+        final phoneFieldContext = _phoneFieldKey.currentContext;
+        if (phoneFieldContext != null) {
+          // Scroll the input field to top third of screen to ensure button is visible
+          Scrollable.ensureVisible(
+            phoneFieldContext,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutCubic,
+            alignment: 0.3, // Position input in upper third so button below is visible
+          );
+        }
       }
     });
   }
@@ -527,6 +532,10 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   Widget _buildPhoneSection(BuildContext context, Color primaryColor) {
+    // Add extra padding when keyboard is visible to push button up
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final additionalPadding = keyboardHeight > 0 ? 100.0 : 0.0;
+    
     return Column(
       children: [
         Text(
@@ -597,6 +606,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
         const SizedBox(height: 16),
         PrimaryTextButton(
+          key: _phoneLoginButtonKey,
           text: '휴대폰 번호 로그인',
           onPressed: () {
             final digitsOnly = _phoneController.text.replaceAll(
@@ -624,6 +634,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
             // TODO: 실제 인증 로직 연결
           },
         ),
+        // Add dynamic spacing when keyboard is visible
+        SizedBox(height: additionalPadding),
       ],
     );
   }
