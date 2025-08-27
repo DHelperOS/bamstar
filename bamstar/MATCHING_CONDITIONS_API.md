@@ -21,7 +21,7 @@ BamStar 프로젝트의 매칭 조건 업데이트를 위한 Edge Function API�
 Authorization: Bearer [Supabase_JWT_Token]
 ```
 
-- **권한**: `MEMBER` 역할의 사용자만 접근 가능
+- **권한**: `GUEST`, `STAR`, `PLACE` 역할의 사용자만 접근 가능
 - **인증 실패**: 401 Unauthorized 반환
 - **권한 없음**: 403 Forbidden 반환
 
@@ -105,7 +105,7 @@ Authorization: Bearer [JWT_TOKEN]
 
 ### 1단계: 인증 및 권한 확인
 - JWT 토큰 검증
-- 사용자 역할이 'MEMBER'인지 확인
+- 사용자 역할이 'GUEST', 'STAR', 'PLACE' 중 하나인지 확인
 
 ### 2단계: 데이터베이스 업데이트 (트랜잭션)
 - `member_profiles` 테이블 업데이트

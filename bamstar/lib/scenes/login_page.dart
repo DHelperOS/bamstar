@@ -11,7 +11,6 @@ import '../widgets/primary_text_button.dart';
 import '../widgets/social_auth_button.dart';
 import '../widgets/auth_fields.dart';
 import '../theme/app_color_scheme_extension.dart';
-import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/responsive_utils.dart';
 
@@ -25,6 +24,8 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _phoneController = TextEditingController();
+  final FocusNode _phoneFocusNode = FocusNode();
+  final GlobalKey _phoneFieldKey = GlobalKey();
 
   late final AnimationController _logoController;
   late final Animation<double> _logoRotateAnim;
@@ -45,14 +46,44 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
     // small, cute rotation animation (radians)
     _logoRotateAnim = Tween<double>(begin: -0.12, end: 0.12).animate(curved);
+    
+    // Listen for focus changes to scroll to text field
+    _phoneFocusNode.addListener(() {
+      if (_phoneFocusNode.hasFocus) {
+        _scrollToTextField();
+      }
+      setState(() {}); // Update UI when focus changes
+    });
+  }
+
+  void _scrollToTextField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _phoneFieldKey.currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(
+          context,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _logoController.dispose();
     _phoneController.dispose();
+    _phoneFocusNode.dispose();
     super.dispose();
   }
+
+  void _hideKeyboard() {
+    // Multiple methods to ensure keyboard is hidden
+    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,8 +130,31 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final primaryColor = theme.colorScheme.primary;
 
     return Scaffold(
-      body: SafeArea(
-        child: _buildResponsiveLayout(context, asyncAuth, theme, primaryColor),
+      body: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) {
+          // Simple approach: only hide if not focused on text field
+          final currentFocus = FocusScope.of(context);
+          if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+            // Check if any text field has focus before hiding
+            final focusedWidget = currentFocus.focusedChild;
+            if (focusedWidget != null) {
+              // Don't hide keyboard if a text field is focused
+              return;
+            }
+          }
+          _hideKeyboard();
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            // Dismiss keyboard when tapping outside of text fields
+            _hideKeyboard();
+          },
+          child: SafeArea(
+            child: _buildResponsiveLayout(context, asyncAuth, theme, primaryColor),
+          ),
+        ),
       ),
     );
   }
@@ -132,12 +186,15 @@ class _LoginPageState extends ConsumerState<LoginPage>
             // Left side - Branding/illustration area
             Expanded(
               flex: ResponsiveUtils.isWideDesktop(context) ? 3 : 2,
-              child: Container(
-                padding: const EdgeInsets.all(48),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _hideKeyboard(),
+                child: Container(
+                  padding: const EdgeInsets.all(48),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     // Enhanced branding section for desktop
                     Text(
                       'BamStar',
@@ -164,7 +221,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     const SizedBox(height: 48),
                     // Feature highlights for desktop
                     _buildFeatureList(context),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -195,12 +253,21 @@ class _LoginPageState extends ConsumerState<LoginPage>
       children: [
         _buildBackground(context),
         Center(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveUtils.getHorizontalPadding(context),
-              vertical: ResponsiveUtils.isMobile(context) ? 32 : 48,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _hideKeyboard(),
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.only(
+                left: ResponsiveUtils.getHorizontalPadding(context),
+                right: ResponsiveUtils.getHorizontalPadding(context),
+                top: ResponsiveUtils.isMobile(context) ? 32 : 48,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 
+                        (ResponsiveUtils.isMobile(context) ? 32 : 48),
+              ),
+              child: _buildLoginCard(context, theme, primaryColor),
             ),
-            child: _buildLoginCard(context, theme, primaryColor),
           ),
         ),
         if (asyncAuth.isLoading) _buildLoadingOverlay(context),
@@ -473,21 +540,59 @@ class _LoginPageState extends ConsumerState<LoginPage>
           ),
         ),
         const SizedBox(height: 20),
-        AuthTextfields().buildTextField(
-          controller: _phoneController,
-          labelText: '휴대폰 번호를 입력해주세요',
-          hintText: '휴대폰 번호를 입력해주세요',
-          focusColor: primaryColor,
-          context: context,
-          keyboardType: TextInputType.phone,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(11),
-            PhoneNumberTextInputFormatter(),
-          ],
-          prefixIcon: Icon(
-            SolarIconsBold.phoneCallingRounded,
-            color: primaryColor,
+        Container(
+          key: _phoneFieldKey,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.0),
+            boxShadow: _phoneFocusNode.hasFocus
+                ? [
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.15),
+                      blurRadius: 15.0,
+                      spreadRadius: 5.0,
+                      offset: const Offset(0, 0),
+                    ),
+                  ]
+                : [],
+          ),
+          child: TextField(
+            controller: _phoneController,
+            focusNode: _phoneFocusNode,
+            keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
+              PhoneNumberTextInputFormatter(),
+            ],
+            style: AppTextStyles.inputText(context),
+            decoration: InputDecoration(
+              labelText: '휴대폰 번호를 입력해주세요',
+              hintText: '휴대폰 번호를 입력해주세요',
+              prefixIcon: Icon(
+                SolarIconsBold.phoneCallingRounded,
+                color: primaryColor,
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 10.0),
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.surface,
+              floatingLabelBehavior: FloatingLabelBehavior.auto,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+                borderSide: BorderSide(color: primaryColor, width: 2.0),
+              ),
+              labelStyle: AppTextStyles.inputLabel(context).copyWith(
+                color: _phoneFocusNode.hasFocus 
+                    ? primaryColor 
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 16),

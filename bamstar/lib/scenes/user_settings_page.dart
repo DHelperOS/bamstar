@@ -8,6 +8,8 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
 import 'package:bamstar/scenes/member_profile/matching_preferences_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../utils/toast_helper.dart';
 
 // Enhanced user settings page with modern card design and tab navigation
@@ -364,7 +366,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
             context,
             icon: SolarIconsOutline.logout,
             title: '로그아웃',
-            onTap: () => _showToast(context, '로그아웃'),
+            onTap: () => _handleLogout(context),
           ),
         ],
       ),
@@ -610,5 +612,68 @@ class _UserSettingsPageState extends State<UserSettingsPage>
 
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '로그아웃',
+            style: AppTextStyles.dialogTitle(context),
+          ),
+          content: Text(
+            '정말 로그아웃하시겠습니까?',
+            style: AppTextStyles.primaryText(context),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                '취소',
+                style: AppTextStyles.buttonText(context).copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                '로그아웃',
+                style: AppTextStyles.buttonText(context).copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      // Sign out from Supabase - this will trigger the auth state listener
+      // in UserService which will automatically clear the user data
+      await Supabase.instance.client.auth.signOut();
+      
+      if (!context.mounted) return;
+      
+      // Show success message
+      ToastHelper.success(context, '로그아웃되었습니다');
+      
+      // Navigate to login page using GoRouter
+      context.go('/login');
+    } catch (error) {
+      debugPrint('Logout error: $error');
+      
+      if (!context.mounted) return;
+      
+      // Show error message
+      ToastHelper.error(context, '로그아웃 중 오류가 발생했습니다');
+    }
   }
 }

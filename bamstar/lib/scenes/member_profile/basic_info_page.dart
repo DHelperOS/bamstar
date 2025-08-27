@@ -259,8 +259,11 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
         title: Text('기본 정보', style: AppTextStyles.dialogTitle(context)),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Form(
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Form(
           key: _formKey,
           child: Column(
             children: [
@@ -369,6 +372,7 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

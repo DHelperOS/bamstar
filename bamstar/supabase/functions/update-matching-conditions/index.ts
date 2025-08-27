@@ -76,15 +76,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user exists and has appropriate role (MEMBER, STAR, or PLACE)
+    // Check if user exists and has appropriate role (GUEST, STAR, or PLACE)
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    // Allow MEMBER, STAR, or PLACE roles, or if role is null (default for new users)
-    const allowedRoles = ['MEMBER', 'STAR', 'PLACE'];
+    // Allow GUEST, STAR, or PLACE roles, or if role is null (default for new users)
+    const allowedRoles = ['GUEST', 'STAR', 'PLACE'];
     const userRole = userData?.role;
     
     if (userError) {

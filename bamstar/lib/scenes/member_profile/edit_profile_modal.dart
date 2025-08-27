@@ -128,8 +128,11 @@ Future<void> showEditProfileModal(
         ),
         child: SizedBox(
           height: MediaQuery.of(modalCtx).size.height * 0.65,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusScope.of(modalCtx).unfocus(),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -389,6 +392,7 @@ Future<void> showEditProfileModal(
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ),
