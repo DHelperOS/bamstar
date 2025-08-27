@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
-import 'package:solar_icons/solar_icons.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:delightful_toast/delight_toast.dart';
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:choice/choice.dart';
 import 'package:logging/logging.dart';
+import '../theme/app_text_styles.dart';
+import 'member_profile/services/region_preference_service.dart';
+import '../utils/toast_helper.dart';
 
 // Data models
 class MainCategory {
@@ -127,13 +130,25 @@ class _RegionPreferenceSheetLauncherState
         _loading = false;
       });
 
+      // Load existing preferred area groups
+      final preferredGroupIds = await RegionPreferenceService.instance.loadPreferredAreaGroups();
+      final allAreaGroups = <AreaGroup>[];
+      for (final groups in _groupsByCategory.values) {
+        allAreaGroups.addAll(groups);
+      }
+      final initialSelected = allAreaGroups.where((group) => 
+        preferredGroupIds.contains(group.id)
+      ).toList();
+      
+      if (!mounted) return;
+      
       final nav = Navigator.of(context);
       WoltModalSheet.show<List<AreaGroup>?>(
         context: context,
         modalTypeBuilder: (_) => WoltModalType.bottomSheet(),
         onModalDismissedWithBarrierTap: () => nav.maybePop(),
         pageListBuilder: (modalCtx) {
-          final selected = ValueNotifier<List<AreaGroup>>([]);
+          final selected = ValueNotifier<List<AreaGroup>>(initialSelected);
           return [
             _buildRegionPage(
               modalCtx,
@@ -196,76 +211,121 @@ WoltModalSheetPage _buildRegionPage(
   ValueNotifier<List<AreaGroup>> selected,
 ) {
   return WoltModalSheetPage(
-    // Page header
-    pageTitle: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        '나를 빛낼 선호 지역을 선택하세요.',
-        style: Theme.of(
-          ctx,
-        ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+    backgroundColor: Theme.of(ctx).colorScheme.surface,
+    surfaceTintColor: Colors.transparent,
+    pageTitle: null,
+    leadingNavBarWidget: Padding(
+      padding: const EdgeInsets.only(left: 20.0),
+      child: Text('선호 지역 선택', style: AppTextStyles.dialogTitle(ctx)),
+    ),
+    trailingNavBarWidget: Container(
+      margin: const EdgeInsets.only(right: 20.0),
+      child: IconButton(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.all(8),
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        icon: Icon(
+          Icons.close_rounded,
+          size: 20,
+          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+        ),
+        onPressed: () => Navigator.of(ctx).pop(),
       ),
     ),
-    trailingNavBarWidget: IconButton(
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.all(8),
-      constraints: const BoxConstraints(),
-      onPressed: () => Navigator.of(ctx).pop(),
-      icon: const Icon(SolarIconsOutline.closeCircle, size: 20),
-    ),
-    stickyActionBar: Padding(
-      padding: const EdgeInsets.all(16.0),
+    stickyActionBar: Container(
+      padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 32.0),
+      decoration: BoxDecoration(
+        color: Theme.of(ctx).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(ctx).colorScheme.outline.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+      ),
       child: ValueListenableBuilder<List<AreaGroup>>(
         valueListenable: selected,
         builder: (context, value, _) => Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Selection summary card
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.only(bottom: 16.0),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: Theme.of(
                     context,
-                  ).colorScheme.outline.withValues(alpha: 28 / 255),
+                  ).colorScheme.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.shadow.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '선택된 지역: ${value.length}/5 개',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.formLabel(context),
                   ),
                   if (value.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 12),
                     Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
+                      spacing: 8,
+                      runSpacing: 8,
                       children: value.map((g) {
-                        return InputChip(
-                          label: Text(
-                            g.name,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
+                        return Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                            horizontal: 12,
+                            vertical: 8,
                           ),
-                          onDeleted: () {
-                            final newList = List<AreaGroup>.from(value);
-                            newList.removeWhere((e) => e.id == g.id);
-                            selected.value = newList;
-                          },
-                          deleteIcon: const Icon(Icons.close, size: 14),
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                g.name,
+                                style: AppTextStyles.chipLabel(
+                                  context,
+                                ).copyWith(color: Colors.white),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  final newList = List<AreaGroup>.from(value);
+                                  newList.removeWhere((e) => e.id == g.id);
+                                  selected.value = newList;
+                                },
+                                child: Icon(
+                                  Icons.close_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       }).toList(),
                     ),
@@ -273,27 +333,117 @@ WoltModalSheetPage _buildRegionPage(
                 ],
               ),
             ),
-            FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(value),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(
+            // Gradient complete button
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.8),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
                   borderRadius: BorderRadius.circular(12),
+                  onTap: () async {
+                    // Save selected area groups to database
+                    final areaGroupIds = value.map((area) => area.id).toList();
+                    final success = await RegionPreferenceService.instance
+                        .savePreferredAreaGroups(areaGroupIds);
+                    
+                    if (success) {
+                      if (ctx.mounted) {
+                        ToastHelper.success(ctx, '선호 지역이 저장되었습니다');
+                        Navigator.of(ctx).pop(value);
+                      }
+                    } else {
+                      if (ctx.mounted) {
+                        ToastHelper.error(ctx, '저장 중 오류가 발생했습니다');
+                      }
+                    }
+                  },
+                  child: SizedBox(
+                    height: 52,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        '완료',
+                        style: AppTextStyles.buttonText(context).copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: const Text('완료'),
             ),
           ],
         ),
       ),
     ),
     child: SizedBox(
-      // Reduce overall popup height
-      height: MediaQuery.of(ctx).size.height * 0.6,
-      child: _RegionPreferenceContent(
-        categories: categories,
-        groupsByCategory: groupsByCategory,
-        selected: selected,
+      height: MediaQuery.of(ctx).size.height * 9,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Helper text
+            Text(
+              '나를 빛낼 선호 지역을 선택하세요',
+              style: AppTextStyles.captionText(
+                ctx,
+              ).copyWith(color: Theme.of(ctx).colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // Content in card styling
+            Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(
+                    ctx,
+                  ).colorScheme.outline.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(
+                      ctx,
+                    ).colorScheme.shadow.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: SizedBox(
+                height: MediaQuery.of(ctx).size.height * 0.5,
+                child: _RegionPreferenceContent(
+                  categories: categories,
+                  groupsByCategory: groupsByCategory,
+                  selected: selected,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -382,29 +532,35 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // TabBar at the very top without padding (reduced height)
-        SizedBox(
-          height: 46,
-          child: Align(
-            alignment: Alignment.centerLeft,
+        // Modern TabBar styling
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: SizedBox(
+            height: 48,
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
-              padding: EdgeInsets.zero,
-              labelPadding: const EdgeInsets.only(left: 16, right: 12),
-              indicatorPadding: EdgeInsets.zero,
-              dividerColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              labelPadding: const EdgeInsets.symmetric(horizontal: 12),
+              indicatorSize: TabBarIndicatorSize.tab,
               tabAlignment: TabAlignment.start,
-              labelColor: cs.primary,
+              indicator: BoxDecoration(
+                color: cs.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              labelColor: Colors.white,
               unselectedLabelColor: cs.onSurfaceVariant,
-              indicatorColor: Colors.transparent,
+              labelStyle: AppTextStyles.chipLabel(
+                context,
+              ).copyWith(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: AppTextStyles.chipLabel(context),
+              dividerColor: Colors.transparent,
               tabs: categories.isEmpty
                   ? [const Tab(text: '지역')]
                   : categories.map((c) => Tab(text: c.name)).toList(),
             ),
           ),
         ),
-        const SizedBox(height: 10),
         Expanded(
           child: ValueListenableBuilder<List<AreaGroup>>(
             valueListenable: widget.selected,
@@ -433,53 +589,90 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
                             final disabled =
                                 !isSelected && selected.length >= _kMax;
                             final csLocal = Theme.of(context).colorScheme;
-                            return ChoiceChip(
-                              selected: isSelected,
-                              onSelected: disabled
-                                  ? null
-                                  : state.onSelected(g.id),
-                              label: Text(
-                                g.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              selectedColor: csLocal.primaryContainer,
-                              showCheckmark: true,
-                              checkmarkColor: Colors.white,
-                              labelStyle: TextStyle(
+                            return Container(
+                              decoration: BoxDecoration(
                                 color: isSelected
-                                    ? csLocal.onPrimaryContainer
-                                    : csLocal.onSurface,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                fontSize: 13,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              visualDensity: VisualDensity.compact,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              side: BorderSide(
-                                color: csLocal.outline.withValues(
-                                  alpha: 28 / 255,
-                                ),
-                                width: 1,
-                              ),
-                              backgroundColor: disabled
-                                  ? csLocal.surfaceContainerHighest
-                                  : csLocal.surface,
-                              shape: RoundedRectangleBorder(
+                                    ? csLocal.primary
+                                    : disabled
+                                    ? csLocal.surfaceContainerHighest
+                                          .withValues(alpha: 0.5)
+                                    : csLocal.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(12),
+                                border: isSelected
+                                    ? null
+                                    : Border.all(
+                                        color: csLocal.outline.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        width: 1,
+                                      ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: csLocal.primary.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: disabled
+                                      ? null
+                                      : () => state.onSelected(g.id)(true),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 10,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (isSelected) ...[
+                                          Icon(
+                                            Icons.check_rounded,
+                                            size: 16,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                        Text(
+                                          g.name,
+                                          style:
+                                              AppTextStyles.chipLabel(
+                                                context,
+                                              ).copyWith(
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : disabled
+                                                    ? csLocal.onSurface
+                                                          .withValues(
+                                                            alpha: 0.5,
+                                                          )
+                                                    : csLocal.onSurface,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.w600
+                                                    : FontWeight.normal,
+                                              ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
                             );
                           },
                           listBuilder: ChoiceList.createWrapped(
-                            spacing: 10,
-                            runSpacing: 10,
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+                            spacing: 12,
+                            runSpacing: 12,
+                            padding: const EdgeInsets.all(0),
                           ),
                         );
                       }).toList(),
@@ -487,7 +680,6 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
             },
           ),
         ),
-        const SizedBox(height: 10),
       ],
     );
   }

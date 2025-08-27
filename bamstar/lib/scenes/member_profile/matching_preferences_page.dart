@@ -4,6 +4,7 @@ import '../../theme/app_text_styles.dart';
 import '../../services/attribute_service.dart';
 import 'services/member_preferences_service.dart';
 import 'services/matching_conditions_service.dart';
+import '../../utils/toast_helper.dart';
 
 class MatchingPreferencesPage extends StatefulWidget {
   const MatchingPreferencesPage({super.key});
@@ -144,12 +145,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
       
       // Show error message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('데이터 로딩 중 오류가 발생했습니다'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        ToastHelper.error(context, '데이터 로딩 중 오류가 발생했습니다');
       }
     }
   }
@@ -822,23 +818,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
       if (!mounted) return;
 
       if (response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                const SizedBox(width: 8),
-                Text(response.message ?? '매칭 스타일이 저장되었습니다'),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
+        ToastHelper.success(context, response.message ?? '매칭 스타일이 저장되었습니다');
         
         Navigator.of(context).pop();
       } else {
@@ -848,23 +828,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
       debugPrint('Error saving preferences: $e');
       if (!mounted) return;
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: Theme.of(context).colorScheme.onError,
-              ),
-              const SizedBox(width: 8),
-              const Text('저장 중 오류가 발생했습니다'),
-            ],
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      ToastHelper.error(context, '저장 중 오류가 발생했습니다');
     } finally {
       if (mounted) {
         setState(() {

@@ -9,6 +9,7 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
 import 'package:bamstar/scenes/member_profile/matching_preferences_page.dart';
+import '../utils/toast_helper.dart';
 
 // Enhanced user settings page with modern card design and tab navigation
 // - Clean white background with card-based layout
@@ -261,6 +262,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
 
   Widget _buildProfileTab(BuildContext context) {
     return SingleChildScrollView(
+      primary: true,
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,9 +325,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
               ).push(preferredRegionSheetRoute());
               if (!context.mounted) return;
               if (res is List) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('선호 지역이 업데이트되었습니다.')),
-                );
+                ToastHelper.success(context, '선호 지역이 업데이트되었습니다.');
               }
             },
           ),
@@ -374,6 +374,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
 
   Widget _buildSupportStatusTab(BuildContext context) {
     return SingleChildScrollView(
+      primary: true,
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,6 +428,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
 
   Widget _buildMyPostsTab(BuildContext context) {
     return SingleChildScrollView(
+      primary: true,
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,6 +482,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
 
   Widget _buildBlockedListTab(BuildContext context) {
     return SingleChildScrollView(
+      primary: true,
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,8 +610,6 @@ class _UserSettingsPageState extends State<UserSettingsPage>
   }
 
   void _showToast(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ToastHelper.info(context, message);
   }
 }

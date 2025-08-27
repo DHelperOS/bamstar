@@ -14,6 +14,7 @@ import 'package:delightful_toast/delight_toast.dart';
 import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:delightful_toast/toast/utils/enums.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../utils/toast_helper.dart';
 import 'package:bamstar/services/cloudinary.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -361,9 +362,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ToastHelper.error(context, '댓글 전송에 실패했습니다');
       } catch (_) {}
     }
   }
@@ -810,15 +809,7 @@ class _PostCommentPageState extends State<PostCommentPage> {
                                                         ).pop();
                                                         // TODO: 댓글 삭제 API 호출
                                                         // await _deleteComment(cid);
-                                                        ScaffoldMessenger.of(
-                                                          context,
-                                                        ).showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text(
-                                                              '댓글이 삭제되었습니다',
-                                                            ),
-                                                          ),
-                                                        );
+                                                        ToastHelper.success(context, '댓글이 삭제되었습니다');
                                                       },
                                                       child: const Text('삭제'),
                                                     ),
@@ -1684,9 +1675,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
       _reload();
     } else {
       try {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('댓글 전송에 실패했습니다')));
+        ToastHelper.error(context, '댓글 전송에 실패했습니다');
       } catch (_) {}
     }
   }
@@ -2135,15 +2124,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                                                         ).pop();
                                                         // TODO: 댓글 삭제 API 호출
                                                         // await _deleteComment(cid);
-                                                        ScaffoldMessenger.of(
-                                                          context,
-                                                        ).showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text(
-                                                              '댓글이 삭제되었습니다',
-                                                            ),
-                                                          ),
-                                                        );
+                                                        ToastHelper.success(context, '댓글이 삭제되었습니다');
                                                       },
                                                       child: const Text('삭제'),
                                                     ),

@@ -7,6 +7,7 @@ import 'package:bamstar/services/cloudinary.dart';
 import 'package:bamstar/services/avatar_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/toast_helper.dart';
 
 /// Enhanced edit profile modal with clean white theme and modern card design
 Future<void> showEditProfileModal(
@@ -99,17 +100,13 @@ Future<void> showEditProfileModal(
                       onImagePicked(preview);
                     }
                     if (modalCtx.mounted) {
-                      ScaffoldMessenger.of(modalCtx).showSnackBar(
-                        const SnackBar(content: Text('프로필이 저장되었습니다')),
-                      );
+                      ToastHelper.success(modalCtx, '프로필이 저장되었습니다');
                       Navigator.of(modalCtx).pop();
                     }
                   } catch (e) {
                     debugPrint('save profile error: $e');
                     if (modalCtx.mounted) {
-                      ScaffoldMessenger.of(modalCtx).showSnackBar(
-                        const SnackBar(content: Text('저장 중 오류가 발생했습니다')),
-                      );
+                      ToastHelper.error(modalCtx, '저장 중 오류가 발생했습니다');
                     }
                   }
                 },
@@ -459,9 +456,7 @@ Future<void> _pickAndUpload({
     onPreview(avatarImageProviderFromUrl(deliveryUrl, width: 256, height: 256));
 
     if (modalCtx.mounted) {
-      ScaffoldMessenger.of(
-        modalCtx,
-      ).showSnackBar(const SnackBar(content: Text('프로필 사진이 업데이트되었습니다')));
+      ToastHelper.success(modalCtx, '프로필 사진이 업데이트되었습니다');
     }
   } catch (e) {
     debugPrint('pick/upload image error: $e');
@@ -469,7 +464,7 @@ Future<void> _pickAndUpload({
       final msg = e.toString().contains('UnsafeImageException')
           ? '부적절한 이미지로 업로드할 수 없습니다'
           : '이미지 업로드 중 오류가 발생했습니다';
-      ScaffoldMessenger.of(modalCtx).showSnackBar(SnackBar(content: Text(msg)));
+      ToastHelper.error(modalCtx, msg);
     }
   }
 }

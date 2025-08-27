@@ -10,6 +10,7 @@ import 'package:bamstar/widgets/bs_alert_dialog.dart';
 import 'package:bamstar/scenes/match_profiles.dart';
 import '../theme/typography.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/toast_helper.dart';
 import 'package:go_router/go_router.dart';
 // animations package no longer needed after local pop-forward effect
 
@@ -577,7 +578,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
     try {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
-        messenger.showSnackBar(const SnackBar(content: Text('로그인이 필요합니다.')));
+        ToastHelper.warning(context, '로그인이 필요합니다.');
         return;
       }
 
@@ -699,9 +700,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                 MaterialPageRoute(builder: (_) => const MatchProfilesPage()),
               );
             } else {
-              messenger.showSnackBar(
-                const SnackBar(content: Text('자세한 정보로 정확도를 올려보세요.')),
-              );
+              ToastHelper.info(context, '자세한 정보로 정확도를 올려보세요.');
             }
           }
         } finally {
@@ -715,7 +714,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
         _isSaving = false;
         _savingIndex = null;
       });
-      messenger.showSnackBar(const SnackBar(content: Text('역할 저장에 실패했습니다.')));
+      ToastHelper.error(context, '역할 저장에 실패했습니다.');
       return;
     }
 

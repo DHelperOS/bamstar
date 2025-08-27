@@ -5,6 +5,7 @@ import 'package:solar_icons/solar_icons.dart';
 
 import '../../theme/app_text_styles.dart';
 import 'services/basic_info_service.dart';
+import '../../utils/toast_helper.dart';
 
 /// Single-page basic info form with clean design matching edit_profile_modal
 class BasicInfoPage extends StatefulWidget {
@@ -174,19 +175,16 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
 
       if (mounted) {
         if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('기본 정보가 저장되었습니다')));
+          ToastHelper.success(context, '기본 정보가 저장되었습니다');
           Navigator.of(context).pop();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+          ToastHelper.error(context, '저장 중 오류가 발생했습니다');
         }
       }
     } catch (e) {
       debugPrint('save basic info error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+        ToastHelper.error(context, '저장 중 오류가 발생했습니다');
       }
     } finally {
       if (mounted) {

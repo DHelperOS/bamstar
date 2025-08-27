@@ -14,6 +14,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 // removed drop_down_search_field dependency: use plain TextField for search
 import 'package:bamstar/scenes/community/create_post_page.dart';
+import '../../utils/toast_helper.dart';
 import 'package:bamstar/scenes/community/channel_explorer_page.dart';
 import 'package:bamstar/scenes/community/widgets/avatar_stack.dart' as local;
 import 'package:bamstar/scenes/community/community_constants.dart';
@@ -1534,9 +1535,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
       } else {
         try {
           if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('답글 전송에 실패했습니다')));
+            ToastHelper.error(context, '답글 전송에 실패했습니다');
           }
         } catch (_) {}
       }

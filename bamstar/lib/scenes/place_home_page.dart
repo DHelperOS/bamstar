@@ -10,6 +10,7 @@ import 'package:bamstar/theme/typography.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/user_settings_page.dart';
 import 'package:bamstar/scenes/community/community_home_page.dart';
+import '../utils/toast_helper.dart';
 
 // Main widget (UI only; no navigation routes)
 class MainScreen extends StatefulWidget {
@@ -156,9 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(SolarIconsOutline.magnifier, color: cs.onSurface),
             tooltip: '검색',
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('검색을 실행합니다.')));
+              ToastHelper.info(context, '검색을 실행합니다.');
             },
           ),
           badges.Badge(
@@ -171,9 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(SolarIconsOutline.bell, color: cs.onSurface),
               tooltip: '알림',
               onPressed: () {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('알림을 확인합니다.')));
+                ToastHelper.info(context, '알림을 확인합니다.');
               },
             ),
           ),

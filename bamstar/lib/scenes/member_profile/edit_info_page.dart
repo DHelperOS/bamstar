@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:bamstar/theme/typography.dart';
+import '../../utils/toast_helper.dart';
 
 class EditInfoPage extends StatefulWidget {
   final String title;
@@ -34,13 +35,7 @@ class _EditInfoPageState extends State<EditInfoPage> {
 
   void _save() {
     final result = _controllers.map((k, v) => MapEntry(k, v.text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '저장 완료: ${result.entries.map((e) => '${e.key}: ${e.value}').join(', ')}',
-        ),
-      ),
-    );
+    ToastHelper.success(context, '저장 완료: ${result.entries.map((e) => '${e.key}: ${e.value}').join(', ')}');
     Navigator.pop(context, result);
   }
 

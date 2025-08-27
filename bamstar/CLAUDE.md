@@ -195,4 +195,51 @@ mcp__supabase__execute_sql --project-id tflvicpgyycvhttctcek --query "SELECT * F
 
 ---
 
+## 📢 Toast 알림 시스템
+
+### **MANDATORY Toast System Usage**
+
+> **CRITICAL**: ALL notification messages MUST use our centralized toast system. Zero exceptions.
+
+### **🚫 NEVER USE:**
+- `ScaffoldMessenger.of(context).showSnackBar()` - Legacy Flutter SnackBar
+- `SnackBar()` widget - Inconsistent with app theme
+- Direct delightful_toast calls - Use wrapper only
+
+### **✅ ALWAYS USE:**
+
+#### **Toast Helper Methods**
+```dart
+// Import required
+import '../utils/toast_helper.dart';
+
+// Success notifications (green theme)
+ToastHelper.success(context, '프로필이 저장되었습니다');
+
+// Error notifications (red theme)  
+ToastHelper.error(context, '저장 중 오류가 발생했습니다');
+
+// Warning notifications (orange theme)
+ToastHelper.warning(context, '로그인이 필요합니다');
+
+// Info notifications (blue theme)
+ToastHelper.info(context, '검색을 실행합니다');
+```
+
+#### **Toast Categories**
+- **Success**: Completed actions, saved data, successful operations
+- **Error**: Failed operations, validation errors, system errors
+- **Warning**: Missing requirements, permission issues, cautionary messages
+- **Info**: General information, help text, process notifications
+
+### **Implementation Rules**
+1. ✅ Import `ToastHelper` in every file using notifications
+2. ✅ Choose appropriate semantic method (success/error/warning/info)
+3. ✅ Use Korean messages matching app language
+4. ✅ Keep messages concise and user-friendly
+5. ❌ Never mix SnackBar with ToastHelper in same file
+6. ❌ Never create custom toast implementations
+
+---
+
 **🎯 Remember: Consistency is key to maintainable, accessible, and professional Flutter applications.**

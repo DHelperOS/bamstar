@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/theme/typography.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
+import '../utils/toast_helper.dart';
 
 class DeviceSettingsPage extends StatefulWidget {
   const DeviceSettingsPage({super.key});
@@ -108,6 +109,6 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
   }
 
   void _toast(BuildContext context, String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ToastHelper.info(context, msg);
   }
 }
