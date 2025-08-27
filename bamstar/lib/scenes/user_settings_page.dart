@@ -177,8 +177,8 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        // Small icon button (pen only, no border)
+                        const SizedBox(width: 4),
+                        // Pen icon placed immediately beside the display name, using theme gray
                         IconButton(
                           onPressed: () => showEditProfileModal(
                             context,
@@ -191,9 +191,9 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                           icon: Icon(
                             SolarIconsOutline.pen,
                             size: 18,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(6),
                           constraints: const BoxConstraints(),
                           tooltip: '프로필 편집',
                         ),
