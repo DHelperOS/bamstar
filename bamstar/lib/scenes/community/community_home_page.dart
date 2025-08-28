@@ -623,19 +623,15 @@ final Map<String, us.AppUser?> _authorCache = {};
 Future<us.AppUser?> _getAuthor(String? id) async {
   if (id == null) return null;
   
-  print('🔍 _getAuthor called for id: $id');
-  
   // Check cache - but only return if we have a valid user (not null)
   if (_authorCache.containsKey(id)) {
     final cachedUser = _authorCache[id];
-    print('📦 Found in cache: ${cachedUser?.nickname ?? "NULL"}');
     if (cachedUser != null) {
       return cachedUser;
     }
     // If cache has null, try to fetch again (user might have been created since)
   }
   
-  print('🌐 Fetching from database...');
   try {
     final client = Supabase.instance.client;
     final res = await client
@@ -644,19 +640,14 @@ Future<us.AppUser?> _getAuthor(String? id) async {
         .eq('id', id)
         .maybeSingle();
     
-    print('📊 Database result: $res');
-    
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
-      print('✅ User found: ${u.nickname}, profile_img: ${u.data['profile_img']}');
       _authorCache[id] = u;
       return u;
-    } else {
-      print('❌ No user found in database for id: $id');
     }
-  } catch (e) {
-    print('⚠️ Error fetching user: $e');
+  } catch (_) {
+    // ignore errors but don't cache null
   }
   // Don't cache null - the user might exist but there was a network error
   return null;
@@ -674,35 +665,29 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .where((id) => !_authorCache.containsKey(id))
         .toList();
     
-    print('🔄 _prefetchAuthors: Need to fetch ${ids.length} users');
-    print('🆔 IDs to fetch: $ids');
-    
     if (ids.isEmpty) return;
     final client = Supabase.instance.client;
-    // Use proper Supabase .inFilter() method syntax
+    // Build OR query for multiple IDs
+    final orQuery = ids.map((id) => 'id.eq.$id').join(',');
     final res = await client
         .from('users')
         .select('*')
-        .inFilter('id', ids);
-    
-    print('📋 Prefetch result: Got ${(res as List?)?.length ?? 0} users');
+        .or(orQuery);
     
     final List data = res as List? ?? [];
     for (final row in data) {
       try {
         final m = Map<String, dynamic>.from(row as Map);
         final u = us.AppUser.fromMap(m);
-        print('👤 Cached user: ${u.id} -> ${u.nickname}');
         _authorCache[u.id] = u;
-      } catch (e) {
-        print('⚠️ Error parsing user row: $e');
+      } catch (_) {
+        // ignore malformed rows
       }
     }
-    // Remove this logic - don't mark missing ids as null
-    // Users might exist but just not be in this batch
+    // Don't mark missing ids as null
     // Let _getAuthor handle individual fetching if needed
-  } catch (e) {
-    print('❌ _prefetchAuthors error: $e');
+  } catch (_) {
+    // ignore network errors
   }
 }
 
