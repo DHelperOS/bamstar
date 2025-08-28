@@ -155,7 +155,12 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside input fields
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         scrolledUnderElevation: 0,
@@ -238,7 +243,8 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
               ),
             )
           : const SizedBox.shrink(),
-    );
+      ), // Close Scaffold
+    ); // Close GestureDetector
   }
 
   Widget _buildIndustryCard() {
@@ -856,6 +862,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         inputFormatters: keyboardType == TextInputType.number
             ? [FilteringTextInputFormatter.digitsOnly]
             : null,
+        textAlign: TextAlign.center,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: AppTextStyles.secondaryText(context),
