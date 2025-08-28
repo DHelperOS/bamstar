@@ -64,6 +64,8 @@ class _CommunityHomePageState extends State<CommunityHomePage>
   @override
   void initState() {
     super.initState();
+    // Clear stale cache on app restart
+    _authorCache.clear();
     _scrollController.addListener(_onScroll);
     // 채널 개수 + "전체" + "+" 탭으로 TabController 초기화
     _tabController = TabController(
@@ -620,9 +622,10 @@ final Map<String, us.AppUser?> _authorCache = {};
 
 Future<us.AppUser?> _getAuthor(String? id) async {
   if (id == null) return null;
-  if (_authorCache.containsKey(id)) return _authorCache[id];
+  if (_authorCache.containsKey(id)) {
+    return _authorCache[id];
+  }
   try {
-    debugPrint('[community] _getAuthor: fetching user id=$id');
     final client = Supabase.instance.client;
     final res = await client
         .from('users')
@@ -632,9 +635,6 @@ Future<us.AppUser?> _getAuthor(String? id) async {
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
-      debugPrint(
-        '[community] _getAuthor: fetched user id=${u.id} nickname=${u.nickname}',
-      );
       _authorCache[id] = u;
       return u;
     }
@@ -642,7 +642,6 @@ Future<us.AppUser?> _getAuthor(String? id) async {
     // ignore
   }
   _authorCache[id] = null;
-  debugPrint('[community] _getAuthor: no user found for id=$id');
   return null;
 }
 
@@ -658,7 +657,6 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .where((id) => !_authorCache.containsKey(id))
         .toList();
     if (ids.isEmpty) return;
-    debugPrint('[community] _prefetchAuthors: will fetch ids=${ids.join(',')}');
     final client = Supabase.instance.client;
     final idsCsv = ids.map((s) => '"$s"').join(',');
     final res = await client
@@ -666,7 +664,6 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .select('*')
         .filter('id', 'in', '($idsCsv)');
     final List data = res as List? ?? [];
-    debugPrint('[community] _prefetchAuthors: fetched ${data.length} rows');
     for (final row in data) {
       try {
         final m = Map<String, dynamic>.from(row as Map);
