@@ -785,7 +785,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       barrierDismissible: true,
       builder: (BuildContext context) {
         final colorScheme = Theme.of(context).colorScheme;
-
+        
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
@@ -808,39 +808,39 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                 children: [
                   // Icon
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 64,
+                    height: 64,
                     decoration: BoxDecoration(
-                      color: colorScheme.error.withValues(alpha: 0.1),
+                      color: colorScheme.errorContainer,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       SolarIconsBold.power,
                       color: colorScheme.error,
-                      size: 16,
+                      size: 32,
                     ),
                   ),
                   const SizedBox(height: 20),
-
+                  
                   // Title
                   Text(
                     '로그아웃',
-                    style: AppTextStyles.sectionTitle(
-                      context,
-                    ).copyWith(fontWeight: FontWeight.w700),
+                    style: AppTextStyles.sectionTitle(context).copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
-
+                  
                   // Content
                   Text(
-                    '로그아웃 하시겠어요?',
+                    '정말 로그아웃하시겠습니까?\n다시 로그인해야 서비스를 이용할 수 있어요',
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.secondaryText(
-                      context,
-                    ).copyWith(height: 1.4),
+                    style: AppTextStyles.secondaryText(context).copyWith(
+                      height: 1.4,
+                    ),
                   ),
                   const SizedBox(height: 32),
-
+                  
                   // Buttons
                   Row(
                     children: [
@@ -865,15 +865,15 @@ class _UserSettingsPageState extends State<UserSettingsPage>
                             ),
                             child: Text(
                               '취소',
-                              style: AppTextStyles.buttonText(
-                                context,
-                              ).copyWith(fontWeight: FontWeight.w600),
+                              style: AppTextStyles.buttonText(context).copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
-
+                      
                       // Confirm button
                       Expanded(
                         child: Container(

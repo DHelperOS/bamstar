@@ -347,7 +347,7 @@ class CommunityRepository {
         final List rows = await _client
             .from('community_posts')
             .select(
-              'id, content, is_anonymous, created_at, image_urls, author_id, view_count',
+              'id, content, is_anonymous, created_at, image_urls, author_id, view_count, author_avatar_url',
             )
             .filter('id', 'in', '($idsCsvFetch)');
         final Map<int, Map> mapById = {};
@@ -366,7 +366,7 @@ class CommunityRepository {
           if (row == null) continue; // skip missing
           final content = (row['content'] as String?) ?? '';
           final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
-          final String? _dbAvatar = null;
+          final String? _dbAvatar = (row['author_avatar_url'] as String?);
           posts.add(
             CommunityPost(
               id: id,
@@ -819,7 +819,7 @@ class CommunityRepository {
         final List rows = await _client
             .from('community_posts')
             .select(
-              'id, content, is_anonymous, created_at, image_urls, author_id, view_count',
+              'id, content, is_anonymous, created_at, image_urls, author_id, view_count, author_avatar_url',
             )
             .filter('id', 'in', '($idsCsvFetch)');
         final Map<int, Map> mapById = {};
@@ -838,7 +838,7 @@ class CommunityRepository {
           if (row == null) continue; // skip missing
           final content = (row['content'] as String?) ?? '';
           final bool _isAnon = (row['is_anonymous'] as bool?) ?? false;
-          final String? _dbAvatar = null;
+          final String? _dbAvatar = (row['author_avatar_url'] as String?);
           posts.add(
             CommunityPost(
               id: id,

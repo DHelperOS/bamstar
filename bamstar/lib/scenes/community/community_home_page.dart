@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:bamstar/services/community/community_repository.dart';
@@ -657,7 +656,6 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .toSet()
         .where((id) => !_authorCache.containsKey(id))
         .toList();
-
     if (ids.isEmpty) return;
     final client = Supabase.instance.client;
     final idsCsv = ids.map((s) => '"$s"').join(',');
@@ -1717,57 +1715,13 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               ),
             );
           } else {
-            avatarWidget = ClipOval(
-              child: SizedBox(
-                width: CommunitySizes.avatarBase,
-                height: CommunitySizes.avatarBase,
-                child: candidateUrl != null && candidateUrl.isNotEmpty
-                    ? candidateUrl.startsWith('assets/')
-                        ? Image.asset(
-                            candidateUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 12,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              );
-                            },
-                          )
-                        : CachedNetworkImage(
-                            imageUrl: candidateUrl,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) {
-                              return Container(
-                                color: isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 12,
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              );
-                            },
-                            placeholder: (context, url) => Container(
-                              color: cs.surfaceContainer,
-                              child: Icon(
-                                Icons.person,
-                                size: 12,
-                                color: cs.onSurfaceVariant,
-                              ),
-                            ),
-                          )
-                    : Container(
-                        color: isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                        child: Icon(
-                          Icons.person,
-                          size: 12,
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-              ),
+            avatarWidget = CircleAvatar(
+              radius: CommunitySizes.avatarBase / 2,
+              backgroundColor: isAnonymous ? cs.secondaryContainer : null,
+              backgroundImage: avatarImage,
+              child: (!isAnonymous && avatarImage == null)
+                  ? Icon(Icons.person, size: 12, color: cs.onSurfaceVariant)
+                  : null,
             );
           }
 
@@ -2730,58 +2684,18 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                           );
                         }
 
-                        // Fallback: non-anonymous or image available — use proper image handling
-                        return ClipOval(
-                          child: SizedBox(
-                            width: CommunitySizes.avatarBase * 1.4,
-                            height: CommunitySizes.avatarBase * 1.4,
-                            child: candidateUrl != null && candidateUrl.isNotEmpty
-                                ? candidateUrl.startsWith('assets/')
-                                    ? Image.asset(
-                                        candidateUrl,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Container(
-                                            color: post.isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                                            child: Icon(
-                                              Icons.person,
-                                              size: CommunitySizes.avatarBase * 0.6,
-                                              color: cs.onSurfaceVariant,
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : CachedNetworkImage(
-                                        imageUrl: candidateUrl,
-                                        fit: BoxFit.cover,
-                                        errorWidget: (context, url, error) {
-                                          return Container(
-                                            color: post.isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                                            child: Icon(
-                                              Icons.person,
-                                              size: CommunitySizes.avatarBase * 0.6,
-                                              color: cs.onSurfaceVariant,
-                                            ),
-                                          );
-                                        },
-                                        placeholder: (context, url) => Container(
-                                          color: cs.surfaceContainer,
-                                          child: Icon(
-                                            Icons.person,
-                                            size: CommunitySizes.avatarBase * 0.6,
-                                            color: cs.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      )
-                                : Container(
-                                    color: post.isAnonymous ? cs.secondaryContainer : cs.surfaceContainer,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: CommunitySizes.avatarBase * 0.6,
-                                      color: cs.onSurfaceVariant,
-                                    ),
-                                  ),
-                          ),
+                        // Fallback: non-anonymous or image available — use CircleAvatar
+                        return CircleAvatar(
+                          radius: CommunitySizes.avatarBase / 2 * 1.4,
+                          backgroundColor: post.isAnonymous
+                              ? cs.secondaryContainer
+                              : null,
+                          backgroundImage: avatarImage,
+                          child: (!post.isAnonymous && avatarImage == null)
+                              ? null
+                              : (post.isAnonymous && avatarImage == null
+                                    ? null
+                                    : null),
                         );
                       },
                     ),
