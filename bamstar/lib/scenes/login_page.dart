@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../auth/auth_providers.dart';
+import '../providers/auth/auth_providers.dart';
 import 'package:delightful_toast/delight_toast.dart';
 import 'package:solar_icons/solar_icons.dart';
 // auth_fields removed from this screen
@@ -72,7 +72,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   @override
   Widget build(BuildContext context) {
     // Listen for auth state changes: show errors and navigate on successful sign-in
-    ref.listen<AsyncValue<AuthState>>(authControllerProvider, (previous, next) {
+    ref.listen<AsyncValue<AuthState>>(authProvider, (previous, next) {
       next.whenOrNull(
         error: (e, _) {
           final msg = e.toString();
@@ -109,7 +109,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         },
       );
     });
-    final asyncAuth = ref.watch(authControllerProvider);
+    final asyncAuth = ref.watch(authProvider);
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
@@ -434,7 +434,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   Widget _buildSocialButtons(BuildContext context) {
-    final auth = ref.read(authControllerProvider.notifier);
+    final auth = ref.read(authProvider.notifier);
     final isTabletOrDesktop = !ResponsiveUtils.isMobile(context);
     
     if (isTabletOrDesktop && ResponsiveUtils.isDesktop(context)) {
