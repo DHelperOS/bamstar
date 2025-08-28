@@ -2399,15 +2399,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             left: 0,
             right: 0,
             child: Container(
-              decoration: BoxDecoration(
-                color: cs.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: cs.outline.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-              ),
+              color: cs.surface,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Column(
                 children: [
@@ -2470,14 +2462,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                     ),
                   // Input container
                   Container(
-                    decoration: BoxDecoration(
-                      color: cs.surface,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: cs.outline.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
                     padding: const EdgeInsets.symmetric(
                       vertical: 7,
                       horizontal: 12,
