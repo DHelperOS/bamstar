@@ -622,8 +622,13 @@ final Map<String, us.AppUser?> _authorCache = {};
 
 Future<us.AppUser?> _getAuthor(String? id) async {
   if (id == null) return null;
+  // Check cache - but only return if we have a valid user (not null)
   if (_authorCache.containsKey(id)) {
-    return _authorCache[id];
+    final cachedUser = _authorCache[id];
+    if (cachedUser != null) {
+      return cachedUser;
+    }
+    // If cache has null, try to fetch again (user might have been created since)
   }
   try {
     final client = Supabase.instance.client;
@@ -639,9 +644,9 @@ Future<us.AppUser?> _getAuthor(String? id) async {
       return u;
     }
   } catch (_) {
-    // ignore
+    // ignore errors but don't cache null
   }
-  _authorCache[id] = null;
+  // Don't cache null - the user might exist but there was a network error
   return null;
 }
 
@@ -658,11 +663,11 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .toList();
     if (ids.isEmpty) return;
     final client = Supabase.instance.client;
-    final idsCsv = ids.map((s) => '"$s"').join(',');
+    // Use proper Supabase .inFilter() method syntax
     final res = await client
         .from('users')
         .select('*')
-        .filter('id', 'in', '($idsCsv)');
+        .inFilter('id', ids);
     final List data = res as List? ?? [];
     for (final row in data) {
       try {
@@ -673,10 +678,9 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         // ignore malformed rows
       }
     }
-    // mark missing ids as null to avoid requerying
-    for (final id in ids) {
-      if (!_authorCache.containsKey(id)) _authorCache[id] = null;
-    }
+    // Remove this logic - don't mark missing ids as null
+    // Users might exist but just not be in this batch
+    // Let _getAuthor handle individual fetching if needed
   } catch (_) {
     // ignore network errors
   }
