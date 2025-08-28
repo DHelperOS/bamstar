@@ -102,6 +102,7 @@ class MatchingPreferencesData {
   final String? selectedPayType;
   final int? payAmount;
   final Set<String> selectedDays;
+  final String? experienceLevel;
   final Set<int> selectedStyleIds;
   final Set<int> selectedPlaceFeatureIds;
   final Set<int> selectedWelfareIds;
@@ -112,6 +113,7 @@ class MatchingPreferencesData {
     this.selectedPayType,
     this.payAmount,
     required this.selectedDays,
+    this.experienceLevel,
     required this.selectedStyleIds,
     required this.selectedPlaceFeatureIds,
     required this.selectedWelfareIds,
@@ -274,7 +276,7 @@ class MemberPreferencesService {
       // Load member profile data
       final profileResponse = await client
           .from('member_profiles')
-          .select('desired_pay_type, desired_pay_amount, desired_working_days')
+          .select('desired_pay_type, desired_pay_amount, desired_working_days, experience_level')
           .eq('user_id', userId)
           .maybeSingle();
 
@@ -335,12 +337,15 @@ class MemberPreferencesService {
         }
       }
 
+      final String? experienceLevel = profileResponse?['experience_level'] as String?;
+      
       return MatchingPreferencesData(
         selectedIndustryIds: industryIds,
         selectedJobIds: jobIds,
         selectedPayType: payType,
         payAmount: payAmount,
         selectedDays: workingDays,
+        experienceLevel: experienceLevel,
         selectedStyleIds: styleIds,
         selectedPlaceFeatureIds: placeFeatureIds,
         selectedWelfareIds: welfareIds,

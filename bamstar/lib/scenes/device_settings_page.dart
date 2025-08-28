@@ -60,6 +60,27 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
                 ),
                 onTap: () => setState(() => _darkMode = !_darkMode),
               ),
+              
+              const SizedBox(height: 24),
+              Text('지원', style: AppTextStyles.sectionTitle(context)),
+              const SizedBox(height: 16),
+              
+              _tile(
+                context,
+                icon: Icon(SolarIconsOutline.questionCircle),
+                title: '자주 묻는 질문',
+                trailing: Icon(SolarIconsOutline.arrowRight, size: 18),
+                onTap: () => _toast(context, '자주 묻는 질문'),
+              ),
+              const SizedBox(height: 8),
+              
+              _tile(
+                context,
+                icon: Icon(SolarIconsOutline.chatRoundCall),
+                title: '도움말 및 지원',
+                trailing: Icon(SolarIconsOutline.arrowRight, size: 18),
+                onTap: () => _toast(context, '도움말 및 지원'),
+              ),
             ],
           ),
         ),

@@ -191,9 +191,23 @@ CREATE TABLE post_hashtags (
 CREATE TABLE roles (
     id INTEGER PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    kor_name VARCHAR(100) NOT NULL,
     description TEXT
 );
 ```
+
+**실제 데이터 (2025-08-28 확인)**:
+```json
+[
+  {"idx": 0, "id": 1, "name": "GUEST", "kor_name": "게스트"},
+  {"idx": 1, "id": 2, "name": "STAR", "kor_name": "스타"},
+  {"idx": 2, "id": 3, "name": "PLACE", "kor_name": "플레이스"},
+  {"idx": 3, "id": 4, "name": "ADMIN", "kor_name": "관리자"},
+  {"idx": 4, "id": 6, "name": "MEMBER", "kor_name": "멤버"}
+]
+```
+
+**중요**: roles는 별도 테이블이며, users 테이블의 role_id가 이 테이블의 id를 참조합니다.
 
 ### 14. trending_hashtags_cache
 **목적**: 인기 해시태그 캐시 테이블

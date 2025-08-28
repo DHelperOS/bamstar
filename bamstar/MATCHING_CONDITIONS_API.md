@@ -21,7 +21,15 @@ BamStar 프로젝트의 매칭 조건 업데이트를 위한 Edge Function API�
 Authorization: Bearer [Supabase_JWT_Token]
 ```
 
-- **권한**: `GUEST`, `STAR`, `PLACE` 역할의 사용자만 접근 가능
+- **권한**: `GUEST` (게스트), `STAR` (스타), `PLACE` (플레이스), `MEMBER` (멤버) 역할의 사용자만 접근 가능
+- **역할 시스템**: `users` 테이블의 `role_id`가 별도 `roles` 테이블의 `id`를 참조함
+  - **실제 roles 테이블 데이터**:
+    - GUEST (ID: 1): 게스트 사용자
+    - STAR (ID: 2): 스타 사용자  
+    - PLACE (ID: 3): 플레이스 사용자
+    - ADMIN (ID: 4): 관리자 (접근 불가)
+    - MEMBER (ID: 6): 일반 멤버
+  - **관계**: `users.role_id` → `roles.id` (Foreign Key)
 - **인증 실패**: 401 Unauthorized 반환
 - **권한 없음**: 403 Forbidden 반환
 

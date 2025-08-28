@@ -33,10 +33,10 @@ BEGIN
   VALUES (
     p_user_id,
     p_bio,
-    p_desired_pay_type,
+    CASE WHEN p_desired_pay_type IS NOT NULL THEN p_desired_pay_type::pay_type_enum ELSE NULL END,
     p_desired_pay_amount,
     p_desired_working_days,
-    p_experience_level,
+    CASE WHEN p_experience_level IS NOT NULL THEN p_experience_level::experience_level_enum ELSE NULL END,
     NOW()
   )
   ON CONFLICT (user_id) 

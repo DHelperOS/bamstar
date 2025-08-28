@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 // Typography import removed as it's not used in current implementation
 import 'package:bamstar/scenes/member_profile/basic_info_sheet_flow.dart';
 import 'package:bamstar/scenes/region_preference_sheet.dart';
@@ -8,6 +9,9 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
 import 'package:bamstar/scenes/member_profile/matching_preferences_page.dart';
+import 'package:bamstar/scenes/member_profile/services/basic_info_service.dart';
+import 'package:bamstar/scenes/member_profile/services/member_preferences_service.dart';
+import 'package:bamstar/scenes/member_profile/services/region_preference_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/toast_helper.dart';
@@ -29,11 +33,21 @@ class _UserSettingsPageState extends State<UserSettingsPage>
   ImageProvider? _profileImage;
   late TabController _tabController;
 
+  // Profile completion status
+  bool _isBasicInfoComplete = false;
+  bool _isMatchingComplete = false;
+  bool _isRegionComplete = false;
+  bool _hasBasicInfoData = false;
+  bool _hasMatchingData = false;
+  bool _hasRegionData = false;
+  bool _isAdultVerified = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _loadProfileImage();
+    _loadProfileCompletionStatus();
     UserService.instance.addListener(_onUserChanged);
     UserService.instance.loadCurrentUser();
   }
@@ -49,12 +63,83 @@ class _UserSettingsPageState extends State<UserSettingsPage>
     if (!mounted) return;
     setState(() {});
     _loadProfileImage();
+    _loadProfileCompletionStatus();
   }
 
   Future<void> _loadProfileImage() async {
     final img = await UserService.instance.getProfileImageProvider();
     if (!mounted) return;
     setState(() => _profileImage = img);
+  }
+
+  Future<void> _loadProfileCompletionStatus() async {
+    if (!mounted) return;
+
+    try {
+      // Check basic info completion
+      final basicInfo = await BasicInfoService.instance.loadBasicInfo();
+      bool basicComplete = false;
+      bool hasBasicData = basicInfo != null;
+
+      if (basicInfo != null) {
+        // Check if essential basic info fields are filled
+        basicComplete =
+            (basicInfo.realName?.isNotEmpty ?? false) &&
+            basicInfo.age != null &&
+            (basicInfo.gender?.isNotEmpty ?? false) &&
+            (basicInfo.contactPhone?.isNotEmpty ?? false);
+      }
+
+      // Check matching preferences completion
+      final matchingData = await MemberPreferencesService.instance
+          .loadMatchingPreferences();
+      bool matchingComplete = false;
+      bool hasMatchingData = matchingData != null;
+
+      if (matchingData != null) {
+        // Check if essential matching fields are filled
+        matchingComplete =
+            matchingData.selectedIndustryIds.isNotEmpty ||
+            matchingData.selectedJobIds.isNotEmpty ||
+            matchingData.selectedStyleIds.isNotEmpty;
+      }
+
+      // Check region preferences completion
+      final regionData = await RegionPreferenceService.instance
+          .loadPreferredAreaGroups();
+      bool regionComplete = regionData.isNotEmpty;
+      bool hasRegionData = regionData.isNotEmpty;
+
+      // Check adult verification status
+      bool adultVerified = false;
+      final user = UserService.instance.user;
+      if (user != null) {
+        adultVerified = user.data['is_adult'] == true;
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _isBasicInfoComplete = basicComplete;
+        _isMatchingComplete = matchingComplete;
+        _isRegionComplete = regionComplete;
+        _hasBasicInfoData = hasBasicData;
+        _hasMatchingData = hasMatchingData;
+        _hasRegionData = hasRegionData;
+        _isAdultVerified = adultVerified;
+      });
+    } catch (e) {
+      debugPrint('Error loading profile completion status: $e');
+      if (!mounted) return;
+      setState(() {
+        _isBasicInfoComplete = false;
+        _isMatchingComplete = false;
+        _isRegionComplete = false;
+        _hasBasicInfoData = false;
+        _hasMatchingData = false;
+        _hasRegionData = false;
+        _isAdultVerified = false;
+      });
+    }
   }
 
   @override
@@ -80,15 +165,25 @@ class _UserSettingsPageState extends State<UserSettingsPage>
         ),
         actions: [
           IconButton(
+            onPressed: () => _handleLogout(context),
+            icon: Icon(
+              SolarIconsBold.power,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            tooltip: '로그아웃',
+          ),
+          const SizedBox(width: 4), // Add spacing between buttons
+          IconButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const DeviceSettingsPage()),
             ),
             icon: Icon(
               SolarIconsOutline.settings,
-              color: const Color(0xFF1C252E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             tooltip: '설정',
           ),
+          const SizedBox(width: 8), // Add margin from right edge
         ],
       ),
       body: Center(
@@ -272,37 +367,50 @@ class _UserSettingsPageState extends State<UserSettingsPage>
           const SizedBox(height: 16),
 
           // 기본 정보 카드
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.user,
-            title: '프로필 시작하기',
-            subtitle: '플레이스와 연결을 위해 꼭 필요한 정보예요.',
-            trailing: const Icon(
-              SolarIconsOutline.dangerTriangle,
-              color: Colors.amber,
+          _buildTooltipWrapper(
+            tooltipMessage: _getTooltipMessage(
+              '프로필',
+              _isBasicInfoComplete,
+              _hasBasicInfoData,
             ),
-            onTap: () => Navigator.of(
+            showTooltip: !_isBasicInfoComplete,
+            child: _buildInfoCard(
               context,
-              rootNavigator: true,
-            ).push(basicInfoSheetRoute()),
+              icon: SolarIconsOutline.user,
+              title: '프로필 시작하기',
+              subtitle: '플레이스와 연결을 위해 꼭 필요한 정보예요.',
+              trailing: _buildStatusIcon(
+                _isBasicInfoComplete,
+                _hasBasicInfoData,
+              ),
+              onTap: () => Navigator.of(
+                context,
+                rootNavigator: true,
+              ).push(basicInfoSheetRoute()),
+            ),
           ),
 
           const SizedBox(height: 12),
 
           // 상세 정보 카드
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.menuDots,
-            title: '매칭 조건 설정하기',
-            subtitle: '자세히 설정할수록, 빨리 매칭될 수 있어요.',
-            trailing: Icon(
-              SolarIconsOutline.dangerTriangle,
-              color: Theme.of(context).colorScheme.error,
+          _buildTooltipWrapper(
+            tooltipMessage: _getTooltipMessage(
+              '매칭 조건 설정',
+              _isMatchingComplete,
+              _hasMatchingData,
             ),
-            onTap: () => Navigator.push(
+            showTooltip: !_isMatchingComplete,
+            child: _buildInfoCard(
               context,
-              MaterialPageRoute(
-                builder: (_) => const MatchingPreferencesPage(),
+              icon: SolarIconsOutline.menuDots,
+              title: '매칭 조건 설정하기',
+              subtitle: '자세히 설정할수록, 빨리 매칭될 수 있어요.',
+              trailing: _buildStatusIcon(_isMatchingComplete, _hasMatchingData),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const MatchingPreferencesPage(),
+                ),
               ),
             ),
           ),
@@ -310,63 +418,54 @@ class _UserSettingsPageState extends State<UserSettingsPage>
           const SizedBox(height: 12),
 
           // 선호 지역 카드
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.mapPoint,
-            title: '어디에서 빛나고 싶으신가요?',
-            subtitle: '선호 지역을 중심으로 추천해 드려요.',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
+          _buildTooltipWrapper(
+            tooltipMessage: _getTooltipMessage(
+              '선호 지역 설정',
+              _isRegionComplete,
+              _hasRegionData,
             ),
-            onTap: () async {
-              final res = await Navigator.of(
-                context,
-                rootNavigator: true,
-              ).push(preferredRegionSheetRoute());
-              if (!context.mounted) return;
-              if (res is List) {
-                ToastHelper.success(context, '선호 지역이 업데이트되었습니다.');
-              }
-            },
-          ),
-
-          const SizedBox(height: 24),
-
-          Text('기타', style: AppTextStyles.sectionTitle(context)),
-          const SizedBox(height: 16),
-
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.questionCircle,
-            title: '자주 묻는 질문',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
+            showTooltip: !_isRegionComplete,
+            child: _buildInfoCard(
+              context,
+              icon: SolarIconsOutline.mapPoint,
+              title: '어디에서 빛나고 싶으신가요?',
+              subtitle: '선호 지역을 중심으로 추천해 드려요.',
+              trailing: _isRegionComplete
+                  ? _buildStatusIcon(_isRegionComplete, _hasRegionData)
+                  : const Icon(
+                      SolarIconsOutline.arrowRight,
+                      color: Color(0xFF919EAB),
+                    ),
+              onTap: () async {
+                final res = await Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).push(preferredRegionSheetRoute());
+                if (!context.mounted) return;
+                if (res is List) {
+                  ToastHelper.success(context, '선호 지역이 업데이트되었습니다.');
+                  _loadProfileCompletionStatus(); // Refresh status after update
+                }
+              },
             ),
-            onTap: () => _showToast(context, '자주 묻는 질문'),
           ),
 
           const SizedBox(height: 12),
 
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.chatRoundCall,
-            title: '도움말 및 지원',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
+          // 성인 인증 카드
+          _buildTooltipWrapper(
+            tooltipMessage: _isAdultVerified
+                ? '성인 인증이 완료되었습니다'
+                : '아직 성인 인증이 완료되지 않았어요',
+            showTooltip: !_isAdultVerified,
+            child: _buildInfoCard(
+              context,
+              icon: SolarIconsOutline.shield,
+              title: '성인 인증하기',
+              subtitle: '앱을 이용하려면 성인 인증이 필요해요.',
+              trailing: _buildStatusIcon(_isAdultVerified, _isAdultVerified),
+              onTap: () => _handleAdultVerification(context),
             ),
-            onTap: () => _showToast(context, '도움말 및 지원'),
-          ),
-
-          const SizedBox(height: 12),
-
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.logout,
-            title: '로그아웃',
-            onTap: () => _handleLogout(context),
           ),
         ],
       ),
@@ -610,8 +709,78 @@ class _UserSettingsPageState extends State<UserSettingsPage>
     );
   }
 
+  Widget _buildStatusIcon(bool isComplete, bool hasData) {
+    if (isComplete) {
+      return const Icon(
+        SolarIconsBold.checkCircle,
+        color: Color(0xFF22C55E), // Green color for complete
+        size: 20,
+      );
+    } else if (hasData) {
+      return const Icon(
+        SolarIconsOutline.dangerTriangle,
+        color: Color(0xFFF59E0B), // Yellow/amber color for in progress
+        size: 20,
+      );
+    } else {
+      return const Icon(
+        SolarIconsOutline.dangerTriangle,
+        color: Color(0xFFEF4444), // Red color for not started
+        size: 20,
+      );
+    }
+  }
+
+  String _getTooltipMessage(String section, bool isComplete, bool hasData) {
+    if (isComplete) {
+      return '$section이 완료되었습니다';
+    } else if (hasData) {
+      return '아직 $section이 완료되지 않았어요';
+    } else {
+      return '아직 $section이 완료되지 않았어요';
+    }
+  }
+
+  Widget _buildTooltipWrapper({
+    required Widget child,
+    required String tooltipMessage,
+    required bool showTooltip,
+  }) {
+    if (!showTooltip) {
+      return child;
+    }
+
+    return JustTheTooltip(
+      content: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          tooltipMessage,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+        ),
+      ),
+      backgroundColor: const Color(0xFF1F2937),
+      borderRadius: BorderRadius.circular(8),
+      preferredDirection: AxisDirection.up,
+      tailLength: 8,
+      tailBaseWidth: 16,
+      showDuration: const Duration(seconds: 5),
+      waitDuration: const Duration(milliseconds: 500),
+      child: child,
+    );
+  }
+
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
+  }
+
+  Future<void> _handleAdultVerification(BuildContext context) async {
+    if (_isAdultVerified) {
+      _showToast(context, '이미 성인 인증이 완료되었습니다');
+      return;
+    }
+
+    // TODO: Implement actual adult verification flow
+    _showToast(context, '성인 인증 기능을 준비 중입니다');
   }
 
   Future<void> _handleLogout(BuildContext context) async {
@@ -621,10 +790,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            '로그아웃',
-            style: AppTextStyles.dialogTitle(context),
-          ),
+          title: Text('로그아웃', style: AppTextStyles.dialogTitle(context)),
           content: Text(
             '정말 로그아웃하시겠습니까?',
             style: AppTextStyles.primaryText(context),
@@ -643,9 +809,9 @@ class _UserSettingsPageState extends State<UserSettingsPage>
               onPressed: () => Navigator.of(context).pop(true),
               child: Text(
                 '로그아웃',
-                style: AppTextStyles.buttonText(context).copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: AppTextStyles.buttonText(
+                  context,
+                ).copyWith(color: Theme.of(context).colorScheme.error),
               ),
             ),
           ],
@@ -659,19 +825,19 @@ class _UserSettingsPageState extends State<UserSettingsPage>
       // Sign out from Supabase - this will trigger the auth state listener
       // in UserService which will automatically clear the user data
       await Supabase.instance.client.auth.signOut();
-      
+
       if (!context.mounted) return;
-      
+
       // Show success message
       ToastHelper.success(context, '로그아웃되었습니다');
-      
+
       // Navigate to login page using GoRouter
       context.go('/login');
     } catch (error) {
       debugPrint('Logout error: $error');
-      
+
       if (!context.mounted) return;
-      
+
       // Show error message
       ToastHelper.error(context, '로그아웃 중 오류가 발생했습니다');
     }

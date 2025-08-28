@@ -24,6 +24,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
   String? selectedPayType;
   final TextEditingController _payAmountController = TextEditingController();
   Set<String> selectedDays = {};
+  String? selectedExperienceLevel;
   Set<String> selectedStyles = {};
   Set<String> selectedPlaceFeatures = {};
   Set<String> selectedBenefits = {};
@@ -63,8 +64,9 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     super.dispose();
   }
 
-  // Static data for working days (not in database)
+  // Static data for working days and experience levels (not in database)
   final List<String> payTypes = ['TC', '일급', '월급', '협의'];
+  final List<String> experienceLevels = ['신입', '주니어', '시니어', '전문가'];
 
   final List<Map<String, String>> daysTop = [
     {'id': '전체', 'name': '전체'},
@@ -127,6 +129,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
             _payAmountController.text = prefs.payAmount.toString();
           }
           selectedDays = prefs.selectedDays;
+          selectedExperienceLevel = prefs.experienceLevel;
           selectedStyles = prefs.selectedStyleIds.map((id) => id.toString()).toSet();
           selectedPlaceFeatures = prefs.selectedPlaceFeatureIds.map((id) => id.toString()).toSet();
           selectedBenefits = prefs.selectedWelfareIds.map((id) => id.toString()).toSet();
@@ -206,7 +209,10 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                           _buildPayConditionCard(),
                           const SizedBox(height: 20),
 
-                          _buildWorkingDaysCard(),
+                          _buildExperienceLevelCard(),
+                          const SizedBox(height: 20),
+
+                          _buildWorkingDaysCard()
                           const SizedBox(height: 20),
 
                           _buildPersonalStyleCard(),
@@ -309,28 +315,90 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     );
   }
 
+  Widget _buildExperienceLevelCard() {
+    return _buildCard(
+      icon: '🏆',
+      title: '경력 수준',
+      subtitle: '나의 경력 수준을 선택해주세요',
+      child: _buildCompactChipGroup(
+        items: experienceLevels.map((level) => {'id': level, 'name': level}).toList(),
+        selectedItems: selectedExperienceLevel != null ? {selectedExperienceLevel!} : {},
+        onChanged: (selected) {
+          setState(() {
+            selectedExperienceLevel = selected.isNotEmpty ? selected.first : null;
+          });
+        },
+        multiSelect: false,
+      ),
+    );
+  }
+
   Widget _buildWorkingDaysCard() {
     return _buildCard(
       icon: '📅',
       title: '근무 요일',
       subtitle: '가능한 근무 요일을 선택해주세요',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 첫 번째 줄: 전체, 월, 화, 수
-          _buildEnhancedChipGroup(
-            items: daysTop,
-            selectedItems: selectedDays,
-            onChanged: (selected) {
-              setState(() {
-                selectedDays = selected;
-              });
-            },
+          // 간단한 전체/선택 방식 선택
+          Row(
+            children: [
+              Expanded(
+                child: _buildWorkingDayToggle(
+                  '전체',
+                  selectedDays.length == 7,
+                  () {
+                    setState(() {
+                      if (selectedDays.length == 7) {
+                        selectedDays.clear();
+                      } else {
+                        selectedDays = {'월', '화', '수', '목', '금', '토', '일'};
+                      }
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildWorkingDayToggle(
+                  '평일',
+                  selectedDays.containsAll(['월', '화', '수', '목', '금']),
+                  () {
+                    setState(() {
+                      final weekdays = {'월', '화', '수', '목', '금'};
+                      if (selectedDays.containsAll(weekdays)) {
+                        selectedDays.removeAll(weekdays);
+                      } else {
+                        selectedDays.addAll(weekdays);
+                      }
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildWorkingDayToggle(
+                  '주말',
+                  selectedDays.containsAll(['토', '일']),
+                  () {
+                    setState(() {
+                      final weekends = {'토', '일'};
+                      if (selectedDays.containsAll(weekends)) {
+                        selectedDays.removeAll(weekends);
+                      } else {
+                        selectedDays.addAll(weekends);
+                      }
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          // 두 번째 줄: 목, 금, 토, 일
-          _buildEnhancedChipGroup(
-            items: daysBottom,
+          const SizedBox(height: 16),
+          // 개별 요일 선택
+          _buildCompactChipGroup(
+            items: ['월', '화', '수', '목', '금', '토', '일']
+                .map((day) => {'id': day, 'name': day}).toList(),
             selectedItems: selectedDays,
             onChanged: (selected) {
               setState(() {
@@ -529,7 +597,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
@@ -559,9 +627,9 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (icon != null) ...[
-                  Text(icon, style: const TextStyle(fontSize: 16)),
-                  const SizedBox(width: 6),
+                if (icon != null) ..[
+                  Text(icon, style: const TextStyle(fontSize: 14)),
+                  const SizedBox(width: 4),
                 ],
                 if (prefix != null) ...[
                   Text(
@@ -593,6 +661,127 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     );
   }
 
+  Widget _buildCompactChipGroup({
+    required List<Map<String, dynamic>> items,
+    required Set<String> selectedItems,
+    required Function(Set<String>) onChanged,
+    bool multiSelect = true,
+  }) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: items.map((item) {
+        final isSelected = selectedItems.contains(item['id']);
+        return _buildCompactChip(
+          label: item['name']!,
+          isSelected: isSelected,
+          onTap: () {
+            Set<String> newSelection = Set.from(selectedItems);
+            if (multiSelect) {
+              if (isSelected) {
+                newSelection.remove(item['id']!);
+              } else {
+                newSelection.add(item['id']!);
+              }
+            } else {
+              if (isSelected) {
+                newSelection.clear();
+              } else {
+                newSelection = {item['id']!};
+              }
+            }
+            onChanged(newSelection);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildCompactChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            label,
+            style: AppTextStyles.captionText(context).copyWith(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkingDayToggle(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOutCubic,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.captionText(context).copyWith(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildEnhancedDropdown({
     required String hint,
     required String? value,
@@ -600,12 +789,12 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     required Function(String?) onChanged,
   }) {
     return Container(
-      height: 56,
+      height: 44,
       decoration: BoxDecoration(
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
@@ -649,12 +838,12 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     TextInputType? keyboardType,
   }) {
     return Container(
-      height: 56,
+      height: 44,
       decoration: BoxDecoration(
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           width: 1,
@@ -800,11 +989,31 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         }
       }
 
+      // Convert UI experience level to database enum
+      String? dbExperienceLevel;
+      if (selectedExperienceLevel != null) {
+        switch (selectedExperienceLevel!) {
+          case '신입':
+            dbExperienceLevel = 'NEWBIE';
+            break;
+          case '주니어':
+            dbExperienceLevel = 'JUNIOR';
+            break;
+          case '시니어':
+            dbExperienceLevel = 'SENIOR';
+            break;
+          case '전문가':
+            dbExperienceLevel = 'PROFESSIONAL';
+            break;
+        }
+      }
+
       // Call Edge Function API
       final response = await MatchingConditionsService.instance.updateMatchingConditions(
         desiredPayType: dbPayType,
         desiredPayAmount: payAmount,
         desiredWorkingDays: selectedDays.toList(),
+        experienceLevel: dbExperienceLevel,
         selectedStyleAttributeIds: selectedStyleIds.toList(),
         selectedPreferenceAttributeIds: [
           ...selectedIndustryIds,

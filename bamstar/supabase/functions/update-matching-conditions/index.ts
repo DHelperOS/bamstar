@@ -1,5 +1,4 @@
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 interface UpdateMatchingConditionsRequest {
   bio?: string;
@@ -47,19 +46,25 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Initialize Supabase client with service role
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    // Get environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Supabase configuration missing' }),
+        { 
+          status: 500, 
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    // Initialize Supabase client with service role key
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
-      },
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       },
     });
 
@@ -76,16 +81,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user exists and has appropriate role (GUEST, STAR, or PLACE)
+    // Check if user exists and has appropriate role (GUEST, STAR, PLACE, or MEMBER)
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('role')
+      .select(`
+        role_id,
+        roles!inner(
+          name,
+          kor_name
+        )
+      `)
       .eq('id', user.id)
       .single();
 
-    // Allow GUEST, STAR, or PLACE roles, or if role is null (default for new users)
-    const allowedRoles = ['GUEST', 'STAR', 'PLACE'];
-    const userRole = userData?.role;
+    // Allow GUEST, STAR, PLACE, or MEMBER roles
+    const allowedRoleNames = ['GUEST', 'STAR', 'PLACE', 'MEMBER'];
+    const userRoleName = userData?.roles?.name;
     
     if (userError) {
       console.error('Error fetching user role:', userError);
@@ -98,7 +109,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    if (userRole && !allowedRoles.includes(userRole)) {
+    if (userRoleName && !allowedRoleNames.includes(userRoleName)) {
       return new Response(
         JSON.stringify({ success: false, error: '매칭 조건을 설정할 권한이 없습니다.' }),
         { 
@@ -368,6 +379,8 @@ function getPayTypeText(payType: string): string {
       return 'TC';
     case 'DAILY':
       return '일급';
+    case 'WEEKLY':
+      return '주급';
     case 'MONTHLY':
       return '월급';
     case 'NEGOTIABLE':
@@ -385,7 +398,7 @@ function getExperienceLevelText(level: string): string {
       return '주니어';
     case 'SENIOR':
       return '시니어';
-    case 'EXPERT':
+    case 'PROFESSIONAL':
       return '전문가';
     default:
       return level;
