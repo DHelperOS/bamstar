@@ -1,12 +1,29 @@
 -- ==========[ BamStar - Member Tables RLS Policies ]==========
 -- Comprehensive Row Level Security implementation for member-related tables
 
--- 1. Enable RLS on all member tables
-ALTER TABLE public.attributes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.member_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.member_attributes_link ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.member_preferences_link ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.member_preferred_area_groups ENABLE ROW LEVEL SECURITY;
+-- 1. Enable RLS on all member tables (with existence checks)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'attributes') THEN
+        ALTER TABLE public.attributes ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'member_profiles') THEN
+        ALTER TABLE public.member_profiles ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'member_attributes_link') THEN
+        ALTER TABLE public.member_attributes_link ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'member_preferences_link') THEN
+        ALTER TABLE public.member_preferences_link ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'member_preferred_area_groups') THEN
+        ALTER TABLE public.member_preferred_area_groups ENABLE ROW LEVEL SECURITY;
+    END IF;
+END $$;
 
 -- ==========[ ATTRIBUTES TABLE POLICIES ]==========
 -- Everyone can read attributes, only admins can modify

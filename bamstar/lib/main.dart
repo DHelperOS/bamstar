@@ -9,6 +9,7 @@ import 'scenes/onboarding_page.dart';
 import 'scenes/login_page.dart';
 import 'scenes/roles_select.dart';
 import 'scenes/terms_page.dart';
+import 'scenes/terms_view_page.dart';
 import 'scenes/place_home_page.dart';
 import 'scenes/community/community_home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,6 +135,13 @@ Future<void> initRouter() async {
       GoRoute(
         path: '/terms',
         builder: (context, state) => const TermsPage(),
+      ),
+      GoRoute(
+        path: '/terms/:termId',
+        builder: (context, state) {
+          final termId = state.pathParameters['termId']!;
+          return TermsViewPage(termId: termId);
+        },
       ),
       GoRoute(path: '/home', builder: (context, state) => const MainScreen()),
       GoRoute(

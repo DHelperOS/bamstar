@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../services/notification_service.dart';
+import '../services/terms_service.dart';
+import '../utils/toast_helper.dart';
 
 // Note: This implementation uses standard Theme.of(context) calls for robustness.
 
@@ -19,23 +22,50 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
 
   // State management for agreements
   bool _allAgreed = false;
+  bool _isLoading = true;
+  
+  // Terms data from Supabase
+  List<Term> _mandatoryTerms = [];
+  List<Term> _optionalTerms = [];
+  Map<String, bool> _termsAgreements = {};
 
-  // Mandatory
-  bool _termsOfService = false;
-  bool _privacyPolicy = false;
-  bool _collectPersonalInfo = false;
-  bool _provideToThirdParties = false;
-
-  // Optional
+  // Legacy state for backward compatibility
   bool _pushNotifications = false;
-  bool _eventNotifications = false;
-  bool _marketingConsent = false;
 
   @override
   void initState() {
     super.initState();
     _initAnimations();
-    _updateAllAgreed();
+    _loadTermsData();
+  }
+  
+  /// Load terms data from Supabase
+  Future<void> _loadTermsData() async {
+    try {
+      final mandatoryTerms = await TermsService.getMandatoryTerms();
+      final optionalTerms = await TermsService.getOptionalTerms();
+      
+      setState(() {
+        _mandatoryTerms = mandatoryTerms;
+        _optionalTerms = optionalTerms;
+        _isLoading = false;
+        
+        // Initialize agreement states
+        for (final term in [...mandatoryTerms, ...optionalTerms]) {
+          _termsAgreements[term.id] = false;
+        }
+        
+        _updateAllAgreed();
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      
+      if (mounted) {
+        ToastHelper.error(context, '약관 정보를 불러오는데 실패했습니다');
+      }
+    }
   }
 
   void _initAnimations() {
@@ -73,14 +103,20 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
 
   void _updateAllAgreed() {
     setState(() {
-      final allMandatory =
-          _termsOfService &&
-          _privacyPolicy &&
-          _collectPersonalInfo &&
-          _provideToThirdParties;
-      final allOptional =
-          _pushNotifications && _eventNotifications && _marketingConsent;
+      // Check if all mandatory terms are agreed
+      final allMandatory = _mandatoryTerms.isEmpty || 
+          _mandatoryTerms.every((term) => _termsAgreements[term.id] == true);
+      
+      // Check if all optional terms are agreed  
+      final allOptional = _optionalTerms.isEmpty ||
+          _optionalTerms.every((term) => _termsAgreements[term.id] == true);
+      
       _allAgreed = allMandatory && allOptional;
+      
+      // Update push notification state for notification category
+      _pushNotifications = _optionalTerms
+          .where((term) => term.category == 'notification')
+          .any((term) => _termsAgreements[term.id] == true);
     });
   }
 
@@ -88,21 +124,73 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
     if (value == null) return;
     setState(() {
       _allAgreed = value;
-      _termsOfService = value;
-      _privacyPolicy = value;
-      _collectPersonalInfo = value;
-      _provideToThirdParties = value;
-      _pushNotifications = value;
-      _eventNotifications = value;
-      _marketingConsent = value;
+      // Update all terms agreements
+      for (final termId in _termsAgreements.keys) {
+        _termsAgreements[termId] = value;
+      }
+      _updateAllAgreed();
     });
   }
 
   bool get _canProceed =>
-      _termsOfService &&
-      _privacyPolicy &&
-      _collectPersonalInfo &&
-      _provideToThirdParties;
+      _mandatoryTerms.isNotEmpty &&
+      _mandatoryTerms.every((term) => _termsAgreements[term.id] == true);
+
+  /// Handle agreement completion and notification setup
+  Future<void> _handleAgreementAndProceed() async {
+    bool isDialogOpen = false;
+
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+      isDialogOpen = true;
+
+      // If push notifications are enabled, request permission and setup FCM
+      if (_pushNotifications) {
+        final notificationService = NotificationService();
+        final success = await notificationService.setupNotifications();
+
+        if (!success) {
+          // Show warning that notifications couldn't be set up
+          if (mounted) {
+            ToastHelper.warning(context, '알림 권한을 얻을 수 없어 일부 기능이 제한될 수 있습니다');
+          }
+
+          // Wait a bit before continuing
+          await Future.delayed(const Duration(seconds: 2));
+        }
+      }
+
+      // Hide loading dialog
+      if (mounted && isDialogOpen) {
+        Navigator.of(context).pop();
+        isDialogOpen = false;
+      }
+
+      // Save agreement states to shared preferences or other storage if needed
+      // TODO: Implement agreement state persistence
+
+      // Navigate to home
+      if (mounted) {
+        context.go('/home');
+      }
+    } catch (e) {
+      // Hide loading dialog
+      if (mounted && isDialogOpen) {
+        Navigator.of(context).pop();
+        isDialogOpen = false;
+      }
+
+      // Show error message
+      if (mounted) {
+        ToastHelper.error(context, '설정 중 오류가 발생했습니다. 다시 시도해주세요');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,39 +216,45 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
         iconTheme: IconThemeData(color: cs.onSurface),
       ),
       backgroundColor: cs.surface,
-      body: Column(
-        children: [
-          Expanded(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  children: [
-                    const SizedBox(height: 12),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        children: [
+                          const SizedBox(height: 12),
 
-                    // All agreement card
-                    _buildAllAgreementCard(),
-                    const SizedBox(height: 12),
+                          // All agreement card
+                          _buildAllAgreementCard(),
+                          const SizedBox(height: 12),
 
-                    // Mandatory Terms Card
-                    _buildMandatoryTermsCard(),
-                    const SizedBox(height: 12),
+                          // Mandatory Terms Card
+                          if (_mandatoryTerms.isNotEmpty) ...[
+                            _buildMandatoryTermsCard(),
+                            const SizedBox(height: 12),
+                          ],
 
-                    // Optional Terms Card
-                    _buildOptionalTermsCard(),
-                    const SizedBox(height: 16),
-                  ],
+                          // Optional Terms Card
+                          if (_optionalTerms.isNotEmpty) ...[
+                            _buildOptionalTermsCard(),
+                            const SizedBox(height: 16),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
 
-          // Enhanced Action Button
-          _buildActionButton(),
-        ],
-      ),
+                // Enhanced Action Button
+                _buildActionButton(),
+              ],
+            ),
     );
   }
 
@@ -172,19 +266,19 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: _allAgreed
-            ? cs.primaryContainer.withValues(alpha: 0.15)
+            ? cs.primaryContainer.withOpacity(0.15)
             : cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: _allAgreed
-              ? cs.primary.withValues(alpha: 0.2)
-              : cs.outline.withValues(alpha: 0.3),
+              ? cs.primary.withOpacity(0.2)
+              : cs.outline.withOpacity(0.3),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
             color: _allAgreed
-                ? cs.primary.withValues(alpha: 0.2)
+                ? cs.primary.withOpacity(0.2)
                 : Colors.transparent,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -196,7 +290,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
         subtitle: '모든 약관에 동의합니다',
         isAgreed: _allAgreed,
         onChanged: _setAllAgreements,
-        isHeader: true,
+        isHeader: false,
         showViewButton: false,
       ),
     );
@@ -210,7 +304,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.3), width: 1),
+        border: Border.all(color: cs.outline.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +313,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cs.errorContainer.withValues(alpha: 0.15),
+              color: cs.errorContainer.withOpacity(0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -243,7 +337,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.error.withValues(alpha: 0.2),
+                    color: cs.error.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -260,48 +354,19 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
-              children: [
-                _buildEnhancedAgreementTile(
-                  title: '밤스타 이용약관',
-                  subtitle: '서비스 이용을 위한 기본 약관',
-                  isAgreed: _termsOfService,
+              children: _mandatoryTerms.map((term) {
+                return _buildEnhancedAgreementTile(
+                  title: term.title,
+                  subtitle: term.description,
+                  isAgreed: _termsAgreements[term.id] ?? false,
                   onChanged: (value) => setState(() {
-                    _termsOfService = value ?? false;
+                    _termsAgreements[term.id] = value ?? false;
                     _updateAllAgreed();
                   }),
                   isMandatory: true,
-                ),
-                _buildEnhancedAgreementTile(
-                  title: '개인정보 처리 방침',
-                  subtitle: '개인정보 보호에 관한 정책',
-                  isAgreed: _privacyPolicy,
-                  onChanged: (value) => setState(() {
-                    _privacyPolicy = value ?? false;
-                    _updateAllAgreed();
-                  }),
-                  isMandatory: true,
-                ),
-                _buildEnhancedAgreementTile(
-                  title: '개인정보 수집 및 이용 동의',
-                  subtitle: '서비스 제공을 위한 개인정보 활용',
-                  isAgreed: _collectPersonalInfo,
-                  onChanged: (value) => setState(() {
-                    _collectPersonalInfo = value ?? false;
-                    _updateAllAgreed();
-                  }),
-                  isMandatory: true,
-                ),
-                _buildEnhancedAgreementTile(
-                  title: '개인정보 제 3자 정보 제공 동의',
-                  subtitle: '파트너사와의 정보 공유',
-                  isAgreed: _provideToThirdParties,
-                  onChanged: (value) => setState(() {
-                    _provideToThirdParties = value ?? false;
-                    _updateAllAgreed();
-                  }),
-                  isMandatory: true,
-                ),
-              ],
+                  termId: term.id,
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -317,7 +382,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: cs.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline.withValues(alpha: 0.3), width: 1),
+        border: Border.all(color: cs.outline.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +391,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cs.secondaryContainer.withValues(alpha: 0.15),
+              color: cs.secondaryContainer.withOpacity(0.15),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -354,7 +419,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.secondary.withValues(alpha: 0.2),
+                    color: cs.secondary.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -371,37 +436,19 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
-              children: [
-                _buildEnhancedAgreementTile(
-                  title: '푸시 알림 동의',
-                  subtitle: '중요한 정보와 업데이트 알림',
-                  isAgreed: _pushNotifications,
+              children: _optionalTerms.map((term) {
+                return _buildEnhancedAgreementTile(
+                  title: term.title,
+                  subtitle: term.description,
+                  isAgreed: _termsAgreements[term.id] ?? false,
                   onChanged: (value) => setState(() {
-                    _pushNotifications = value ?? false;
+                    _termsAgreements[term.id] = value ?? false;
                     _updateAllAgreed();
                   }),
-                  showViewButton: false,
-                ),
-                _buildEnhancedAgreementTile(
-                  title: '이벤트 알림 동의',
-                  subtitle: '특별 이벤트 및 혜택 정보',
-                  isAgreed: _eventNotifications,
-                  onChanged: (value) => setState(() {
-                    _eventNotifications = value ?? false;
-                    _updateAllAgreed();
-                  }),
-                  showViewButton: false,
-                ),
-                _buildEnhancedAgreementTile(
-                  title: '마케팅 활용 동의',
-                  subtitle: '맞춤형 광고 및 마케팅 정보 수신',
-                  isAgreed: _marketingConsent,
-                  onChanged: (value) => setState(() {
-                    _marketingConsent = value ?? false;
-                    _updateAllAgreed();
-                  }),
-                ),
-              ],
+                  showViewButton: term.category != 'notification',
+                  termId: term.id,
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -417,6 +464,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
     bool isHeader = false,
     bool isMandatory = false,
     bool showViewButton = true,
+    String? termId,
   }) {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -493,14 +541,16 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
                 if (showViewButton)
                   Container(
                     decoration: BoxDecoration(
-                      color: isAgreed 
-                          ? cs.primary.withValues(alpha: 0.1)
+                      color: isAgreed
+                          ? cs.primary.withOpacity(0.1)
                           : cs.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: TextButton(
                       onPressed: () {
-                        // TODO: Navigate to term details page based on title/id
+                        if (termId != null) {
+                          context.go('/terms/$termId');
+                        }
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
@@ -535,7 +585,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: cs.surface,
         border: Border(
-          top: BorderSide(color: cs.outline.withValues(alpha: 0.3), width: 1),
+          top: BorderSide(color: cs.outline.withOpacity(0.3), width: 1),
         ),
       ),
       child: SafeArea(
@@ -547,7 +597,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
             decoration: BoxDecoration(
               gradient: _canProceed
                   ? LinearGradient(
-                      colors: [cs.primary, cs.primary.withValues(alpha: 0.2)],
+                      colors: [cs.primary, cs.primary.withOpacity(0.2)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     )
@@ -557,7 +607,7 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
               boxShadow: _canProceed
                   ? [
                       BoxShadow(
-                        color: cs.primary.withValues(alpha: 0.2),
+                        color: cs.primary.withOpacity(0.2),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -568,9 +618,8 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
               color: Colors.transparent,
               child: InkWell(
                 onTap: _canProceed
-                    ? () {
-                        // TODO: Save agreements and navigate
-                        context.go('/home');
+                    ? () async {
+                        await _handleAgreementAndProceed();
                       }
                     : null,
                 borderRadius: BorderRadius.circular(16),

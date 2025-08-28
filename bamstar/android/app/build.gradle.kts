@@ -76,6 +76,22 @@ flutter {
     source = "../.."
 }
 
+configurations.all {
+    exclude(group = "com.google.firebase", module = "firebase-iid")
+}
+
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    // Force the latest firebase-messaging version
+    implementation("com.google.firebase:firebase-messaging") {
+        exclude(group = "com.google.firebase", module = "firebase-iid")
+    }
+    // Explicitly exclude firebase-iid everywhere
+    implementation("com.google.firebase:firebase-analytics") {
+        exclude(group = "com.google.firebase", module = "firebase-iid")
+    }
+}
+
 // Apply Google Services plugin to generate Firebase resource values from
 // google-services.json at build time.
 apply(plugin = "com.google.gms.google-services")
