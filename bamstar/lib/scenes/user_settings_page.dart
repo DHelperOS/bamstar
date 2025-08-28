@@ -430,12 +430,7 @@ class _UserSettingsPageState extends State<UserSettingsPage>
               icon: SolarIconsOutline.mapPoint,
               title: '어디에서 빛나고 싶으신가요?',
               subtitle: '선호 지역을 중심으로 추천해 드려요.',
-              trailing: _isRegionComplete
-                  ? _buildStatusIcon(_isRegionComplete, _hasRegionData)
-                  : const Icon(
-                      SolarIconsOutline.arrowRight,
-                      color: Color(0xFF919EAB),
-                    ),
+              trailing: _buildStatusIcon(_isRegionComplete, _hasRegionData),
               onTap: () async {
                 final res = await Navigator.of(
                   context,
