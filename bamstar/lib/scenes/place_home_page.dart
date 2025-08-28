@@ -9,6 +9,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:bamstar/theme/typography.dart';
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/user_settings_page.dart';
+import 'package:bamstar/scenes/place_settings_page.dart';
 import 'package:bamstar/scenes/community/community_home_page.dart';
 import '../utils/toast_helper.dart';
 
@@ -23,13 +24,28 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+  Widget _getSettingsPage() {
+    final user = UserService.instance.user;
+    final roleId = user?.data['role_id'] as int?;
+    
+    // Route based on role_id
+    switch (roleId) {
+      case 2: // STAR role
+        return UserSettingsPage();
+      case 3: // PLACE role  
+        return PlaceSettingsPage();
+      default: // Default to user settings
+        return UserSettingsPage();
+    }
+  }
+
   late final List<Widget> _tabs = [
     HomeScreen(), // Place (Home)
     _SearchTab(),
     // Community tab is embedded so the bottom bar persists
     CommunityHomePage(),
     _ChatTab(),
-    UserSettingsPage(), // Settings
+    _getSettingsPage(), // Settings - role-based routing
   ];
 
   @override
