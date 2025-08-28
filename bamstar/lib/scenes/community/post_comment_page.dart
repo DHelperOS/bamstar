@@ -2347,9 +2347,10 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
       color: cs.surface,
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 50),
-            child: FutureBuilder<List<Map<String, dynamic>>>(
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 50),
+              child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _commentsFuture,
               builder: (context, snap) {
                 final comments = snap.data ?? [];
@@ -2395,6 +2396,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                   ),
                 );
               },
+            ),
             ),
           ),
           // 댓글 입력 UI (community_home_page 스타일)
