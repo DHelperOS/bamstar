@@ -624,7 +624,7 @@ class _RegionPreferenceContentState extends State<_RegionPreferenceContent>
                                   borderRadius: BorderRadius.circular(12),
                                   onTap: disabled
                                       ? null
-                                      : () => state.onSelected(g.id)(true),
+                                      : () => state.onSelected(g.id)(!isSelected),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 14,

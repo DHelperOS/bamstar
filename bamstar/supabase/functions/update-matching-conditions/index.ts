@@ -176,7 +176,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .select(`
         attributes!inner(
           name,
-          category,
           type
         )
       `)
@@ -199,7 +198,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .select(`
         attributes!inner(
           name,
-          category,
           type
         )
       `)
@@ -321,28 +319,14 @@ function generateMatchingConditions(
     conditions.MUST_HAVE.push(`경력: ${experienceText}`);
   }
 
-  // Process attributes
+  // Process attributes (MEMBER_STYLE only - these represent personal style/strengths)
   for (const attr of attributes) {
     const attribute = attr.attributes;
     
-    switch (attribute.category) {
-      case 'AVOID':
-        conditions.AVOID.push(attribute.name);
-        break;
-      case 'ENVIRONMENT':
-        conditions.ENVIRONMENT.workplace_features.push(attribute.name);
-        break;
-      case 'PEOPLE':
-        if (attribute.type === 'TEAM_DYNAMICS') {
-          conditions.PEOPLE.team_dynamics.push(attribute.name);
-        } else {
-          conditions.PEOPLE.communication_style.push(attribute.name);
-        }
-        break;
-      default:
-        // Style attributes go to PEOPLE.communication_style
-        conditions.PEOPLE.communication_style.push(attribute.name);
-        break;
+    // All attributes in member_attributes_link are MEMBER_STYLE type
+    // These represent personal communication style and strengths
+    if (attribute.type === 'MEMBER_STYLE') {
+      conditions.PEOPLE.communication_style.push(attribute.name);
     }
   }
 
