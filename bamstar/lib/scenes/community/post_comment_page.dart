@@ -190,49 +190,36 @@ class PostCommentPage extends StatefulWidget {
     CommunityPost post,
   ) {
     return WoltModalSheetPage(
-      // Place title in the navigation bar area with minimal vertical padding
-      // Put the title directly into the nav row so it aligns with the close icon
-      pageTitle: const SizedBox.shrink(),
-      leadingNavBarWidget: SizedBox(
-        width: double.infinity,
-        child: Row(
-          children: [
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(SolarIconsOutline.arrowLeft, size: 20),
-              onPressed: () {
-                try {
-                  FocusScope.of(modalContext).unfocus();
-                } catch (_) {}
-                Navigator.of(modalContext).pop();
-              },
-            ),
-            Expanded(
-              child: Transform.translate(
-                offset: const Offset(-22, 5), // shift left 15px and down 10px
-                child: Center(
-                  child: Text(
-                    '댓글',
-                    style: Theme.of(modalContext).textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: Theme.of(modalContext).colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
+      pageTitle: null,
+      leadingNavBarWidget: Padding(
+        padding: const EdgeInsets.only(left: 20.0),
+        child: Text(
+          '댓글',
+          style: Theme.of(modalContext).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-      trailingNavBarWidget: IconButton(
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.all(8),
-        constraints: const BoxConstraints(),
-        icon: const Icon(SolarIconsOutline.closeCircle, size: 20),
-        onPressed: () {
-          try {
-            FocusScope.of(modalContext).unfocus();
-          } catch (_) {}
-          Navigator.of(modalContext).pop();
-        },
+      trailingNavBarWidget: Container(
+        margin: const EdgeInsets.only(right: 20.0),
+        child: IconButton(
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.all(8),
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          icon: Icon(
+            Icons.close_rounded,
+            size: 20,
+            color: Theme.of(modalContext).colorScheme.onSurfaceVariant,
+          ),
+          onPressed: () {
+            try {
+              FocusScope.of(modalContext).unfocus();
+            } catch (_) {}
+            Navigator.of(modalContext).pop();
+          },
+        ),
       ),
       // Use a modal-specific child (no Scaffold) to avoid nesting a full
       // Scaffold inside the WoltModalSheet page which can hide content.
@@ -1333,18 +1320,37 @@ class _PostCommentPageState extends State<PostCommentPage> {
               // 댓글 작성 모달 열기
               WoltModalSheet.show(
                 context: context,
-                pageListBuilder: (context) => [
+                pageListBuilder: (modalCtx) => [
                   WoltModalSheetPage(
-                    hasSabGradient: false,
-                    topBarTitle: Text('댓글 쓰기', style: tt.titleLarge),
-                    isTopBarLayerAlwaysVisible: true,
-                    trailingNavBarWidget: IconButton(
-                      padding: const EdgeInsets.all(8),
-                      icon: const Icon(SolarIconsOutline.closeCircle, size: 24),
-                      onPressed: () => Navigator.of(context).pop(),
+                    backgroundColor: Theme.of(modalCtx).colorScheme.surface,
+                    surfaceTintColor: Colors.transparent,
+                    pageTitle: null,
+                    leadingNavBarWidget: Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Text(
+                        '댓글 쓰기',
+                        style: Theme.of(modalCtx).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.7,
+                    trailingNavBarWidget: Container(
+                      margin: const EdgeInsets.only(right: 20.0),
+                      child: IconButton(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.all(8),
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                        icon: Icon(
+                          Icons.close_rounded,
+                          size: 20,
+                          color: Theme.of(modalCtx).colorScheme.onSurfaceVariant,
+                        ),
+                        onPressed: () => Navigator.of(modalCtx).pop(),
+                      ),
+                    ),
+                    child: Container(
+                      color: Theme.of(modalCtx).colorScheme.surface,
+                      height: MediaQuery.of(modalCtx).size.height * 0.7,
                       child: _PostCommentModalChild(post: widget.post),
                     ),
                   ),
@@ -2338,13 +2344,11 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: Stack(
+      color: cs.surface,
+      child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 50),
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _commentsFuture,
               builder: (context, snap) {
@@ -2400,7 +2404,7 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             right: 0,
             child: Container(
               color: cs.surface,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
               child: Column(
                 children: [
                   // Image preview section for modal
@@ -2463,8 +2467,8 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                   // Input container
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 7,
-                      horizontal: 12,
+                      vertical: 2,
+                      horizontal: 4,
                     ),
                     child: Row(
                       children: [
@@ -2529,7 +2533,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             ),
           ),
         ],
-      ),
       ),
     );
   }
