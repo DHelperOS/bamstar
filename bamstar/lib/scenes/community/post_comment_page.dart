@@ -2345,11 +2345,12 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
 
     return Container(
       color: cs.surface,
-      child: Stack(
+      height: MediaQuery.of(context).size.height * 0.65,
+      child: Column(
         children: [
-          Positioned.fill(
+          Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 50),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: FutureBuilder<List<Map<String, dynamic>>>(
               future: _commentsFuture,
               builder: (context, snap) {
@@ -2400,13 +2401,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             ),
           ),
           // 댓글 입력 UI (community_home_page 스타일)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
+          Container(
               color: cs.surface,
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Column(
                 children: [
                   // Image preview section for modal
@@ -2469,18 +2466,25 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                   // Input container
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                      horizontal: 4,
+                      vertical: 8,
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(24),
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(width: 8),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 1),
+                            padding: const EdgeInsets.symmetric(vertical: 4),
                             child: TextFormField(
                               controller: _commentCtl,
                               onFieldSubmitted: (_) => _submitComment(),
+                              minLines: 1,
+                              maxLines: 3,
                               style: tt.bodyMedium?.copyWith(
                                 color: cs.onSurfaceVariant,
                               ),
@@ -2533,7 +2537,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
                 ],
               ),
             ),
-          ),
         ],
       ),
     );

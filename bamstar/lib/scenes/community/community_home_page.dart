@@ -623,39 +623,14 @@ final Map<String, us.AppUser?> _authorCache = {};
 Future<us.AppUser?> _getAuthor(String? id) async {
   if (id == null) return null;
   
-  print('DEBUG: _getAuthor called for id: $id');
-  
-  // Check cache
+  // Check cache efficiently
   if (_authorCache.containsKey(id)) {
-    final cachedUser = _authorCache[id];
-    if (cachedUser != null) {
-      print('DEBUG: Found in cache: ${cachedUser.nickname}');
-      return cachedUser;
-    }
-  }
-  
-  // If it's the problematic user, create a default user for now
-  if (id == 'dec82a2d-16c6-4e03-8be0-9b867b9af382') {
-    print('DEBUG: Creating default user for dec82a2d-16c6-4e03-8be0-9b867b9af382');
-    final u = us.AppUser(
-      id: id,
-      nickname: '스타#1', 
-      email: 'ymimi9512@gmail.com',
-      data: {
-        'profile_img': 'https://res.cloudinary.com/dqxy2qchy/image/upload/f_auto,q_auto,c_fill,w_256,h_256,g_auto/v1756312597/user_avatars/users/dec82a2d-16c6-4e03-8be0-9b867b9af382.jpg',
-        'id': id,
-        'nickname': '스타#1',
-        'email': 'ymimi9512@gmail.com',
-      },
-    );
-    _authorCache[id] = u;
-    return u;
+    return _authorCache[id];
   }
   
   try {
     final client = Supabase.instance.client;
     
-    print('DEBUG: Querying database for user: $id');
     
     final res = await client
         .from('users')
@@ -663,14 +638,10 @@ Future<us.AppUser?> _getAuthor(String? id) async {
         .eq('id', id)
         .maybeSingle();
     
-    print('DEBUG: Database response: $res');
     
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       
-      print('DEBUG: User row data: $row');
-      print('DEBUG: nickname: ${row['nickname']}');
-      print('DEBUG: profile_img: ${row['profile_img']}');
       
       final u = us.AppUser(
         id: row['id'] as String,
@@ -683,13 +654,14 @@ Future<us.AppUser?> _getAuthor(String? id) async {
       );
       
       _authorCache[id] = u;
-      print('DEBUG: User cached successfully');
       return u;
     } else {
-      print('DEBUG: No user found in database');
+      // Cache null to avoid repeated lookups for non-existent users
+      _authorCache[id] = null;
     }
   } catch (e) {
-    print('DEBUG: Error fetching user: $e');
+    // Cache null to prevent repeated failed lookups
+    _authorCache[id] = null;
   }
   
   return null;
@@ -711,23 +683,29 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
     
     final client = Supabase.instance.client;
     
-    // Fetch each user individually
-    // Batch fetching with OR/IN seems unreliable for some users
-    for (final id in ids) {
+    // Batch fetch all users in a single query for better performance
+    final response = await client
+        .from('users')
+        .select('*')
+        .inFilter('id', ids);
+    
+    // Process fetched users
+    for (final row in response as List) {
       try {
-        final res = await client
-            .from('users')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-        
-        if (res != null) {
-          final m = Map<String, dynamic>.from(res as Map);
+        if (row is Map) {
+          final m = Map<String, dynamic>.from(row);
           final u = us.AppUser.fromMap(m);
           _authorCache[u.id] = u;
         }
       } catch (_) {
-        // Ignore individual fetch errors
+        // Ignore individual parsing errors
+      }
+    }
+    
+    // Mark unfound IDs to prevent repeated lookups
+    for (final id in ids) {
+      if (!_authorCache.containsKey(id)) {
+        _authorCache[id] = null;
       }
     }
   } catch (_) {
@@ -2510,24 +2488,33 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           .where((id) => !_authorCache.containsKey(id))
           .toList();
       if (ids.isEmpty) return;
+      
       final client = Supabase.instance.client;
-      final idsCsv = ids.map((s) => '"$s"').join(',');
+      
+      // Use inFilter for better performance and consistency
       final res = await client
           .from('users')
           .select('*')
-          .filter('id', 'in', '($idsCsv)');
+          .inFilter('id', ids);
+          
       final List data = res as List? ?? [];
       for (final row in data) {
         try {
-          final m = Map<String, dynamic>.from(row as Map);
-          final u = us.AppUser.fromMap(m);
-          _authorCache[u.id] = u;
+          if (row is Map) {
+            final m = Map<String, dynamic>.from(row);
+            final u = us.AppUser.fromMap(m);
+            _authorCache[u.id] = u;
+          }
         } catch (_) {
           // ignore malformed rows
         }
       }
+      
+      // Mark unfound IDs to prevent repeated lookups
       for (final id in ids) {
-        if (!_authorCache.containsKey(id)) _authorCache[id] = null;
+        if (!_authorCache.containsKey(id)) {
+          _authorCache[id] = null;
+        }
       }
     } catch (_) {
       // ignore errors; fallback to per-comment fetch
@@ -2622,7 +2609,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     final twoThumbs = post.imageUrls.length >= 2;
     final hasImages = post.imageUrls.isNotEmpty;
 
-    final _cardInner = Container(
+    final cardInner = Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -3410,7 +3397,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     // Create a stacked card with a subtle top highlight to give a lit-top 3D effect
     final card = Stack(
       children: [
-        _cardInner,
+        cardInner,
         // thin gradient at the top to simulate light hitting the top edge
         Positioned(
           left: 12,
