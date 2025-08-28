@@ -623,31 +623,59 @@ final Map<String, us.AppUser?> _authorCache = {};
 Future<us.AppUser?> _getAuthor(String? id) async {
   if (id == null) return null;
   
+  print('DEBUG: _getAuthor called for id: $id');
+  
   // Check cache
   if (_authorCache.containsKey(id)) {
     final cachedUser = _authorCache[id];
     if (cachedUser != null) {
+      print('DEBUG: Found in cache: ${cachedUser.nickname}');
       return cachedUser;
     }
-    // If cache has null, try to fetch again
   }
   
   try {
     final client = Supabase.instance.client;
+    
+    // First, let's check what we get from the database
+    print('DEBUG: Querying database for user: $id');
+    
     final res = await client
         .from('users')
         .select('*')
         .eq('id', id)
         .maybeSingle();
     
+    print('DEBUG: Database response: $res');
+    
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
-      final u = us.AppUser.fromMap(row);
+      
+      // Check the actual data structure
+      print('DEBUG: User row data: $row');
+      print('DEBUG: nickname: ${row['nickname']}');
+      print('DEBUG: profile_img: ${row['profile_img']}');
+      print('DEBUG: data field: ${row['data']}');
+      
+      // Create AppUser - but profile_img is at root level, not in data
+      final u = us.AppUser(
+        id: row['id'] as String,
+        nickname: (row['nickname'] as String?) ?? '사용자',
+        email: (row['email'] as String?) ?? '',
+        data: {
+          ...row,
+          'profile_img': row['profile_img'], // Make sure profile_img is in data
+        },
+      );
+      
       _authorCache[id] = u;
+      print('DEBUG: User cached successfully');
       return u;
+    } else {
+      print('DEBUG: No user found in database');
     }
-  } catch (_) {
-    // ignore errors
+  } catch (e) {
+    print('DEBUG: Error fetching user: $e');
   }
   
   return null;
