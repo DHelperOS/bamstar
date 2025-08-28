@@ -212,7 +212,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                           _buildExperienceLevelCard(),
                           const SizedBox(height: 20),
 
-                          _buildWorkingDaysCard()
+                          _buildWorkingDaysCard(),
                           const SizedBox(height: 20),
 
                           _buildPersonalStyleCard(),
@@ -627,7 +627,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (icon != null) ..[
+                if (icon != null) ...[
                   Text(icon, style: const TextStyle(fontSize: 14)),
                   const SizedBox(width: 4),
                 ],
