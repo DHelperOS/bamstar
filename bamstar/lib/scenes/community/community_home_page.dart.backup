@@ -1694,23 +1694,10 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     final fallbackName = (c['author_name'] as String?) ?? '스타';
     final fallbackAvatar = (c['author_avatar_url'] as String?) ?? '';
 
-    return Container(
-      margin: EdgeInsets.only(
-        left: isReply ? 24 : 0,
-        bottom: 6,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: FutureBuilder<us.AppUser?>(
-          future: _getAuthor(authorId),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: FutureBuilder<us.AppUser?>(
+        future: _getAuthor(authorId),
         builder: (context, snap) {
           final user = snap.data;
           final authorName = isAnonymous
@@ -1794,7 +1781,6 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 댓글 작성자 정보 헤더
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2490,7 +2476,6 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
             ],
           );
         },
-        ),
       ),
     );
   }
@@ -2623,33 +2608,37 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
     final hasImages = post.imageUrls.isNotEmpty;
 
     final _cardInner = Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.only(top: 12, bottom: 16, left: 16, right: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFFFFFF), // Clean white background from sample
+        borderRadius: BorderRadius.circular(10), // Sample's rounded corners
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
+          color: const Color(0x0F919EAB), // Subtle border
+          width: 0.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Color(0x08000000), // Very subtle shadow
+            blurRadius: 8,
+            offset: Offset(0, 2),
+            spreadRadius: 0,
           ),
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         onTap: null,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 4,
+          ), // More generous padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -3057,7 +3046,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
               ],
               // Like row
               Padding(
-                padding: const EdgeInsets.only(top: 12, left: 8, right: 8),
+                padding: const EdgeInsets.only(top: 12, left: 24, right: 24),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -3242,7 +3231,7 @@ class _PostHtmlCardState extends State<_PostHtmlCard> {
                       ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 7,
-                        horizontal: 8,
+                        horizontal: 12,
                       ),
                       child: Row(
                         children: [

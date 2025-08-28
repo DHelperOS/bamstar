@@ -381,33 +381,11 @@ class _PostCommentPageState extends State<PostCommentPage> {
     final createdAt =
         DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
 
-    // 이미지 참고 깨끔한 카드 디자인
-    return Container(
-      margin: EdgeInsets.only(
-        left: isReply ? 32 : 0,
-        bottom: 8,
-        top: 4,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: FutureBuilder<us.AppUser?>(
-          future: _getAuthor(authorId),
-          builder: (context, snap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: FutureBuilder<us.AppUser?>(
+        future: _getAuthor(authorId),
+        builder: (context, snap) {
           final user = snap.data;
 
           // Debug: log comment metadata when building the row
@@ -1109,7 +1087,6 @@ class _PostCommentPageState extends State<PostCommentPage> {
             ],
           );
         },
-        ),
       ),
     );
   }
@@ -1139,11 +1116,11 @@ class _PostCommentPageState extends State<PostCommentPage> {
           }
         },
         child: Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             elevation: 0,
-            backgroundColor: Theme.of(context).colorScheme.surface,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             leading: IconButton(
               visualDensity: VisualDensity.compact,
               padding: const EdgeInsets.all(8),
@@ -1716,33 +1693,11 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     final createdAt =
         DateTime.tryParse(c['created_at'] as String? ?? '') ?? DateTime.now();
 
-    // 이미지 참고 깨끔한 카드 디자인
-    return Container(
-      margin: EdgeInsets.only(
-        left: isReply ? 32 : 0,
-        bottom: 8,
-        top: 4,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: FutureBuilder<us.AppUser?>(
-          future: _getAuthor(authorId),
-          builder: (context, snap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: FutureBuilder<us.AppUser?>(
+        future: _getAuthor(authorId),
+        builder: (context, snap) {
           final user = snap.data;
 
           final authorName = isAnon
@@ -2320,7 +2275,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             ],
           );
         },
-        ),
       ),
     );
   }
@@ -2337,11 +2291,9 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: Stack(
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
@@ -2545,7 +2497,6 @@ class _PostCommentModalChildState extends State<_PostCommentModalChild> {
             ),
           ),
         ],
-      ),
       ),
     );
   }
