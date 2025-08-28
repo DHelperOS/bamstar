@@ -621,25 +621,17 @@ class _CommunityHomePageState extends State<CommunityHomePage>
 final Map<String, us.AppUser?> _authorCache = {};
 
 Future<us.AppUser?> _getAuthor(String? id) async {
-  if (id == null) {
-    print('⚠️ _getAuthor: id is null');
-    return null;
-  }
-  
-  print('🔍 _getAuthor for id: $id');
+  if (id == null) return null;
   
   // Check cache
   if (_authorCache.containsKey(id)) {
     final cachedUser = _authorCache[id];
-    print('📦 Cache result: ${cachedUser?.nickname ?? "NULL in cache"}');
     if (cachedUser != null) {
-      print('✅ Returning cached user: ${cachedUser.nickname}');
       return cachedUser;
     }
-    print('⚠️ Cache has null for this user, will fetch from DB');
+    // If cache has null, try to fetch again
   }
   
-  print('🌐 Fetching from database for id: $id');
   try {
     final client = Supabase.instance.client;
     final res = await client
@@ -648,25 +640,16 @@ Future<us.AppUser?> _getAuthor(String? id) async {
         .eq('id', id)
         .maybeSingle();
     
-    print('📊 DB Response: ${res != null ? "User found" : "NULL"}');
-    if (res != null) {
-      print('📊 User data: nickname=${res['nickname']}, profile_img=${res['data']?['profile_img']}');
-    }
-    
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
       _authorCache[id] = u;
-      print('✅ User cached: ${u.nickname}');
       return u;
-    } else {
-      print('❌ User not found in DB for id: $id');
     }
-  } catch (e) {
-    print('⚠️ Error fetching user: $e');
+  } catch (_) {
+    // ignore errors
   }
   
-  print('❌ Returning null for id: $id');
   return null;
 }
 
@@ -682,48 +665,31 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .where((id) => !_authorCache.containsKey(id))
         .toList();
     
-    print('🔄 _prefetchAuthors: Need to fetch ${ids.length} users');
-    print('🆔 IDs to fetch: $ids');
-    
-    if (ids.isEmpty) {
-      print('✅ All users already cached');
-      return;
-    }
+    if (ids.isEmpty) return;
     
     final client = Supabase.instance.client;
-    // Build OR query for multiple IDs
-    final orQuery = ids.map((id) => 'id.eq.$id').join(',');
-    print('🔧 OR Query: $orQuery');
     
-    final res = await client
-        .from('users')
-        .select('*')
-        .or(orQuery);
-    
-    print('📋 Prefetch result: ${res?.toString() ?? "NULL"}');
-    
-    final List data = res as List? ?? [];
-    print('📋 Got ${data.length} users from DB');
-    
-    for (final row in data) {
-      try {
-        final m = Map<String, dynamic>.from(row as Map);
-        final u = us.AppUser.fromMap(m);
-        print('👤 Caching user: ${u.id} -> ${u.nickname}');
-        _authorCache[u.id] = u;
-      } catch (e) {
-        print('⚠️ Error parsing user row: $e');
-      }
-    }
-    
-    // Check if any IDs were not found
+    // Fetch each user individually
+    // Batch fetching with OR/IN seems unreliable for some users
     for (final id in ids) {
-      if (!_authorCache.containsKey(id) || _authorCache[id] == null) {
-        print('⚠️ User $id was not found in batch fetch');
+      try {
+        final res = await client
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+        
+        if (res != null) {
+          final m = Map<String, dynamic>.from(res as Map);
+          final u = us.AppUser.fromMap(m);
+          _authorCache[u.id] = u;
+        }
+      } catch (_) {
+        // Ignore individual fetch errors
       }
     }
-  } catch (e) {
-    print('❌ _prefetchAuthors error: $e');
+  } catch (_) {
+    // Ignore batch errors
   }
 }
 
