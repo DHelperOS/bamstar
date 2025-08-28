@@ -621,17 +621,25 @@ class _CommunityHomePageState extends State<CommunityHomePage>
 final Map<String, us.AppUser?> _authorCache = {};
 
 Future<us.AppUser?> _getAuthor(String? id) async {
-  if (id == null) return null;
-  
-  // Check cache - but only return if we have a valid user (not null)
-  if (_authorCache.containsKey(id)) {
-    final cachedUser = _authorCache[id];
-    if (cachedUser != null) {
-      return cachedUser;
-    }
-    // If cache has null, try to fetch again (user might have been created since)
+  if (id == null) {
+    print('⚠️ _getAuthor: id is null');
+    return null;
   }
   
+  print('🔍 _getAuthor for id: $id');
+  
+  // Check cache
+  if (_authorCache.containsKey(id)) {
+    final cachedUser = _authorCache[id];
+    print('📦 Cache result: ${cachedUser?.nickname ?? "NULL in cache"}');
+    if (cachedUser != null) {
+      print('✅ Returning cached user: ${cachedUser.nickname}');
+      return cachedUser;
+    }
+    print('⚠️ Cache has null for this user, will fetch from DB');
+  }
+  
+  print('🌐 Fetching from database for id: $id');
   try {
     final client = Supabase.instance.client;
     final res = await client
@@ -640,16 +648,25 @@ Future<us.AppUser?> _getAuthor(String? id) async {
         .eq('id', id)
         .maybeSingle();
     
+    print('📊 DB Response: ${res != null ? "User found" : "NULL"}');
+    if (res != null) {
+      print('📊 User data: nickname=${res['nickname']}, profile_img=${res['data']?['profile_img']}');
+    }
+    
     if (res != null) {
       final row = Map<String, dynamic>.from(res as Map);
       final u = us.AppUser.fromMap(row);
       _authorCache[id] = u;
+      print('✅ User cached: ${u.nickname}');
       return u;
+    } else {
+      print('❌ User not found in DB for id: $id');
     }
-  } catch (_) {
-    // ignore errors but don't cache null
+  } catch (e) {
+    print('⚠️ Error fetching user: $e');
   }
-  // Don't cache null - the user might exist but there was a network error
+  
+  print('❌ Returning null for id: $id');
   return null;
 }
 
@@ -665,29 +682,48 @@ Future<void> _prefetchAuthors(List<CommunityPost> posts) async {
         .where((id) => !_authorCache.containsKey(id))
         .toList();
     
-    if (ids.isEmpty) return;
+    print('🔄 _prefetchAuthors: Need to fetch ${ids.length} users');
+    print('🆔 IDs to fetch: $ids');
+    
+    if (ids.isEmpty) {
+      print('✅ All users already cached');
+      return;
+    }
+    
     final client = Supabase.instance.client;
     // Build OR query for multiple IDs
     final orQuery = ids.map((id) => 'id.eq.$id').join(',');
+    print('🔧 OR Query: $orQuery');
+    
     final res = await client
         .from('users')
         .select('*')
         .or(orQuery);
     
+    print('📋 Prefetch result: ${res?.toString() ?? "NULL"}');
+    
     final List data = res as List? ?? [];
+    print('📋 Got ${data.length} users from DB');
+    
     for (final row in data) {
       try {
         final m = Map<String, dynamic>.from(row as Map);
         final u = us.AppUser.fromMap(m);
+        print('👤 Caching user: ${u.id} -> ${u.nickname}');
         _authorCache[u.id] = u;
-      } catch (_) {
-        // ignore malformed rows
+      } catch (e) {
+        print('⚠️ Error parsing user row: $e');
       }
     }
-    // Don't mark missing ids as null
-    // Let _getAuthor handle individual fetching if needed
-  } catch (_) {
-    // ignore network errors
+    
+    // Check if any IDs were not found
+    for (final id in ids) {
+      if (!_authorCache.containsKey(id) || _authorCache[id] == null) {
+        print('⚠️ User $id was not found in batch fetch');
+      }
+    }
+  } catch (e) {
+    print('❌ _prefetchAuthors error: $e');
   }
 }
 
