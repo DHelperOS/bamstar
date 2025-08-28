@@ -14,53 +14,57 @@ class ToastHelper {
 
   /// Show info toast (blue theme)
   static void info(BuildContext context, String message, {String? title}) {
+    final colorScheme = Theme.of(context).colorScheme;
     _showToast(
       context: context,
       message: message,
       title: title ?? '알림',
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      iconColor: Theme.of(context).colorScheme.primary,
-      textColor: Theme.of(context).colorScheme.onPrimaryContainer,
-      icon: Icons.info_rounded,
+      backgroundColor: colorScheme.surfaceContainer,
+      iconColor: colorScheme.primary,
+      textColor: colorScheme.onSurface,
+      icon: Icons.info_outline_rounded,
     );
   }
 
   /// Show success toast (green theme)
   static void success(BuildContext context, String message, {String? title}) {
+    final colorScheme = Theme.of(context).colorScheme;
     _showToast(
       context: context,
       message: message,
       title: title ?? '완료',
-      backgroundColor: const Color(0xFFE8F5E8),
+      backgroundColor: colorScheme.surfaceContainer,
       iconColor: const Color(0xFF4CAF50),
-      textColor: const Color(0xFF2E7D32),
-      icon: Icons.check_circle_rounded,
+      textColor: colorScheme.onSurface,
+      icon: Icons.check_circle_outline_rounded,
     );
   }
 
   /// Show warning toast (orange theme)
   static void warning(BuildContext context, String message, {String? title}) {
+    final colorScheme = Theme.of(context).colorScheme;
     _showToast(
       context: context,
       message: message,
       title: title ?? '주의',
-      backgroundColor: const Color(0xFFFFF3E0),
+      backgroundColor: colorScheme.surfaceContainer,
       iconColor: const Color(0xFFFF9800),
-      textColor: const Color(0xFFE65100),
-      icon: Icons.warning_rounded,
+      textColor: colorScheme.onSurface,
+      icon: Icons.warning_amber_outlined,
     );
   }
 
   /// Show error toast (red theme)
   static void error(BuildContext context, String message, {String? title}) {
+    final colorScheme = Theme.of(context).colorScheme;
     _showToast(
       context: context,
       message: message,
       title: title ?? '오류',
-      backgroundColor: Theme.of(context).colorScheme.errorContainer,
-      iconColor: Theme.of(context).colorScheme.error,
-      textColor: Theme.of(context).colorScheme.onErrorContainer,
-      icon: Icons.error_rounded,
+      backgroundColor: colorScheme.surfaceContainer,
+      iconColor: colorScheme.error,
+      textColor: colorScheme.onSurface,
+      icon: Icons.error_outline_rounded,
     );
   }
 
@@ -75,53 +79,39 @@ class ToastHelper {
     required IconData icon,
   }) {
     // Capture theme-dependent values BEFORE the builder to avoid using a deactivated context.
-    final shadowColor = Theme.of(context).colorScheme.shadow;
-    final titleStyle = AppTextStyles.formLabel(context).copyWith(
+    final titleStyle = AppTextStyles.captionText(context).copyWith(
       color: textColor,
       fontWeight: FontWeight.w600,
     );
-    final messageStyle = AppTextStyles.primaryText(context).copyWith(
+    final messageStyle = AppTextStyles.captionText(context).copyWith(
       color: textColor,
     );
 
     DelightToastBar(
       autoDismiss: true,
-      animationDuration: const Duration(milliseconds: 300),
-      snackbarDuration: const Duration(seconds: 4),
+      animationDuration: const Duration(milliseconds: 250),
+      snackbarDuration: const Duration(seconds: 3),
       builder: (ctx) => Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: iconColor.withOpacity(0.2),
-            width: 1,
+            color: iconColor.withValues(alpha: 0.3),
+            width: 0.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor.withOpacity(0.1),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 24,
-                ),
+              Icon(
+                icon,
+                color: iconColor,
+                size: 16,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -131,10 +121,11 @@ class ToastHelper {
                       title,
                       style: titleStyle,
                     ),
-                    const SizedBox(height: 4),
                     Text(
                       message,
                       style: messageStyle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
