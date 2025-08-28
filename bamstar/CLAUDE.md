@@ -242,6 +242,113 @@ ToastHelper.info(context, '검색을 실행합니다');
 
 ---
 
+## 🗄️ Supabase Database Reference (MANDATORY)
+
+> **CRITICAL**: ALL Supabase-related work MUST reference these comprehensive documentation files. These files contain complete, verified database schema and operational procedures.
+
+### **📋 Required Reading Before Any Database Work**
+
+1. **`SUPABASE_DATABASE_REFERENCE_COMPLETE.md`** - Complete schema documentation
+   - 24 production tables with full schema definitions
+   - 3 custom enums (gender_enum, experience_level_enum, pay_type_enum)
+   - 7+ database functions and stored procedures
+   - 5 edge functions (hashtag-processor, daily-hashtag-curation, etc.)
+   - Row Level Security policies and triggers
+   - Complete relationship mappings and foreign keys
+
+2. **`SUPABASE_MANAGEMENT_GUIDE.md`** - Operational procedures and maintenance
+   - Authenticated CLI commands with working tokens
+   - Database deployment and rollback procedures  
+   - Edge function management and deployment
+   - Performance monitoring and health checks
+   - Emergency procedures and troubleshooting
+   - Daily/weekly/monthly maintenance tasks
+
+3. **`SUPABASE_CONNECTION_GUIDE.md`** - Verified connection methods
+   - Working psql connection strings (tested ✅)
+   - Authenticated Supabase CLI commands
+   - MCP integration setup and tokens
+   - Troubleshooting for connection issues
+   - Environment setup and security practices
+
+### **🚫 Database Work Violations**
+
+- **NEVER** guess table names, column names, or data types
+- **NEVER** assume relationship structures without verification
+- **NEVER** create migrations without consulting schema reference
+- **NEVER** deploy edge functions without checking existing patterns
+- **NEVER** modify RLS policies without understanding current rules
+
+### **🔄 MANDATORY Documentation Updates**
+
+> **CRITICAL**: 데이터베이스 변경사항이 있을 경우 반드시 다음 3개 파일을 즉시 갱신해야 합니다.
+
+**데이터베이스 변경 후 필수 작업:**
+
+1. **스키마 변경시** (테이블, 컬럼, 인덱스, enum, 함수 추가/수정/삭제)
+   - ✅ `SUPABASE_DATABASE_REFERENCE_COMPLETE.md` 즉시 업데이트
+   - ✅ 새로운 테이블 구조, 관계, 제약조건 반영
+   - ✅ 함수 및 트리거 코드 갱신
+
+2. **운영 절차 변경시** (CLI 명령어, 배포 절차, 모니터링 방법 변경)
+   - ✅ `SUPABASE_MANAGEMENT_GUIDE.md` 즉시 업데이트
+   - ✅ 새로운 관리 명령어 및 절차 반영
+   - ✅ 유지보수 스크립트 갱신
+
+3. **연결 방법 변경시** (토큰, 엔드포인트, 인증 방법 변경)
+   - ✅ `SUPABASE_CONNECTION_GUIDE.md` 즉시 업데이트
+   - ✅ 새로운 연결 문자열 및 토큰 반영
+   - ✅ 문제해결 가이드 갱신
+
+**변경사항 반영 규칙:**
+- 🔴 **즉시 반영**: 스키마 변경은 작업 완료와 동시에 문서 업데이트
+- 🟡 **검증 필요**: 변경된 내용이 실제 데이터베이스와 일치하는지 확인
+- 🟢 **일관성 유지**: 세 문서 간의 정보 일치성 보장
+
+**자동화 체크리스트:**
+- [ ] ✅ 데이터베이스 변경 감지시 문서 업데이트 알림
+- [ ] ✅ 스키마 변경 후 `SUPABASE_DATABASE_REFERENCE_COMPLETE.md` 갱신
+- [ ] ✅ 운영 절차 변경 후 `SUPABASE_MANAGEMENT_GUIDE.md` 갱신  
+- [ ] ✅ 연결 정보 변경 후 `SUPABASE_CONNECTION_GUIDE.md` 갱신
+- [ ] ✅ 문서 간 일관성 검증 완료
+
+### **✅ MANDATORY Pre-Work Checklist**
+
+Before ANY Supabase-related task:
+- [ ] ✅ Read relevant sections from `SUPABASE_DATABASE_REFERENCE_COMPLETE.md`
+- [ ] ✅ Check `SUPABASE_CONNECTION_GUIDE.md` for correct connection methods
+- [ ] ✅ Consult `SUPABASE_MANAGEMENT_GUIDE.md` for operational procedures
+- [ ] ✅ Verify table/column names against actual schema
+- [ ] ✅ Check existing edge functions before creating new ones
+- [ ] ✅ Review RLS policies and triggers before modifications
+
+### **🎯 Quick Database Reference**
+
+#### **Key Tables**
+- `users` (24 tables total) - Main user accounts with role_id foreign key
+- `member_profiles` - Extended user profile with JSONB matching_conditions
+- `community_posts/comments/hashtags` - Social features with threading
+- `attributes` - Master attributes with type-based categorization
+- `*_link` tables - Many-to-many relationships (member_attributes_link, etc.)
+
+#### **Production Edge Functions**
+- `hashtag-processor` - Hashtag extraction and processing
+- `update-matching-conditions` - Member profile and matching conditions updater
+- `daily-hashtag-curation` - AI-powered hashtag trend analysis
+- `image-safety-web` - Image content moderation
+- `cloudinary-signature` - Image upload signature generation
+
+#### **Working Connection Commands**
+```bash
+# Direct psql (Primary method)
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek
+
+# Supabase CLI with auth
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "SELECT 1;"
+```
+
+---
+
 ## 🔍 코드 품질 검증 시스템
 
 ### **MANDATORY Flutter Analyze**

@@ -1,431 +1,333 @@
-# BamStar Supabase 관리 지침
+# BamStar Supabase Management Guide
 
-**목적**: 모든 데이터베이스 변경사항을 체계적으로 관리하고 문서화
-
----
-
-## 📋 DB 변경 관리 원칙
-
-### 1. 모든 변경은 마이그레이션으로
-- ✅ **DO**: SQL 마이그레이션 파일 생성
-- ❌ **DON'T**: Supabase 대시보드에서 직접 수정
-- ❌ **DON'T**: SQL 에디터에서 직접 실행
-
-### 2. 마이그레이션 파일 명명 규칙
-```
-YYYYMMDDHHMMSS_descriptive_name.sql
-
-예시:
-20250826143000_add_user_preferences_table.sql
-20250826143100_create_notification_system.sql
-20250826143200_update_community_posts_add_pinned.sql
-```
-
-### 3. 변경사항 분류
-- **CREATE**: 새 테이블/함수/인덱스 생성
-- **ALTER**: 기존 구조 수정
-- **DROP**: 테이블/컬럼/함수 삭제
-- **DATA**: 데이터 수정/초기화
-- **INDEX**: 인덱스 관련 변경
-- **RLS**: 보안 정책 변경
+**Last Updated:** 2025-08-28  
+**Project:** BamStar  
+**Project ID:** `tflvicpgyycvhttctcek`  
+**Region:** Northeast Asia (Seoul)  
+**Environment:** Production
 
 ---
 
-## 🔧 실습 가이드
+## 🔑 Authentication & Access Tokens
 
-### Step 1: 마이그레이션 파일 생성
-
-#### 방법 1: 수동 생성 (권장)
+### **Access Tokens**
 ```bash
-# 파일 생성
-touch supabase/migrations/$(date +%Y%m%d%H%M%S)_your_change_description.sql
+# Primary Supabase CLI Access Token
+export SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
 
-# 예시
-touch supabase/migrations/20250826143000_add_user_preferences.sql
+# MCP Server Auth Token
+export MCP_AUTH_TOKEN=sb_secret_6gi2ZmG0XtspzcWuGVUkFw_OLfPWItH
 ```
 
-#### 방법 2: Supabase CLI 사용
-```bash
-# 현재 스키마 상태 기록
-supabase db diff --schema public --file new_migration
+### **Database Credentials**
+- **Host:** `aws-1-ap-northeast-2.pooler.supabase.com`
+- **Port:** `6543`
+- **Database:** `postgres`
+- **Username:** `postgres.tflvicpgyycvhttctcek`
+- **Password:** `!@Wnrsmsek1`
 
-# 또는 빈 마이그레이션 생성
-supabase migration new your_change_description
+---
+
+## 🛠️ Essential Management Commands
+
+### **Project Management**
+```bash
+# List all projects
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
+
+# Get project details
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects api-keys --project-ref tflvicpgyycvhttctcek
+
+# Link local environment to project
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase link --project-ref tflvicpgyycvhttctcek
 ```
 
-### Step 2: 마이그레이션 작성
+### **Database Operations**
+```bash
+# Execute SQL query
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "SELECT COUNT(*) FROM users;"
 
-```sql
--- 20250826143000_add_user_preferences.sql
--- 목적: 사용자 환경설정 테이블 추가
+# Execute SQL file
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --file migration.sql
 
--- 1. 테이블 생성
-CREATE TABLE IF NOT EXISTS user_preferences (
-    id BIGSERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    notification_enabled BOOLEAN DEFAULT TRUE,
-    theme TEXT DEFAULT 'auto' CHECK (theme IN ('light', 'dark', 'auto')),
-    language TEXT DEFAULT 'ko' CHECK (language IN ('ko', 'en', 'ja')),
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    CONSTRAINT unique_user_preferences UNIQUE(user_id)
-);
+# Database schema dump
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db dump --linked -f schema_dump.sql
 
--- 2. 인덱스 생성
-CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id 
-ON user_preferences(user_id);
+# Push local migrations to remote
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek
 
--- 3. RLS 활성화
-ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
-
--- 4. RLS 정책 생성
-CREATE POLICY "Users can manage their own preferences" ON user_preferences
-FOR ALL USING (user_id = auth.uid());
-
--- 5. 권한 부여
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_preferences TO authenticated;
-GRANT USAGE ON SEQUENCE user_preferences_id_seq TO authenticated;
-
--- 6. 기본 데이터 삽입 (필요시)
--- INSERT INTO user_preferences (user_id) 
--- SELECT id FROM auth.users WHERE id NOT IN (SELECT user_id FROM user_preferences);
+# Reset database to latest migrations
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db reset --linked
 ```
 
-### Step 3: 마이그레이션 테스트 (로컬)
-
+### **Migration Management**
 ```bash
-# Docker 컨테이너 시작 (필요시)
-supabase start
+# Create new migration
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration new migration_name
 
-# 마이그레이션 적용 테스트
-supabase db reset
+# List all migrations
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration list --project-ref tflvicpgyycvhttctcek
 
-# 특정 마이그레이션만 테스트
-supabase migration up --target 20250826143000
+# Apply specific migration
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration apply --project-ref tflvicpgyycvhttctcek
 ```
 
-### Step 4: 프로덕션 배포
-
+### **Edge Functions Management**
 ```bash
-# ⚠️ 주의: 프로덕션 배포 전 반드시 백업
+# List all edge functions
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions list --project-ref tflvicpgyycvhttctcek
 
-# 연결된 프로젝트에 배포
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b \
-supabase db push --linked
+# Deploy specific edge function
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy hashtag-processor --project-ref tflvicpgyycvhttctcek
 
-# 또는 프로젝트 지정
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b \
-supabase db push --project-ref tflvicpgyycvhttctcek
-```
+# Deploy all edge functions
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy --project-ref tflvicpgyycvhttctcek
 
-### Step 5: 문서 업데이트
-
-```bash
-# 1. SUPABASE_DATABASE_REFERENCE.md 업데이트
-# - 새 테이블 스키마 추가
-# - 새 함수 문서화  
-# - 인덱스 정보 업데이트
-
-# 2. 변경사항 커밋
-git add supabase/migrations/ SUPABASE_DATABASE_REFERENCE.md
-git commit -m "feat: add user preferences system
-
-- Add user_preferences table with theme/language settings
-- Add RLS policies for user data protection  
-- Add indexes for performance optimization
-
-Migration: 20250826143000_add_user_preferences.sql"
+# Deploy with no JWT verification (for development)
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy function-name --project-ref tflvicpgyycvhttctcek --no-verify-jwt
 ```
 
 ---
 
-## 📁 파일 구조 관리
+## 📊 Monitoring & Health Checks
 
-### 프로젝트 구조
-```
-bamstar/
-├── supabase/
-│   ├── migrations/
-│   │   ├── 20250826000001_create_report_system.sql ✅
-│   │   ├── 20250826143000_add_user_preferences.sql (예시)
-│   │   └── ...
-│   └── functions/ (Edge Functions - 별도 배포)
-│       ├── hashtag-processor/
-│       ├── daily-hashtag-curation/
-│       └── ...
-├── SUPABASE_DATABASE_REFERENCE.md ✅
-├── SUPABASE_MANAGEMENT_GUIDE.md ✅
-└── dev/
-    └── sql/ (개발용 SQL 스크립트)
-        ├── community_search_and_rpcs.sql ✅
-        └── ...
-```
-
-### 마이그레이션 디렉토리 규칙
-- **시간순 정렬**: 파일명으로 실행 순서 보장
-- **설명적 이름**: 변경 내용을 명확히 표현
-- **원자성**: 각 마이그레이션은 독립적으로 실행 가능
-- **되돌리기**: 필요시 롤백 가능하도록 설계
-
----
-
-## ⚠️ 주의사항
-
-### 마이그레이션 작성 시 고려사항
-
-#### 1. 안전성 확보
-```sql
--- ✅ GOOD: IF NOT EXISTS 사용
-CREATE TABLE IF NOT EXISTS new_table (...);
-CREATE INDEX IF NOT EXISTS idx_name ON table_name(...);
-
--- ❌ BAD: 조건 없는 생성
-CREATE TABLE new_table (...);  -- 실패 시 마이그레이션 중단
-```
-
-#### 2. 기본값 설정
-```sql
--- ✅ GOOD: 기존 데이터 호환성 고려
-ALTER TABLE users ADD COLUMN notification_enabled BOOLEAN DEFAULT TRUE;
-
--- ❌ BAD: NOT NULL without DEFAULT (기존 레코드 오류)
-ALTER TABLE users ADD COLUMN notification_enabled BOOLEAN NOT NULL;
-```
-
-#### 3. 제약조건 처리
-```sql
--- ✅ GOOD: 단계별 적용
-ALTER TABLE users ADD COLUMN email TEXT;
-UPDATE users SET email = 'temp@example.com' WHERE email IS NULL;
-ALTER TABLE users ALTER COLUMN email SET NOT NULL;
-
--- ❌ BAD: 즉시 NOT NULL (데이터 없으면 실패)
-ALTER TABLE users ADD COLUMN email TEXT NOT NULL;
-```
-
-#### 4. 인덱스 동시성
-```sql
--- ✅ GOOD: CONCURRENTLY 사용 (프로덕션)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_name ON table_name(column);
-
--- ❌ BAD: 테이블 락 발생
-CREATE INDEX idx_name ON table_name(column);
-```
-
-### 롤백 전략
-
-#### 1. 마이그레이션 롤백
+### **Database Health**
 ```bash
-# 특정 버전으로 되돌리기
-supabase migration down --target 20250825000000
+# Check connection status
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase status
 
-# 한 단계만 되돌리기  
-supabase migration down
+# Check table counts
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT 
+  schemaname,
+  tablename,
+  n_tup_ins as inserts,
+  n_tup_upd as updates,
+  n_tup_del as deletes
+FROM pg_stat_user_tables 
+ORDER BY n_tup_ins DESC;"
+
+# Check active connections
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT COUNT(*) as active_connections 
+FROM pg_stat_activity 
+WHERE state = 'active';"
 ```
 
-#### 2. 수동 롤백 SQL 준비
-```sql
--- 각 마이그레이션 파일에 롤백 명령 주석으로 기록
--- ROLLBACK COMMANDS:
--- DROP TABLE IF EXISTS user_preferences;
--- DROP INDEX IF EXISTS idx_user_preferences_user_id;
-```
-
----
-
-## 🔍 모니터링 및 검증
-
-### 마이그레이션 후 검증
-
-#### 1. 테이블 구조 확인
-```sql
--- 테이블 생성 확인
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' AND table_name = 'user_preferences';
-
--- 컬럼 정보 확인
-SELECT column_name, data_type, is_nullable, column_default
-FROM information_schema.columns 
-WHERE table_name = 'user_preferences';
-```
-
-#### 2. 인덱스 확인
-```sql
--- 인덱스 생성 확인
-SELECT indexname, indexdef FROM pg_indexes 
-WHERE tablename = 'user_preferences';
-```
-
-#### 3. RLS 정책 확인
-```sql
--- RLS 활성화 상태 확인
-SELECT schemaname, tablename, rowsecurity FROM pg_tables 
-WHERE tablename = 'user_preferences';
-
--- 정책 목록 확인
-SELECT policyname, roles, cmd, qual FROM pg_policies 
-WHERE tablename = 'user_preferences';
-```
-
-#### 4. 함수 확인
-```sql
--- 함수 존재 확인
-SELECT routine_name, routine_type FROM information_schema.routines 
-WHERE routine_schema = 'public' AND routine_name LIKE '%new_function%';
-```
-
-### 성능 모니터링
-
-#### 1. 쿼리 성능 확인
-```sql
--- 느린 쿼리 모니터링
-SELECT query, mean_exec_time, calls, total_exec_time
+### **Performance Monitoring**
+```bash
+# Check slow queries
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT query, calls, total_time, mean_time 
 FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC LIMIT 10;
-```
+ORDER BY total_time DESC 
+LIMIT 10;"
 
-#### 2. 인덱스 사용률
-```sql  
--- 인덱스 사용률 확인
-SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read
-FROM pg_stat_user_indexes 
-WHERE idx_scan = 0;  -- 사용되지 않는 인덱스
+# Check table sizes
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT 
+  tablename,
+  pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+FROM pg_tables 
+WHERE schemaname = 'public' 
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;"
 ```
 
 ---
 
-## 🚨 응급 상황 대처
+## 🚀 Deployment Procedures
 
-### 마이그레이션 실패 시
+### **Pre-Deployment Checklist**
+- [ ] Test migrations locally with `supabase start`
+- [ ] Validate edge functions with local testing
+- [ ] Check for breaking changes in schema
+- [ ] Backup production data if needed
+- [ ] Verify all required environment variables
 
-#### 1. 즉시 조치
+### **Safe Deployment Process**
+
+1. **Backup Current State**
+   ```bash
+   SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db dump --linked -f backup_$(date +%Y%m%d_%H%M%S).sql
+   ```
+
+2. **Apply Database Changes**
+   ```bash
+   SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek
+   ```
+
+3. **Deploy Edge Functions**
+   ```bash
+   SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy --project-ref tflvicpgyycvhttctcek
+   ```
+
+4. **Verify Deployment**
+   ```bash
+   # Check function status
+   SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions list --project-ref tflvicpgyycvhttctcek
+   
+   # Test critical queries
+   SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "SELECT COUNT(*) FROM users WHERE created_at > NOW() - INTERVAL '1 hour';"
+   ```
+
+### **Rollback Procedures**
 ```bash
-# 1. 마이그레이션 상태 확인
-supabase migration list --linked
+# Rollback to previous migration
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration rollback --project-ref tflvicpgyycvhttctcek
 
-# 2. 실패한 마이그레이션 확인
-# Supabase Dashboard > Database > Migrations에서 확인
-
-# 3. 롤백 준비
-supabase db reset  # 로컬 테스트 환경
+# Restore from backup
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --file backup_20250828_120000.sql
 ```
 
-#### 2. 프로덕션 복구
-```sql
--- 1. 실패한 마이그레이션 수동 정리
--- (실패 지점부터 수동으로 SQL 실행)
+---
 
--- 2. supabase_migrations 테이블에서 기록 제거
-DELETE FROM supabase_migrations.schema_migrations 
-WHERE version = '20250826143000';
-```
+## 🔧 Maintenance Tasks
 
-#### 3. 데이터 복구
+### **Daily Maintenance**
 ```bash
-# 백업에서 복원 (사전 백업 필요)
-# Supabase Dashboard > Settings > Database > Point-in-time recovery
+# Check error logs
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT * FROM pg_stat_database_conflicts 
+WHERE datname = 'postgres';"
+
+# Update hashtag trends cache
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions invoke daily-hashtag-curation --project-ref tflvicpgyycvhttctcek
+```
+
+### **Weekly Maintenance**
+```bash
+# Analyze table statistics
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "ANALYZE;"
+
+# Clean up old push tokens
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+DELETE FROM push_tokens 
+WHERE updated_at < NOW() - INTERVAL '30 days' 
+AND is_active = false;"
+
+# Update hashtag post counts
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+UPDATE community_hashtags 
+SET post_count = (
+  SELECT COUNT(*) 
+  FROM post_hashtags 
+  WHERE post_hashtags.hashtag_id = community_hashtags.id
+);"
+```
+
+### **Monthly Maintenance**
+```bash
+# Database vacuum and analyze
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "VACUUM ANALYZE;"
+
+# Archive old community posts (optional)
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+-- Archive posts older than 1 year
+-- This is a template - implement archiving strategy as needed
+SELECT COUNT(*) FROM community_posts 
+WHERE created_at < NOW() - INTERVAL '1 year';"
 ```
 
 ---
 
-## 📋 체크리스트
+## 🚨 Emergency Procedures
 
-### 마이그레이션 전 체크리스트
-- [ ] 백업 생성 확인
-- [ ] 로컬 테스트 완료
-- [ ] SQL 문법 검증
-- [ ] RLS 정책 검토
-- [ ] 성능 영향 분석
-- [ ] 롤백 계획 수립
+### **Database Issues**
 
-### 마이그레이션 후 체크리스트  
-- [ ] 테이블/함수 생성 확인
-- [ ] 인덱스 정상 생성
-- [ ] RLS 정책 적용 확인
-- [ ] 애플리케이션 테스트
-- [ ] 성능 모니터링
-- [ ] 문서 업데이트
+**High CPU/Memory Usage:**
+```bash
+# Check active queries
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT pid, now() - pg_stat_activity.query_start AS duration, query 
+FROM pg_stat_activity 
+WHERE (now() - pg_stat_activity.query_start) > interval '5 minutes';"
 
----
-
-## 🔗 참고 링크
-
-- **Supabase CLI 문서**: https://supabase.com/docs/guides/cli
-- **마이그레이션 가이드**: https://supabase.com/docs/guides/cli/local-development
-- **프로젝트 대시보드**: https://supabase.com/dashboard/project/tflvicpgyycvhttctcek
-- **PostgreSQL 문서**: https://www.postgresql.org/docs/
-
----
-
-## ✅ 마이그레이션 예시 모음
-
-### 1. 테이블 추가
-```sql
--- 20250826143000_add_bookmarks_table.sql
-CREATE TABLE IF NOT EXISTS user_bookmarks (
-    id BIGSERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    post_id BIGINT NOT NULL REFERENCES community_posts(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    CONSTRAINT unique_bookmark UNIQUE(user_id, post_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_user_bookmarks_user_id ON user_bookmarks(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_bookmarks_created_at ON user_bookmarks(created_at DESC);
-
-ALTER TABLE user_bookmarks ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can manage their bookmarks" ON user_bookmarks
-FOR ALL USING (user_id = auth.uid());
-
-GRANT SELECT, INSERT, DELETE ON user_bookmarks TO authenticated;
-GRANT USAGE ON SEQUENCE user_bookmarks_id_seq TO authenticated;
+# Kill long-running queries (use with caution)
+-- Get PID from above query, then:
+-- SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "SELECT pg_cancel_backend(PID);"
 ```
 
-### 2. 컬럼 추가
-```sql
--- 20250826143100_add_post_pinned_column.sql
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'community_posts' AND column_name = 'is_pinned'
-    ) THEN
-        ALTER TABLE community_posts ADD COLUMN is_pinned BOOLEAN DEFAULT FALSE;
-    END IF;
-END $$;
-
-CREATE INDEX IF NOT EXISTS idx_community_posts_pinned 
-ON community_posts(is_pinned, created_at DESC) WHERE is_pinned = true;
+**Connection Limits Reached:**
+```bash
+# Check connection count
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --execute "
+SELECT COUNT(*) as total_connections, 
+       SUM(CASE WHEN state = 'active' THEN 1 ELSE 0 END) as active_connections,
+       SUM(CASE WHEN state = 'idle' THEN 1 ELSE 0 END) as idle_connections
+FROM pg_stat_activity;"
 ```
 
-### 3. 함수 생성
-```sql
--- 20250826143200_add_search_posts_function.sql
-CREATE OR REPLACE FUNCTION search_posts(
-    search_query TEXT,
-    limit_val INTEGER DEFAULT 20,
-    offset_val INTEGER DEFAULT 0
-)
-RETURNS TABLE(
-    id BIGINT,
-    content TEXT,
-    author_id UUID,
-    created_at TIMESTAMPTZ,
-    similarity REAL
-)
-LANGUAGE sql STABLE
-AS $$
-    SELECT p.id, p.content, p.author_id, p.created_at,
-           similarity(p.content, search_query) as similarity
-    FROM community_posts p
-    WHERE p.content % search_query
-    ORDER BY similarity DESC, p.created_at DESC
-    LIMIT COALESCE(limit_val, 20)
-    OFFSET COALESCE(offset_val, 0);
-$$;
+### **Edge Function Issues**
+
+**Function Not Responding:**
+```bash
+# Check function logs
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions logs hashtag-processor --project-ref tflvicpgyycvhttctcek
+
+# Redeploy function
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy hashtag-processor --project-ref tflvicpgyycvhttctcek
+```
+
+**Function Deployment Failed:**
+```bash
+# Force deploy with verbose output
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy function-name --project-ref tflvicpgyycvhttctcek --debug
+
+# Check function status
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions list --project-ref tflvicpgyycvhttctcek
 ```
 
 ---
 
-**⚡ 중요**: 이 가이드에 따라 모든 DB 변경을 수행하여 일관성과 안정성을 유지하세요!
+## 💡 Best Practices
+
+### **Security**
+- Always use environment variables for tokens and credentials
+- Regularly rotate access tokens
+- Review RLS (Row Level Security) policies quarterly
+- Monitor failed authentication attempts
+
+### **Performance**
+- Monitor slow queries weekly
+- Keep hashtag trend cache updated
+- Archive old data based on retention policies
+- Use connection pooling in applications
+
+### **Backup Strategy**
+- Daily automated schema dumps
+- Weekly data exports for critical tables
+- Test restore procedures monthly
+- Keep backups for minimum 90 days
+
+### **Development Workflow**
+1. Always test locally with `supabase start`
+2. Use feature branches for database changes
+3. Apply migrations in development first
+4. Deploy during maintenance windows
+5. Monitor for 30 minutes post-deployment
+
+---
+
+## 📞 Support Contacts
+
+**Technical Issues:**
+- Project Lead: Review `SUPABASE_CONNECTION_GUIDE.md`
+- Database Issues: Check `SUPABASE_DATABASE_REFERENCE_COMPLETE.md`
+
+**Emergency Escalation:**
+1. Check application logs first
+2. Review database performance metrics
+3. Consult edge function logs
+4. Contact Supabase support if infrastructure issues
+
+---
+
+## 📚 Reference Documents
+
+- `SUPABASE_DATABASE_REFERENCE_COMPLETE.md` - Complete schema documentation
+- `SUPABASE_CONNECTION_GUIDE.md` - Connection methods and troubleshooting
+- `CLAUDE.md` - Development guidelines and quick commands
+
+---
+
+**This guide reflects current production operations as of 2025-08-28. Update after any significant infrastructure changes.**
