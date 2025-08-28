@@ -3,10 +3,10 @@ import 'package:delightful_toast/delight_toast.dart';
 import '../theme/app_text_styles.dart';
 
 /// Global toast utility for consistent app-wide toast notifications
-/// 
+///
 /// Usage:
 /// - ToastHelper.info(context, '정보 메시지')
-/// - ToastHelper.warning(context, '경고 메시지') 
+/// - ToastHelper.warning(context, '경고 메시지')
 /// - ToastHelper.error(context, '에러 메시지')
 /// - ToastHelper.success(context, '성공 메시지')
 class ToastHelper {
@@ -74,22 +74,32 @@ class ToastHelper {
     required Color textColor,
     required IconData icon,
   }) {
+    // Capture theme-dependent values BEFORE the builder to avoid using a deactivated context.
+    final shadowColor = Theme.of(context).colorScheme.shadow;
+    final titleStyle = AppTextStyles.formLabel(context).copyWith(
+      color: textColor,
+      fontWeight: FontWeight.w600,
+    );
+    final messageStyle = AppTextStyles.primaryText(context).copyWith(
+      color: textColor,
+    );
+
     DelightToastBar(
       autoDismiss: true,
       animationDuration: const Duration(milliseconds: 300),
       snackbarDuration: const Duration(seconds: 4),
-      builder: (context) => Container(
+      builder: (ctx) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: iconColor.withValues(alpha: 0.2),
+            color: iconColor.withOpacity(0.2),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              color: shadowColor.withOpacity(0.1),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -102,7 +112,7 @@ class ToastHelper {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
+                  color: iconColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -119,17 +129,12 @@ class ToastHelper {
                   children: [
                     Text(
                       title,
-                      style: AppTextStyles.formLabel(context).copyWith(
-                        color: textColor,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: titleStyle,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       message,
-                      style: AppTextStyles.primaryText(context).copyWith(
-                        color: textColor,
-                      ),
+                      style: messageStyle,
                     ),
                   ],
                 ),

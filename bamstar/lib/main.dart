@@ -3,10 +3,12 @@
 //  - flutter_bloc: ^9.1.1
 // All new stateful logic should follow these versions and patterns.
 // See dev/state_management_guidelines.md for examples and conventions.
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'scenes/onboarding_page.dart';
 import 'scenes/login_page.dart';
 import 'scenes/roles_select.dart';
+import 'scenes/terms_page.dart';
 import 'scenes/place_home_page.dart';
 import 'scenes/community/community_home_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,6 +130,10 @@ Future<void> initRouter() async {
       GoRoute(
         path: '/roles',
         builder: (context, state) => const RoleSelectPage(),
+      ),
+      GoRoute(
+        path: '/terms',
+        builder: (context, state) => const TermsPage(),
       ),
       GoRoute(path: '/home', builder: (context, state) => const MainScreen()),
       GoRoute(

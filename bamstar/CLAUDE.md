@@ -242,4 +242,63 @@ ToastHelper.info(context, '검색을 실행합니다');
 
 ---
 
+## 🔍 코드 품질 검증 시스템
+
+### **MANDATORY Flutter Analyze**
+
+> **CRITICAL**: 모든 작업 완료 후 반드시 Flutter 정적 분석을 실행하여 오류를 확인하고 수정해야 합니다.
+
+### **🚫 완료 보고 금지 조건:**
+- `flutter analyze`에서 ERROR 레벨 이슈가 발견된 경우
+- 컴파일 오류나 타입 오류가 있는 경우
+- 정의되지 않은 메서드나 변수 참조가 있는 경우
+
+### **✅ 작업 완료 프로세스:**
+
+#### **1. 작업 완료 후 필수 검증**
+```bash
+flutter analyze
+```
+
+#### **2. 오류 수정 절차**
+- ERROR 레벨 이슈: 즉시 수정 (작업 완료 불가)
+- WARNING 레벨 이슈: 가능한 경우 수정 (선택사항)
+- INFO 레벨 이슈: 무시 가능 (스타일 권고사항)
+
+#### **3. 완료 보고 조건**
+```markdown
+✅ **작업 완료 보고**
+- 기능 구현 완료
+- `flutter analyze`: ERROR 0개 확인
+- 컴파일 및 빌드 가능 상태
+- Git 커밋 및 푸시 완료
+```
+
+#### **4. Git 커밋 및 푸시 절차**
+```bash
+# 변경사항 스테이징
+git add .
+
+# 의미 있는 커밋 메시지로 커밋
+git commit -m "작업 내용 요약"
+
+# 원격 저장소로 푸시
+git push
+```
+
+### **코드 품질 기준**
+- **ERROR**: 즉시 수정 필요 (컴파일 불가)
+- **WARNING**: 권장 수정 (런타임 이슈 가능성)  
+- **INFO**: 선택 수정 (스타일 가이드 권고)
+
+### **자동화 규칙**
+1. ✅ 모든 Flutter 작업 후 `flutter analyze` 실행
+2. ✅ ERROR 이슈 발견 시 자동 수정 시도
+3. ✅ 수정 불가능한 ERROR는 사용자에게 보고
+4. ✅ 작업 완료 시 Git 커밋 및 푸시 자동 실행
+5. ❌ ERROR가 있는 상태로 작업 완료 보고 금지
+6. ❌ Git 커밋 없이 작업 완료 보고 금지
+
+---
+
 **🎯 Remember: Consistency is key to maintainable, accessible, and professional Flutter applications.**

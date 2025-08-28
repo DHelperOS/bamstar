@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:animated_emoji/animated_emoji.dart';
-import 'package:bamstar/widgets/bs_alert_dialog.dart';
-import 'package:bamstar/scenes/match_profiles.dart';
-import '../theme/typography.dart';
+
 import '../theme/app_text_styles.dart';
 import '../utils/toast_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -38,7 +36,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
   bool _isSaving = false;
   int? _savingIndex; // which card is currently being saved
   int? _savedIndex; // recently saved card index (for success UI)
-  bool _isDialogOpen = false;
+
   String? _lastSavedRole;
 
   // Use app homepage theme via ColorScheme instead of hard-coded palette
@@ -262,27 +260,20 @@ class _RoleSelectPageState extends State<RoleSelectPage>
                                       ),
                                     ),
                                     const SizedBox(height: 12),
-                                    // Make description area flexible, scrollable and show a scrollbar so text isn't clipped
+                                    // Make description area flexible and scrollable if needed
                                     Expanded(
-                                      child: RawScrollbar(
-                                        thumbVisibility: true,
-                                        radius: const Radius.circular(8),
-                                        thickness: 6,
-                                        child: SingleChildScrollView(
-                                          primary: false,
-                                          physics:
-                                              const ClampingScrollPhysics(),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 4,
-                                          ),
-                                          child: Text(
-                                            body,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 14.0,
-                                              color: textSecondary,
-                                              height: 1.36,
-                                            ),
+                                      child: SingleChildScrollView(
+                                        physics: const ClampingScrollPhysics(),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        child: Text(
+                                          body,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14.0,
+                                            color: textSecondary,
+                                            height: 1.36,
                                           ),
                                         ),
                                       ),
@@ -573,7 +564,6 @@ class _RoleSelectPageState extends State<RoleSelectPage>
     // Try to persist the selected role to Supabase (public.users.role_id).
     // Assumption: `role` is an allowed value for users.role_id in the DB (e.g. 'STAR' or 'PLACE').
     // Capture Messenger and Navigator before awaiting to avoid using BuildContext
-    final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     try {
       final user = Supabase.instance.client.auth.currentUser;
@@ -598,35 +588,12 @@ class _RoleSelectPageState extends State<RoleSelectPage>
           _savedIndex = idx;
         });
 
-        // brief pause to show saved state then show dialog (reuse existing dialog flow)
+        // brief pause to show saved state then navigate to terms page
         await Future.delayed(const Duration(milliseconds: 600));
 
         if (!mounted) return;
-        if (!_isDialogOpen) {
-          _isDialogOpen = true;
-          try {
-            final bool? confirmed = await showBsAlert<bool>(
-              context,
-              header: role == 'STAR'
-                  ? '프로필 완성하고, 주인공 되기.'
-                  : '프로필 완성하고, 스타 섭외하기.',
-              body: role == 'STAR'
-                  ? '프로필을 완성하면, AI가 회원님에게 꼭 맞는 플레이스를 추천하고, 플레이스로부터 먼저 연결 제안을 받을 확률이 크게 올라가요.'
-                  : '상세 프로필은 AI 추천과 검색 결과에 모두 반영되어, 더 많은 스타들에게 당신의 플레이스가 노출될 기회를 만듭니다.',
-              primaryText: role == 'STAR' ? '내 매력 어필하기' : '정확도 올리기',
-              secondaryText: '나중에..',
-              icon: SolarIconsOutline.checkCircle,
-              barrierDismissible: true,
-            );
-
-            if (confirmed == true) {
-              // After role confirmation, send to home per requirement
-              if (mounted) context.go('/home');
-            }
-          } finally {
-            _isDialogOpen = false;
-          }
-        }
+        // Navigate to terms page instead of showing dialog
+        context.go('/terms');
 
         // propagate selection result and close if possible (same as normal flow)
         if (widget.onSelected != null) {
@@ -676,37 +643,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
       // show success state briefly before continuing
       await Future.delayed(const Duration(milliseconds: 900));
 
-      // Show reusable Material 3 alert dialog (blocks until dismissed)
+      // Navigate to terms page instead of showing dialog
       if (!mounted) return;
-      if (!_isDialogOpen) {
-        _isDialogOpen = true;
-        try {
-          final bool? confirmed = await showBsAlert<bool>(
-            context,
-            header: role == 'STAR' ? '프로필 완성하고, 주인공 되기.' : '프로필 완성하고, 스타 섭외하기.',
-            body: role == 'STAR'
-                ? '프로필을 완성하면, AI가 회원님에게 꼭 맞는 플레이스를 추천하고, 플레이스로부터 먼저 연결 제안을 받을 확률이 크게 올라가요.'
-                : '상세 프로필은 AI 추천과 검색 결과에 모두 반영되어, 더 많은 스타들에게 당신의 플레이스가 노출될 기회를 만듭니다.',
-            primaryText: role == 'STAR' ? '내 매력 어필하기' : '정확도 올리기',
-            secondaryText: '나중에..',
-            icon: SolarIconsOutline.checkCircle,
-            barrierDismissible: true,
-          );
-
-          // If user tapped the primary action, give immediate feedback (navigation handled elsewhere)
-          if (confirmed == true) {
-            if (role == 'STAR') {
-              await navigator.push(
-                MaterialPageRoute(builder: (_) => const MatchProfilesPage()),
-              );
-            } else {
-              ToastHelper.info(context, '자세한 정보로 정확도를 올려보세요.');
-            }
-          }
-        } finally {
-          _isDialogOpen = false;
-        }
-      }
+      context.go('/terms');
     } catch (e) {
       // Log and show minimal feedback
       if (!mounted) return;
