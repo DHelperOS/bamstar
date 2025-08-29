@@ -30,10 +30,12 @@ class _MainScreenState extends State<MainScreen> {
     
     // Route based on role_id
     switch (roleId) {
-      case 2: // STAR role
+      case 1: // Admin role -> UserSettingsPage
         return UserSettingsPage();
-      case 3: // PLACE role  
+      case 2: // Product Owner (Place) role -> PlaceSettingsPage
         return PlaceSettingsPage();
+      case 3: // Member role -> UserSettingsPage
+        return UserSettingsPage();
       default: // Default to user settings
         return UserSettingsPage();
     }

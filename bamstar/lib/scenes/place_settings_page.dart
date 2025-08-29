@@ -1,45 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
+// Removed unused import for just_the_tooltip
 // Typography import removed as it's not used in current implementation
-import 'package:bamstar/scenes/member_profile/basic_info_sheet_flow.dart';
-import 'package:bamstar/scenes/region_preference_sheet.dart';
+// Removed unused imports for basic_info_sheet_flow and region_preference_sheet
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
-import 'package:bamstar/scenes/member_profile/matching_preferences_page.dart';
-import 'package:bamstar/scenes/member_profile/services/basic_info_service.dart';
-import 'package:bamstar/scenes/member_profile/services/member_preferences_service.dart';
-import 'package:bamstar/scenes/member_profile/services/region_preference_service.dart';
+// Removed unused import for matching_preferences_page
+// Removed unused service imports
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/toast_helper.dart';
+import '../providers/user/role_providers.dart';
 
 // Enhanced place settings page with modern card design and tab navigation
 // - Clean white background with card-based layout
 // - Tab navigation: 프로필, 지원 현황, 내가 쓴글, 차단 목록
 // - Responsive design for mobile and web
 // - Maintains all existing functionality
-class PlaceSettingsPage extends StatefulWidget {
+class PlaceSettingsPage extends ConsumerStatefulWidget {
   const PlaceSettingsPage({super.key});
 
   @override
-  State<PlaceSettingsPage> createState() => _PlaceSettingsPageState();
+  ConsumerState<PlaceSettingsPage> createState() => _PlaceSettingsPageState();
 }
 
-class _PlaceSettingsPageState extends State<PlaceSettingsPage>
+class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     with SingleTickerProviderStateMixin {
   ImageProvider? _profileImage;
   late TabController _tabController;
 
   // Profile completion status
-  bool _isBasicInfoComplete = false;
-  bool _isMatchingComplete = false;
-  bool _isRegionComplete = false;
-  bool _hasBasicInfoData = false;
-  bool _hasMatchingData = false;
-  bool _hasRegionData = false;
   bool _isAdultVerified = false;
 
   @override
@@ -76,67 +69,17 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
     if (!mounted) return;
 
     try {
-      // Check basic info completion
-      final basicInfo = await BasicInfoService.instance.loadBasicInfo();
-      bool basicComplete = false;
-      bool hasBasicData = basicInfo != null;
-
-      if (basicInfo != null) {
-        // Check if essential basic info fields are filled
-        basicComplete =
-            (basicInfo.realName?.isNotEmpty ?? false) &&
-            basicInfo.age != null &&
-            (basicInfo.gender?.isNotEmpty ?? false) &&
-            (basicInfo.contactPhone?.isNotEmpty ?? false);
-      }
-
-      // Check matching preferences completion
-      final matchingData = await MemberPreferencesService.instance
-          .loadMatchingPreferences();
-      bool matchingComplete = false;
-      bool hasMatchingData = matchingData != null;
-
-      if (matchingData != null) {
-        // Check if essential matching fields are filled
-        matchingComplete =
-            matchingData.selectedIndustryIds.isNotEmpty ||
-            matchingData.selectedJobIds.isNotEmpty ||
-            matchingData.selectedStyleIds.isNotEmpty;
-      }
-
-      // Check region preferences completion
-      final regionData = await RegionPreferenceService.instance
-          .loadPreferredAreaGroups();
-      bool regionComplete = regionData.isNotEmpty;
-      bool hasRegionData = regionData.isNotEmpty;
-
-      // Check adult verification status
-      bool adultVerified = false;
-      final user = UserService.instance.user;
-      if (user != null) {
-        adultVerified = user.data['is_adult'] == true;
-      }
-
+      // Use role provider to check adult verification status
+      final isAdult = ref.read(currentUserIsAdultProvider);
+      
       if (!mounted) return;
       setState(() {
-        _isBasicInfoComplete = basicComplete;
-        _isMatchingComplete = matchingComplete;
-        _isRegionComplete = regionComplete;
-        _hasBasicInfoData = hasBasicData;
-        _hasMatchingData = hasMatchingData;
-        _hasRegionData = hasRegionData;
-        _isAdultVerified = adultVerified;
+        _isAdultVerified = isAdult;
       });
     } catch (e) {
       debugPrint('Error loading profile completion status: $e');
       if (!mounted) return;
       setState(() {
-        _isBasicInfoComplete = false;
-        _isMatchingComplete = false;
-        _isRegionComplete = false;
-        _hasBasicInfoData = false;
-        _hasMatchingData = false;
-        _hasRegionData = false;
         _isAdultVerified = false;
       });
     }
@@ -191,11 +134,34 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
           constraints: BoxConstraints(maxWidth: maxWidth),
           child: Column(
             children: [
-              // Enhanced Profile Header Card
-              _buildProfileHeader(context),
-
-              // Tab Bar
-              _buildTabBar(context),
+              // Combined Profile Header and Tab Bar
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Profile section
+                    _buildProfileHeader(context),
+                    // Divider line (subtle)
+                    Container(
+                      height: 1,
+                      color: Colors.white.withOpacity(0.5),
+                    ),
+                    // Tab bar section
+                    _buildTabBar(context),
+                  ],
+                ),
+              ),
 
               // Tab Content
               Expanded(
@@ -218,105 +184,248 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
 
   Widget _buildProfileHeader(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(20.0),
-      // Slightly reduced padding so text lines sit closer together vertically
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x08000000),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: const Color(0x0F919EAB), width: 1),
-      ),
-      child: Column(
+      padding: const EdgeInsets.all(20),
+      child: Row(
         children: [
-          Row(
+          // Profile Avatar with subtle styling
+          Stack(
             children: [
-              // Profile Avatar (reduced to ~80%)
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0x26919EAB), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
-                child: CircleAvatar(
-                  radius: 32, // reduced from 40 -> ~80%
-                  backgroundColor: const Color(0xFFF4F6F8),
-                  backgroundImage: _profileImage,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 35,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _profileImage,
+                    child: _profileImage == null
+                        ? Icon(
+                            SolarIconsBold.userCircle,
+                            size: 44,
+                            color: const Color(0xFFDDE2E8),
+                          )
+                        : null,
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-
-              // Profile Info with edit icon placed to the right of the name
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Display name with pen icon immediately to its right
-                        Flexible(
-                          fit: FlexFit.loose,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  UserService.instance.displayName,
-                                  style: const TextStyle(
-                                    color: Color(0xFF1C252E),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              IconButton(
-                                onPressed: () => showEditProfileModal(
-                                  context,
-                                  _profileImage,
-                                  onImagePicked: (img) {
-                                    if (!mounted) return;
-                                    setState(() => _profileImage = img);
-                                  },
-                                ),
-                                icon: Icon(
-                                  SolarIconsOutline.pen,
-                                  size: 18,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                                padding: const EdgeInsets.all(6),
-                                constraints: const BoxConstraints(),
-                                tooltip: '프로필 편집',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              // Status indicator
+              Positioned(
+                right: 2,
+                bottom: 2,
+                child: Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF10B981),
+                    border: Border.all(
+                      color: const Color(0xFFF8F9FA),
+                      width: 2.5,
                     ),
-                    // Minimize vertical gap so email sits immediately below name
-                    const SizedBox(height: 0),
-                    Text(
-                      UserService.instance.user?.email ?? '이메일 없음',
-                      style: const TextStyle(
-                        color: Color(0xFF919EAB),
-                        fontSize: 13,
-                        height: 1.0,
-                        fontWeight: FontWeight.w400,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF10B981).withOpacity(0.3),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          
+          // Profile Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Role tag with better styling
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getRoleColor(context),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getRoleIcon(),
+                            size: 12,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _getRoleName(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Adult verification badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isAdultVerified 
+                            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                            : Theme.of(context).colorScheme.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _isAdultVerified
+                              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                              : Theme.of(context).colorScheme.error.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _isAdultVerified 
+                                ? SolarIconsBold.checkCircle
+                                : SolarIconsBold.closeCircle,
+                            size: 12,
+                            color: _isAdultVerified
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '성인 인증',
+                            style: TextStyle(
+                              color: _isAdultVerified
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.error,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                // Name
+                Text(
+                  UserService.instance.displayName,
+                  style: const TextStyle(
+                    color: Color(0xFF1C252E),
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                // Email with better styling
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        SolarIconsOutline.letter,
+                        size: 13,
+                        color: const Color(0xFF637381),
+                      ),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          UserService.instance.user?.email ?? '이메일 없음',
+                          style: const TextStyle(
+                            color: Color(0xFF637381),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Edit button with better integration
+          Container(
+            margin: const EdgeInsets.only(left: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => showEditProfileModal(
+                  context,
+                  _profileImage,
+                  onImagePicked: (img) {
+                    if (!mounted) return;
+                    setState(() => _profileImage = img);
+                  },
+                ),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Icon(
+                    SolarIconsBold.pen,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ),
-            ],
+            ),
           ),
         ],
       ),
@@ -325,32 +434,73 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
 
   Widget _buildTabBar(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x0F919EAB), width: 1),
-      ),
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
       child: TabBar(
         controller: _tabController,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        labelColor: const Color(0xFFFFFFFF),
+        labelColor: Theme.of(context).colorScheme.primary,
         unselectedLabelColor: const Color(0xFF919EAB),
-        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        labelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
         unselectedLabelStyle: const TextStyle(
-          fontSize: 14,
+          fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: '프로필'),
-          Tab(text: '지원 현황'),
-          Tab(text: '내가 쓴글'),
-          Tab(text: '차단 목록'),
+        tabs: [
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(SolarIconsBold.user, size: 16),
+                SizedBox(width: 4),
+                Text('프로필'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(SolarIconsBold.documentText, size: 16),
+                SizedBox(width: 4),
+                Text('지원'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(SolarIconsBold.penNewSquare, size: 16),
+                SizedBox(width: 4),
+                Text('내글'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(SolarIconsBold.userBlock, size: 16),
+                SizedBox(width: 4),
+                Text('차단'),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -363,105 +513,49 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('내 정보', style: AppTextStyles.sectionTitle(context)),
+          Text('플레이스 정보', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
 
-          // 기본 정보 카드
-          _buildTooltipWrapper(
-            tooltipMessage: _getTooltipMessage(
-              '프로필',
-              _isBasicInfoComplete,
-              _hasBasicInfoData,
+          // 플레이스 정보 카드
+          _buildInfoCard(
+            context,
+            icon: SolarIconsOutline.buildings,
+            title: '플레이스 정보',
+            subtitle: '플레이스 기본 정보를 관리해요.',
+            trailing: Icon(
+              SolarIconsOutline.altArrowRight,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
             ),
-            showTooltip: !_isBasicInfoComplete,
-            child: _buildInfoCard(
-              context,
-              icon: SolarIconsOutline.user,
-              title: '프로필 시작하기',
-              subtitle: '플레이스와 연결을 위해 꼭 필요한 정보예요.',
-              trailing: _buildStatusIcon(
-                _isBasicInfoComplete,
-                _hasBasicInfoData,
-              ),
-              onTap: () => Navigator.of(
-                context,
-                rootNavigator: true,
-              ).push(basicInfoSheetRoute()),
-            ),
+            onTap: () {
+              // TODO: Navigate to place info page
+              ToastHelper.info(context, '플레이스 정보 페이지 준비중입니다.');
+            },
           ),
 
           const SizedBox(height: 12),
 
-          // 상세 정보 카드
-          _buildTooltipWrapper(
-            tooltipMessage: _getTooltipMessage(
-              '매칭 조건 설정',
-              _isMatchingComplete,
-              _hasMatchingData,
+          // 사업자 정보 카드
+          _buildInfoCard(
+            context,
+            icon: SolarIconsOutline.documentText,
+            title: '사업자 정보',
+            subtitle: '사업자 등록 정보를 관리해요.',
+            trailing: Icon(
+              SolarIconsOutline.altArrowRight,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
             ),
-            showTooltip: !_isMatchingComplete,
-            child: _buildInfoCard(
-              context,
-              icon: SolarIconsOutline.menuDots,
-              title: '매칭 조건 설정하기',
-              subtitle: '자세히 설정할수록, 빨리 매칭될 수 있어요.',
-              trailing: _buildStatusIcon(_isMatchingComplete, _hasMatchingData),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const MatchingPreferencesPage(),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // 선호 지역 카드
-          _buildTooltipWrapper(
-            tooltipMessage: _getTooltipMessage(
-              '선호 지역 설정',
-              _isRegionComplete,
-              _hasRegionData,
-            ),
-            showTooltip: !_isRegionComplete,
-            child: _buildInfoCard(
-              context,
-              icon: SolarIconsOutline.mapPoint,
-              title: '어디에서 빛나고 싶으신가요?',
-              subtitle: '선호 지역을 중심으로 추천해 드려요.',
-              trailing: _buildStatusIcon(_isRegionComplete, _hasRegionData),
-              onTap: () async {
-                final res = await Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).push(preferredRegionSheetRoute());
-                if (!context.mounted) return;
-                if (res is List) {
-                  ToastHelper.success(context, '선호 지역이 업데이트되었습니다.');
-                  _loadProfileCompletionStatus(); // Refresh status after update
-                }
-              },
-            ),
+            onTap: () {
+              // TODO: Navigate to business info page
+              ToastHelper.info(context, '사업자 정보 페이지 준비중입니다.');
+            },
           ),
 
           const SizedBox(height: 12),
 
           // 성인 인증 카드
-          _buildTooltipWrapper(
-            tooltipMessage: _isAdultVerified
-                ? '성인 인증이 완료되었습니다'
-                : '아직 성인 인증이 완료되지 않았어요',
-            showTooltip: !_isAdultVerified,
-            child: _buildInfoCard(
-              context,
-              icon: SolarIconsOutline.shield,
-              title: '성인 인증하기',
-              subtitle: '앱을 이용하려면 성인 인증이 필요해요.',
-              trailing: _buildStatusIcon(_isAdultVerified, _isAdultVerified),
-              onTap: () => _handleAdultVerification(context),
-            ),
-          ),
+
         ],
       ),
     );
@@ -629,6 +723,41 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
     );
   }
 
+  // Helper methods for role display using Riverpod providers
+  String _getRoleName() {
+    // Use the Korean name from the roles table
+    final roleKorName = ref.watch(currentUserRoleKorNameProvider);
+    return roleKorName;
+  }
+
+  IconData _getRoleIcon() {
+    final roleId = ref.watch(currentUserRoleIdProvider);
+    switch (roleId) {
+      case 1:
+        return SolarIconsBold.shield;
+      case 2:
+        return SolarIconsBold.crown;
+      case 3:
+        return SolarIconsBold.user;
+      default:
+        return SolarIconsBold.crown;
+    }
+  }
+
+  Color _getRoleColor(BuildContext context) {
+    final roleId = ref.watch(currentUserRoleIdProvider);
+    switch (roleId) {
+      case 1:
+        return const Color(0xFFDC2626); // Admin - Red
+      case 2:
+        return Theme.of(context).colorScheme.primary; // Product Owner - Primary
+      case 3:
+        return Theme.of(context).colorScheme.secondary; // Member - Secondary
+      default:
+        return Theme.of(context).colorScheme.primary;
+    }
+  }
+
   Widget _buildInfoCard(
     BuildContext context, {
     required IconData icon,
@@ -704,79 +833,15 @@ class _PlaceSettingsPageState extends State<PlaceSettingsPage>
     );
   }
 
-  Widget _buildStatusIcon(bool isComplete, bool hasData) {
-    if (isComplete) {
-      return const Icon(
-        SolarIconsBold.checkCircle,
-        color: Color(0xFF22C55E), // Green color for complete
-        size: 20,
-      );
-    } else if (hasData) {
-      return const Icon(
-        SolarIconsOutline.dangerTriangle,
-        color: Color(0xFFF59E0B), // Yellow/amber color for in progress
-        size: 20,
-      );
-    } else {
-      return const Icon(
-        SolarIconsOutline.dangerTriangle,
-        color: Color(0xFFEF4444), // Red color for not started
-        size: 20,
-      );
-    }
-  }
 
-  String _getTooltipMessage(String section, bool isComplete, bool hasData) {
-    if (isComplete) {
-      return '$section이 완료되었습니다';
-    } else if (hasData) {
-      return '아직 $section이 완료되지 않았어요';
-    } else {
-      return '아직 $section이 완료되지 않았어요';
-    }
-  }
 
-  Widget _buildTooltipWrapper({
-    required Widget child,
-    required String tooltipMessage,
-    required bool showTooltip,
-  }) {
-    if (!showTooltip) {
-      return child;
-    }
 
-    return JustTheTooltip(
-      content: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          tooltipMessage,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-        ),
-      ),
-      backgroundColor: const Color(0xFF1F2937),
-      borderRadius: BorderRadius.circular(8),
-      preferredDirection: AxisDirection.up,
-      tailLength: 8,
-      tailBaseWidth: 16,
-      showDuration: const Duration(seconds: 5),
-      waitDuration: const Duration(milliseconds: 500),
-      child: child,
-    );
-  }
 
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
   }
 
-  Future<void> _handleAdultVerification(BuildContext context) async {
-    if (_isAdultVerified) {
-      _showToast(context, '이미 성인 인증이 완료되었습니다');
-      return;
-    }
 
-    // TODO: Implement actual adult verification flow
-    _showToast(context, '성인 인증 기능을 준비 중입니다');
-  }
 
   Future<void> _handleLogout(BuildContext context) async {
     // Show confirmation dialog
