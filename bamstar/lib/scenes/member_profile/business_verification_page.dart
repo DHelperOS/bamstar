@@ -60,11 +60,11 @@ class _BusinessVerificationPageState
 
   void _loadCachedData() {
     if (!mounted) return;
-    
+
     final state = ref.read(businessVerificationProvider);
     if (state.input != null) {
       final input = state.input!;
-      
+
       setState(() {
         _businessNumberCtl.text = input.businessNumber;
         _representativeNameCtl.text = input.representativeName;
@@ -77,13 +77,14 @@ class _BusinessVerificationPageState
         _businessAddressCtl.text = input.businessAddress ?? '';
 
         // Show optional fields if any optional data exists
-        final hasOptionalData = (input.representativeName2?.isNotEmpty == true) ||
-                              (input.businessName?.isNotEmpty == true) ||
-                              (input.corporateNumber?.isNotEmpty == true) ||
-                              (input.mainBusinessType?.isNotEmpty == true) ||
-                              (input.subBusinessType?.isNotEmpty == true) ||
-                              (input.businessAddress?.isNotEmpty == true);
-        
+        final hasOptionalData =
+            (input.representativeName2?.isNotEmpty == true) ||
+            (input.businessName?.isNotEmpty == true) ||
+            (input.corporateNumber?.isNotEmpty == true) ||
+            (input.mainBusinessType?.isNotEmpty == true) ||
+            (input.subBusinessType?.isNotEmpty == true) ||
+            (input.businessAddress?.isNotEmpty == true);
+
         if (hasOptionalData) {
           _showOptionalFields = true;
         }
@@ -112,7 +113,7 @@ class _BusinessVerificationPageState
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        leading: _currentStep > 1 
+        leading: _currentStep > 1
             ? IconButton(
                 icon: Icon(
                   Icons.arrow_back_rounded,
@@ -126,10 +127,7 @@ class _BusinessVerificationPageState
                 },
               )
             : null,
-        title: Text(
-          '사업자 인증',
-          style: AppTextStyles.cardTitle(context),
-        ),
+        title: Text('사업자 인증', style: AppTextStyles.cardTitle(context)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -145,12 +143,10 @@ class _BusinessVerificationPageState
         children: [
           // Progress indicator
           _buildProgressIndicator(),
-          
+
           // Form content
-          Expanded(
-            child: _buildStepContent(),
-          ),
-          
+          Expanded(child: _buildStepContent()),
+
           // Bottom button
           _buildBottomButton(),
         ],
@@ -221,7 +217,9 @@ class _BusinessVerificationPageState
               color: _currentStep == step
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: _currentStep == step ? FontWeight.w600 : FontWeight.w400,
+              fontWeight: _currentStep == step
+                  ? FontWeight.w600
+                  : FontWeight.w400,
               fontSize: 11,
             ),
           ),
@@ -249,31 +247,29 @@ class _BusinessVerificationPageState
       transitionBuilder: (Widget child, Animation<double> animation) {
         // Slide transition from right to left for forward navigation
         // Slide transition from left to right for backward navigation
-        final slideAnimation = Tween<Offset>(
-          begin: _isNavigatingForward ? const Offset(1.0, 0.0) : const Offset(-1.0, 0.0),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOutCubic,
-        ));
+        final slideAnimation =
+            Tween<Offset>(
+              begin: _isNavigatingForward
+                  ? const Offset(1.0, 0.0)
+                  : const Offset(-1.0, 0.0),
+              end: Offset.zero,
+            ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic),
+            );
 
         // Fade transition combined with slide
-        final fadeAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
-        ));
+        final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+          ),
+        );
 
         return Align(
           alignment: Alignment.topLeft,
           child: SlideTransition(
             position: slideAnimation,
-            child: FadeTransition(
-              opacity: fadeAnimation,
-              child: child,
-            ),
+            child: FadeTransition(opacity: fadeAnimation, child: child),
           ),
         );
       },
@@ -296,7 +292,8 @@ class _BusinessVerificationPageState
           subBusinessTypeController: _subBusinessTypeCtl,
           businessAddressController: _businessAddressCtl,
           showOptionalFields: _showOptionalFields,
-          onOptionalFieldsToggle: () => setState(() => _showOptionalFields = !_showOptionalFields),
+          onOptionalFieldsToggle: () =>
+              setState(() => _showOptionalFields = !_showOptionalFields),
           touchedFields: _touchedFields,
           onFieldTouched: (field) => setState(() => _touchedFields.add(field)),
         );
@@ -335,14 +332,20 @@ class _BusinessVerificationPageState
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.6),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.4),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -376,13 +379,17 @@ class _BusinessVerificationPageState
                   gradient: LinearGradient(
                     colors: [
                       Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -442,13 +449,27 @@ class _BusinessVerificationPageState
 
   Future<void> _submitStep1() async {
     // Validate required fields
-    final businessNumberError = BusinessVerificationService.validateBusinessNumber(_businessNumberCtl.text);
-    final representativeNameError = BusinessVerificationService.validateRepresentativeName(_representativeNameCtl.text);
-    final openingDateError = BusinessVerificationService.validateOpeningDate(_openingDateCtl.text);
+    final businessNumberError =
+        BusinessVerificationService.validateBusinessNumber(
+          _businessNumberCtl.text,
+        );
+    final representativeNameError =
+        BusinessVerificationService.validateRepresentativeName(
+          _representativeNameCtl.text,
+        );
+    final openingDateError = BusinessVerificationService.validateOpeningDate(
+      _openingDateCtl.text,
+    );
 
-    if (businessNumberError != null || representativeNameError != null || openingDateError != null) {
+    if (businessNumberError != null ||
+        representativeNameError != null ||
+        openingDateError != null) {
       setState(() {
-        _touchedFields.addAll(['business_number', 'representative_name', 'opening_date']);
+        _touchedFields.addAll([
+          'business_number',
+          'representative_name',
+          'opening_date',
+        ]);
       });
       ToastHelper.error(context, '필수 정보를 올바르게 입력해주세요');
       return;
@@ -462,12 +483,24 @@ class _BusinessVerificationPageState
         businessNumber: _businessNumberCtl.text,
         representativeName: _representativeNameCtl.text,
         openingDate: _openingDateCtl.text,
-        representativeName2: _representativeName2Ctl.text.isNotEmpty ? _representativeName2Ctl.text : null,
-        businessName: _businessNameCtl.text.isNotEmpty ? _businessNameCtl.text : null,
-        corporateNumber: _corporateNumberCtl.text.isNotEmpty ? _corporateNumberCtl.text : null,
-        mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty ? _mainBusinessTypeCtl.text : null,
-        subBusinessType: _subBusinessTypeCtl.text.isNotEmpty ? _subBusinessTypeCtl.text : null,
-        businessAddress: _businessAddressCtl.text.isNotEmpty ? _businessAddressCtl.text : null,
+        representativeName2: _representativeName2Ctl.text.isNotEmpty
+            ? _representativeName2Ctl.text
+            : null,
+        businessName: _businessNameCtl.text.isNotEmpty
+            ? _businessNameCtl.text
+            : null,
+        corporateNumber: _corporateNumberCtl.text.isNotEmpty
+            ? _corporateNumberCtl.text
+            : null,
+        mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty
+            ? _mainBusinessTypeCtl.text
+            : null,
+        subBusinessType: _subBusinessTypeCtl.text.isNotEmpty
+            ? _subBusinessTypeCtl.text
+            : null,
+        businessAddress: _businessAddressCtl.text.isNotEmpty
+            ? _businessAddressCtl.text
+            : null,
       );
 
       ref.read(businessVerificationProvider.notifier).updateInput(input);
@@ -538,10 +571,14 @@ class _Step1FormWidget extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -556,9 +593,9 @@ class _Step1FormWidget extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     '입력하신 정보로 국세청 API를 통해 사업자 등록 정보를 자동으로 조회하여 빠르고 정확한 인증을 진행합니다',
-                    style: AppTextStyles.captionText(context).copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    style: AppTextStyles.captionText(
+                      context,
+                    ).copyWith(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ],
@@ -614,22 +651,28 @@ class _Step1FormWidget extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               decoration: BoxDecoration(
-                color: showOptionalFields 
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+                color: showOptionalFields
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.05)
                     : Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: showOptionalFields
-                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.2)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
-                    showOptionalFields 
-                        ? Icons.remove_circle_outline_rounded 
+                    showOptionalFields
+                        ? Icons.remove_circle_outline_rounded
                         : Icons.add_circle_outline_rounded,
                     color: Theme.of(context).colorScheme.primary,
                     size: 18,
@@ -663,7 +706,7 @@ class _Step1FormWidget extends ConsumerWidget {
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            child: showOptionalFields 
+            child: showOptionalFields
                 ? Column(
                     children: [
                       const SizedBox(height: 20),
@@ -734,17 +777,16 @@ class _Step1FormWidget extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.formLabel(context),
-        ),
+        Text(label, style: AppTextStyles.formLabel(context)),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -756,8 +798,11 @@ class _Step1FormWidget extends ConsumerWidget {
               hintText: hint,
               hintStyle: AppTextStyles.secondaryText(context),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              errorText: touchedFields.contains(fieldKey) 
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              errorText: touchedFields.contains(fieldKey)
                   ? ref.watch(validationProvider(controller.text))
                   : null,
             ),
@@ -780,9 +825,9 @@ class _Step1FormWidget extends ConsumerWidget {
       children: [
         Text(
           '$label (선택)',
-          style: AppTextStyles.formLabel(context).copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: AppTextStyles.formLabel(
+            context,
+          ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         Container(
@@ -790,7 +835,9 @@ class _Step1FormWidget extends ConsumerWidget {
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -801,7 +848,10 @@ class _Step1FormWidget extends ConsumerWidget {
               hintText: hint,
               hintStyle: AppTextStyles.secondaryText(context),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
         ),
@@ -820,10 +870,7 @@ class _Step2FormWidget extends ConsumerWidget {
 
     if (result == null) {
       return Center(
-        child: Text(
-          '조회 결과가 없습니다.',
-          style: AppTextStyles.primaryText(context),
-        ),
+        child: Text('조회 결과가 없습니다.', style: AppTextStyles.primaryText(context)),
       );
     }
 
@@ -869,7 +916,9 @@ class _Step2FormWidget extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF4CAF50,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -915,9 +964,9 @@ class _Step2FormWidget extends ConsumerWidget {
           // Business information with enhanced design
           Text(
             '조회된 사업자 정보',
-            style: AppTextStyles.sectionTitle(context).copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: AppTextStyles.sectionTitle(
+              context,
+            ).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
 
@@ -927,11 +976,15 @@ class _Step2FormWidget extends ConsumerWidget {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -939,14 +992,46 @@ class _Step2FormWidget extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow(context, '사업자등록번호', result.bNo, icon: Icons.business_rounded),
-                _buildInfoRow(context, '대표자명', result.requestParam.pNm, icon: Icons.person_rounded),
-                _buildInfoRow(context, '개업일자', _formatDate(result.requestParam.startDt), icon: Icons.calendar_today_rounded),
+                _buildInfoRow(
+                  context,
+                  '사업자등록번호',
+                  result.bNo,
+                  icon: Icons.business_rounded,
+                ),
+                _buildInfoRow(
+                  context,
+                  '대표자명',
+                  result.requestParam.pNm,
+                  icon: Icons.person_rounded,
+                ),
+                _buildInfoRow(
+                  context,
+                  '개업일자',
+                  _formatDate(result.requestParam.startDt),
+                  icon: Icons.calendar_today_rounded,
+                ),
                 if (result.status != null) ...[
-                  _buildInfoRow(context, '과세유형', result.status!.taxType, icon: Icons.account_balance_rounded),
-                  _buildInfoRow(context, '납세자상태', result.status!.bStt, icon: Icons.check_circle_rounded, isLast: true),
+                  _buildInfoRow(
+                    context,
+                    '과세유형',
+                    result.status!.taxType,
+                    icon: Icons.account_balance_rounded,
+                  ),
+                  _buildInfoRow(
+                    context,
+                    '납세자상태',
+                    result.status!.bStt,
+                    icon: Icons.check_circle_rounded,
+                    isLast: true,
+                  ),
                 ] else
-                  _buildInfoRow(context, '상태', '정상', icon: Icons.check_circle_rounded, isLast: true),
+                  _buildInfoRow(
+                    context,
+                    '상태',
+                    '정상',
+                    icon: Icons.check_circle_rounded,
+                    isLast: true,
+                  ),
               ],
             ),
           ),
@@ -959,7 +1044,7 @@ class _Step2FormWidget extends ConsumerWidget {
 
   String _formatDate(String? dateStr) {
     if (dateStr == null || dateStr.length != 8) return dateStr ?? '-';
-    
+
     try {
       final year = dateStr.substring(0, 4);
       final month = dateStr.substring(4, 6);
@@ -970,16 +1055,26 @@ class _Step2FormWidget extends ConsumerWidget {
     }
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value, {IconData? icon, bool isLast = false}) {
+  Widget _buildInfoRow(
+    BuildContext context,
+    String label,
+    String value, {
+    IconData? icon,
+    bool isLast = false,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
-            width: 1,
-          ),
-        ),
+        border: isLast
+            ? null
+            : Border(
+                bottom: BorderSide(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.08),
+                  width: 1,
+                ),
+              ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -988,7 +1083,9 @@ class _Step2FormWidget extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -1014,10 +1111,9 @@ class _Step2FormWidget extends ConsumerWidget {
             flex: 3,
             child: Text(
               value,
-              style: AppTextStyles.primaryText(context).copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
+              style: AppTextStyles.primaryText(
+                context,
+              ).copyWith(fontWeight: FontWeight.w600, fontSize: 14),
               textAlign: TextAlign.end,
             ),
           ),
@@ -1037,7 +1133,7 @@ class _Step3FormWidget extends ConsumerStatefulWidget {
 class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
   final ImagePicker _picker = ImagePicker();
   final GeminiService _geminiService = GeminiService.instance;
-  
+
   File? _selectedImage;
   bool _isProcessing = false;
   double _matchPercentage = 0.0;
@@ -1050,12 +1146,12 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
         source: ImageSource.gallery,
         imageQuality: 85,
       );
-      
+
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
         });
-        
+
         // Start processing
         await _processImage();
       }
@@ -1069,12 +1165,12 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
 
   Future<void> _processImage() async {
     if (_selectedImage == null) return;
-    
+
     setState(() {
       _isProcessing = true;
       _progressMessage = '이미지를 분석하고 있습니다...';
     });
-    
+
     try {
       // Show progress dialog
       if (mounted) {
@@ -1084,41 +1180,43 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
           builder: (context) => _buildProgressDialog(),
         );
       }
-      
+
       // Step 1: Extract text from image
       setState(() {
         _progressMessage = '사업자 등록증 텍스트를 추출하고 있습니다...';
       });
-      
+
       final extractedText = await _extractTextFromImage(_selectedImage!);
-      
+
       // Step 2: Get business data from provider
       setState(() {
         _progressMessage = '정보를 비교하고 있습니다...';
       });
-      
+
       final businessData = ref.read(businessVerificationProvider);
-      
+
       // Step 3: Compare with Gemini
-      final matchPercentage = await _compareWithGemini(extractedText, businessData);
-      
+      final matchPercentage = await _compareWithGemini(
+        extractedText,
+        businessData,
+      );
+
       setState(() {
         _matchPercentage = matchPercentage;
         _hasResult = true;
         _isProcessing = false;
       });
-      
+
       // Close progress dialog
       if (mounted) {
         Navigator.of(context).pop();
       }
-      
     } catch (e) {
       log('Error processing image: $e');
       setState(() {
         _isProcessing = false;
       });
-      
+
       // Close progress dialog if open
       if (mounted) {
         Navigator.of(context).pop();
@@ -1137,23 +1235,32 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
     }
   }
 
-  Future<double> _compareWithGemini(String extractedText, BusinessVerificationState businessData) async {
+  Future<double> _compareWithGemini(
+    String extractedText,
+    BusinessVerificationState businessData,
+  ) async {
     try {
       // Extract structured data from text
-      final extractedDataMap = await _geminiService.extractBusinessDataFromText(extractedText);
-      
+      final extractedDataMap = await _geminiService.extractBusinessDataFromText(
+        extractedText,
+      );
+
       // Save extracted data to provider
-      ref.read(businessVerificationProvider.notifier).setExtractedData(extractedDataMap);
-      
+      ref
+          .read(businessVerificationProvider.notifier)
+          .setExtractedData(extractedDataMap);
+
       // Prepare API data string - only 3 fields for comparison
-      final apiData = '''
+      final apiData =
+          '''
 사업자등록번호: ${businessData.input?.businessNumber ?? ''}
 성명(대표자): ${businessData.input?.representativeName ?? ''}
 개업일: ${businessData.input?.openingDate ?? ''}
       ''';
-      
+
       // Prepare extracted data for comparison - only 3 fields
-      final extractedDataForComparison = '''
+      final extractedDataForComparison =
+          '''
 사업자등록번호: ${extractedDataMap['businessNumber'] ?? ''}
 성명(대표자): ${extractedDataMap['representativeName'] ?? ''}
 개업일: ${extractedDataMap['openingDate'] ?? ''}
@@ -1172,9 +1279,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
   Widget _buildProgressDialog() {
     return Dialog(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 280),
         padding: const EdgeInsets.all(24),
@@ -1203,30 +1308,29 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             Text(
               'AI 검증 중',
-              style: AppTextStyles.sectionTitle(context).copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTextStyles.sectionTitle(
+                context,
+              ).copyWith(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            
+
             // Progress message
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: Text(
                 _progressMessage,
                 key: ValueKey(_progressMessage),
-                style: AppTextStyles.secondaryText(context).copyWith(
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.secondaryText(
+                  context,
+                ).copyWith(fontSize: 13),
                 textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Progress dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1239,7 +1343,9 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                   decoration: BoxDecoration(
                     color: _progressMessage.contains('비교')
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -1251,7 +1357,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
       ),
     );
   }
-  
+
   Widget _buildProgressDot(BuildContext context, bool isActive) {
     return Container(
       width: 8,
@@ -1264,7 +1370,6 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
       ),
     );
   }
-  
 
   Color _getMatchColor() {
     if (_matchPercentage < 40) {
@@ -1297,10 +1402,14 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
           Container(
             padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+              color: Theme.of(
+                context,
+              ).colorScheme.error.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.error.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -1329,7 +1438,9 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       Text(
                         '타인의 사업자 등록증 무단 사용 시 법적 처벌을 받을 수 있습니다.',
                         style: AppTextStyles.captionText(context).copyWith(
-                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.8),
                           fontSize: 11,
                         ),
                       ),
@@ -1339,33 +1450,36 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
-          Text(
-            '서류 제출',
-            style: AppTextStyles.sectionTitle(context),
-          ),
+
+          Text('서류 제출', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 8),
-          
+
           // Upload section
           GestureDetector(
             onTap: _pickImage,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: _selectedImage != null 
-                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  color: _selectedImage != null
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.1),
                   width: _selectedImage != null ? 1.5 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.shadow.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -1378,25 +1492,26 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       borderRadius: BorderRadius.circular(8),
                       child: Image.file(
                         _selectedImage!,
-                        height: 160,
+                        height: 140,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.check_circle,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 18,
+                          size: 16,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
-                          '이미지가 선택되었습니다',
-                          style: AppTextStyles.primaryText(context).copyWith(
+                          '선택 완료',
+                          style: AppTextStyles.captionText(context).copyWith(
                             color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -1410,14 +1525,19 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       label: Text(
-                        '재검증',
+                        '다시 검증 하기',
                         style: AppTextStyles.buttonText(context).copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -1427,7 +1547,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                     Icon(
                       Icons.upload_file_outlined,
                       color: Theme.of(context).colorScheme.primary,
-                      size: 42,
+                      size: 36,
                     ),
                     const SizedBox(height: 14),
                     Text(
@@ -1447,7 +1567,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
               ),
             ),
           ),
-          
+
           // AI Verification Result Card - Enhanced Design
           if (_hasResult) ...[
             const SizedBox(height: 16),
@@ -1458,7 +1578,9 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                   end: Alignment.bottomRight,
                   colors: [
                     Theme.of(context).colorScheme.surface,
-                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.98),
+                    Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: 0.98),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
@@ -1469,7 +1591,9 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.shadow.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -1479,7 +1603,10 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                 children: [
                   // Header with AI label
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -1519,17 +1646,20 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: _getMatchColor().withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            _matchPercentage >= 70 
+                            _matchPercentage >= 70
                                 ? '✓ 검증됨'
-                                : _matchPercentage >= 40 
-                                    ? '⚠ 확인필요'
-                                    : '✗ 불일치',
+                                : _matchPercentage >= 40
+                                ? '⚠ 확인필요'
+                                : '✗ 불일치',
                             style: AppTextStyles.captionText(context).copyWith(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -1540,7 +1670,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       ],
                     ),
                   ),
-                  
+
                   // Main content
                   Padding(
                     padding: const EdgeInsets.all(14),
@@ -1556,8 +1686,12 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                               child: CircularProgressIndicator(
                                 value: _matchPercentage / 100,
                                 strokeWidth: 5,
-                                backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                                valueColor: AlwaysStoppedAnimation<Color>(_getMatchColor()),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.1),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  _getMatchColor(),
+                                ),
                               ),
                             ),
                             Container(
@@ -1590,7 +1724,9 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
-                                        color: _getMatchColor().withValues(alpha: 0.7),
+                                        color: _getMatchColor().withValues(
+                                          alpha: 0.7,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1600,7 +1736,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                           ],
                         ),
                         const SizedBox(width: 16),
-                        
+
                         // Status details
                         Expanded(
                           child: Column(
@@ -1610,37 +1746,41 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                               Row(
                                 children: [
                                   Icon(
-                                    _matchPercentage >= 70 
+                                    _matchPercentage >= 70
                                         ? Icons.verified
-                                        : _matchPercentage >= 40 
-                                            ? Icons.pending
-                                            : Icons.report_problem,
+                                        : _matchPercentage >= 40
+                                        ? Icons.pending
+                                        : Icons.report_problem,
                                     color: _getMatchColor(),
                                     size: 20,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    _matchPercentage >= 70 
+                                    _matchPercentage >= 70
                                         ? 'AI 검증 성공'
-                                        : _matchPercentage >= 40 
-                                            ? 'AI 부분 검증'
-                                            : 'AI 검증 실패',
-                                    style: AppTextStyles.primaryText(context).copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: _getMatchColor(),
-                                      fontSize: 15,
-                                    ),
+                                        : _matchPercentage >= 40
+                                        ? 'AI 부분 검증'
+                                        : 'AI 검증 실패',
+                                    style: AppTextStyles.primaryText(context)
+                                        .copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: _getMatchColor(),
+                                          fontSize: 15,
+                                        ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 _getMatchMessage(),
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                  height: 1.3,
-                                ),
+                                style: AppTextStyles.captionText(context)
+                                    .copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                      fontSize: 12,
+                                      height: 1.3,
+                                    ),
                               ),
                             ],
                           ),
@@ -1648,12 +1788,18 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       ],
                     ),
                   ),
-                  
+
                   // Bottom info bar
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.3),
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(16),
                         bottomRight: Radius.circular(16),
@@ -1665,14 +1811,19 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                         Icon(
                           Icons.shield_outlined,
                           size: 14,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           'Gemini AI로 안전하게 검증되었습니다',
                           style: AppTextStyles.captionText(context).copyWith(
                             fontSize: 11,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withValues(alpha: 0.7),
                           ),
                         ),
                       ],
