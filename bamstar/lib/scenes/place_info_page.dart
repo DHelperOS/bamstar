@@ -759,9 +759,41 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           Text('성별', style: AppTextStyles.formLabel(context)),
           const SizedBox(height: 8),
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: '남', label: Text('남')),
-              ButtonSegment(value: '여', label: Text('여')),
+            segments: [
+              ButtonSegment(
+                value: '남',
+                label: Text(
+                  '남',
+                  style: TextStyle(
+                    color: _selectedGender == '남' 
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
+                ),
+                icon: Icon(
+                  Icons.male,
+                  color: _selectedGender == '남'
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : null,
+                ),
+              ),
+              ButtonSegment(
+                value: '여',
+                label: Text(
+                  '여',
+                  style: TextStyle(
+                    color: _selectedGender == '여'
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
+                ),
+                icon: Icon(
+                  Icons.female,
+                  color: _selectedGender == '여'
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : null,
+                ),
+              ),
             ],
             selected: {_selectedGender},
             onSelectionChanged: (Set<String> newSelection) {
@@ -769,6 +801,14 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 setState(() => _selectedGender = newSelection.first);
               }
             },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Theme.of(context).colorScheme.primary;
+                }
+                return null;
+              }),
+            ),
           ),
           const SizedBox(height: 20),
 
