@@ -25,16 +25,13 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '사업자 인증',
-                style: AppTextStyles.dialogTitle(modalCtx),
-              ),
+              Text('사업자 인증', style: AppTextStyles.dialogTitle(modalCtx)),
               const SizedBox(height: 4),
               Text(
                 '1/3 사업자 정보 입력',
-                style: AppTextStyles.captionText(modalCtx).copyWith(
-                  color: Theme.of(modalCtx).colorScheme.primary,
-                ),
+                style: AppTextStyles.captionText(
+                  modalCtx,
+                ).copyWith(color: Theme.of(modalCtx).colorScheme.primary),
               ),
             ],
           ),
@@ -65,8 +62,8 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
           },
         ),
       ),
-      
-      // Step 2: Business Information Confirmation  
+
+      // Step 2: Business Information Confirmation
       WoltModalSheetPage(
         backgroundColor: Theme.of(modalCtx).colorScheme.surface,
         surfaceTintColor: Colors.transparent,
@@ -77,16 +74,13 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '사업자 인증',
-                style: AppTextStyles.dialogTitle(modalCtx),
-              ),
+              Text('사업자 인증', style: AppTextStyles.dialogTitle(modalCtx)),
               const SizedBox(height: 4),
               Text(
                 '2/3 정보 확인',
-                style: AppTextStyles.captionText(modalCtx).copyWith(
-                  color: Theme.of(modalCtx).colorScheme.primary,
-                ),
+                style: AppTextStyles.captionText(
+                  modalCtx,
+                ).copyWith(color: Theme.of(modalCtx).colorScheme.primary),
               ),
             ],
           ),
@@ -111,7 +105,9 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             color: Theme.of(modalCtx).colorScheme.surface,
             border: Border(
               top: BorderSide(
-                color: Theme.of(modalCtx).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  modalCtx,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -127,7 +123,9 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(modalCtx).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    modalCtx,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -161,7 +159,7 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
           },
         ),
       ),
-      
+
       // Step 3: Document Upload & AI Verification
       WoltModalSheetPage(
         backgroundColor: Theme.of(modalCtx).colorScheme.surface,
@@ -173,16 +171,13 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '사업자 인증',
-                style: AppTextStyles.dialogTitle(modalCtx),
-              ),
+              Text('사업자 인증', style: AppTextStyles.dialogTitle(modalCtx)),
               const SizedBox(height: 4),
               Text(
                 '3/3 서류 업로드',
-                style: AppTextStyles.captionText(modalCtx).copyWith(
-                  color: Theme.of(modalCtx).colorScheme.primary,
-                ),
+                style: AppTextStyles.captionText(
+                  modalCtx,
+                ).copyWith(color: Theme.of(modalCtx).colorScheme.primary),
               ),
             ],
           ),
@@ -218,7 +213,7 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
 // Step 1 Form Widget
 class _Step1FormWidget extends ConsumerStatefulWidget {
   final VoidCallback onComplete;
-  
+
   const _Step1FormWidget({required this.onComplete});
 
   @override
@@ -226,12 +221,11 @@ class _Step1FormWidget extends ConsumerStatefulWidget {
 }
 
 class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
-  
   // Controllers
   final _registrationNumberCtl = TextEditingController();
   final _representativeNameCtl = TextEditingController();
   final _openingDateCtl = TextEditingController();
-  
+
   // Optional fields
   final _representativeNameCtl2 = TextEditingController();
   final _corporateNumberCtl = TextEditingController();
@@ -239,7 +233,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
   final _mainBusinessCtl = TextEditingController();
   final _subBusinessCtl = TextEditingController();
   final _businessAddressCtl = TextEditingController();
-  
+
   bool _showOptionalFields = false;
 
   @override
@@ -252,12 +246,12 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
   void _loadCachedData() {
     final state = ref.read(businessVerificationProvider);
     final input = state.input;
-    
+
     if (input != null && input.hasRequiredFields) {
       _registrationNumberCtl.text = input.businessNumber;
       _representativeNameCtl.text = input.representativeName;
       _openingDateCtl.text = input.openingDate;
-      
+
       if (input.representativeName2?.isNotEmpty == true) {
         _representativeNameCtl2.text = input.representativeName2!;
         _showOptionalFields = true;
@@ -282,7 +276,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
         _businessAddressCtl.text = input.businessAddress!;
         _showOptionalFields = true;
       }
-      
+
       // 캐시된 데이터가 로드되었으므로 UI 업데이트
       setState(() {});
     }
@@ -304,45 +298,45 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
 
   void _validateAndProceed() async {
     final notifier = ref.read(businessVerificationProvider.notifier);
-    
+
     // 입력값을 Riverpod 상태로 업데이트
     final input = BusinessVerificationInput(
       businessNumber: _registrationNumberCtl.text.trim(),
       representativeName: _representativeNameCtl.text.trim(),
       openingDate: _openingDateCtl.text.trim(),
-      representativeName2: _representativeNameCtl2.text.trim().isNotEmpty 
-          ? _representativeNameCtl2.text.trim() 
+      representativeName2: _representativeNameCtl2.text.trim().isNotEmpty
+          ? _representativeNameCtl2.text.trim()
           : null,
-      businessName: _businessNameCtl.text.trim().isNotEmpty 
-          ? _businessNameCtl.text.trim() 
+      businessName: _businessNameCtl.text.trim().isNotEmpty
+          ? _businessNameCtl.text.trim()
           : null,
-      corporateNumber: _corporateNumberCtl.text.trim().isNotEmpty 
-          ? _corporateNumberCtl.text.trim() 
+      corporateNumber: _corporateNumberCtl.text.trim().isNotEmpty
+          ? _corporateNumberCtl.text.trim()
           : null,
-      mainBusinessType: _mainBusinessCtl.text.trim().isNotEmpty 
-          ? _mainBusinessCtl.text.trim() 
+      mainBusinessType: _mainBusinessCtl.text.trim().isNotEmpty
+          ? _mainBusinessCtl.text.trim()
           : null,
-      subBusinessType: _subBusinessCtl.text.trim().isNotEmpty 
-          ? _subBusinessCtl.text.trim() 
+      subBusinessType: _subBusinessCtl.text.trim().isNotEmpty
+          ? _subBusinessCtl.text.trim()
           : null,
-      businessAddress: _businessAddressCtl.text.trim().isNotEmpty 
-          ? _businessAddressCtl.text.trim() 
+      businessAddress: _businessAddressCtl.text.trim().isNotEmpty
+          ? _businessAddressCtl.text.trim()
           : null,
     );
 
     notifier.updateInput(input);
-    
+
     // Riverpod으로 API 호출
     await notifier.verify();
-    
+
     if (!mounted) return;
-    
+
     // 결과에 따른 처리
     final state = ref.read(businessVerificationProvider);
-    
+
     if (state.isSuccess && state.result != null) {
       final result = state.result!;
-      
+
       // 사업자 상태에 따른 경고 처리
       if (result.status != null) {
         if (result.status!.isClosed) {
@@ -355,7 +349,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
           return;
         }
       }
-      
+
       ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
       widget.onComplete();
     } else if (state.error != null) {
@@ -366,11 +360,12 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
   @override
   Widget build(BuildContext context) {
     // 실시간 폼 유효성 검증 - TextEditingController 직접 확인
-    final isFormValid = _registrationNumberCtl.text.trim().isNotEmpty &&
-                       _representativeNameCtl.text.trim().isNotEmpty &&
-                       _openingDateCtl.text.trim().isNotEmpty;
+    final isFormValid =
+        _registrationNumberCtl.text.trim().isNotEmpty &&
+        _representativeNameCtl.text.trim().isNotEmpty &&
+        _openingDateCtl.text.trim().isNotEmpty;
     final isLoading = ref.watch(businessVerificationLoadingProvider);
-    
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.75,
       child: Column(
@@ -389,7 +384,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -404,10 +401,13 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                             child: Center(
                               child: Text(
                                 '1',
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  color: Theme.of(context).colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTextStyles.captionText(context)
+                                    .copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             ),
                           ),
@@ -415,17 +415,67 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                           Expanded(
                             child: Text(
                               '사업자 정보 입력',
-                              style: AppTextStyles.primaryText(context).copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: AppTextStyles.primaryText(
+                                context,
+                              ).copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
+                    // Info Card - Guidance for users
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.business_rounded,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '사업자등록증을 준비해주세요',
+                                  style: AppTextStyles.cardTitle(context).copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '사업자등록증에 기재된 정보를 정확히 입력하시면\n국세청 API를 통해 자동으로 사업자 정보를 확인합니다.',
+                                  style: AppTextStyles.secondaryText(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     Text(
                       '사업자등록증 정보',
                       style: AppTextStyles.sectionTitle(context),
@@ -436,47 +486,57 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                       style: AppTextStyles.secondaryText(context),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Business Registration Number
                     _buildFormFieldWithError(
                       context: context,
                       label: '사업자등록번호',
                       controller: _registrationNumberCtl,
                       hint: '10자리 숫자 입력 (예: 1234567890)',
-                      errorText: ref.watch(businessNumberValidationProvider(_registrationNumberCtl.text)),
+                      errorText: ref.watch(
+                        businessNumberValidationProvider(
+                          _registrationNumberCtl.text,
+                        ),
+                      ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [_BusinessNumberFormatter()],
                       onChanged: (value) => setState(() {}),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Representative Name
                     _buildFormFieldWithError(
                       context: context,
                       label: '대표자명',
                       controller: _representativeNameCtl,
                       hint: '홍길동',
-                      errorText: ref.watch(representativeNameValidationProvider(_representativeNameCtl.text)),
+                      errorText: ref.watch(
+                        representativeNameValidationProvider(
+                          _representativeNameCtl.text,
+                        ),
+                      ),
                       onChanged: (value) => setState(() {}),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Opening Date
                     _buildFormFieldWithError(
                       context: context,
                       label: '개업일자',
                       controller: _openingDateCtl,
                       hint: '8자리 숫자 입력 (예: 20050302)',
-                      errorText: ref.watch(openingDateValidationProvider(_openingDateCtl.text)),
+                      errorText: ref.watch(
+                        openingDateValidationProvider(_openingDateCtl.text),
+                      ),
                       keyboardType: TextInputType.number,
                       inputFormatters: [_DateFormatter()],
                       onChanged: (value) => setState(() {}),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Optional fields toggle
                     GestureDetector(
                       onTap: () {
@@ -487,18 +547,23 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.outline.withValues(alpha: 0.1),
                             width: 1,
                           ),
                         ),
                         child: Row(
                           children: [
                             Icon(
-                              _showOptionalFields 
-                                  ? Icons.expand_less_rounded 
+                              _showOptionalFields
+                                  ? Icons.expand_less_rounded
                                   : Icons.expand_more_rounded,
                               color: Theme.of(context).colorScheme.primary,
                               size: 20,
@@ -507,26 +572,32 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                             Expanded(
                               child: Text(
                                 '선택 입력 항목',
-                                style: AppTextStyles.primaryText(context).copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                                style: AppTextStyles.primaryText(context)
+                                    .copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
                               ),
                             ),
                             Text(
                               _showOptionalFields ? '숨기기' : '보기',
-                              style: AppTextStyles.captionText(context).copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                              style: AppTextStyles.captionText(context)
+                                  .copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    
+
                     // Optional fields (conditionally shown)
                     if (_showOptionalFields) ...[
                       const SizedBox(height: 20),
-                      
+
                       Text(
                         '선택 정보',
                         style: AppTextStyles.sectionTitle(context).copyWith(
@@ -534,7 +605,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Additional Representative Name
                       _buildFormFieldWithError(
                         context: context,
@@ -543,9 +614,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         hint: '부대표자명',
                         isRequired: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Business Name
                       _buildFormFieldWithError(
                         context: context,
@@ -554,9 +625,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         hint: '상호명을 입력하세요',
                         isRequired: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Corporate Number
                       _buildFormFieldWithError(
                         context: context,
@@ -565,9 +636,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         hint: '000000-0000000',
                         isRequired: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Main Business
                       _buildFormFieldWithError(
                         context: context,
@@ -576,9 +647,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         hint: '주요 업태를 입력하세요',
                         isRequired: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Sub Business
                       _buildFormFieldWithError(
                         context: context,
@@ -587,9 +658,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         hint: '주요 종목을 입력하세요',
                         isRequired: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Business Address
                       _buildFormFieldWithError(
                         context: context,
@@ -599,7 +670,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                         isRequired: false,
                       ),
                     ],
-                    
+
                     // 하단 여백
                     const SizedBox(height: 20),
                   ],
@@ -607,20 +678,22 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
               ),
             ),
           ),
-          
+
           // Action bar with validation button - moved to bottom with keyboard support
           Container(
             padding: EdgeInsets.fromLTRB(
-              20.0, 
-              16.0, 
-              20.0, 
-              16.0 + MediaQuery.of(context).viewInsets.bottom
+              20.0,
+              16.0,
+              20.0,
+              16.0 + MediaQuery.of(context).viewInsets.bottom,
             ),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               border: Border(
                 top: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -632,7 +705,9 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                   colors: isFormValid
                       ? [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.8),
                         ]
                       : [
                           Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -642,8 +717,12 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                 boxShadow: [
                   BoxShadow(
                     color: isFormValid
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-                        : Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.shadow.withValues(alpha: 0.1),
                     blurRadius: isFormValid ? 8 : 4,
                     offset: const Offset(0, 4),
                   ),
@@ -670,9 +749,11 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
                           : Text(
                               isFormValid ? '사업자 정보 조회' : '필수 정보를 모두 입력해주세요',
                               style: AppTextStyles.buttonText(context).copyWith(
-                                color: isFormValid 
+                                color: isFormValid
                                     ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                     ),
@@ -690,7 +771,7 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
 // Step 3 Form Widget
 class _Step3FormWidget extends StatefulWidget {
   final VoidCallback onComplete;
-  
+
   const _Step3FormWidget({required this.onComplete});
 
   @override
@@ -715,7 +796,9 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
               color: Theme.of(context).colorScheme.surface,
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -727,23 +810,35 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
                   colors: _verificationResult == 'success'
                       ? [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.8),
                         ]
                       : _uploadedDocument == null
-                          ? [
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                              Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            ]
-                          : [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                            ],
+                      ? [
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                          Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        ]
+                      : [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: (_verificationResult == 'success' || _uploadedDocument != null)
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                    color:
+                        (_verificationResult == 'success' ||
+                            _uploadedDocument != null)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -753,12 +848,15 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
-                  onTap: _uploadedDocument == null && _verificationResult != 'success'
+                  onTap:
+                      _uploadedDocument == null &&
+                          _verificationResult != 'success'
                       ? null
                       : () async {
                           if (_verificationResult == 'success') {
                             widget.onComplete();
-                          } else if (_uploadedDocument != null && !_isVerifying) {
+                          } else if (_uploadedDocument != null &&
+                              !_isVerifying) {
                             // Simulate AI verification
                             setState(() => _isVerifying = true);
                             await Future.delayed(const Duration(seconds: 2));
@@ -779,8 +877,8 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
                         _verificationResult == 'success'
                             ? '인증 완료'
                             : _uploadedDocument == null
-                                ? '서류를 업로드해주세요'
-                                : 'AI 검증 시작',
+                            ? '서류를 업로드해주세요'
+                            : 'AI 검증 시작',
                         style: AppTextStyles.buttonText(context).copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
@@ -791,11 +889,16 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
               ),
             ),
           ),
-          
+
           // Document upload content
           Expanded(
-            child: _buildStep3Content(context, _uploadedDocument, _verificationResult,
-                _isVerifying, (file) => setState(() => _uploadedDocument = file)),
+            child: _buildStep3Content(
+              context,
+              _uploadedDocument,
+              _verificationResult,
+              _isVerifying,
+              (file) => setState(() => _uploadedDocument = file),
+            ),
           ),
         ],
       ),
@@ -821,17 +924,14 @@ Widget _buildFormFieldWithError({
     children: [
       Row(
         children: [
-          Text(
-            label,
-            style: AppTextStyles.formLabel(context),
-          ),
+          Text(label, style: AppTextStyles.formLabel(context)),
           if (isRequired) ...[
             const SizedBox(width: 4),
             Text(
               '*',
-              style: AppTextStyles.formLabel(context).copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: AppTextStyles.formLabel(
+                context,
+              ).copyWith(color: Theme.of(context).colorScheme.error),
             ),
           ],
         ],
@@ -842,7 +942,7 @@ Widget _buildFormFieldWithError({
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: errorText != null 
+            color: errorText != null
                 ? Theme.of(context).colorScheme.error.withValues(alpha: 0.5)
                 : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
             width: 1,
@@ -870,9 +970,9 @@ Widget _buildFormFieldWithError({
         const SizedBox(height: 6),
         Text(
           errorText,
-          style: AppTextStyles.captionText(context).copyWith(
-            color: Theme.of(context).colorScheme.error,
-          ),
+          style: AppTextStyles.captionText(
+            context,
+          ).copyWith(color: Theme.of(context).colorScheme.error),
         ),
       ],
     ],
@@ -880,7 +980,10 @@ Widget _buildFormFieldWithError({
 }
 
 // Step 2: Business Information Confirmation
-Widget _buildStep2Content(BuildContext context, BusinessVerificationResult? businessResult) {
+Widget _buildStep2Content(
+  BuildContext context,
+  BusinessVerificationResult? businessResult,
+) {
   return SizedBox(
     height: MediaQuery.of(context).size.height * 0.65,
     child: SingleChildScrollView(
@@ -930,9 +1033,9 @@ Widget _buildStep2Content(BuildContext context, BusinessVerificationResult? busi
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Business information display
           Container(
             padding: const EdgeInsets.all(20.0),
@@ -940,12 +1043,16 @@ Widget _buildStep2Content(BuildContext context, BusinessVerificationResult? busi
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -954,34 +1061,86 @@ Widget _buildStep2Content(BuildContext context, BusinessVerificationResult? busi
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '조회된 사업자 정보',
-                  style: AppTextStyles.sectionTitle(context),
-                ),
+                Text('조회된 사업자 정보', style: AppTextStyles.sectionTitle(context)),
                 const SizedBox(height: 20),
-                
+
                 if (businessResult != null) ...[
-                  _buildInfoRow(context, '사업자등록번호', _formatBusinessNumber(businessResult.bNo)),
-                  _buildInfoRow(context, '상호명', businessResult.requestParam.bNm ?? '-'),
-                  _buildInfoRow(context, '대표자명', businessResult.requestParam.pNm),
+                  _buildInfoRow(
+                    context,
+                    '사업자등록번호',
+                    _formatBusinessNumber(businessResult.bNo),
+                  ),
+                  _buildInfoRow(
+                    context,
+                    '상호명',
+                    businessResult.requestParam.bNm ?? '-',
+                  ),
+                  _buildInfoRow(
+                    context,
+                    '대표자명',
+                    businessResult.requestParam.pNm,
+                  ),
                   if (businessResult.requestParam.pNm2?.isNotEmpty == true)
-                    _buildInfoRow(context, '대표자명2', businessResult.requestParam.pNm2!),
+                    _buildInfoRow(
+                      context,
+                      '대표자명2',
+                      businessResult.requestParam.pNm2!,
+                    ),
                   if (businessResult.requestParam.corpNo?.isNotEmpty == true)
-                    _buildInfoRow(context, '법인등록번호', _formatCorporateNumber(businessResult.requestParam.corpNo!)),
+                    _buildInfoRow(
+                      context,
+                      '법인등록번호',
+                      _formatCorporateNumber(
+                        businessResult.requestParam.corpNo!,
+                      ),
+                    ),
                   if (businessResult.requestParam.bSector?.isNotEmpty == true)
-                    _buildInfoRow(context, '주업태명', businessResult.requestParam.bSector!),
+                    _buildInfoRow(
+                      context,
+                      '주업태명',
+                      businessResult.requestParam.bSector!,
+                    ),
                   if (businessResult.requestParam.bType?.isNotEmpty == true)
-                    _buildInfoRow(context, '주종목명', businessResult.requestParam.bType!),
+                    _buildInfoRow(
+                      context,
+                      '주종목명',
+                      businessResult.requestParam.bType!,
+                    ),
                   if (businessResult.requestParam.bAdr?.isNotEmpty == true)
-                    _buildInfoRow(context, '사업장주소', businessResult.requestParam.bAdr!),
-                  _buildInfoRow(context, '개업일자', _formatDate(businessResult.requestParam.startDt)),
+                    _buildInfoRow(
+                      context,
+                      '사업장주소',
+                      businessResult.requestParam.bAdr!,
+                    ),
+                  _buildInfoRow(
+                    context,
+                    '개업일자',
+                    _formatDate(businessResult.requestParam.startDt),
+                  ),
                   if (businessResult.status != null) ...[
-                    _buildInfoRow(context, '사업자상태', businessResult.status!.businessStatusDescription),
-                    _buildInfoRow(context, '과세유형', businessResult.status!.taxType),
+                    _buildInfoRow(
+                      context,
+                      '사업자상태',
+                      businessResult.status!.businessStatusDescription,
+                    ),
+                    _buildInfoRow(
+                      context,
+                      '과세유형',
+                      businessResult.status!.taxType,
+                    ),
                     if (businessResult.status!.endDt?.isNotEmpty == true)
-                      _buildInfoRow(context, '폐업일자', _formatDate(businessResult.status!.endDt!)),
+                      _buildInfoRow(
+                        context,
+                        '폐업일자',
+                        _formatDate(businessResult.status!.endDt!),
+                      ),
                   ],
-                  _buildInfoRow(context, '진위확인', businessResult.isValid ? '확인됨' : '확인불가', isLast: true),
+                  _buildInfoRow(
+                    context,
+                    '진위확인',
+                    businessResult.isValid ? '확인됨' : '확인불가',
+                    isLast: true,
+                  ),
                 ],
               ],
             ),
@@ -1010,13 +1169,19 @@ Widget _buildStep3Content(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: verificationResult == 'success'
-                ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
-                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                ? Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: verificationResult == 'success'
                   ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -1061,21 +1226,25 @@ Widget _buildStep3Content(
             ],
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Document upload area
         Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.1),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                color: Theme.of(
+                  context,
+                ).colorScheme.shadow.withValues(alpha: 0.08),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -1085,26 +1254,28 @@ Widget _buildStep3Content(
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
-              onTap: uploadedDocument != null ? null : () async {
-                try {
-                  final picker = ImagePicker();
-                  final XFile? image = await picker.pickImage(
-                    source: ImageSource.gallery,
-                    imageQuality: 85,
-                  );
+              onTap: uploadedDocument != null
+                  ? null
+                  : () async {
+                      try {
+                        final picker = ImagePicker();
+                        final XFile? image = await picker.pickImage(
+                          source: ImageSource.gallery,
+                          imageQuality: 85,
+                        );
 
-                  if (image != null) {
-                    onDocumentUploaded(image);
-                    if (context.mounted) {
-                      ToastHelper.success(context, '서류가 업로드되었습니다');
-                    }
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ToastHelper.error(context, '파일 업로드 중 오류가 발생했습니다');
-                  }
-                }
-              },
+                        if (image != null) {
+                          onDocumentUploaded(image);
+                          if (context.mounted) {
+                            ToastHelper.success(context, '서류가 업로드되었습니다');
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ToastHelper.error(context, '파일 업로드 중 오류가 발생했습니다');
+                        }
+                      }
+                    },
               child: Container(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
@@ -1114,7 +1285,9 @@ Widget _buildStep3Content(
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -1140,7 +1313,9 @@ Widget _buildStep3Content(
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -1178,7 +1353,7 @@ Widget _buildStep3Content(
             ),
           ),
         ),
-        
+
         // Verification status
         if (uploadedDocument != null) ...[
           const SizedBox(height: 24),
@@ -1186,13 +1361,20 @@ Widget _buildStep3Content(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: verificationResult == 'success'
-                  ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.2)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: verificationResult == 'success'
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -1205,8 +1387,8 @@ Widget _buildStep3Content(
                       verificationResult == 'success'
                           ? Icons.check_circle_rounded
                           : isVerifying
-                              ? Icons.hourglass_empty_rounded
-                              : Icons.smart_toy_rounded,
+                          ? Icons.hourglass_empty_rounded
+                          : Icons.smart_toy_rounded,
                       color: verificationResult == 'success'
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1217,8 +1399,8 @@ Widget _buildStep3Content(
                       verificationResult == 'success'
                           ? 'AI 검증 성공'
                           : isVerifying
-                              ? 'AI 검증 중...'
-                              : 'AI 검증 대기',
+                          ? 'AI 검증 중...'
+                          : 'AI 검증 대기',
                       style: AppTextStyles.primaryText(context).copyWith(
                         color: verificationResult == 'success'
                             ? Theme.of(context).colorScheme.primary
@@ -1232,8 +1414,8 @@ Widget _buildStep3Content(
                   verificationResult == 'success'
                       ? '서류가 정상적으로 검증되었습니다. 사업자 인증을 완료할 수 있습니다.'
                       : isVerifying
-                          ? 'AI가 업로드된 서류를 분석하고 있습니다. 잠시만 기다려주세요.'
-                          : '업로드된 서류를 AI가 자동으로 검증합니다.',
+                      ? 'AI가 업로드된 서류를 분석하고 있습니다. 잠시만 기다려주세요.'
+                      : '업로드된 서류를 AI가 자동으로 검증합니다.',
                   style: AppTextStyles.captionText(context).copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -1256,10 +1438,12 @@ class _BusinessNumberFormatter extends TextInputFormatter {
   ) {
     // Remove all non-numeric characters
     final numericOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     // Limit to 10 digits
-    final limitedText = numericOnly.length > 10 ? numericOnly.substring(0, 10) : numericOnly;
-    
+    final limitedText = numericOnly.length > 10
+        ? numericOnly.substring(0, 10)
+        : numericOnly;
+
     // Format as xxx-xx-xxxxx
     String formatted = '';
     for (int i = 0; i < limitedText.length; i++) {
@@ -1268,7 +1452,7 @@ class _BusinessNumberFormatter extends TextInputFormatter {
       }
       formatted += limitedText[i];
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -1285,10 +1469,12 @@ class _DateFormatter extends TextInputFormatter {
   ) {
     // Remove all non-numeric characters
     final numericOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    
+
     // Limit to 8 digits
-    final limitedText = numericOnly.length > 8 ? numericOnly.substring(0, 8) : numericOnly;
-    
+    final limitedText = numericOnly.length > 8
+        ? numericOnly.substring(0, 8)
+        : numericOnly;
+
     // Format as YYYY-MM-DD
     String formatted = '';
     for (int i = 0; i < limitedText.length; i++) {
@@ -1297,7 +1483,7 @@ class _DateFormatter extends TextInputFormatter {
       }
       formatted += limitedText[i];
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -1306,17 +1492,27 @@ class _DateFormatter extends TextInputFormatter {
 }
 
 // Helper functions for business status UI
-Color _getStatusContainerColor(BuildContext context, BusinessVerificationResult? result) {
+Color _getStatusContainerColor(
+  BuildContext context,
+  BusinessVerificationResult? result,
+) {
   if (result?.status?.isClosed == true) {
     return Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3);
   } else if (result?.status?.isOnHiatus == true) {
-    return Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.3);
+    return Theme.of(
+      context,
+    ).colorScheme.tertiaryContainer.withValues(alpha: 0.3);
   } else {
-    return Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3);
+    return Theme.of(
+      context,
+    ).colorScheme.primaryContainer.withValues(alpha: 0.3);
   }
 }
 
-Color _getStatusBorderColor(BuildContext context, BusinessVerificationResult? result) {
+Color _getStatusBorderColor(
+  BuildContext context,
+  BusinessVerificationResult? result,
+) {
   if (result?.status?.isClosed == true) {
     return Theme.of(context).colorScheme.error.withValues(alpha: 0.2);
   } else if (result?.status?.isOnHiatus == true) {
@@ -1336,7 +1532,10 @@ IconData _getStatusIcon(BusinessVerificationResult? result) {
   }
 }
 
-Color _getStatusIconColor(BuildContext context, BusinessVerificationResult? result) {
+Color _getStatusIconColor(
+  BuildContext context,
+  BusinessVerificationResult? result,
+) {
   if (result?.status?.isClosed == true) {
     return Theme.of(context).colorScheme.error;
   } else if (result?.status?.isOnHiatus == true) {
@@ -1346,7 +1545,10 @@ Color _getStatusIconColor(BuildContext context, BusinessVerificationResult? resu
   }
 }
 
-Color _getStatusTextColor(BuildContext context, BusinessVerificationResult? result) {
+Color _getStatusTextColor(
+  BuildContext context,
+  BusinessVerificationResult? result,
+) {
   if (result?.status?.isClosed == true) {
     return Theme.of(context).colorScheme.error;
   } else if (result?.status?.isOnHiatus == true) {
@@ -1399,7 +1601,12 @@ String _formatDate(String date) {
 }
 
 // Helper function to build info rows
-Widget _buildInfoRow(BuildContext context, String label, String value, {bool isLast = false}) {
+Widget _buildInfoRow(
+  BuildContext context,
+  String label,
+  String value, {
+  bool isLast = false,
+}) {
   return Column(
     children: [
       Row(
@@ -1407,10 +1614,7 @@ Widget _buildInfoRow(BuildContext context, String label, String value, {bool isL
         children: [
           SizedBox(
             width: 100,
-            child: Text(
-              label,
-              style: AppTextStyles.secondaryText(context),
-            ),
+            child: Text(label, style: AppTextStyles.secondaryText(context)),
           ),
           const SizedBox(width: 16),
           Expanded(
