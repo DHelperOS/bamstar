@@ -1171,39 +1171,172 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
 
   Widget _buildProgressDialog() {
     return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 280),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Simple loading indicator
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary,
-                ),
-              ),
+        constraints: const BoxConstraints(maxWidth: 300),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
-            const SizedBox(height: 20),
-            
-            // Progress message
-            Text(
-              _progressMessage,
-              style: AppTextStyles.primaryText(context).copyWith(
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
+            BoxShadow(
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // AI Header
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // AI Icon with animation effect
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.03),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.auto_awesome,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'AI 검증 중',
+                    style: AppTextStyles.sectionTitle(context).copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Progress content
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                children: [
+                  // Progress message
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      _progressMessage,
+                      key: ValueKey(_progressMessage),
+                      style: AppTextStyles.secondaryText(context).copyWith(
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Progress indicator dots
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildProgressDot(context, _progressMessage.contains('추출')),
+                      Container(
+                        width: 24,
+                        height: 2,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          color: _progressMessage.contains('비교')
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(1),
+                        ),
+                      ),
+                      _buildProgressDot(context, _progressMessage.contains('비교')),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // AI powered label
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.verified_user,
+                        size: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Gemini AI로 안전하게 처리 중',
+                        style: AppTextStyles.captionText(context).copyWith(
+                          fontSize: 11,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildProgressDot(BuildContext context, bool isActive) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isActive
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
       ),
     );
   }
@@ -1367,96 +1500,231 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
             ),
           ),
           
-          // Match result display - compact design
+          // AI Verification Result Card - Enhanced Design
           if (_hasResult) ...[
             const SizedBox(height: 20),
             Container(
-              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _getMatchColor().withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _getMatchColor().withValues(alpha: 0.15),
-                  width: 1,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.98),
+                  ],
                 ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: _getMatchColor().withValues(alpha: 0.25),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  // Compact percentage display
+                  // Header with AI label
                   Container(
-                    width: 56,
-                    height: 56,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.surface,
-                      border: Border.all(
-                        color: _getMatchColor(),
-                        width: 3,
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${_matchPercentage.toStringAsFixed(0)}%',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: _getMatchColor(),
-                            ),
-                          ),
-                          Text(
-                            '일치',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: _getMatchColor(),
-                            ),
-                          ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _getMatchColor().withValues(alpha: 0.12),
+                          _getMatchColor().withValues(alpha: 0.06),
                         ],
                       ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _getMatchColor().withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.auto_awesome,
+                            color: _getMatchColor(),
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'AI 검증 결과',
+                          style: AppTextStyles.primaryText(context).copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _getMatchColor().withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _matchPercentage >= 70 
+                                ? '✓ 검증됨'
+                                : _matchPercentage >= 40 
+                                    ? '⚠ 확인필요'
+                                    : '✗ 불일치',
+                            style: AppTextStyles.captionText(context).copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: _getMatchColor(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 16),
                   
-                  // Status and message
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                  // Main content
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                       children: [
-                        Row(
+                        // Circular progress with gradient
+                        Stack(
+                          alignment: Alignment.center,
                           children: [
-                            Icon(
-                              _matchPercentage >= 70 
-                                  ? Icons.check_circle
-                                  : _matchPercentage >= 40 
-                                      ? Icons.info
-                                      : Icons.warning,
-                              color: _getMatchColor(),
-                              size: 18,
+                            SizedBox(
+                              width: 64,
+                              height: 64,
+                              child: CircularProgressIndicator(
+                                value: _matchPercentage / 100,
+                                strokeWidth: 5,
+                                backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                                valueColor: AlwaysStoppedAnimation<Color>(_getMatchColor()),
+                              ),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              _matchPercentage >= 70 
-                                  ? '검증 완료'
-                                  : _matchPercentage >= 40 
-                                      ? '추가 확인 필요'
-                                      : '일치율 낮음',
-                              style: AppTextStyles.primaryText(context).copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: _getMatchColor(),
-                                fontSize: 14,
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  colors: [
+                                    _getMatchColor().withValues(alpha: 0.1),
+                                    _getMatchColor().withValues(alpha: 0.02),
+                                  ],
+                                ),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _matchPercentage.toStringAsFixed(0),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                        color: _getMatchColor(),
+                                        height: 1,
+                                      ),
+                                    ),
+                                    Text(
+                                      '%',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: _getMatchColor().withValues(alpha: 0.7),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 16),
+                        
+                        // Status details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    _matchPercentage >= 70 
+                                        ? Icons.verified
+                                        : _matchPercentage >= 40 
+                                            ? Icons.pending
+                                            : Icons.report_problem,
+                                    color: _getMatchColor(),
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _matchPercentage >= 70 
+                                        ? 'AI 검증 성공'
+                                        : _matchPercentage >= 40 
+                                            ? 'AI 부분 검증'
+                                            : 'AI 검증 실패',
+                                    style: AppTextStyles.primaryText(context).copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: _getMatchColor(),
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                _getMatchMessage(),
+                                style: AppTextStyles.captionText(context).copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Bottom info bar
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shield_outlined,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 6),
                         Text(
-                          _getMatchMessage(),
+                          'Gemini AI로 안전하게 검증되었습니다',
                           style: AppTextStyles.captionText(context).copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontSize: 12,
+                            fontSize: 11,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
