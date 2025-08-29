@@ -231,6 +231,7 @@ class _BusinessVerificationPageState
       duration: const Duration(milliseconds: 350),
       switchInCurve: Curves.easeInOutCubic,
       switchOutCurve: Curves.easeInOutCubic,
+      alignment: Alignment.topLeft,
       transitionBuilder: (Widget child, Animation<double> animation) {
         // Slide transition from right to left for forward navigation
         // Slide transition from left to right for backward navigation
