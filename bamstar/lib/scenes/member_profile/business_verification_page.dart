@@ -35,6 +35,7 @@ class _BusinessVerificationPageState
 
   bool _showOptionalFields = false;
   bool _isLoading = false;
+  bool _isNavigatingForward = true;
 
   @override
   void initState() {
@@ -102,7 +103,12 @@ class _BusinessVerificationPageState
                   Icons.arrow_back_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
-                onPressed: () => setState(() => _currentStep--),
+                onPressed: () {
+                  setState(() {
+                    _isNavigatingForward = false;
+                    _currentStep--;
+                  });
+                },
               )
             : null,
         title: Text(
@@ -221,9 +227,47 @@ class _BusinessVerificationPageState
   }
 
   Widget _buildStepContent() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 350),
+      switchInCurve: Curves.easeInOutCubic,
+      switchOutCurve: Curves.easeInOutCubic,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        // Slide transition from right to left for forward navigation
+        // Slide transition from left to right for backward navigation
+        final slideAnimation = Tween<Offset>(
+          begin: _isNavigatingForward ? const Offset(1.0, 0.0) : const Offset(-1.0, 0.0),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeInOutCubic,
+        ));
+
+        // Fade transition combined with slide
+        final fadeAnimation = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+        ));
+
+        return SlideTransition(
+          position: slideAnimation,
+          child: FadeTransition(
+            opacity: fadeAnimation,
+            child: child,
+          ),
+        );
+      },
+      child: _buildCurrentStepWidget(),
+    );
+  }
+
+  Widget _buildCurrentStepWidget() {
     switch (_currentStep) {
       case 1:
         return _Step1FormWidget(
+          key: const ValueKey('step1'),
           businessNumberController: _businessNumberCtl,
           representativeNameController: _representativeNameCtl,
           openingDateController: _openingDateCtl,
@@ -239,11 +283,11 @@ class _BusinessVerificationPageState
           onFieldTouched: (field) => setState(() => _touchedFields.add(field)),
         );
       case 2:
-        return const _Step2FormWidget();
+        return const _Step2FormWidget(key: ValueKey('step2'));
       case 3:
-        return const _Step3FormWidget();
+        return const _Step3FormWidget(key: ValueKey('step3'));
       default:
-        return Container();
+        return Container(key: const ValueKey('default'));
     }
   }
 
@@ -324,7 +368,10 @@ class _BusinessVerificationPageState
       case 1:
         return _submitStep1;
       case 2:
-        return () => setState(() => _currentStep = 3);
+        return () => setState(() {
+          _isNavigatingForward = true;
+          _currentStep = 3;
+        });
       case 3:
         return _submitBusinessVerification;
       default:
@@ -367,7 +414,10 @@ class _BusinessVerificationPageState
 
       final state = ref.read(businessVerificationProvider);
       if (state.isSuccess) {
-        setState(() => _currentStep = 2);
+        setState(() {
+          _isNavigatingForward = true;
+          _currentStep = 2;
+        });
         ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
       } else {
         ToastHelper.error(context, state.error ?? '사업자 정보 조회에 실패했습니다');
