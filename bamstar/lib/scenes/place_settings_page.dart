@@ -574,6 +574,25 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
           const SizedBox(height: 12),
 
+          // 플레이스 홍보 카드
+          _buildInfoCard(
+            context,
+            icon: SolarIconsOutline.heart,
+            title: '플레이스 홍보',
+            subtitle: '스타들에게 매력적인 플레이스를 소개해보세요.',
+            trailing: Icon(
+              SolarIconsOutline.altArrowRight,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
+            ),
+            onTap: () {
+              // TODO: Navigate to place promotion page
+              ToastHelper.info(context, '플레이스 홍보 페이지 준비중입니다.');
+            },
+          ),
+
+          const SizedBox(height: 12),
+
           // 성인 인증 카드
         ],
       ),
