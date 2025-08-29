@@ -451,6 +451,7 @@ class _Step1FormWidget extends ConsumerWidget {
   final Function(String) onFieldTouched;
 
   const _Step1FormWidget({
+    super.key,
     required this.businessNumberController,
     required this.representativeNameController,
     required this.openingDateController,
@@ -790,7 +791,7 @@ class _Step1FormWidget extends ConsumerWidget {
 }
 
 class _Step2FormWidget extends ConsumerWidget {
-  const _Step2FormWidget();
+  const _Step2FormWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1007,7 +1008,7 @@ class _Step2FormWidget extends ConsumerWidget {
 }
 
 class _Step3FormWidget extends StatelessWidget {
-  const _Step3FormWidget();
+  const _Step3FormWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
