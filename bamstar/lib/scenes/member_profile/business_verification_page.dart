@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/business_verification/business_verification_providers.dart';
+import 'package:solar_icons/solar_icons.dart';
+
+import '../../models/business_verification_models.dart';
+import '../../providers/business_verification_providers.dart';
+import '../../services/business_verification_service.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/toast_helper.dart';
 
@@ -16,234 +20,25 @@ class BusinessVerificationPage extends ConsumerStatefulWidget {
 class _BusinessVerificationPageState
     extends ConsumerState<BusinessVerificationPage> {
   int _currentStep = 1;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          '사업자 인증',
-          style: AppTextStyles.pageTitle(context),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // Beautiful step indicator
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: _buildStepIndicator(),
-          ),
-          
-          // Content based on current step
-          Expanded(
-            child: _buildCurrentStep(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator() {
-    return Column(
-      children: [
-        // Step titles
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '정보 입력',
-                style: AppTextStyles.captionText(context).copyWith(
-                  color: _currentStep >= 1 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: _currentStep == 1 ? FontWeight.w600 : FontWeight.w400,
-                ),
-                textAlign: TextAlign.start,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                '정보 확인',
-                style: AppTextStyles.captionText(context).copyWith(
-                  color: _currentStep >= 2 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: _currentStep == 2 ? FontWeight.w600 : FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                '서류 제출',
-                style: AppTextStyles.captionText(context).copyWith(
-                  color: _currentStep >= 3 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: _currentStep == 3 ? FontWeight.w600 : FontWeight.w400,
-                ),
-                textAlign: TextAlign.end,
-              ),
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: 12),
-        
-        // Visual step indicator
-        Row(
-          children: [
-            // Step 1
-            _buildStepCircle(1),
-            // Connection line 1
-            Expanded(
-              child: Container(
-                height: 2,
-                decoration: BoxDecoration(
-                  color: _currentStep > 1 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ),
-            // Step 2
-            _buildStepCircle(2),
-            // Connection line 2
-            Expanded(
-              child: Container(
-                height: 2,
-                decoration: BoxDecoration(
-                  color: _currentStep > 2 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ),
-            // Step 3
-            _buildStepCircle(3),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepCircle(int step) {
-    final isActive = _currentStep == step;
-    final isCompleted = _currentStep > step;
-    
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: (isActive || isCompleted) 
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: Border.all(
-          color: (isActive || isCompleted) 
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-          width: isActive ? 3 : 1,
-        ),
-        boxShadow: isActive ? [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ] : null,
-      ),
-      child: Center(
-        child: isCompleted
-            ? Icon(
-                Icons.check_rounded,
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 18,
-              )
-            : Text(
-                step.toString(),
-                style: AppTextStyles.captionText(context).copyWith(
-                  color: (isActive || isCompleted)
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-      ),
-    );
-  }
-
-  Widget _buildCurrentStep() {
-    switch (_currentStep) {
-      case 1:
-        return _Step1FormWidget(
-          onNext: () => setState(() => _currentStep = 2),
-        );
-      case 2:
-        return _Step2FormWidget(
-          onNext: () => setState(() => _currentStep = 3),
-        );
-      case 3:
-        return _Step3FormWidget(
-          onComplete: () => Navigator.of(context).pop(),
-        );
-      default:
-        return Container();
-    }
-  }
-}
-
-// Step 1 Form Widget
-class _Step1FormWidget extends ConsumerStatefulWidget {
-  final VoidCallback onNext;
-
-  const _Step1FormWidget({required this.onNext});
-
-  @override
-  ConsumerState<_Step1FormWidget> createState() => _Step1FormWidgetState();
-}
-
-class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
-  final TextEditingController _registrationNumberCtl = TextEditingController();
-  final TextEditingController _representativeNameCtl = TextEditingController();
-  final TextEditingController _openingDateCtl = TextEditingController();
-  final TextEditingController _representativeName2Ctl = TextEditingController();
-  final TextEditingController _businessNameCtl = TextEditingController();
-  final TextEditingController _corporateNumberCtl = TextEditingController();
-  final TextEditingController _mainBusinessTypeCtl = TextEditingController();
-  final TextEditingController _subBusinessTypeCtl = TextEditingController();
-  final TextEditingController _businessAddressCtl = TextEditingController();
-  
-  bool _showOptionalFields = false;
-  
-  // Track which fields have been touched to prevent premature error messages
   final Set<String> _touchedFields = {};
+
+  // Form controllers
+  final _businessNumberCtl = TextEditingController();
+  final _representativeNameCtl = TextEditingController();
+  final _openingDateCtl = TextEditingController();
+  final _representativeName2Ctl = TextEditingController();
+  final _businessNameCtl = TextEditingController();
+  final _corporateNumberCtl = TextEditingController();
+  final _mainBusinessTypeCtl = TextEditingController();
+  final _subBusinessTypeCtl = TextEditingController();
+  final _businessAddressCtl = TextEditingController();
+
+  bool _showOptionalFields = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _registrationNumberCtl.dispose();
+    _businessNumberCtl.dispose();
     _representativeNameCtl.dispose();
     _openingDateCtl.dispose();
     _representativeName2Ctl.dispose();
@@ -255,471 +50,636 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
     super.dispose();
   }
 
-  void _validateAndProceed() async {
-    final input = BusinessVerificationInput(
-      businessNumber: _registrationNumberCtl.text,
-      representativeName: _representativeNameCtl.text,
-      openingDate: _openingDateCtl.text,
-      representativeName2: _representativeName2Ctl.text.isNotEmpty ? _representativeName2Ctl.text : null,
-      businessName: _businessNameCtl.text.isNotEmpty ? _businessNameCtl.text : null,
-      corporateNumber: _corporateNumberCtl.text.isNotEmpty ? _corporateNumberCtl.text : null,
-      mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty ? _mainBusinessTypeCtl.text : null,
-      subBusinessType: _subBusinessTypeCtl.text.isNotEmpty ? _subBusinessTypeCtl.text : null,
-      businessAddress: _businessAddressCtl.text.isNotEmpty ? _businessAddressCtl.text : null,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.close_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          '사업자 인증',
+          style: AppTextStyles.cardTitle(context),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // Progress indicator
+          _buildProgressIndicator(),
+          
+          // Form content
+          Expanded(
+            child: _buildStepContent(),
+          ),
+          
+          // Bottom button
+          _buildBottomButton(),
+        ],
+      ),
     );
+  }
 
-    print('🔍 [Business Verification] Starting verification with input: ${input.businessNumber}');
-    
-    ref.read(businessVerificationProvider.notifier).updateInput(input);
-    await ref.read(businessVerificationProvider.notifier).verify();
+  Widget _buildProgressIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        children: [
+          // Step circles
+          Row(
+            children: [
+              _buildStepCircle(1, '정보입력', _currentStep >= 1),
+              _buildStepLine(_currentStep >= 2),
+              _buildStepCircle(2, '조회결과', _currentStep >= 2),
+              _buildStepLine(_currentStep >= 3),
+              _buildStepCircle(3, '서류제출', _currentStep >= 3),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-    final state = ref.read(businessVerificationProvider);
-    
-    print('🔍 [Business Verification] Verification completed:');
-    print('   - Error: ${state.error}');
-    print('   - Success: ${state.isSuccess}');
-    print('   - Result: ${state.result?.toString() ?? 'null'}');
-    
-    if (state.result != null) {
-      print('🔍 [Business Verification] Result details:');
-      print('   - Valid: ${state.result!.isValid}');
-      print('   - Valid Message: ${state.result!.validMsg}');
-      print('   - Request Parameter: ${state.result!.requestParam}');
-    }
-    
-    if (state.error != null) {
-      if (mounted) {
-        ToastHelper.error(context, state.error!);
-      }
-    } else if (state.isSuccess) {
-      if (mounted) {
-        ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
-        widget.onNext();
-      }
+  Widget _buildStepCircle(int step, String label, bool isActive) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: isActive
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surface,
+              border: Border.all(
+                color: isActive
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: 2,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: isActive
+                  ? Icon(
+                      Icons.check_rounded,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 14,
+                    )
+                  : Text(
+                      step.toString(),
+                      style: AppTextStyles.captionText(context).copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: AppTextStyles.captionText(context).copyWith(
+              color: _currentStep == step
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: _currentStep == step ? FontWeight.w600 : FontWeight.w400,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepLine(bool isActive) {
+    return Container(
+      width: 32,
+      height: 2,
+      margin: const EdgeInsets.only(bottom: 16),
+      color: isActive
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+    );
+  }
+
+  Widget _buildStepContent() {
+    switch (_currentStep) {
+      case 1:
+        return _Step1FormWidget(
+          businessNumberController: _businessNumberCtl,
+          representativeNameController: _representativeNameCtl,
+          openingDateController: _openingDateCtl,
+          representativeName2Controller: _representativeName2Ctl,
+          businessNameController: _businessNameCtl,
+          corporateNumberController: _corporateNumberCtl,
+          mainBusinessTypeController: _mainBusinessTypeCtl,
+          subBusinessTypeController: _subBusinessTypeCtl,
+          businessAddressController: _businessAddressCtl,
+          showOptionalFields: _showOptionalFields,
+          onOptionalFieldsToggle: () => setState(() => _showOptionalFields = !_showOptionalFields),
+          touchedFields: _touchedFields,
+          onFieldTouched: (field) => setState(() => _touchedFields.add(field)),
+        );
+      case 2:
+        return const _Step2FormWidget();
+      case 3:
+        return const _Step3FormWidget();
+      default:
+        return Container();
     }
   }
 
+  Widget _buildBottomButton() {
+    return Container(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 12,
+        bottom: MediaQuery.of(context).padding.bottom + 12,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: _isLoading
+            ? ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+              )
+            : ElevatedButton(
+                onPressed: _getButtonAction(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  _getButtonText(),
+                  style: AppTextStyles.buttonText(context).copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  String _getButtonText() {
+    switch (_currentStep) {
+      case 1:
+        return '조회하기';
+      case 2:
+        return '다음';
+      case 3:
+        return '제출하기';
+      default:
+        return '다음';
+    }
+  }
+
+  VoidCallback? _getButtonAction() {
+    switch (_currentStep) {
+      case 1:
+        return _submitStep1;
+      case 2:
+        return () => setState(() => _currentStep = 3);
+      case 3:
+        return _submitBusinessVerification;
+      default:
+        return null;
+    }
+  }
+
+  Future<void> _submitStep1() async {
+    // Validate required fields
+    final businessNumberError = BusinessVerificationService.validateBusinessNumber(_businessNumberCtl.text);
+    final representativeNameError = BusinessVerificationService.validateRepresentativeName(_representativeNameCtl.text);
+    final openingDateError = BusinessVerificationService.validateOpeningDate(_openingDateCtl.text);
+
+    if (businessNumberError != null || representativeNameError != null || openingDateError != null) {
+      setState(() {
+        _touchedFields.addAll(['business_number', 'representative_name', 'opening_date']);
+      });
+      ToastHelper.error(context, '필수 정보를 올바르게 입력해주세요');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(businessVerificationProvider.notifier).validateBusinessInfo(
+            businessNumber: _businessNumberCtl.text,
+            representativeName: _representativeNameCtl.text,
+            openingDate: _openingDateCtl.text,
+            representativeName2: _representativeName2Ctl.text.isNotEmpty ? _representativeName2Ctl.text : null,
+            businessName: _businessNameCtl.text.isNotEmpty ? _businessNameCtl.text : null,
+            corporateNumber: _corporateNumberCtl.text.isNotEmpty ? _corporateNumberCtl.text : null,
+            mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty ? _mainBusinessTypeCtl.text : null,
+            subBusinessType: _subBusinessTypeCtl.text.isNotEmpty ? _subBusinessTypeCtl.text : null,
+            businessAddress: _businessAddressCtl.text.isNotEmpty ? _businessAddressCtl.text : null,
+          );
+
+      setState(() => _currentStep = 2);
+      ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
+    } catch (e) {
+      ToastHelper.error(context, e.toString());
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _submitBusinessVerification() async {
+    ToastHelper.info(context, '사업자 인증이 완료되었습니다');
+    Navigator.pop(context);
+  }
+}
+
+class _Step1FormWidget extends ConsumerWidget {
+  final TextEditingController businessNumberController;
+  final TextEditingController representativeNameController;
+  final TextEditingController openingDateController;
+  final TextEditingController representativeName2Controller;
+  final TextEditingController businessNameController;
+  final TextEditingController corporateNumberController;
+  final TextEditingController mainBusinessTypeController;
+  final TextEditingController subBusinessTypeController;
+  final TextEditingController businessAddressController;
+  final bool showOptionalFields;
+  final VoidCallback onOptionalFieldsToggle;
+  final Set<String> touchedFields;
+  final Function(String) onFieldTouched;
+
+  const _Step1FormWidget({
+    required this.businessNumberController,
+    required this.representativeNameController,
+    required this.openingDateController,
+    required this.representativeName2Controller,
+    required this.businessNameController,
+    required this.corporateNumberController,
+    required this.mainBusinessTypeController,
+    required this.subBusinessTypeController,
+    required this.businessAddressController,
+    required this.showOptionalFields,
+    required this.onOptionalFieldsToggle,
+    required this.touchedFields,
+    required this.onFieldTouched,
+  });
+
   @override
-  Widget build(BuildContext context) {
-    final isFormValid = _registrationNumberCtl.text.trim().isNotEmpty &&
-        _representativeNameCtl.text.trim().isNotEmpty &&
-        _openingDateCtl.text.trim().isNotEmpty;
-    final isLoading = ref.watch(businessVerificationLoadingProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Info card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '사업자 등록증에 기재된 정보를 정확히 입력해 주세요',
+                    style: AppTextStyles.captionText(context).copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-    return Column(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          const SizedBox(height: 24),
+
+          // Required fields
+          _buildFormField(
+            context: context,
+            ref: ref,
+            label: '사업자등록번호',
+            controller: businessNumberController,
+            hint: '하이픈 없이 10자리 숫자 입력',
+            keyboardType: TextInputType.number,
+            inputFormatters: [_BusinessNumberFormatter()],
+            validationProvider: businessNumberValidationProvider,
+            fieldKey: 'business_number',
+          ),
+
+          const SizedBox(height: 16),
+
+          _buildFormField(
+            context: context,
+            ref: ref,
+            label: '대표자명',
+            controller: representativeNameController,
+            hint: '대표자 성명 입력',
+            validationProvider: representativeNameValidationProvider,
+            fieldKey: 'representative_name',
+          ),
+
+          const SizedBox(height: 16),
+
+          _buildFormField(
+            context: context,
+            ref: ref,
+            label: '개업일자',
+            controller: openingDateController,
+            hint: '8자리 숫자 입력 (예: 20050302)',
+            keyboardType: TextInputType.number,
+            inputFormatters: [_DateFormatter()],
+            validationProvider: openingDateValidationProvider,
+            fieldKey: 'opening_date',
+          ),
+
+          const SizedBox(height: 24),
+
+          // Optional fields toggle
+          GestureDetector(
+            onTap: onOptionalFieldsToggle,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              decoration: BoxDecoration(
+                color: showOptionalFields 
+                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+                    : Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: showOptionalFields
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: Row(
                 children: [
-                  // Info Card - Guidance for users
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Icon(
-                            Icons.business_rounded,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '사업자등록증을 준비해주세요',
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '사업자등록증에 기재된 정보를 정확히 입력하시면\n국세청 API를 통해 자동으로 사업자 정보를 확인합니다.',
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  Icon(
+                    showOptionalFields 
+                        ? Icons.remove_circle_outline_rounded 
+                        : Icons.add_circle_outline_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
                   ),
-
-                  // Business Registration Number
-                  _buildFormFieldWithError(
-                    context: context,
-                    label: '사업자등록번호',
-                    controller: _registrationNumberCtl,
-                    hint: '10자리 숫자 입력 (예: 1234567890)',
-                    errorText: _touchedFields.contains('business_number') 
-                        ? ref.watch(
-                            businessNumberValidationProvider(
-                              _registrationNumberCtl.text,
-                            ),
-                          )
-                        : null,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [_BusinessNumberFormatter()],
-                    onChanged: (value) {
-                      _touchedFields.add('business_number');
-                      setState(() {});
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Representative Name
-                  _buildFormFieldWithError(
-                    context: context,
-                    label: '대표자명',
-                    controller: _representativeNameCtl,
-                    hint: '홍길동',
-                    errorText: _touchedFields.contains('representative_name') 
-                        ? ref.watch(
-                            representativeNameValidationProvider(
-                              _representativeNameCtl.text,
-                            ),
-                          )
-                        : null,
-                    onChanged: (value) {
-                      _touchedFields.add('representative_name');
-                      setState(() {});
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Opening Date
-                  _buildFormFieldWithError(
-                    context: context,
-                    label: '개업일자',
-                    controller: _openingDateCtl,
-                    hint: '8자리 숫자 입력 (예: 20050302)',
-                    errorText: _touchedFields.contains('opening_date') 
-                        ? ref.watch(
-                            openingDateValidationProvider(
-                              _openingDateCtl.text,
-                            ),
-                          )
-                        : null,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [_DateFormatter()],
-                    onChanged: (value) {
-                      _touchedFields.add('opening_date');
-                      setState(() {});
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Optional fields toggle with improved design
-                  GestureDetector(
-                    onTap: () => setState(() => _showOptionalFields = !_showOptionalFields),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: _showOptionalFields 
-                            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
-                            : Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: _showOptionalFields
-                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            _showOptionalFields 
-                                ? Icons.remove_circle_outline_rounded 
-                                : Icons.add_circle_outline_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _showOptionalFields ? '추가 정보 숨기기' : '추가 정보 입력하기',
-                              style: AppTextStyles.captionText(context).copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                          AnimatedRotation(
-                            turns: _showOptionalFields ? 0.5 : 0,
-                            duration: const Duration(milliseconds: 200),
-                            child: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              size: 18,
-                            ),
-                          ),
-                        ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      showOptionalFields ? '추가 정보 숨기기' : '추가 정보 입력하기',
+                      style: AppTextStyles.captionText(context).copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
                       ),
                     ),
                   ),
-
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: _showOptionalFields 
-                        ? Column(
-                            children: [
-                    const SizedBox(height: 16),
-
-                    // Representative Name 2 (Optional)
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '대표자명2',
-                      controller: _representativeName2Ctl,
-                      hint: '공동대표자명 (선택사항)',
-                      isRequired: false,
+                  AnimatedRotation(
+                    turns: showOptionalFields ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 18,
                     ),
-
-                    const SizedBox(height: 16),
-
-                    // Business Name (Optional)
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '상호',
-                      controller: _businessNameCtl,
-                      hint: '상호명을 입력하세요',
-                      isRequired: false,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Corporate Number (Optional)
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '법인번호',
-                      controller: _corporateNumberCtl,
-                      hint: '법인번호를 입력하세요',
-                      isRequired: false,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Main Business Type (Optional)
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '주업태명',
-                      controller: _mainBusinessTypeCtl,
-                      hint: '주업태명을 입력하세요',
-                      isRequired: false,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Sub Business Type (Optional)
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '주종목명',
-                      controller: _subBusinessTypeCtl,
-                      hint: '주종목명을 입력하세요',
-                      isRequired: false,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Business Address
-                    _buildFormFieldWithError(
-                      context: context,
-                      label: '사업장주소',
-                      controller: _businessAddressCtl,
-                      hint: '사업장 주소를 입력하세요',
-                      isRequired: false,
-                    ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
                   ),
-                  
-                  const SizedBox(height: 100), // Button space
                 ],
               ),
             ),
           ),
-        ),
 
-        // Bottom button
-        Container(
-          padding: EdgeInsets.fromLTRB(
-            20.0,
-            16.0,
-            20.0,
-            16.0 + MediaQuery.of(context).viewInsets.bottom,
+          // Optional fields
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: showOptionalFields 
+                ? Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '대표자명2',
+                        controller: representativeName2Controller,
+                        hint: '공동대표자가 있을 경우 입력',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '상호명',
+                        controller: businessNameController,
+                        hint: '사업체 상호명 입력',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '법인등록번호',
+                        controller: corporateNumberController,
+                        hint: '법인인 경우 등록번호 입력',
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '주업태',
+                        controller: mainBusinessTypeController,
+                        hint: '주요 업태 입력',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '주종목',
+                        controller: subBusinessTypeController,
+                        hint: '주요 종목 입력',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildOptionalFormField(
+                        context: context,
+                        label: '사업장소재지',
+                        controller: businessAddressController,
+                        hint: '사업장 주소 입력',
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
           ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                colors: isFormValid
-                    ? [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                      ]
-                    : [
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                      ],
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: isFormValid ? _validateAndProceed : null,
-                child: SizedBox(
-                  height: 52,
-                  width: double.infinity,
-                  child: Center(
-                    child: isLoading
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          )
-                        : Text(
-                            isFormValid ? '사업자 정보 조회' : '필수 정보를 모두 입력해주세요',
-                            style: AppTextStyles.buttonText(context).copyWith(
-                              color: isFormValid
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+
+          const SizedBox(height: 32),
+        ],
+      ),
     );
   }
 
-  Widget _buildFormFieldWithError({
+  Widget _buildFormField({
     required BuildContext context,
+    required WidgetRef ref,
     required String label,
     required TextEditingController controller,
     required String hint,
-    String? errorText,
-    bool isRequired = true,
+    required StateProvider<String?> Function(String) validationProvider,
+    required String fieldKey,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
-    void Function(String)? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.formLabel(context),
-            ),
-            if (isRequired)
-              Text(
-                ' *',
-                style: AppTextStyles.formLabel(context).copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-              ),
-          ],
+        Text(
+          label,
+          style: AppTextStyles.formLabel(context),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: AppTextStyles.secondaryText(context),
+            hintStyle: AppTextStyles.secondaryText(context).copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.25),
-                width: 1,
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
-                width: 1.5,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
                 width: 1,
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.error,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            errorText: touchedFields.contains(fieldKey) 
+                ? ref.watch(validationProvider(controller.text))
+                : null,
           ),
-          style: AppTextStyles.primaryText(context),
+          onChanged: (value) => onFieldTouched(fieldKey),
         ),
-        if (errorText != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            errorText,
-            style: AppTextStyles.errorText(context),
+      ],
+    );
+  }
+
+  Widget _buildOptionalFormField({
+    required BuildContext context,
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label (선택)',
+          style: AppTextStyles.formLabel(context).copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-        ],
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: AppTextStyles.secondaryText(context).copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 2,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
       ],
     );
   }
 }
 
-// Step 2 Form Widget
 class _Step2FormWidget extends ConsumerWidget {
   const _Step2FormWidget();
 
@@ -811,16 +771,19 @@ class _Step2FormWidget extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow('사업자등록번호', result.bNo ?? '-'),
-                _buildInfoRow('상호명', result.bNm ?? '-'),
-                _buildInfoRow('대표자명', result.pNm ?? '-'),
-                _buildInfoRow('개업일자', result.startDt ?? '-'),
-                _buildInfoRow('사업장소재지', result.bAdr ?? '-'),
-                _buildInfoRow('업태', result.bSector ?? '-'),
-                _buildInfoRow('종목', result.bType ?? '-'),
-                _buildInfoRow('과세유형', result.taxType ?? '-'),
-                _buildInfoRow('납세자상태', result.bStt ?? '-'),
-                _buildInfoRow('납세자상태변경일자', result.bSttCd ?? '-', isLast: true),
+                _buildInfoRow(context, '사업자등록번호', result.bNo),
+                _buildInfoRow(context, '상호명', result.requestParam.bNm ?? '-'),
+                _buildInfoRow(context, '대표자명', result.requestParam.pNm),
+                _buildInfoRow(context, '개업일자', result.requestParam.startDt),
+                _buildInfoRow(context, '사업장소재지', result.requestParam.bAdr ?? '-'),
+                _buildInfoRow(context, '업태', result.requestParam.bSector ?? '-'),
+                _buildInfoRow(context, '종목', result.requestParam.bType ?? '-'),
+                if (result.status != null) ...[
+                  _buildInfoRow(context, '과세유형', result.status!.taxType),
+                  _buildInfoRow(context, '납세자상태', result.status!.bStt),
+                  _buildInfoRow(context, '납세자상태변경일자', result.status!.bSttCd, isLast: true),
+                ] else
+                  _buildInfoRow(context, '상태', '정상', isLast: true),
               ],
             ),
           ),
@@ -831,311 +794,91 @@ class _Step2FormWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isLast = false}) {
-    return Builder(
-      builder: (context) => Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 100,
-                child: Text(
-                  label,
-                  style: AppTextStyles.captionText(context).copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+  Widget _buildInfoRow(BuildContext context, String label, String value, {bool isLast = false}) {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 100,
+              child: Text(
+                label,
+                style: AppTextStyles.captionText(context).copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  value,
-                  style: AppTextStyles.primaryText(context),
-                ),
-              ),
-            ],
-          ),
-          if (!isLast) ...[
-            const SizedBox(height: 12),
-            Divider(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-              height: 1,
-            ),
-            const SizedBox(height: 12),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 40),
-          
-          // Success icon
-          Center(
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.check_circle_rounded,
-                size: 48,
-                color: Theme.of(context).colorScheme.primary,
               ),
             ),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Success title
-          Text(
-            '사업자 정보 조회 완료',
-            style: AppTextStyles.pageTitle(context),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            '국세청에서 사업자 정보를 성공적으로 확인했습니다.',
-            style: AppTextStyles.secondaryText(context),
-            textAlign: TextAlign.center,
-          ),
-          
-          const SizedBox(height: 32),
-
-          // Business info card with success badge
-          if (result != null) ...[
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with success badge
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.business_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          '확인된 사업자 정보',
-                          style: AppTextStyles.cardTitle(context).copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      // Success badge - moved to natural position
-                      if (result.isValid) 
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF4CAF50), // Green success color
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle_rounded,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '인증완료',
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Business details with improved styling
-                  _buildInfoRow(
-                    context,
-                    '사업자등록번호',
-                    result.requestParam?.bNo ?? state.input?.businessNumber ?? '-',
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  _buildInfoRow(
-                    context,
-                    '대표자명',
-                    result.requestParam?.pNm ?? state.input?.representativeName ?? '-',
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  _buildInfoRow(
-                    context,
-                    '개업일자',
-                    result.requestParam?.startDt ?? state.input?.openingDate ?? '-',
-                  ),
-                  
-                  if (result.requestParam?.bNm?.isNotEmpty == true) ...[
-                    const SizedBox(height: 16),
-                    _buildInfoRow(
-                      context,
-                      '상호',
-                      result.requestParam!.bNm!,
-                    ),
-                  ],
-                ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                value,
+                style: AppTextStyles.primaryText(context),
               ),
             ),
           ],
-          
-          const SizedBox(height: 40),
-          
-          // Next button with proper styling
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: onNext,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: Text(
-                      '다음 단계',
-                      style: AppTextStyles.buttonText(context).copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+        ),
+        if (!isLast) ...[
+          const SizedBox(height: 12),
+          Divider(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+            height: 1,
           ),
+          const SizedBox(height: 12),
         ],
-      ),
-    );
-  }
-  
-  Widget _buildInfoRow(BuildContext context, String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              label,
-              style: AppTextStyles.captionText(context).copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyles.primaryText(context).copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
 
-// Step 3 Form Widget
-class _Step3FormWidget extends StatefulWidget {
-  final VoidCallback onComplete;
-
-  const _Step3FormWidget({required this.onComplete});
-
-  @override
-  State<_Step3FormWidget> createState() => _Step3FormWidgetState();
-}
-
-class _Step3FormWidgetState extends State<_Step3FormWidget> {
+class _Step3FormWidget extends StatelessWidget {
+  const _Step3FormWidget();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.upload_file_rounded,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 16),
           Text(
-            '서류 업로드',
-            style: AppTextStyles.pageTitle(context),
+            '서류 제출',
+            style: AppTextStyles.sectionTitle(context),
           ),
-          const SizedBox(height: 8),
-          Text(
-            '사업자등록증 사본을 업로드해주세요.',
-            style: AppTextStyles.secondaryText(context),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton(
-            onPressed: widget.onComplete,
-            child: Text('완료'),
+          const SizedBox(height: 12),
+          
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.upload_file_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '사업자등록증을 업로드해주세요',
+                  style: AppTextStyles.primaryText(context),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '파일 형식: JPG, PNG, PDF\n최대 크기: 10MB',
+                  style: AppTextStyles.captionText(context).copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1143,7 +886,7 @@ class _Step3FormWidgetState extends State<_Step3FormWidget> {
   }
 }
 
-// Business Number Formatter
+// Input formatters
 class _BusinessNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -1152,23 +895,12 @@ class _BusinessNumberFormatter extends TextInputFormatter {
   ) {
     final newText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (newText.length <= 10) {
-      String formatted = '';
-      for (int i = 0; i < newText.length; i++) {
-        if (i == 3 || i == 5) {
-          formatted += '-';
-        }
-        formatted += newText[i];
-      }
-      return newValue.copyWith(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
+      return newValue.copyWith(text: newText);
     }
     return oldValue;
   }
 }
 
-// Date Formatter
 class _DateFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -1177,10 +909,7 @@ class _DateFormatter extends TextInputFormatter {
   ) {
     final newText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (newText.length <= 8) {
-      return newValue.copyWith(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length),
-      );
+      return newValue.copyWith(text: newText);
     }
     return oldValue;
   }
