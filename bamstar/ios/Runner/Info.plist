@@ -52,5 +52,21 @@
 	<string>프로필 사진 선택을 위해 사진 보관함 접근이 필요합니다.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>다운로드한 이미지를 저장하기 위해 사진 보관함에 쓰기 권한이 필요합니다.</string>
+	<!-- Allow local server connections for kpostal address search -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>
