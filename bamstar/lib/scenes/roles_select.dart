@@ -716,7 +716,8 @@ class _RoleSelectPageState extends State<RoleSelectPage>
         return;
       }
 
-      final int roleId = (role == 'STAR') ? 2 : 3;
+      // STAR = member (role_id: 3), PLACE = product_owner (role_id: 2)
+      final int roleId = (role == 'STAR') ? 3 : 2;
 
       await Supabase.instance.client
           .from('users')
