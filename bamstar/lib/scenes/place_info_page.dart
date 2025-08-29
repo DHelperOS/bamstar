@@ -1090,6 +1090,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   ),
                 ),
                 selected: _selectedOperatingDays.length == _weekDays.length,
+                checkmarkColor: _selectedOperatingDays.length == _weekDays.length
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,
                 onSelected: (selected) {
                   setState(() {
                     if (selected) {
@@ -1111,6 +1114,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   ),
                 ),
                 selected: _selectedOperatingDays.contains(day['value']),
+                checkmarkColor: _selectedOperatingDays.contains(day['value'])
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,
                 onSelected: (selected) {
                   setState(() {
                     if (selected) {
@@ -1134,10 +1140,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
-              valueIndicatorColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.8),
+              valueIndicatorColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               valueIndicatorTextStyle: AppTextStyles.captionText(context).copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
               showValueIndicator: ShowValueIndicator.always,
             ),
