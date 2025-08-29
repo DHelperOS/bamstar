@@ -39,7 +39,7 @@ class GeminiService {
     try {
       final uint8List = Uint8List.fromList(imageBytes);
       final res = await client.prompt(parts: [
-        gem.Part.text("이 사업자 등록증에서 모든 텍스트를 추출해주세요. 사업자등록번호, 대표자명, 개업일자, 상호명, 법인등록번호, 업태, 종목, 사업장소재지 등 모든 정보를 텍스트로 추출해주세요."),
+        gem.Part.text("이 사업자등록증명서에서 다음 정보를 정확히 추출해주세요:\n- 발급번호\n- 사업자등록번호\n- 상호(법인명)\n- 성명(대표자)\n- 주민(법인)등록번호\n- 사업장소재지\n- 개업일\n- 사업자등록일\n- 업태\n- 종목\n- 공동사업자\n\n모든 텍스트를 정확히 추출해주세요."),
         gem.Part.bytes(uint8List),
       ]);
       
@@ -78,22 +78,21 @@ class GeminiService {
     }
 
     final prompt = '''
-다음 텍스트에서 사업자 정보를 추출해서 JSON 형식으로 반환해주세요.
-추출할 항목: businessNumber, representativeName, openingDate, businessName, corporateNumber, mainBusinessType, subBusinessType, businessAddress
+다음 텍스트에서 사업자등록증명서 정보를 추출해서 JSON 형식으로 반환해주세요.
 
 텍스트:
 $extractedText
 
-JSON 형식으로만 응답해주세요:
+JSON 형식으로만 응답해주세요 (없는 항목은 빈 문자열로):
 {
-  "businessNumber": "123-45-67890",
-  "representativeName": "홍길동",
-  "openingDate": "20240101",
-  "businessName": "회사명",
-  "corporateNumber": "법인번호",
-  "mainBusinessType": "업태",
-  "subBusinessType": "종목",
-  "businessAddress": "주소"
+  "businessNumber": "552-10-45-3728-552",
+  "representativeName": "윤미나",
+  "openingDate": "20250804",
+  "businessName": "밤컴퍼니(Bam Company)",
+  "corporateNumber": "951219-*******",
+  "mainBusinessType": "정보통신업",
+  "subBusinessType": "포털 및 기타 인터넷 정보 매개 서비스업",
+  "businessAddress": "경기도 수원시 권선구 경수대로384번길 60, 502호(권선동, SONOHEIM)"
 }
     ''';
 
@@ -189,13 +188,13 @@ JSON 형식으로만 응답해주세요:
 
     final prompt = '''
 다음 두 개의 사업자 정보를 비교해서 일치율을 계산해주세요.
-사업자등록번호, 대표자명, 개업일자 3개 항목만 비교합니다.
+사업자등록번호, 성명(대표자), 개업일 3개 항목만 비교합니다.
 각 항목이 완전히 일치하면 33.33점씩 부여합니다.
 
-API에서 받은 정보:
+국세청 API에서 받은 정보:
 $apiData
 
-이미지에서 추출한 정보:
+사업자등록증명서에서 추출한 정보:
 $extractedText
 
 세 항목의 일치율을 0-100 사이의 숫자로만 응답해주세요.

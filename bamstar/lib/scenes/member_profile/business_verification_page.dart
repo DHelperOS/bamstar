@@ -1148,15 +1148,15 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
       // Prepare API data string - only 3 fields for comparison
       final apiData = '''
 사업자등록번호: ${businessData.input?.businessNumber ?? ''}
-대표자명: ${businessData.input?.representativeName ?? ''}
-개업일자: ${businessData.input?.openingDate ?? ''}
+성명(대표자): ${businessData.input?.representativeName ?? ''}
+개업일: ${businessData.input?.openingDate ?? ''}
       ''';
       
       // Prepare extracted data for comparison - only 3 fields
       final extractedDataForComparison = '''
 사업자등록번호: ${extractedDataMap['businessNumber'] ?? ''}
-대표자명: ${extractedDataMap['representativeName'] ?? ''}
-개업일자: ${extractedDataMap['openingDate'] ?? ''}
+성명(대표자): ${extractedDataMap['representativeName'] ?? ''}
+개업일: ${extractedDataMap['openingDate'] ?? ''}
       ''';
 
       return await _geminiService.compareBusinessData(
