@@ -1083,7 +1083,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               FilterChip(
                 label: Text(
                   '전체',
-                  style: AppTextStyles.chipLabel(context),
+                  style: AppTextStyles.chipLabel(context).copyWith(
+                    color: _selectedOperatingDays.length == _weekDays.length
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
                 ),
                 selected: _selectedOperatingDays.length == _weekDays.length,
                 onSelected: (selected) {
@@ -1100,7 +1104,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               ..._weekDays.map((day) => FilterChip(
                 label: Text(
                   day['label']!,
-                  style: AppTextStyles.chipLabel(context),
+                  style: AppTextStyles.chipLabel(context).copyWith(
+                    color: _selectedOperatingDays.contains(day['value'])
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : null,
+                  ),
                 ),
                 selected: _selectedOperatingDays.contains(day['value']),
                 onSelected: (selected) {
@@ -1122,44 +1130,18 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           Text('운영 시간', style: AppTextStyles.formLabel(context)),
           const SizedBox(height: 12),
           
-          // 시간 표시 컨테이너 (기존 디자인과 동일)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                width: 1,
+          // 시간 슬라이더 (항상 보이는 툴팁, 옅은 회색)
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
+              valueIndicatorColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.8),
+              valueIndicatorTextStyle: AppTextStyles.captionText(context).copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 12,
               ),
+              showValueIndicator: ShowValueIndicator.always,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${_operatingStartHour.round().toString().padLeft(2, '0')}:00',
-                  style: AppTextStyles.primaryText(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  ' - ',
-                  style: AppTextStyles.primaryText(context),
-                ),
-                Text(
-                  '${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
-                  style: AppTextStyles.primaryText(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // 시간 슬라이더
-          RangeSlider(
+            child: RangeSlider(
             values: RangeValues(_operatingStartHour, _operatingEndHour),
             min: 0,
             max: 24,
@@ -1174,6 +1156,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 _operatingEndHour = values.end;
               });
             },
+            ),
           ),
         ],
       ),
