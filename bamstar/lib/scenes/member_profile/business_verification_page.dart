@@ -819,20 +819,11 @@ class _Step2FormWidget extends ConsumerWidget {
             child: Column(
               children: [
                 _buildInfoRow(context, '사업자등록번호', result.bNo, icon: Icons.business_rounded),
-                if (result.requestParam.bNm?.isNotEmpty == true)
-                  _buildInfoRow(context, '상호명', result.requestParam.bNm!, icon: Icons.store_rounded),
                 _buildInfoRow(context, '대표자명', result.requestParam.pNm, icon: Icons.person_rounded),
                 _buildInfoRow(context, '개업일자', _formatDate(result.requestParam.startDt), icon: Icons.calendar_today_rounded),
-                if (result.requestParam.bAdr?.isNotEmpty == true)
-                  _buildInfoRow(context, '사업장소재지', result.requestParam.bAdr!, icon: Icons.location_on_rounded),
-                if (result.requestParam.bSector?.isNotEmpty == true)
-                  _buildInfoRow(context, '업태', result.requestParam.bSector!, icon: Icons.work_rounded),
-                if (result.requestParam.bType?.isNotEmpty == true)
-                  _buildInfoRow(context, '종목', result.requestParam.bType!, icon: Icons.category_rounded),
                 if (result.status != null) ...[
                   _buildInfoRow(context, '과세유형', result.status!.taxType, icon: Icons.account_balance_rounded),
-                  _buildInfoRow(context, '납세자상태', result.status!.bStt, icon: Icons.check_circle_rounded),
-                  _buildInfoRow(context, '상태변경일자', _formatDate(result.status!.bSttCd), icon: Icons.update_rounded, isLast: true),
+                  _buildInfoRow(context, '납세자상태', result.status!.bStt, icon: Icons.check_circle_rounded, isLast: true),
                 ] else
                   _buildInfoRow(context, '상태', '정상', icon: Icons.check_circle_rounded, isLast: true),
               ],
