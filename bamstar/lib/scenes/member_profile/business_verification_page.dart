@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 import '../../models/business_verification_models.dart';
-import '../../providers/business_verification_providers.dart';
+import '../../providers/business_verification/business_verification_providers.dart';
 import '../../services/business_verification_service.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/toast_helper.dart';
@@ -299,20 +299,29 @@ class _BusinessVerificationPageState
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(businessVerificationProvider.notifier).validateBusinessInfo(
-            businessNumber: _businessNumberCtl.text,
-            representativeName: _representativeNameCtl.text,
-            openingDate: _openingDateCtl.text,
-            representativeName2: _representativeName2Ctl.text.isNotEmpty ? _representativeName2Ctl.text : null,
-            businessName: _businessNameCtl.text.isNotEmpty ? _businessNameCtl.text : null,
-            corporateNumber: _corporateNumberCtl.text.isNotEmpty ? _corporateNumberCtl.text : null,
-            mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty ? _mainBusinessTypeCtl.text : null,
-            subBusinessType: _subBusinessTypeCtl.text.isNotEmpty ? _subBusinessTypeCtl.text : null,
-            businessAddress: _businessAddressCtl.text.isNotEmpty ? _businessAddressCtl.text : null,
-          );
+      // Update input data
+      final input = BusinessVerificationInput(
+        businessNumber: _businessNumberCtl.text,
+        representativeName: _representativeNameCtl.text,
+        openingDate: _openingDateCtl.text,
+        representativeName2: _representativeName2Ctl.text.isNotEmpty ? _representativeName2Ctl.text : null,
+        businessName: _businessNameCtl.text.isNotEmpty ? _businessNameCtl.text : null,
+        corporateNumber: _corporateNumberCtl.text.isNotEmpty ? _corporateNumberCtl.text : null,
+        mainBusinessType: _mainBusinessTypeCtl.text.isNotEmpty ? _mainBusinessTypeCtl.text : null,
+        subBusinessType: _subBusinessTypeCtl.text.isNotEmpty ? _subBusinessTypeCtl.text : null,
+        businessAddress: _businessAddressCtl.text.isNotEmpty ? _businessAddressCtl.text : null,
+      );
 
-      setState(() => _currentStep = 2);
-      ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
+      ref.read(businessVerificationProvider.notifier).updateInput(input);
+      await ref.read(businessVerificationProvider.notifier).verify();
+
+      final state = ref.read(businessVerificationProvider);
+      if (state.isSuccess) {
+        setState(() => _currentStep = 2);
+        ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
+      } else {
+        ToastHelper.error(context, state.error ?? '사업자 정보 조회에 실패했습니다');
+      }
     } catch (e) {
       ToastHelper.error(context, e.toString());
     } finally {
@@ -558,7 +567,7 @@ class _Step1FormWidget extends ConsumerWidget {
     required String label,
     required TextEditingController controller,
     required String hint,
-    required StateProvider<String?> Function(String) validationProvider,
+    required Provider<String?> Function(String?) validationProvider,
     required String fieldKey,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
