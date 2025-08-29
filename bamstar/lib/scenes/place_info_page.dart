@@ -37,15 +37,15 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   String _selectedGender = '남';
   String _selectedSns = '카카오톡';
   bool _isLoading = false;
-  
+
   // Address data - comprehensive storage for all address information
-  String? _postCode;           // 우편번호
-  String? _roadAddress;        // 도로명주소
-  String? _jibunAddress;       // 지번주소
-  double? _latitude;           // 위도
-  double? _longitude;          // 경도
-  String? _kakaoLatitude;      // 카카오 위도
-  String? _kakaoLongitude;     // 카카오 경도
+  String? _postCode; // 우편번호
+  String? _roadAddress; // 도로명주소
+  String? _jibunAddress; // 지번주소
+  double? _latitude; // 위도
+  double? _longitude; // 경도
+  String? _kakaoLatitude; // 카카오 위도
+  String? _kakaoLongitude; // 카카오 경도
 
   @override
   void initState() {
@@ -68,13 +68,15 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   void _formatPhoneNumber() {
     String text = _phoneCtl.text.replaceAll('-', '');
     if (text.length >= 11) {
-      text = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      text =
+          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     } else if (text.length >= 7) {
-      text = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7)}';
+      text =
+          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7)}';
     } else if (text.length >= 3) {
       text = '${text.substring(0, 3)}-${text.substring(3)}';
     }
-    
+
     if (text != _phoneCtl.text) {
       _phoneCtl.value = TextEditingValue(
         text: text,
@@ -90,7 +92,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
       for (final image in images) {
         if (_photos.length >= 10) break; // Limit to 10 images for places
-        
+
         final bytes = await image.readAsBytes();
         setState(() => _photos.add(bytes));
       }
@@ -130,9 +132,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
   void _setRepresentativeImage(int index) {
     setState(() {
-      _representativeImageIndex = _representativeImageIndex == index ? -1 : index;
+      _representativeImageIndex = _representativeImageIndex == index
+          ? -1
+          : index;
     });
-    
+
     if (_representativeImageIndex == index) {
       ToastHelper.success(context, '대표 이미지로 설정되었습니다');
     } else {
@@ -158,7 +162,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   _longitude = result.longitude;
                   _kakaoLatitude = result.kakaoLatitude.toString();
                   _kakaoLongitude = result.kakaoLongitude.toString();
-                  
+
                   // Update UI display
                   _addressCtl.text = result.address;
                 });
@@ -178,7 +182,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
   Future<void> _savePlaceInfo() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    
+
     if (_photos.isEmpty && _loadedImageUrls.isEmpty) {
       ToastHelper.warning(context, '플레이스 사진을 최소 1장 추가해주세요');
       return;
@@ -203,11 +207,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('Phone: ${_phoneCtl.text}');
       debugPrint('SNS: $_selectedSns - ${_snsHandleCtl.text}');
       debugPrint('Description: ${_introCtl.text}');
-      debugPrint('Photos: ${_photos.length} new, ${_loadedImageUrls.length} existing');
+      debugPrint(
+        'Photos: ${_photos.length} new, ${_loadedImageUrls.length} existing',
+      );
       debugPrint('Representative Image Index: $_representativeImageIndex');
-      
+
       await Future.delayed(const Duration(seconds: 2)); // Simulate save
-      
+
       if (mounted) {
         ToastHelper.success(context, '플레이스 정보가 저장되었습니다');
         Navigator.of(context).pop();
@@ -228,7 +234,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+        color: Theme.of(
+          context,
+        ).colorScheme.primaryContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
@@ -248,18 +256,27 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               const SizedBox(width: 8),
               Text(
                 '플레이스 정보',
-                style: AppTextStyles.sectionTitle(context).copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: AppTextStyles.sectionTitle(
+                  context,
+                ).copyWith(color: Theme.of(context).colorScheme.primary),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildInfoRow(SolarIconsOutline.camera, '매력적인 플레이스 사진을 업로드하고 대표 이미지를 선택하세요'),
+          _buildInfoRow(
+            SolarIconsOutline.camera,
+            '매력적인 플레이스 사진을 업로드하고 대표 이미지를 선택하세요',
+          ),
           const SizedBox(height: 6),
-          _buildInfoRow(SolarIconsOutline.mapPoint, '정확한 주소를 입력하여 스타들이 쉽게 찾을 수 있게 하세요'),
+          _buildInfoRow(
+            SolarIconsOutline.mapPoint,
+            '정확한 주소를 입력하여 스타들이 쉽게 찾을 수 있게 하세요',
+          ),
           const SizedBox(height: 6),
-          _buildInfoRow(SolarIconsOutline.userCircle, '담당자 정보를 입력하여 원활한 소통이 가능하게 하세요'),
+          _buildInfoRow(
+            SolarIconsOutline.userCircle,
+            '담당자 정보를 입력하여 원활한 소통이 가능하게 하세요',
+          ),
         ],
       ),
     );
@@ -292,7 +309,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               const SizedBox(width: 8),
               if (_representativeImageIndex >= 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -322,12 +342,17 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _pickFromCamera,
-                  icon: const Icon(SolarIconsOutline.cameraMinimalistic, size: 18),
+                  icon: const Icon(
+                    SolarIconsOutline.cameraMinimalistic,
+                    size: 18,
+                  ),
                   label: const Text('카메라'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -339,12 +364,17 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _pickFromGallery,
-                  icon: const Icon(SolarIconsOutline.galleryMinimalistic, size: 18),
+                  icon: const Icon(
+                    SolarIconsOutline.galleryMinimalistic,
+                    size: 18,
+                  ),
                   label: const Text('앨범'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -362,9 +392,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
           Text(
             '최대 10장의 사진을 업로드할 수 있습니다. 대표 이미지를 선택하려면 사진의 왕관 아이콘을 탭하세요.',
-            style: AppTextStyles.captionText(context).copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            style: AppTextStyles.captionText(
+              context,
+            ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -373,7 +403,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
   Widget _buildPhotoThumbnails() {
     final totalImageCount = _loadedImageUrls.length + _photos.length;
-    
+
     if (totalImageCount == 0) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -383,7 +413,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.3),
             ),
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
@@ -402,7 +434,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       itemBuilder: (context, index) {
         final isLoadedImage = index < _loadedImageUrls.length;
         final isRepresentative = _representativeImageIndex == index;
-        
+
         return Container(
           margin: EdgeInsets.only(right: index == totalImageCount - 1 ? 0 : 12),
           child: Stack(
@@ -414,7 +446,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    border: isRepresentative ? Border.all(color: Colors.amber, width: 3) : null,
+                    border: isRepresentative
+                        ? Border.all(color: Colors.amber, width: 3)
+                        : null,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: isLoadedImage
@@ -425,10 +459,14 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
-                              color: Theme.of(context).colorScheme.errorContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
                               child: Icon(
                                 Icons.error_outline,
-                                color: Theme.of(context).colorScheme.onErrorContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
                                 size: 24,
                               ),
                             );
@@ -442,7 +480,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                         ),
                 ),
               ),
-              
+
               // Representative selection button (crown icon)
               Positioned(
                 top: 4,
@@ -453,14 +491,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: isRepresentative 
-                          ? Colors.amber 
+                      color: isRepresentative
+                          ? Colors.amber
                           : Colors.black.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2,
-                      ),
+                      border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: Icon(
                       Icons.star,
@@ -476,7 +511,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 top: 4,
                 right: 4,
                 child: GestureDetector(
-                  onTap: () => isLoadedImage 
+                  onTap: () => isLoadedImage
                       ? _removePhoto(index) // TODO: Handle loaded image removal
                       : _removePhoto(index - _loadedImageUrls.length),
                   child: Container(
@@ -537,7 +572,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -548,7 +585,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 hintText: '플레이스 이름을 입력해주세요',
                 hintStyle: AppTextStyles.secondaryText(context),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 prefixIcon: Icon(
                   SolarIconsOutline.buildings,
                   size: 20,
@@ -573,10 +613,14 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),
@@ -588,7 +632,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                       hintText: '주소 찾기 버튼을 눌러주세요',
                       hintStyle: AppTextStyles.secondaryText(context),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       prefixIcon: Icon(
                         SolarIconsOutline.mapPoint,
                         size: 20,
@@ -610,7 +657,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -629,7 +679,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -640,7 +692,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 hintText: '동/호수, 건물명 등 상세주소를 입력해주세요',
                 hintStyle: AppTextStyles.secondaryText(context),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 prefixIcon: Icon(
                   SolarIconsOutline.home,
                   size: 20,
@@ -686,7 +741,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -697,7 +754,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 hintText: '담당자 이름을 입력해주세요',
                 hintStyle: AppTextStyles.secondaryText(context),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 prefixIcon: Icon(
                   SolarIconsOutline.userCircle,
                   size: 20,
@@ -722,7 +782,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -735,7 +797,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 hintText: '010-1234-5678',
                 hintStyle: AppTextStyles.secondaryText(context),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 prefixIcon: Icon(
                   SolarIconsOutline.phone,
                   size: 20,
@@ -762,37 +827,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
             segments: [
               ButtonSegment(
                 value: '남',
-                label: Text(
-                  '남',
-                  style: TextStyle(
-                    color: _selectedGender == '남' 
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : null,
-                  ),
-                ),
-                icon: Icon(
-                  Icons.male,
-                  color: _selectedGender == '남'
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : null,
-                ),
+                label: Text('남'),
+                icon: const Icon(Icons.male),
               ),
               ButtonSegment(
                 value: '여',
-                label: Text(
-                  '여',
-                  style: TextStyle(
-                    color: _selectedGender == '여'
-                        ? Theme.of(context).colorScheme.onPrimary
-                        : null,
-                  ),
-                ),
-                icon: Icon(
-                  Icons.female,
-                  color: _selectedGender == '여'
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : null,
-                ),
+                label: Text('여'),
+                icon: const Icon(Icons.female),
               ),
             ],
             selected: {_selectedGender},
@@ -805,6 +846,18 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               backgroundColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
                   return Theme.of(context).colorScheme.primary;
+                }
+                return null;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Theme.of(context).colorScheme.onPrimary;
+                }
+                return null;
+              }),
+              iconColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Theme.of(context).colorScheme.onPrimary;
                 }
                 return null;
               }),
@@ -939,13 +992,15 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         children: [
           Text('플레이스 소개', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 20),
-          
+
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -954,7 +1009,8 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               style: AppTextStyles.primaryText(context),
               maxLines: 5,
               decoration: InputDecoration(
-                hintText: '스타들에게 어필할 수 있는 플레이스만의 특별한 매력을 소개해보세요.\n(예: 분위기, 특별한 서비스, 추천 메뉴 등)',
+                hintText:
+                    '스타들에게 어필할 수 있는 플레이스만의 특별한 매력을 소개해보세요.\n(예: 분위기, 특별한 서비스, 추천 메뉴 등)',
                 hintStyle: AppTextStyles.secondaryText(context),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.all(16),
@@ -1014,7 +1070,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 16.0,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -1049,7 +1108,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                     color: Theme.of(context).colorScheme.surface,
                     border: Border(
                       top: BorderSide(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -1060,12 +1121,16 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                       gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                          Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.8),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -1093,10 +1158,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                                   )
                                 : Text(
                                     '저장하기',
-                                    style: AppTextStyles.buttonText(context).copyWith(
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppTextStyles.buttonText(context)
+                                        .copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                           ),
                         ),
