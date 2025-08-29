@@ -28,20 +28,36 @@ class _MainScreenState extends State<MainScreen> {
     final user = UserService.instance.user;
     final roleId = user?.data['role_id'] as int?;
     
+    // Debug logging
+    print('[PlaceHomePage] Current user role_id: $roleId');
+    print('[PlaceHomePage] User data: ${user?.data}');
+    
+    // Handle null case
+    if (roleId == null) {
+      print('[PlaceHomePage] role_id is null, defaulting to UserSettingsPage');
+      return UserSettingsPage();
+    }
+    
     // Route based on role_id
     // DB: 1=GUEST, 2=STAR, 3=PLACE, 4=ADMIN, 6=MEMBER
     switch (roleId) {
       case 1: // GUEST -> UserSettingsPage
+        print('[PlaceHomePage] Routing to UserSettingsPage for role_id: 1 (GUEST)');
         return UserSettingsPage();
       case 2: // STAR -> UserSettingsPage  
+        print('[PlaceHomePage] Routing to UserSettingsPage for role_id: 2 (STAR)');
         return UserSettingsPage();
       case 3: // PLACE -> PlaceSettingsPage
+        print('[PlaceHomePage] Routing to PlaceSettingsPage for role_id: 3');
         return PlaceSettingsPage();
       case 4: // ADMIN -> UserSettingsPage
+        print('[PlaceHomePage] Routing to UserSettingsPage for role_id: 4 (ADMIN)');
         return UserSettingsPage();
       case 6: // MEMBER -> UserSettingsPage
+        print('[PlaceHomePage] Routing to UserSettingsPage for role_id: 6 (MEMBER)');
         return UserSettingsPage();
       default: // Default to user settings
+        print('[PlaceHomePage] Routing to UserSettingsPage for unknown role_id: $roleId');
         return UserSettingsPage();
     }
   }
