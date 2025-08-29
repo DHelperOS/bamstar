@@ -38,7 +38,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   String _selectedSns = '카카오톡';
   bool _isLoading = false;
 
-  // Operating hours data - 슬라이더 기반 운영시간
+  // Operating hours data - 운영시간 관련 데이터
   List<String> _selectedOperatingDays = []; // 선택된 운영 요일들
   double _operatingStartHour = 9.0; // 운영 시작 시간 (시간 단위, 0-24)  
   double _operatingEndHour = 18.0; // 운영 종료 시간 (시간 단위, 0-24)
@@ -222,8 +222,6 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('Phone: ${_phoneCtl.text}');
       debugPrint('SNS: $_selectedSns - ${_snsHandleCtl.text}');
       debugPrint('Description: ${_introCtl.text}');
-      debugPrint('Operating Days: $_selectedOperatingDays');
-      debugPrint('Operating Hours: ${_formatHour(_operatingStartHour)} ~ ${_formatHour(_operatingEndHour)}');
       debugPrint(
         'Photos: ${_photos.length} new, ${_loadedImageUrls.length} existing',
       );
@@ -1048,779 +1046,138 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     );
   }
 
-  Widget _buildOperatingHoursForm_OLD() {
-
-  // 운영시간 폼 - 심플 버전 (슬라이더 기반)
+  // 운영시간 폼 - 기존 디자인과 동일한 스타일
   Widget _buildOperatingHoursForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '운영 요일',
-          style: AppTextStyles.sectionTitle(context),
-        ),
-        const SizedBox(height: 12),
-        
-        // 요일 선택
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // 전체 선택 칩
-            FilterChip(
-              label: Text(
-                '전체',
-                style: AppTextStyles.chipLabel(context),
-              ),
-              selected: _selectedOperatingDays.length == _weekDays.length,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedOperatingDays = _weekDays.map((day) => day['value']!).toList();
-                  } else {
-                    _selectedOperatingDays.clear();
-                  }
-                });
-              },
-            ),
-            // 개별 요일 칩들
-            ..._weekDays.map((day) => FilterChip(
-              label: Text(
-                day['label']!,
-                style: AppTextStyles.chipLabel(context),
-              ),
-              selected: _selectedOperatingDays.contains(day['value']),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedOperatingDays.add(day['value']!);
-                  } else {
-                    _selectedOperatingDays.remove(day['value']);
-                  }
-                });
-              },
-            )),
-          ],
-        ),
-        
-        const SizedBox(height: 24),
-        
-        // 운영 시간
-        Text(
-          '운영 시간',
-          style: AppTextStyles.sectionTitle(context),
-        ),
-        const SizedBox(height: 12),
-        
-        // 시간 표시
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          child: Text(
-            '${_operatingStartHour.round().toString().padLeft(2, '0')}:00 - ${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
-            style: AppTextStyles.primaryText(context),
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // 시간 슬라이더
-        RangeSlider(
-          values: RangeValues(_operatingStartHour, _operatingEndHour),
-          min: 0,
-          max: 24,
-          divisions: 24,
-          labels: RangeLabels(
-            '${_operatingStartHour.round()}:00',
-            '${_operatingEndHour.round()}:00',
-          ),
-          onChanged: (RangeValues values) {
-            setState(() {
-              _operatingStartHour = values.start;
-              _operatingEndHour = values.end;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-
     return Container(
-      padding: const EdgeInsets.all(24.0),
+      padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
         border: Border.all(
-          color: const Color(0x0F919EAB),
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 헤더 섹션
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  SolarIconsBold.clockCircle,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text('운영 시간', style: AppTextStyles.sectionTitle(context)),
-            ],
-          ),
-          const SizedBox(height: 24),
+          Text('운영시간', style: AppTextStyles.sectionTitle(context)),
+          const SizedBox(height: 20),
 
-          // 요일 선택 섹션
-          Text(
-            '운영 요일',
-            style: AppTextStyles.formLabel(context).copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
+          // 운영 요일 선택
+          Text('운영 요일', style: AppTextStyles.formLabel(context)),
+          const SizedBox(height: 12),
           
-          // 전체 선택 버튼 (개선된 디자인)
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              // 전체 선택 칩
+              FilterChip(
+                label: Text(
+                  '전체',
+                  style: AppTextStyles.chipLabel(context),
+                ),
+                selected: _selectedOperatingDays.length == _weekDays.length,
+                onSelected: (selected) {
                   setState(() {
-                    if (_selectedOperatingDays.length == _weekDays.length) {
-                      _selectedOperatingDays.clear();
-                    } else {
+                    if (selected) {
                       _selectedOperatingDays = _weekDays.map((day) => day['value']!).toList();
+                    } else {
+                      _selectedOperatingDays.clear();
                     }
                   });
                 },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: _selectedOperatingDays.length == _weekDays.length
-                        ? Theme.of(context).colorScheme.primary
-                        : const Color(0xFFF8F9FA),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _selectedOperatingDays.length == _weekDays.length
-                          ? Theme.of(context).colorScheme.primary
-                          : const Color(0xFFE2E8F0),
-                      width: 1.5,
-                    ),
-                    boxShadow: _selectedOperatingDays.length == _weekDays.length
-                        ? [
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _selectedOperatingDays.length == _weekDays.length
-                            ? SolarIconsBold.checkSquare
-                            : SolarIconsOutline.checkSquare,
-                        size: 18,
-                        color: _selectedOperatingDays.length == _weekDays.length
-                            ? Colors.white
-                            : const Color(0xFF64748B),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '전체 선택 (매일 운영)',
-                        style: TextStyle(
-                          color: _selectedOperatingDays.length == _weekDays.length
-                              ? Colors.white
-                              : const Color(0xFF1E293B),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
-            ),
+              // 개별 요일 칩들
+              ..._weekDays.map((day) => FilterChip(
+                label: Text(
+                  day['label']!,
+                  style: AppTextStyles.chipLabel(context),
+                ),
+                selected: _selectedOperatingDays.contains(day['value']),
+                onSelected: (selected) {
+                  setState(() {
+                    if (selected) {
+                      _selectedOperatingDays.add(day['value']!);
+                    } else {
+                      _selectedOperatingDays.remove(day['value']);
+                    }
+                  });
+                },
+              )),
+            ],
           ),
           
-          // 개별 요일 선택 (개선된 칩 디자인)
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _weekDays.map((day) {
-              final isSelected = _selectedOperatingDays.contains(day['value']);
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedOperatingDays.remove(day['value']);
-                      } else {
-                        _selectedOperatingDays.add(day['value']!);
-                      }
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(25),
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      border: Border.all(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : const Color(0xFFE2E8F0),
-                        width: 1.5,
-                      ),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        day['label']!,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF64748B),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-
-          const SizedBox(height: 32),
-
-          // 시간 설정 섹션
-          Text(
-            '운영 시간',
-            style: AppTextStyles.formLabel(context).copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // 시간 표시 카드 (개선된 버전)
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFFF8FAFC),
-                  const Color(0xFFF1F5F9),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFE2E8F0),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // 시작 시간
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Icon(
-                                SolarIconsBold.sunrise,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '오픈',
-                              style: TextStyle(
-                                color: const Color(0xFF64748B),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _formatHour(_operatingStartHour),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(width: 16),
-                
-                // 구분선
-                Container(
-                  width: 3,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        const Color(0xFFE2E8F0),
-                        const Color(0xFFCBD5E1),
-                        const Color(0xFFE2E8F0),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                
-                const SizedBox(width: 16),
-                
-                // 종료 시간
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFF6B35).withValues(alpha: 0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFF6B35).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Icon(
-                                SolarIconsBold.sunset,
-                                size: 16,
-                                color: Color(0xFFFF6B35),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '마감',
-                              style: TextStyle(
-                                color: const Color(0xFF64748B),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _formatHour(_operatingEndHour),
-                          style: const TextStyle(
-                            color: Color(0xFFFF6B35),
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // 이중 슬라이더 (개선된 버전)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              children: [
-                // 슬라이더 상단 시간 표시
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('00:00', style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-                      Text('06:00', style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-                      Text('12:00', style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-                      Text('18:00', style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-                      Text('24:00', style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                
-                // 커스텀 이중 슬라이더 (LayoutBuilder 사용)
-                SizedBox(
-                  height: 60,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final trackWidth = constraints.maxWidth - 40;
-                      final startX = 20 + (_operatingStartHour / 24) * trackWidth;
-                      final endX = 20 + (_operatingEndHour / 24) * trackWidth;
-                      
-                      return Stack(
-                        children: [
-                          // 배경 트랙
-                          Positioned(
-                            top: 28,
-                            left: 20,
-                            right: 20,
-                            child: Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                          
-                          // 활성 범위 트랙
-                          Positioned(
-                            top: 28,
-                            left: startX,
-                            width: endX - startX,
-                            child: Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Theme.of(context).colorScheme.primary,
-                                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(3),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          // 시작 시간 슬라이더
-                          Positioned(
-                            top: 8,
-                            left: startX - 22,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                final newX = details.localPosition.dx + startX - 22;
-                                final newHour = ((newX - 20) / trackWidth * 24).clamp(0.0, _operatingEndHour - 0.5);
-                                setState(() {
-                                  _operatingStartHour = (newHour * 2).round() / 2; // 30분 단위
-                                });
-                              },
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  SolarIconsBold.sunrise,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                          
-                          // 종료 시간 슬라이더
-                          Positioned(
-                            top: 8,
-                            left: endX - 22,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                final newX = details.localPosition.dx + endX - 22;
-                                final newHour = ((newX - 20) / trackWidth * 24).clamp(_operatingStartHour + 0.5, 24.0);
-                                setState(() {
-                                  _operatingEndHour = (newHour * 2).round() / 2; // 30분 단위
-                                });
-                              },
-                              child: Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF6B35), // 주황색으로 구분
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 3,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFFFF6B35).withValues(alpha: 0.4),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  SolarIconsBold.sunset,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           const SizedBox(height: 20),
           
-          // 안내 메시지
+          // 운영 시간 설정
+          Text('운영 시간', style: AppTextStyles.formLabel(context)),
+          const SizedBox(height: 12),
+          
+          // 시간 표시 컨테이너 (기존 디자인과 동일)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  SolarIconsBold.infoCircle,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.primary,
+                Text(
+                  '${_operatingStartHour.round().toString().padLeft(2, '0')}:00',
+                  style: AppTextStyles.primaryText(context).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    '슬라이더를 드래그하여 운영 시간을 설정하세요.\n선택한 요일에 동일한 시간이 적용됩니다.',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      height: 1.4,
-                    ),
+                Text(
+                  ' - ',
+                  style: AppTextStyles.primaryText(context),
+                ),
+                Text(
+                  '${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
+                  style: AppTextStyles.primaryText(context).copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // 시간 슬라이더
+          RangeSlider(
+            values: RangeValues(_operatingStartHour, _operatingEndHour),
+            min: 0,
+            max: 24,
+            divisions: 24,
+            labels: RangeLabels(
+              '${_operatingStartHour.round()}:00',
+              '${_operatingEndHour.round()}:00',
+            ),
+            onChanged: (RangeValues values) {
+              setState(() {
+                _operatingStartHour = values.start;
+                _operatingEndHour = values.end;
+              });
+            },
           ),
         ],
       ),
     );
-  }
-
-  // 운영시간 폼 - 심플 버전 (슬라이더 기반)
-  Widget _buildOperatingHoursForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '운영 요일',
-          style: AppTextStyles.sectionTitle(context),
-        ),
-        const SizedBox(height: 12),
-        
-        // 요일 선택
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // 전체 선택 칩
-            FilterChip(
-              label: Text(
-                '전체',
-                style: AppTextStyles.chipLabel(context),
-              ),
-              selected: _selectedOperatingDays.length == _weekDays.length,
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedOperatingDays = _weekDays.map((day) => day['value']!).toList();
-                  } else {
-                    _selectedOperatingDays.clear();
-                  }
-                });
-              },
-            ),
-            // 개별 요일 칩들
-            ..._weekDays.map((day) => FilterChip(
-              label: Text(
-                day['label']!,
-                style: AppTextStyles.chipLabel(context),
-              ),
-              selected: _selectedOperatingDays.contains(day['value']),
-              onSelected: (selected) {
-                setState(() {
-                  if (selected) {
-                    _selectedOperatingDays.add(day['value']!);
-                  } else {
-                    _selectedOperatingDays.remove(day['value']);
-                  }
-                });
-              },
-            )),
-          ],
-        ),
-        
-        const SizedBox(height: 24),
-        
-        // 운영 시간
-        Text(
-          '운영 시간',
-          style: AppTextStyles.sectionTitle(context),
-        ),
-        const SizedBox(height: 12),
-        
-        // 시간 표시
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          child: Text(
-            '${_operatingStartHour.round().toString().padLeft(2, '0')}:00 - ${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
-            style: AppTextStyles.primaryText(context),
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        // 시간 슬라이더
-        RangeSlider(
-          values: RangeValues(_operatingStartHour, _operatingEndHour),
-          min: 0,
-          max: 24,
-          divisions: 24,
-          labels: RangeLabels(
-            '${_operatingStartHour.round()}:00',
-            '${_operatingEndHour.round()}:00',
-          ),
-          onChanged: (RangeValues values) {
-            setState(() {
-              _operatingStartHour = values.start;
-              _operatingEndHour = values.end;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  // 시간을 문자열로 포맷팅하는 헬퍼 메소드
-  String _formatHour(double hour) {
-    final int hours = hour.floor();
-    final int minutes = ((hour - hours) * 60).round();
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
