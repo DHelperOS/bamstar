@@ -150,7 +150,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         MaterialPageRoute(
           builder: (_) => KpostalView(
             useLocalServer: true,
-            localPort: 1024,
+            localPort: 8080, // Use default port for better compatibility
             callback: (Kpostal result) {
               if (mounted) {
                 setState(() {

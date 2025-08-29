@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Allow cleartext traffic for localhost and specific ports used by kpostal -->
+    <!-- Allow cleartext traffic for localhost and kpostal local server -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- Add support for all local network ranges -->
+        <domain includeSubdomains="true">192.168.0.0/16</domain>
+        <domain includeSubdomains="true">172.16.0.0/12</domain>
+        <domain includeSubdomains="true">10.0.0.0/8</domain>
     </domain-config>
     
-    <!-- Base configuration that allows cleartext for debugging -->
-    <base-config cleartextTrafficPermitted="true">
+    <!-- Allow cleartext for kpostal package assets -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">kpostal</domain>
+    </domain-config>
+    
+    <!-- Base configuration for production - still allows local cleartext -->
+    <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
+            <certificates src="user" />
         </trust-anchors>
     </base-config>
+    
+    <!-- Debug override - allows all cleartext in debug builds -->
+    <debug-overrides>
+        <base-config cleartextTrafficPermitted="true">
+            <trust-anchors>
+                <certificates src="system" />
+                <certificates src="user" />
+            </trust-anchors>
+        </base-config>
+    </debug-overrides>
 </network-security-config>
