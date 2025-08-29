@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bamstar/services/cloudinary.dart';
+import 'package:flutter/foundation.dart';
 
 /// Helper for regular (post) images. Tries to inject Cloudinary transformations
 /// when the URL is a Cloudinary delivery URL. Falls back to original URL or
@@ -131,3 +132,107 @@ class _ErrorRetryState extends State<_ErrorRetry> {
   }
 }
 
+/// Helper function to upload images with intelligent resizing
+/// Automatically chooses the best configuration based on use case
+Future<String> uploadImageIntelligently(
+  Uint8List bytes, {
+  required String fileName,
+  required ImageUploadType type,
+  String? customFolder,
+  String? publicId,
+  void Function(double progress)? onProgress,
+}) async {
+  final cloudinary = CloudinaryService.instance;
+  
+  switch (type) {
+    case ImageUploadType.avatar:
+      return cloudinary.uploadAvatar(
+        bytes,
+        fileName: fileName,
+        folder: customFolder ?? 'avatars',
+        publicId: publicId,
+        onProgress: onProgress,
+      );
+    case ImageUploadType.post:
+      return cloudinary.uploadPostImage(
+        bytes,
+        fileName: fileName,
+        folder: customFolder ?? 'posts',
+        publicId: publicId,
+        onProgress: onProgress,
+      );
+    case ImageUploadType.thumbnail:
+      return cloudinary.uploadThumbnail(
+        bytes,
+        fileName: fileName,
+        folder: customFolder ?? 'thumbnails',
+        publicId: publicId,
+        onProgress: onProgress,
+      );
+    case ImageUploadType.highQuality:
+      return cloudinary.uploadImageWithConfig(
+        bytes,
+        fileName: fileName,
+        config: ImageResizeConfig.highQuality,
+        folder: customFolder ?? 'high-quality',
+        publicId: publicId,
+        onProgress: onProgress,
+      );
+  }
+}
+
+/// Types of image uploads with different optimization strategies
+enum ImageUploadType {
+  /// Profile/avatar images - square, optimized for small display
+  avatar,
+  
+  /// Regular post images - preserve aspect ratio, balanced quality
+  post,
+  
+  /// Thumbnail images - small, fast loading
+  thumbnail,
+  
+  /// High quality images for detailed viewing
+  highQuality,
+}
+
+/// Get recommended upload type based on image characteristics
+Future<ImageUploadType> getRecommendedUploadType(
+  Uint8List bytes, {
+  bool isProfileImage = false,
+  bool isThumbnail = false,
+  bool needsHighQuality = false,
+}) async {
+  if (isProfileImage) return ImageUploadType.avatar;
+  if (isThumbnail) return ImageUploadType.thumbnail;
+  if (needsHighQuality) return ImageUploadType.highQuality;
+  
+  try {
+    final cloudinary = CloudinaryService.instanceOrNull;
+    if (cloudinary != null) {
+      final dimensions = await cloudinary.analyzeImage(bytes);
+      
+      // Large images benefit from high quality
+      if (dimensions.width > 1920 || dimensions.height > 1920) {
+        return ImageUploadType.highQuality;
+      }
+      
+      // Small images can be thumbnails
+      if (dimensions.width < 300 && dimensions.height < 300) {
+        return ImageUploadType.thumbnail;
+      }
+      
+      // Square images might be avatars
+      if (dimensions.isSquare && dimensions.width <= 800) {
+        return ImageUploadType.avatar;
+      }
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('[ImageHelper] Failed to analyze image for type recommendation: $e');
+    }
+  }
+  
+  // Default to post type
+  return ImageUploadType.post;
+}

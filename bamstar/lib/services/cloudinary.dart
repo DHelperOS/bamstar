@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'dart:convert' show base64Encode;
 import 'dart:io';
+import 'dart:math' show min, max;
 
 /// Cloudinary service providing signed uploads via Supabase Edge Function
 /// `cloudinary-signature` and simple URL helpers.
@@ -237,14 +239,8 @@ class CloudinaryService {
           if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
           if (context != null && context.isNotEmpty)
             'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
-          // 이미지 최적화 및 리사이징 설정 (최소 용량 우선)
-          'quality': 'auto:eco',   // 최소 용량 우선 품질 최적화 (eco 모드)
-          'fetch_format': 'auto',  // 브라우저에 맞는 최적 포맷 자동 선택 (WebP, AVIF 등)
-          'crop': 'limit',         // 원본 비율 유지하면서 크기 제한
-          'width': 800,            // 최대 너비 800px (모바일 앱에 충분)
-          'height': 800,           // 최대 높이 800px (모바일 앱에 충분)
-          'dpr': '1.0',            // 픽셀 비율 1.0 고정 (용량 절약)
-          'flags': 'progressive', // 프로그레시브 JPEG 활성화 (빠른 로딩)
+          // Use intelligent resizing - analyze dimensions and apply optimal configuration
+          ...(await _buildIntelligentResizeParams(bytes, ImageResizeConfig.post))
         });
 
         final res = await _dio.post(
@@ -289,6 +285,272 @@ class CloudinaryService {
       print('[CloudinaryService] All retries failed for $fileName');
     }
     throw lastError ?? Exception('Upload failed after $maxRetries retries');
+  }
+
+  /// Analyze image dimensions and properties for optimal upload configuration
+  Future<ImageDimensions> analyzeImage(Uint8List bytes) async {
+    try {
+      final sizeResult = ImageSizeGetter.getSizeResult(MemoryInput(bytes));
+      
+      // Access the Size object from the result
+      final size = sizeResult.size;
+      
+      // Handle invalid dimensions
+      if (size.width <= 0 || size.height <= 0) {
+        throw Exception('Invalid image dimensions');
+      }
+      
+      final width = size.width;
+      final height = size.height;
+      final aspectRatio = width / height;
+      
+      return ImageDimensions(
+        width: width,
+        height: height,
+        aspectRatio: aspectRatio,
+        isPortrait: height > width,
+        isLandscape: width > height,
+        isSquare: (width - height).abs() <= 10, // Allow 10px tolerance
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('[CloudinaryService] Failed to analyze image dimensions: $e');
+      }
+      // Return reasonable defaults if analysis fails
+      return const ImageDimensions(
+        width: 800,
+        height: 800,
+        aspectRatio: 1.0,
+        isPortrait: false,
+        isLandscape: false,
+        isSquare: true,
+      );
+    }
+  }
+
+  /// Upload an image with intelligent resizing based on use case
+  /// This method analyzes the image dimensions and applies optimal resizing
+  Future<String> uploadImageWithConfig(
+    Uint8List bytes, {
+    required String fileName,
+    required ImageResizeConfig config,
+    String? folder,
+    String? publicId,
+    Map<String, String>? context,
+    void Function(double progress)? onProgress,
+    int maxRetries = 2,
+  }) async {
+    // Safety check before upload
+    if (kIsWeb) {
+      final verdict = await _moderateOnWeb(bytes, fileName: fileName);
+      if (!verdict.allowed) {
+        throw UnsafeImageException(
+          reason: verdict.reason,
+          labels: verdict.matchedLabels,
+        );
+      }
+    } else {
+      final safe = await _isImageSafe(bytes);
+      if (!safe.allowed) {
+        throw UnsafeImageException(
+          reason: safe.reason,
+          labels: safe.matchedLabels,
+        );
+      }
+    }
+
+    // Analyze image dimensions
+    final dimensions = await analyzeImage(bytes);
+    final optimal = dimensions.getOptimalDimensions(config);
+
+    if (kDebugMode) {
+      print('[CloudinaryService] Image analysis for $fileName:');
+      print('  Original: ${dimensions.width}x${dimensions.height}');
+      print('  Optimal: ${optimal.width}x${optimal.height}');
+      print('  Aspect ratio: ${dimensions.aspectRatio.toStringAsFixed(2)}');
+      print('  Type: ${dimensions.isSquare ? 'Square' : dimensions.isPortrait ? 'Portrait' : 'Landscape'}');
+    }
+
+    Exception? lastError;
+    
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (kDebugMode) {
+          print('[CloudinaryService] Uploading $fileName (attempt ${attempt + 1}/${maxRetries + 1})');
+        }
+        
+        final sig = await _getSignature(
+          resourceType: 'image',
+          folder: folder,
+          publicId: publicId,
+          context: context,
+        );
+
+        if (kDebugMode) {
+          print('[CloudinaryService] Got signature for $fileName');
+        }
+
+        final url = 'https://api.cloudinary.com/v1_1/$_cloudName/image/upload';
+        final form = dio.FormData.fromMap({
+          'file': dio.MultipartFile.fromBytes(bytes, filename: fileName),
+          'api_key': sig.apiKey,
+          'timestamp': sig.timestamp.toString(),
+          'signature': sig.signature,
+          if (_uploadPreset.isNotEmpty) 'upload_preset': _uploadPreset,
+          if (folder != null && folder.isNotEmpty) 'folder': folder,
+          if (publicId != null && publicId.isNotEmpty) 'public_id': publicId,
+          if (context != null && context.isNotEmpty)
+            'context': context.entries.map((e) => '${e.key}=${e.value}').join('|'),
+          // Intelligent resizing configuration
+          'quality': config.quality,
+          'fetch_format': 'auto',
+          'crop': config.cropMode,
+          'width': optimal.width,
+          'height': optimal.height,
+          'dpr': '1.0',
+          'flags': 'progressive',
+        });
+
+        final res = await _dio.post(
+          url,
+          data: form,
+          onSendProgress: (sent, total) {
+            if (onProgress != null && total > 0) onProgress(sent / total);
+          },
+        );
+        
+        final data = res.data;
+        if (data is Map && data['secure_url'] is String) {
+          final secureUrl = data['secure_url'] as String;
+          if (kDebugMode) {
+            print('[CloudinaryService] Successfully uploaded $fileName: $secureUrl');
+          }
+          return secureUrl;
+        }
+        throw StateError('Unexpected Cloudinary response: ${res.data}');
+        
+      } catch (e) {
+        lastError = e is Exception ? e : Exception(e.toString());
+        
+        if (kDebugMode) {
+          print('[CloudinaryService] Upload failed for $fileName (attempt ${attempt + 1}): $e');
+        }
+        
+        if (attempt < maxRetries) {
+          // 재시도 전에 잠시 대기 (exponential backoff)
+          final delay = Duration(seconds: (attempt + 1) * 2);
+          if (kDebugMode) {
+            print('[CloudinaryService] Retrying in ${delay.inSeconds} seconds...');
+          }
+          await Future.delayed(delay);
+          continue;
+        }
+      }
+    }
+    
+    // 모든 재시도 실패
+    if (kDebugMode) {
+      print('[CloudinaryService] All retries failed for $fileName');
+    }
+    throw lastError ?? Exception('Upload failed after $maxRetries retries');
+  }
+
+  /// Convenience method for avatar uploads
+  Future<String> uploadAvatar(
+    Uint8List bytes, {
+    required String fileName,
+    String? folder = 'avatars',
+    String? publicId,
+    void Function(double progress)? onProgress,
+  }) async {
+    return uploadImageWithConfig(
+      bytes,
+      fileName: fileName,
+      config: ImageResizeConfig.avatar,
+      folder: folder,
+      publicId: publicId,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Convenience method for post image uploads
+  Future<String> uploadPostImage(
+    Uint8List bytes, {
+    required String fileName,
+    String? folder = 'posts',
+    String? publicId,
+    void Function(double progress)? onProgress,
+  }) async {
+    return uploadImageWithConfig(
+      bytes,
+      fileName: fileName,
+      config: ImageResizeConfig.post,
+      folder: folder,
+      publicId: publicId,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Convenience method for thumbnail uploads
+  Future<String> uploadThumbnail(
+    Uint8List bytes, {
+    required String fileName,
+    String? folder = 'thumbnails',
+    String? publicId,
+    void Function(double progress)? onProgress,
+  }) async {
+    return uploadImageWithConfig(
+      bytes,
+      fileName: fileName,
+      config: ImageResizeConfig.thumbnail,
+      folder: folder,
+      publicId: publicId,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Helper method to build intelligent resize parameters for form data
+  Future<Map<String, dynamic>> _buildIntelligentResizeParams(
+    Uint8List bytes,
+    ImageResizeConfig config,
+  ) async {
+    try {
+      // Analyze image dimensions
+      final dimensions = await analyzeImage(bytes);
+      final optimal = dimensions.getOptimalDimensions(config);
+
+      if (kDebugMode) {
+        print('[CloudinaryService] Intelligent resize:');
+        print('  Original: ${dimensions.width}x${dimensions.height}');
+        print('  Optimal: ${optimal.width}x${optimal.height}');
+        print('  Aspect ratio: ${dimensions.aspectRatio.toStringAsFixed(2)}');
+        print('  Type: ${dimensions.isSquare ? 'Square' : dimensions.isPortrait ? 'Portrait' : 'Landscape'}');
+      }
+
+      return {
+        'quality': config.quality,
+        'fetch_format': 'auto',
+        'crop': config.cropMode,
+        'width': optimal.width,
+        'height': optimal.height,
+        'dpr': '1.0',
+        'flags': 'progressive',
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print('[CloudinaryService] Failed to analyze image for intelligent resize, using defaults: $e');
+      }
+      // Fallback to reasonable defaults if analysis fails
+      return {
+        'quality': 'auto:eco',
+        'fetch_format': 'auto',
+        'crop': 'limit',
+        'width': 1200,
+        'height': 1200,
+        'dpr': '1.0',
+        'flags': 'progressive',
+      };
+    }
   }
 
   // --- Content safety (on-device, best-effort via ML Kit image labeling) ---
@@ -577,4 +839,139 @@ class UnsafeImageException implements Exception {
   @override
   String toString() =>
       'UnsafeImageException(${reason ?? 'blocked'}, labels=$labels)';
+}
+
+/// Configuration for intelligent image resizing based on use case
+@immutable
+class ImageResizeConfig {
+  const ImageResizeConfig({
+    required this.maxDimension,
+    required this.quality,
+    this.targetAspectRatio,
+    this.preserveAspectRatio = true,
+    this.cropMode = 'limit',
+    this.minDimension,
+  });
+
+  /// Maximum width or height in pixels
+  final int maxDimension;
+  
+  /// Minimum width or height in pixels (optional)
+  final int? minDimension;
+  
+  /// Quality setting ('auto:eco', 'auto:good', 'auto:best', or specific number)
+  final String quality;
+  
+  /// Target aspect ratio (width/height) - if null, preserves original
+  final double? targetAspectRatio;
+  
+  /// Whether to preserve the original aspect ratio
+  final bool preserveAspectRatio;
+  
+  /// Cloudinary crop mode ('limit', 'fill', 'fit', 'crop', 'scale')
+  final String cropMode;
+
+  /// Profile/avatar images - small, square, high quality
+  static const avatar = ImageResizeConfig(
+    maxDimension: 400,
+    minDimension: 100,
+    quality: 'auto:good',
+    targetAspectRatio: 1.0, // Square
+    cropMode: 'fill',
+  );
+
+  /// Post images - medium size, preserve aspect ratio, balanced quality
+  static const post = ImageResizeConfig(
+    maxDimension: 1200,
+    minDimension: 300,
+    quality: 'auto:eco',
+    preserveAspectRatio: true,
+    cropMode: 'limit',
+  );
+
+  /// Thumbnail images - small, fast loading
+  static const thumbnail = ImageResizeConfig(
+    maxDimension: 300,
+    minDimension: 150,
+    quality: 'auto:eco',
+    cropMode: 'fit',
+  );
+
+  /// High quality images for detailed viewing
+  static const highQuality = ImageResizeConfig(
+    maxDimension: 2048,
+    minDimension: 800,
+    quality: 'auto:best',
+    preserveAspectRatio: true,
+    cropMode: 'limit',
+  );
+}
+
+/// Result of image dimension analysis
+@immutable
+class ImageDimensions {
+  const ImageDimensions({
+    required this.width,
+    required this.height,
+    required this.aspectRatio,
+    required this.isPortrait,
+    required this.isLandscape,
+    required this.isSquare,
+  });
+
+  final int width;
+  final int height;
+  final double aspectRatio;
+  final bool isPortrait;
+  final bool isLandscape;
+  final bool isSquare;
+
+  /// Get optimal dimensions for the given config
+  ({int width, int height}) getOptimalDimensions(ImageResizeConfig config) {
+    if (config.targetAspectRatio != null) {
+      // Force specific aspect ratio
+      final targetRatio = config.targetAspectRatio!;
+      if (targetRatio == 1.0) {
+        // Square
+        final size = min(config.maxDimension, max(width, height));
+        return (width: size, height: size);
+      } else {
+        // Other ratios
+        int newWidth, newHeight;
+        if (targetRatio > aspectRatio) {
+          // Target is wider
+          newWidth = config.maxDimension;
+          newHeight = (config.maxDimension / targetRatio).round();
+        } else {
+          // Target is taller
+          newHeight = config.maxDimension;
+          newWidth = (config.maxDimension * targetRatio).round();
+        }
+        return (width: newWidth, height: newHeight);
+      }
+    }
+
+    // Preserve aspect ratio, constrain by max dimension
+    final scale = config.maxDimension / max(width, height);
+    if (scale >= 1.0) {
+      // Image is already smaller than max dimension
+      return (width: width, height: height);
+    }
+
+    final newWidth = (width * scale).round();
+    final newHeight = (height * scale).round();
+
+    // Apply minimum dimension constraint if specified
+    if (config.minDimension != null) {
+      final minScale = config.minDimension! / min(newWidth, newHeight);
+      if (minScale > 1.0) {
+        return (
+          width: (newWidth * minScale).round(),
+          height: (newHeight * minScale).round(),
+        );
+      }
+    }
+
+    return (width: newWidth, height: newHeight);
+  }
 }

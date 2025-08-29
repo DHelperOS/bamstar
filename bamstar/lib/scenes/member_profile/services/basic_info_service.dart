@@ -192,16 +192,12 @@ class BasicInfoService {
         final fileName = 'profile_${userId}_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
         
         try {
-          // Upload to Cloudinary with progress tracking
-          final url = await cloudinary.uploadImageFromBytes(
+          // Upload to Cloudinary with avatar optimization (intelligent resizing)
+          final url = await cloudinary.uploadAvatar(
             photoBytes[i],
             fileName: fileName,
             folder: 'profiles/$userId', // Organize photos by user
-            context: {
-              'user_id': userId,
-              'type': 'profile',
-              'index': i.toString(),
-            },
+            publicId: 'profile_${userId}_${DateTime.now().millisecondsSinceEpoch}_$i',
             onProgress: (progress) {
               debugPrint('[BasicInfoService] Uploading $fileName: ${(progress * 100).toStringAsFixed(0)}%');
             },

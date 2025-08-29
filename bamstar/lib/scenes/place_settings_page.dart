@@ -6,6 +6,7 @@ import 'package:solar_icons/solar_icons.dart';
 // Removed unused imports for basic_info_sheet_flow and region_preference_sheet
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
+import 'package:bamstar/scenes/member_profile/business_verification_modal.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
 // Removed unused import for matching_preferences_page
 // Removed unused service imports
@@ -14,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/toast_helper.dart';
 import '../providers/user/role_providers.dart';
+import 'place_info_page.dart';
 
 // Enhanced place settings page with modern card design and tab navigation
 // - Clean white background with card-based layout
@@ -490,7 +492,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                 children: const [
                   Icon(SolarIconsBold.documentText, size: 16),
                   SizedBox(width: 6),
-                  Text('지원관리'),
+                  Text('홍보관리'),
                 ],
               ),
             ),
@@ -503,7 +505,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                 children: const [
                   Icon(SolarIconsBold.penNewSquare, size: 16),
                   SizedBox(width: 6),
-                  Text('내글'),
+                  Text('지원관리'),
                 ],
               ),
             ),
@@ -548,8 +550,31 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               size: 20,
             ),
             onTap: () {
-              // TODO: Navigate to place info page
-              ToastHelper.info(context, '플레이스 정보 페이지 준비중입니다.');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PlaceInfoPage(),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          // 플레이스 홍보 카드
+          _buildInfoCard(
+            context,
+            icon: SolarIconsOutline.heart,
+            title: '플레이스 홍보',
+            subtitle: '매력적인 플레이스를 소개해보세요.',
+            trailing: Icon(
+              SolarIconsOutline.altArrowRight,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
+            ),
+            onTap: () {
+              // TODO: Navigate to place promotion page
+              ToastHelper.info(context, '플레이스 홍보 페이지 준비중입니다.');
             },
           ),
 
@@ -566,28 +591,8 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
-            onTap: () {
-              // TODO: Navigate to business info page
-              ToastHelper.info(context, '사업자 정보 페이지 준비중입니다.');
-            },
-          ),
-
-          const SizedBox(height: 12),
-
-          // 플레이스 홍보 카드
-          _buildInfoCard(
-            context,
-            icon: SolarIconsOutline.heart,
-            title: '플레이스 홍보',
-            subtitle: '스타들에게 매력적인 플레이스를 소개해보세요.',
-            trailing: Icon(
-              SolarIconsOutline.altArrowRight,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 20,
-            ),
-            onTap: () {
-              // TODO: Navigate to place promotion page
-              ToastHelper.info(context, '플레이스 홍보 페이지 준비중입니다.');
+            onTap: () async {
+              await showBusinessVerificationModal(context);
             },
           ),
 
