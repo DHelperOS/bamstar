@@ -154,8 +154,8 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                     _buildProfileHeader(context),
                     // Divider line (subtle)
                     Container(height: 1, color: Colors.white.withOpacity(0.5)),
-                    // Tab bar section
-                    _buildTabBar(context),
+                    // Tab bar section with horizontal scroll
+                    _buildScrollableTabBar(context),
                   ],
                 ),
               ),
@@ -439,12 +439,16 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     );
   }
 
-  Widget _buildTabBar(BuildContext context) {
+  Widget _buildScrollableTabBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+      height: 54,
       child: TabBar(
         controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
         indicatorSize: TabBarIndicatorSize.tab,
+        padding: EdgeInsets.zero,
         indicator: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -464,11 +468,47 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           fontWeight: FontWeight.w500,
         ),
         dividerColor: Colors.transparent,
-        tabs: const [
-          Tab(text: '플레이스'),
-          Tab(text: '지원'),
-          Tab(text: '내글'),
-          Tab(text: '차단'),
+        tabs: [
+          Tab(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(SolarIconsBold.buildings, size: 16),
+                SizedBox(width: 6),
+                Text('플레이스'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(SolarIconsBold.documentText, size: 16),
+                SizedBox(width: 6),
+                Text('지원'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(SolarIconsBold.penNewSquare, size: 16),
+                SizedBox(width: 6),
+                Text('내글'),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(SolarIconsBold.userBlock, size: 16),
+                SizedBox(width: 6),
+                Text('차단'),
+              ],
+            ),
+          ),
         ],
       ),
     );
