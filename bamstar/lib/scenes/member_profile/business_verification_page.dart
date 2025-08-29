@@ -1369,12 +1369,12 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Warning card
+          // Warning card - Reduced padding and text size
           Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
                 width: 1,
@@ -1386,25 +1386,27 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                 Icon(
                   Icons.warning_amber_rounded,
                   color: Theme.of(context).colorScheme.error,
-                  size: 24,
+                  size: 20,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '사업자 등록증 무단 사용 및 명의 도용 금지',
+                        '사업자 등록증 무단 사용 금지',
                         style: AppTextStyles.primaryText(context).copyWith(
                           color: Theme.of(context).colorScheme.error,
                           fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
-                        '타인의 사업자 등록증을 무단으로 사용하는 것은 대한민국 법률에 의거하여 중대한 법적 처벌을 받을 수 있습니다.',
+                        '타인의 사업자 등록증 무단 사용 시 법적 처벌을 받을 수 있습니다.',
                         style: AppTextStyles.captionText(context).copyWith(
                           color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -1414,23 +1416,25 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
             ),
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           
           Text(
             '서류 제출',
-            style: AppTextStyles.sectionTitle(context),
+            style: AppTextStyles.sectionTitle(context).copyWith(
+              fontSize: 14,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           
-          // Upload section
+          // Upload section - Reduced size
           GestureDetector(
             onTap: _pickImage,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _selectedImage != null 
                       ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
@@ -1452,25 +1456,26 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       borderRadius: BorderRadius.circular(8),
                       child: Image.file(
                         _selectedImage!,
-                        height: 200,
+                        height: 120,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.check_circle,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 20,
+                          size: 16,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
                           '이미지가 선택되었습니다',
                           style: AppTextStyles.primaryText(context).copyWith(
                             color: Theme.of(context).colorScheme.primary,
+                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -1479,18 +1484,21 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                     Icon(
                       Icons.upload_file_outlined,
                       color: Theme.of(context).colorScheme.primary,
-                      size: 48,
+                      size: 36,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Text(
                       '사업자등록증을 업로드해주세요',
-                      style: AppTextStyles.primaryText(context),
+                      style: AppTextStyles.primaryText(context).copyWith(
+                        fontSize: 14,
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
-                      '파일 형식: JPG, PNG\n최대 크기: 10MB',
+                      '파일 형식: JPG, PNG (최대 10MB)',
                       style: AppTextStyles.captionText(context).copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 11,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1502,7 +1510,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
           
           // AI Verification Result Card - Enhanced Design
           if (_hasResult) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -1531,7 +1539,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                 children: [
                   // Header with AI label
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -1595,7 +1603,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                   
                   // Main content
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     child: Row(
                       children: [
                         // Circular progress with gradient
@@ -1703,7 +1711,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                   
                   // Bottom info bar
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                       borderRadius: const BorderRadius.only(
