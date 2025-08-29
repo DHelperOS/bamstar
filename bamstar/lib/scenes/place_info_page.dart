@@ -1136,19 +1136,47 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           Text('운영 시간', style: AppTextStyles.formLabel(context)),
           const SizedBox(height: 12),
           
-          // 시간 슬라이더 (항상 보이는 툴팁, 옅은 회색)
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
-              valueIndicatorColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              valueIndicatorTextStyle: AppTextStyles.captionText(context).copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+          // 시간 표시 - 선택된 시간을 항상 보여줌
+          Container(
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
               ),
-              showValueIndicator: ShowValueIndicator.always,
             ),
-            child: RangeSlider(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${_operatingStartHour.round().toString().padLeft(2, '0')}:00',
+                  style: AppTextStyles.primaryText(context).copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  ' ~ ',
+                  style: AppTextStyles.primaryText(context).copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  '${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
+                  style: AppTextStyles.primaryText(context).copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // 시간 슬라이더 (기본 설정)
+          RangeSlider(
             values: RangeValues(_operatingStartHour, _operatingEndHour),
             min: 0,
             max: 24,
@@ -1163,7 +1191,6 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 _operatingEndHour = values.end;
               });
             },
-            ),
           ),
         ],
       ),
