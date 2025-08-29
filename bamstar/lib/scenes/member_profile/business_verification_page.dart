@@ -231,7 +231,6 @@ class _BusinessVerificationPageState
       duration: const Duration(milliseconds: 350),
       switchInCurve: Curves.easeInOutCubic,
       switchOutCurve: Curves.easeInOutCubic,
-      alignment: Alignment.topLeft,
       transitionBuilder: (Widget child, Animation<double> animation) {
         // Slide transition from right to left for forward navigation
         // Slide transition from left to right for backward navigation
@@ -252,11 +251,14 @@ class _BusinessVerificationPageState
           curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
         ));
 
-        return SlideTransition(
-          position: slideAnimation,
-          child: FadeTransition(
-            opacity: fadeAnimation,
-            child: child,
+        return Align(
+          alignment: Alignment.topLeft,
+          child: SlideTransition(
+            position: slideAnimation,
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: child,
+            ),
           ),
         );
       },
