@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/toast_helper.dart';
-import '../../services/business_verification_service.dart';
+
 import '../../models/business_verification_models.dart';
+import '../../providers/business_verification/business_verification_providers.dart';
 
 /// Helper function to show the business verification modal
 Future<void> showBusinessVerificationModal(BuildContext context) async {
-  BusinessVerificationResult? businessResult;
-  
   await WoltModalSheet.show(
     context: context,
     pageListBuilder: (modalCtx) => [
@@ -53,12 +53,15 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             onPressed: () => Navigator.of(modalCtx).pop(),
           ),
         ),
-        child: _Step1FormWidget(
-          onComplete: (result) async {
-            businessResult = result;
-            if (modalCtx.mounted) {
-              WoltModalSheet.of(modalCtx).showNext();
-            }
+        child: Consumer(
+          builder: (context, ref, child) {
+            return _Step1FormWidget(
+              onComplete: () {
+                if (modalCtx.mounted) {
+                  WoltModalSheet.of(modalCtx).showNext();
+                }
+              },
+            );
           },
         ),
       ),
@@ -151,7 +154,12 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
             ),
           ),
         ),
-        child: _buildStep2Content(modalCtx, businessResult),
+        child: Consumer(
+          builder: (context, ref, child) {
+            final result = ref.watch(businessVerificationResultProvider);
+            return _buildStep2Content(modalCtx, result);
+          },
+        ),
       ),
       
       // Step 3: Document Upload & AI Verification
@@ -208,17 +216,16 @@ Future<void> showBusinessVerificationModal(BuildContext context) async {
 }
 
 // Step 1 Form Widget
-class _Step1FormWidget extends StatefulWidget {
-  final ValueChanged<BusinessVerificationResult> onComplete;
+class _Step1FormWidget extends ConsumerStatefulWidget {
+  final VoidCallback onComplete;
   
   const _Step1FormWidget({required this.onComplete});
 
   @override
-  State<_Step1FormWidget> createState() => _Step1FormWidgetState();
+  ConsumerState<_Step1FormWidget> createState() => _Step1FormWidgetState();
 }
 
-class _Step1FormWidgetState extends State<_Step1FormWidget> {
-  final _businessVerificationService = BusinessVerificationService();
+class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
   
   // Controllers
   final _registrationNumberCtl = TextEditingController();
@@ -234,21 +241,51 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
   final _businessAddressCtl = TextEditingController();
   
   bool _showOptionalFields = false;
-  bool _isLoading = false;
-  String? _registrationNumberError;
-  String? _representativeNameError;
-  String? _openingDateError;
-  
-  bool get _isFormValid {
-    if (_isLoading) return false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 캐시된 데이터 로드
+    _loadCachedData();
+  }
+
+  void _loadCachedData() {
+    final state = ref.read(businessVerificationProvider);
+    final input = state.input;
     
-    final regNumber = _registrationNumberCtl.text.trim();
-    final repName = _representativeNameCtl.text.trim();
-    final openDate = _openingDateCtl.text.trim();
-    
-    return BusinessVerificationService.validateBusinessNumber(regNumber) == null &&
-           BusinessVerificationService.validateRepresentativeName(repName) == null &&
-           BusinessVerificationService.validateOpeningDate(openDate) == null;
+    if (input != null && input.hasRequiredFields) {
+      _registrationNumberCtl.text = input.businessNumber;
+      _representativeNameCtl.text = input.representativeName;
+      _openingDateCtl.text = input.openingDate;
+      
+      if (input.representativeName2?.isNotEmpty == true) {
+        _representativeNameCtl2.text = input.representativeName2!;
+        _showOptionalFields = true;
+      }
+      if (input.businessName?.isNotEmpty == true) {
+        _businessNameCtl.text = input.businessName!;
+        _showOptionalFields = true;
+      }
+      if (input.corporateNumber?.isNotEmpty == true) {
+        _corporateNumberCtl.text = input.corporateNumber!;
+        _showOptionalFields = true;
+      }
+      if (input.mainBusinessType?.isNotEmpty == true) {
+        _mainBusinessCtl.text = input.mainBusinessType!;
+        _showOptionalFields = true;
+      }
+      if (input.subBusinessType?.isNotEmpty == true) {
+        _subBusinessCtl.text = input.subBusinessType!;
+        _showOptionalFields = true;
+      }
+      if (input.businessAddress?.isNotEmpty == true) {
+        _businessAddressCtl.text = input.businessAddress!;
+        _showOptionalFields = true;
+      }
+      
+      // 캐시된 데이터가 로드되었으므로 UI 업데이트
+      setState(() {});
+    }
   }
 
   @override
@@ -266,145 +303,71 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
   }
 
   void _validateAndProceed() async {
-    if (_isLoading || !_isFormValid) return;
+    final notifier = ref.read(businessVerificationProvider.notifier);
     
-    setState(() {
-      _registrationNumberError = null;
-      _representativeNameError = null;
-      _openingDateError = null;
-      _isLoading = true;
-    });
-    
-    try {
-      final result = await _businessVerificationService.validateBusinessInfo(
-        businessNumber: _registrationNumberCtl.text.trim(),
-        representativeName: _representativeNameCtl.text.trim(),
-        openingDate: _openingDateCtl.text.trim(),
-        representativeName2: _representativeNameCtl2.text.trim().isNotEmpty 
-            ? _representativeNameCtl2.text.trim() 
-            : null,
-        businessName: _businessNameCtl.text.trim().isNotEmpty 
-            ? _businessNameCtl.text.trim() 
-            : null,
-        corporateNumber: _corporateNumberCtl.text.trim().isNotEmpty 
-            ? _corporateNumberCtl.text.trim() 
-            : null,
-        mainBusinessType: _mainBusinessCtl.text.trim().isNotEmpty 
-            ? _mainBusinessCtl.text.trim() 
-            : null,
-        subBusinessType: _subBusinessCtl.text.trim().isNotEmpty 
-            ? _subBusinessCtl.text.trim() 
-            : null,
-        businessAddress: _businessAddressCtl.text.trim().isNotEmpty 
-            ? _businessAddressCtl.text.trim() 
-            : null,
-      );
-
-      if (!mounted) return;
-
-      if (result.isValid) {
-        // 사업자 상태에 따른 경고 처리
-        if (result.status != null) {
-          if (result.status!.isClosed) {
-            _showBusinessStatusWarning(
-              context, 
-              '폐업된 사업자입니다', 
-              '해당 사업자등록번호는 폐업 처리되었습니다.\n정확한 정보인지 다시 한번 확인해주세요.',
-              result
-            );
-            return;
-          } else if (result.status!.isOnHiatus) {
-            _showBusinessStatusWarning(
-              context, 
-              '휴업 중인 사업자입니다', 
-              '해당 사업자는 현재 휴업 상태입니다.\n계속 진행하시겠습니까?',
-              result
-            );
-            return;
-          }
-        }
-        
-        ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
-        widget.onComplete(result);
-      } else {
-        ToastHelper.error(context, result.validMsg ?? '사업자 정보를 확인할 수 없습니다');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ToastHelper.error(context, e.toString());
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  void _showBusinessStatusWarning(
-    BuildContext context,
-    String title,
-    String message,
-    BusinessVerificationResult result,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: Theme.of(dialogContext).colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_rounded,
-              color: Theme.of(dialogContext).colorScheme.error,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTextStyles.dialogTitle(dialogContext).copyWith(
-                  color: Theme.of(dialogContext).colorScheme.error,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: AppTextStyles.primaryText(dialogContext),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(
-              '취소',
-              style: AppTextStyles.buttonText(dialogContext).copyWith(
-                color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              // 경고에도 불구하고 계속 진행
-              ToastHelper.warning(context, '${result.status!.businessStatusDescription} 상태로 진행합니다');
-              widget.onComplete(result);
-            },
-            child: Text(
-              '계속 진행',
-              style: AppTextStyles.buttonText(dialogContext).copyWith(
-                color: Theme.of(dialogContext).colorScheme.error,
-              ),
-            ),
-          ),
-        ],
-      ),
+    // 입력값을 Riverpod 상태로 업데이트
+    final input = BusinessVerificationInput(
+      businessNumber: _registrationNumberCtl.text.trim(),
+      representativeName: _representativeNameCtl.text.trim(),
+      openingDate: _openingDateCtl.text.trim(),
+      representativeName2: _representativeNameCtl2.text.trim().isNotEmpty 
+          ? _representativeNameCtl2.text.trim() 
+          : null,
+      businessName: _businessNameCtl.text.trim().isNotEmpty 
+          ? _businessNameCtl.text.trim() 
+          : null,
+      corporateNumber: _corporateNumberCtl.text.trim().isNotEmpty 
+          ? _corporateNumberCtl.text.trim() 
+          : null,
+      mainBusinessType: _mainBusinessCtl.text.trim().isNotEmpty 
+          ? _mainBusinessCtl.text.trim() 
+          : null,
+      subBusinessType: _subBusinessCtl.text.trim().isNotEmpty 
+          ? _subBusinessCtl.text.trim() 
+          : null,
+      businessAddress: _businessAddressCtl.text.trim().isNotEmpty 
+          ? _businessAddressCtl.text.trim() 
+          : null,
     );
+
+    notifier.updateInput(input);
+    
+    // Riverpod으로 API 호출
+    await notifier.verify();
+    
+    if (!mounted) return;
+    
+    // 결과에 따른 처리
+    final state = ref.read(businessVerificationProvider);
+    
+    if (state.isSuccess && state.result != null) {
+      final result = state.result!;
+      
+      // 사업자 상태에 따른 경고 처리
+      if (result.status != null) {
+        if (result.status!.isClosed) {
+          ToastHelper.error(context, '폐업된 사업자입니다. 정확한 정보인지 확인해주세요.');
+          Navigator.of(context).pop(); // 모달 닫기
+          return;
+        } else if (result.status!.isOnHiatus) {
+          ToastHelper.error(context, '휴업 중인 사업자입니다. 정확한 정보인지 확인해주세요.');
+          Navigator.of(context).pop(); // 모달 닫기
+          return;
+        }
+      }
+      
+      ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
+      widget.onComplete();
+    } else if (state.error != null) {
+      ToastHelper.error(context, state.error!);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isFormValid = ref.watch(businessVerificationInputValidProvider);
+    final isLoading = ref.watch(businessVerificationLoadingProvider);
+    
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.75,
       child: Column(
@@ -425,7 +388,7 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 gradient: LinearGradient(
-                  colors: _isFormValid
+                  colors: isFormValid
                       ? [
                           Theme.of(context).colorScheme.primary,
                           Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
@@ -437,10 +400,10 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _isFormValid
+                    color: isFormValid
                         ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                         : Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
-                    blurRadius: _isFormValid ? 8 : 4,
+                    blurRadius: isFormValid ? 8 : 4,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -449,12 +412,12 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
-                  onTap: _isFormValid ? _validateAndProceed : null,
+                  onTap: isFormValid ? _validateAndProceed : null,
                   child: SizedBox(
                     height: 52,
                     width: double.infinity,
                     child: Center(
-                      child: _isLoading
+                      child: isLoading
                           ? SizedBox(
                               height: 20,
                               width: 20,
@@ -464,9 +427,9 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                               ),
                             )
                           : Text(
-                              _isFormValid ? '사업자 정보 조회' : '필수 정보를 모두 입력해주세요',
+                              isFormValid ? '사업자 정보 조회' : '필수 정보를 모두 입력해주세요',
                               style: AppTextStyles.buttonText(context).copyWith(
-                                color: _isFormValid 
+                                color: isFormValid 
                                     ? Theme.of(context).colorScheme.onPrimary
                                     : Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
@@ -569,7 +532,7 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                             label: '사업자등록번호',
                             controller: _registrationNumberCtl,
                             hint: '10자리 숫자 입력 (예: 1234567890)',
-                            errorText: _registrationNumberError,
+                            errorText: ref.watch(businessNumberValidationProvider(_registrationNumberCtl.text)),
                             keyboardType: TextInputType.number,
                             inputFormatters: [_BusinessNumberFormatter()],
                             onChanged: (value) => setState(() {}), // Trigger rebuild for button state
@@ -583,7 +546,7 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                             label: '대표자명',
                             controller: _representativeNameCtl,
                             hint: '홍길동',
-                            errorText: _representativeNameError,
+                            errorText: ref.watch(representativeNameValidationProvider(_representativeNameCtl.text)),
                             onChanged: (value) => setState(() {}), // Trigger rebuild for button state
                           ),
                           
@@ -595,7 +558,7 @@ class _Step1FormWidgetState extends State<_Step1FormWidget> {
                             label: '개업일자',
                             controller: _openingDateCtl,
                             hint: '8자리 숫자 입력 (예: 20050302)',
-                            errorText: _openingDateError,
+                            errorText: ref.watch(openingDateValidationProvider(_openingDateCtl.text)),
                             keyboardType: TextInputType.number,
                             inputFormatters: [_DateFormatter()],
                             onChanged: (value) => setState(() {}), // Trigger rebuild for button state
