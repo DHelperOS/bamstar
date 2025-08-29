@@ -470,43 +470,55 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         dividerColor: Colors.transparent,
         tabs: [
           Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(SolarIconsBold.buildings, size: 16),
-                SizedBox(width: 6),
-                Text('플레이스'),
-              ],
+            child: SizedBox(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.buildings, size: 16),
+                  SizedBox(width: 6),
+                  Text('플레이스'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(SolarIconsBold.documentText, size: 16),
-                SizedBox(width: 6),
-                Text('지원'),
-              ],
+            child: SizedBox(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.documentText, size: 16),
+                  SizedBox(width: 6),
+                  Text('지원목록'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(SolarIconsBold.penNewSquare, size: 16),
-                SizedBox(width: 6),
-                Text('내글'),
-              ],
+            child: SizedBox(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.penNewSquare, size: 16),
+                  SizedBox(width: 6),
+                  Text('내글'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(SolarIconsBold.userBlock, size: 16),
-                SizedBox(width: 6),
-                Text('차단'),
-              ],
+            child: SizedBox(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.userBlock, size: 16),
+                  SizedBox(width: 6),
+                  Text('차단'),
+                ],
+              ),
             ),
           ),
         ],
