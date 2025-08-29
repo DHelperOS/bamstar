@@ -1,11 +1,16 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:solar_icons/solar_icons.dart';
 
 import '../../models/business_verification_models.dart';
 import '../../providers/business_verification/business_verification_providers.dart';
 import '../../services/business_verification_service.dart';
+import '../../services/gemini.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/toast_helper.dart';
 
@@ -40,39 +45,49 @@ class _BusinessVerificationPageState
   @override
   void initState() {
     super.initState();
-    // Load cached data after the first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Load cached data after providers are ready
+    Future.microtask(() {
       _loadCachedData();
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Also try to load cached data when dependencies change
+    _loadCachedData();
+  }
+
   void _loadCachedData() {
+    if (!mounted) return;
+    
     final state = ref.read(businessVerificationProvider);
     if (state.input != null) {
       final input = state.input!;
-      _businessNumberCtl.text = input.businessNumber;
-      _representativeNameCtl.text = input.representativeName;
-      _openingDateCtl.text = input.openingDate;
-      _representativeName2Ctl.text = input.representativeName2 ?? '';
-      _businessNameCtl.text = input.businessName ?? '';
-      _corporateNumberCtl.text = input.corporateNumber ?? '';
-      _mainBusinessTypeCtl.text = input.mainBusinessType ?? '';
-      _subBusinessTypeCtl.text = input.subBusinessType ?? '';
-      _businessAddressCtl.text = input.businessAddress ?? '';
-
-      // Show optional fields if any optional data exists
-      final hasOptionalData = (input.representativeName2?.isNotEmpty == true) ||
-                            (input.businessName?.isNotEmpty == true) ||
-                            (input.corporateNumber?.isNotEmpty == true) ||
-                            (input.mainBusinessType?.isNotEmpty == true) ||
-                            (input.subBusinessType?.isNotEmpty == true) ||
-                            (input.businessAddress?.isNotEmpty == true);
       
-      if (hasOptionalData) {
-        setState(() {
+      setState(() {
+        _businessNumberCtl.text = input.businessNumber;
+        _representativeNameCtl.text = input.representativeName;
+        _openingDateCtl.text = input.openingDate;
+        _representativeName2Ctl.text = input.representativeName2 ?? '';
+        _businessNameCtl.text = input.businessName ?? '';
+        _corporateNumberCtl.text = input.corporateNumber ?? '';
+        _mainBusinessTypeCtl.text = input.mainBusinessType ?? '';
+        _subBusinessTypeCtl.text = input.subBusinessType ?? '';
+        _businessAddressCtl.text = input.businessAddress ?? '';
+
+        // Show optional fields if any optional data exists
+        final hasOptionalData = (input.representativeName2?.isNotEmpty == true) ||
+                              (input.businessName?.isNotEmpty == true) ||
+                              (input.corporateNumber?.isNotEmpty == true) ||
+                              (input.mainBusinessType?.isNotEmpty == true) ||
+                              (input.subBusinessType?.isNotEmpty == true) ||
+                              (input.businessAddress?.isNotEmpty == true);
+        
+        if (hasOptionalData) {
           _showOptionalFields = true;
-        });
-      }
+        }
+      });
     }
   }
 
@@ -335,24 +350,25 @@ class _BusinessVerificationPageState
                 ),
                 child: ElevatedButton(
                   onPressed: null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.onPrimary,
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.onPrimary,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              )
             : Container(
                 width: double.infinity,
                 height: 48,
@@ -463,7 +479,6 @@ class _BusinessVerificationPageState
           _isNavigatingForward = true;
           _currentStep = 2;
         });
-        ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
       } else {
         ToastHelper.error(context, state.error ?? '사업자 정보 조회에 실패했습니다');
       }
@@ -521,22 +536,14 @@ class _Step1FormWidget extends ConsumerWidget {
         children: [
           // Info card
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: Row(
               children: [
@@ -545,13 +552,12 @@ class _Step1FormWidget extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '사업자 등록증에 기재된 정보를 정확히 입력해 주세요',
+                    '입력하신 정보로 국세청 API를 통해 사업자 등록 정보를 자동으로 조회하여 빠르고 정확한 인증을 진행합니다',
                     style: AppTextStyles.captionText(context).copyWith(
                       color: Theme.of(context).colorScheme.primary,
-                      fontSize: 12,
                     ),
                   ),
                 ),
@@ -733,52 +739,30 @@ class _Step1FormWidget extends ConsumerWidget {
           style: AppTextStyles.formLabel(context),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: AppTextStyles.secondaryText(context).copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              width: 1,
             ),
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.error,
-                width: 1,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.error,
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            errorText: touchedFields.contains(fieldKey) 
-                ? ref.watch(validationProvider(controller.text))
-                : null,
           ),
-          onChanged: (value) => onFieldTouched(fieldKey),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: AppTextStyles.secondaryText(context),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              errorText: touchedFields.contains(fieldKey) 
+                  ? ref.watch(validationProvider(controller.text))
+                  : null,
+            ),
+            onChanged: (value) => onFieldTouched(fieldKey),
+          ),
         ),
       ],
     );
@@ -801,32 +785,24 @@ class _Step1FormWidget extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: AppTextStyles.secondaryText(context).copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+              width: 1,
             ),
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
+          ),
+          child: TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: AppTextStyles.secondaryText(context),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
       ],
@@ -1051,8 +1027,332 @@ class _Step2FormWidget extends ConsumerWidget {
   }
 }
 
-class _Step3FormWidget extends StatelessWidget {
+class _Step3FormWidget extends ConsumerStatefulWidget {
   const _Step3FormWidget({super.key});
+
+  @override
+  ConsumerState<_Step3FormWidget> createState() => _Step3FormWidgetState();
+}
+
+class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
+  final ImagePicker _picker = ImagePicker();
+  final GeminiService _geminiService = GeminiService.instance;
+  
+  File? _selectedImage;
+  bool _isProcessing = false;
+  double _matchPercentage = 0.0;
+  bool _hasResult = false;
+  String _progressMessage = '';
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+        
+        // Start processing
+        await _processImage();
+      }
+    } catch (e) {
+      log('Error picking image: $e');
+      if (mounted) {
+        ToastHelper.error(context, '이미지를 선택하는 중 오류가 발생했습니다');
+      }
+    }
+  }
+
+  Future<void> _processImage() async {
+    if (_selectedImage == null) return;
+    
+    setState(() {
+      _isProcessing = true;
+      _progressMessage = '이미지를 분석하고 있습니다...';
+    });
+    
+    try {
+      // Show progress dialog
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => _buildProgressDialog(),
+        );
+      }
+      
+      // Step 1: Extract text from image
+      setState(() {
+        _progressMessage = '사업자 등록증 텍스트를 추출하고 있습니다...';
+      });
+      
+      final extractedText = await _extractTextFromImage(_selectedImage!);
+      
+      // Step 2: Get business data from provider
+      setState(() {
+        _progressMessage = '정보를 비교하고 있습니다...';
+      });
+      
+      final businessData = ref.read(businessVerificationProvider);
+      
+      // Step 3: Compare with Gemini
+      final matchPercentage = await _compareWithGemini(extractedText, businessData);
+      
+      setState(() {
+        _matchPercentage = matchPercentage;
+        _hasResult = true;
+        _isProcessing = false;
+      });
+      
+      // Close progress dialog
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+      
+    } catch (e) {
+      log('Error processing image: $e');
+      setState(() {
+        _isProcessing = false;
+      });
+      
+      // Close progress dialog if open
+      if (mounted) {
+        Navigator.of(context).pop();
+        ToastHelper.error(context, '이미지 처리 중 오류가 발생했습니다');
+      }
+    }
+  }
+
+  Future<String> _extractTextFromImage(File image) async {
+    try {
+      final bytes = await image.readAsBytes();
+      return await _geminiService.extractTextFromBusinessRegistration(bytes);
+    } catch (e) {
+      log('Error extracting text: $e');
+      rethrow;
+    }
+  }
+
+  Future<double> _compareWithGemini(String extractedText, BusinessVerificationState businessData) async {
+    try {
+      // Prepare API data string
+      final apiData = '''
+사업자등록번호: ${businessData.input?.businessNumber ?? ''}
+대표자명: ${businessData.input?.representativeName ?? ''}
+개업일자: ${businessData.input?.openingDate ?? ''}
+상호명: ${businessData.input?.businessName ?? ''}
+법인등록번호: ${businessData.input?.corporateNumber ?? ''}
+업태: ${businessData.input?.mainBusinessType ?? ''}
+종목: ${businessData.input?.subBusinessType ?? ''}
+사업장소재지: ${businessData.input?.businessAddress ?? ''}
+      ''';
+
+      return await _geminiService.compareBusinessData(
+        apiData: apiData,
+        extractedText: extractedText,
+      );
+    } catch (e) {
+      log('Error comparing with Gemini: $e');
+      return 0.0;
+    }
+  }
+
+  Widget _buildProgressDialog() {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 320),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Animated icon container
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.document_scanner_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 28,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Title
+              Text(
+                'AI 분석 중',
+                style: AppTextStyles.sectionTitle(context).copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              // Progress message with animation
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Text(
+                  _progressMessage,
+                  key: ValueKey(_progressMessage),
+                  style: AppTextStyles.secondaryText(context).copyWith(
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // Progress steps indicator
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildProgressStep(context, 1, _progressMessage.contains('추출')),
+                  Container(
+                    width: 30,
+                    height: 1,
+                    color: _progressMessage.contains('비교') 
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  ),
+                  _buildProgressStep(context, 2, _progressMessage.contains('비교')),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildProgressStep(BuildContext context, int step, bool isActive) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isActive 
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+      ),
+      child: Center(
+        child: Text(
+          step.toString(),
+          style: TextStyle(
+            color: isActive 
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildResultDetail(BuildContext context, IconData icon, String label, String value, Color color) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: color.withValues(alpha: 0.7),
+          size: 20,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: AppTextStyles.captionText(context).copyWith(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: AppTextStyles.primaryText(context).copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getMatchColor() {
+    if (_matchPercentage < 40) {
+      return Theme.of(context).colorScheme.error;
+    } else if (_matchPercentage < 70) {
+      return Colors.orange;
+    } else {
+      return Colors.green;
+    }
+  }
+
+  String _getMatchMessage() {
+    if (_matchPercentage < 40) {
+      return '일치율이 낮습니다. 올바른 사업자 등록증인지 확인해주세요.';
+    } else if (_matchPercentage < 70) {
+      return '일부 정보가 일치하지 않습니다. 확인이 필요합니다.';
+    } else {
+      return '정보가 일치합니다.';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1061,52 +1361,322 @@ class _Step3FormWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Warning card
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '사업자 등록증 무단 사용 및 명의 도용 금지',
+                        style: AppTextStyles.primaryText(context).copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '타인의 사업자 등록증을 무단으로 사용하는 것은 대한민국 법률에 의거하여 중대한 법적 처벌을 받을 수 있습니다.',
+                        style: AppTextStyles.captionText(context).copyWith(
+                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
           Text(
             '서류 제출',
             style: AppTextStyles.sectionTitle(context),
           ),
           const SizedBox(height: 12),
           
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+          // Upload section
+          GestureDetector(
+            onTap: _pickImage,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _selectedImage != null 
+                      ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+                      : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                  width: _selectedImage != null ? 1.5 : 1,
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.upload_file_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 48,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '사업자등록증을 업로드해주세요',
-                  style: AppTextStyles.primaryText(context),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '파일 형식: JPG, PNG, PDF\n최대 크기: 10MB',
-                  style: AppTextStyles.captionText(context).copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
+              child: Column(
+                children: [
+                  if (_selectedImage != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        _selectedImage!,
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '이미지가 선택되었습니다',
+                          style: AppTextStyles.primaryText(context).copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    Icon(
+                      Icons.upload_file_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '사업자등록증을 업로드해주세요',
+                      style: AppTextStyles.primaryText(context),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '파일 형식: JPG, PNG\n최대 크기: 10MB',
+                      style: AppTextStyles.captionText(context).copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
+          
+          // Match result display with enhanced design
+          if (_hasResult) ...[
+            const SizedBox(height: 24),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _getMatchColor().withValues(alpha: 0.08),
+                    _getMatchColor().withValues(alpha: 0.03),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _getMatchColor().withValues(alpha: 0.2),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _getMatchColor().withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  // Top section with percentage
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _getMatchColor().withValues(alpha: 0.15),
+                          _getMatchColor().withValues(alpha: 0.08),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Circular progress indicator
+                        SizedBox(
+                          width: 70,
+                          height: 70,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 70,
+                                height: 70,
+                                child: CircularProgressIndicator(
+                                  value: _matchPercentage / 100,
+                                  strokeWidth: 6,
+                                  backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                                  valueColor: AlwaysStoppedAnimation<Color>(_getMatchColor()),
+                                ),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${_matchPercentage.toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: _getMatchColor(),
+                                    ),
+                                  ),
+                                  Text(
+                                    '일치',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: _getMatchColor().withValues(alpha: 0.8),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        
+                        // Status text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: _getMatchColor().withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      _matchPercentage >= 70 
+                                          ? Icons.verified_outlined
+                                          : _matchPercentage >= 40 
+                                              ? Icons.info_outline
+                                              : Icons.warning_amber_rounded,
+                                      color: _getMatchColor(),
+                                      size: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    _matchPercentage >= 70 
+                                        ? '검증 완료'
+                                        : _matchPercentage >= 40 
+                                            ? '추가 확인 필요'
+                                            : '일치율 낮음',
+                                    style: AppTextStyles.primaryText(context).copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: _getMatchColor(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _getMatchMessage(),
+                                style: AppTextStyles.captionText(context).copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Bottom section with details
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildResultDetail(
+                          context,
+                          Icons.document_scanner_outlined,
+                          'AI 분석',
+                          '완료',
+                          _getMatchColor(),
+                        ),
+                        Container(
+                          height: 30,
+                          width: 1,
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                        _buildResultDetail(
+                          context,
+                          Icons.verified_user_outlined,
+                          '신뢰도',
+                          _matchPercentage >= 70 ? '높음' : _matchPercentage >= 40 ? '보통' : '낮음',
+                          _getMatchColor(),
+                        ),
+                        Container(
+                          height: 30,
+                          width: 1,
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                        _buildResultDetail(
+                          context,
+                          Icons.check_circle_outline,
+                          '상태',
+                          _matchPercentage >= 70 ? '정상' : '확인',
+                          _getMatchColor(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

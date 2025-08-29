@@ -93,7 +93,6 @@ class _Step1FormWidgetState extends ConsumerState<Step1FormWidget> {
         }
       }
       
-      ToastHelper.success(context, '사업자 정보 조회가 완료되었습니다');
       widget.onComplete();
     } else if (state.error != null) {
       ToastHelper.error(context, state.error!);

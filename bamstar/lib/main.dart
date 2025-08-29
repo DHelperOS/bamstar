@@ -19,6 +19,7 @@ import 'auth/supabase_env.dart';
 import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart'
     as kakao_common;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:logging/logging.dart';
@@ -44,6 +45,16 @@ Future<void> main() async {
   bool supabaseInitOk = true;
   // Load environment
   await dotenv.load(fileName: '.env');
+  
+  // Initialize Gemini API
+  final geminiApiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+  if (geminiApiKey.isNotEmpty) {
+    Gemini.init(apiKey: geminiApiKey);
+    log.info('Gemini API initialized');
+  } else {
+    log.warning('Gemini API key not found in .env');
+  }
+  
   // Initialize Kakao SDK if key provided (Android/iOS)
   try {
     if (kakaoNativeAppKey.isNotEmpty) {
