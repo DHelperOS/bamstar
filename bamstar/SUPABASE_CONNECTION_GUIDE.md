@@ -1,6 +1,6 @@
 # Supabase 연결 가이드
 
-이 가이드는 BamStar 프로젝트에서 Supabase CLI와 MCP 서버에 연결하는 방법을 설명합니다.
+이 가이드는 BamStar 프로젝트에서 Supabase CLI를 사용하여 데이터베이스에 연결하는 방법을 설명합니다.
 
 ## 🔑 인증 토큰 정보
 
@@ -9,96 +9,79 @@
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
 ```
 
-### MCP 서버용 토큰 (Service Role Key)
-```bash
-MCP_AUTH_TOKEN=sb_secret_6gi2ZmG0XtspzcWuGVUkFw_OLfPWItH
-```
-
 ### 프로젝트 정보
 - **Project Reference ID**: `tflvicpgyycvhttctcek`
 - **Organization ID**: `eqdgldtaktbmvuuqyygf`
+- **Database Password**: `!@Wnrsmsek1`
+- **Encoded Password (URL용)**: `%21%40Wnrsmsek1`
 - **Database URL**: `postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres`
 - **Supabase URL**: `https://tflvicpgyycvhttctcek.supabase.co`
 
+## ⚠️ 중요: 패스워드 인코딩
+**데이터베이스 연결 시 오류가 발생하면 반드시 패스워드를 URL 인코딩하여 사용해야 합니다:**
+- 원본 패스워드: `!@Wnrsmsek1`
+- URL 인코딩된 패스워드: `%21%40Wnrsmsek1`
+
+```bash
+# 패스워드 인코딩 방법
+python3 -c "import urllib.parse; print(urllib.parse.quote('!@Wnrsmsek1'))"
+```
+
 ---
 
-## 🖥️ Supabase CLI 연결
+## 🖥️ Supabase CLI 사용법 (필수)
+
+**⚠️ 모든 데이터베이스 작업은 반드시 Supabase CLI를 통해서만 수행합니다.**
 
 ### 1. 환경 변수 설정
 ```bash
 export SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
 ```
 
-### 2. 프로젝트 목록 확인
+### 2. 프로젝트 연결
 ```bash
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
+# 프로젝트 링크
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase link --project-ref tflvicpgyycvhttctcek
+
+# 패스워드 입력 시: !@Wnrsmsek1
 ```
 
-### 3. 데이터베이스 작업 예시
+### 3. 데이터베이스 작업
 
-#### 마이그레이션 목록 확인
+#### 직접 SQL 실행 (psql 사용)
 ```bash
+# 원본 패스워드 사용
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT * FROM public.roles;"
+
+# URL 인코딩된 패스워드 사용 (연결 문자열)
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+```
+
+#### 마이그레이션 관리
+```bash
+# 마이그레이션 목록 확인
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration list --project-ref tflvicpgyycvhttctcek
-```
 
-#### 데이터베이스 푸시
-```bash
+# 새 마이그레이션 생성
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration new <migration_name>
+
+# 데이터베이스 푸시
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek
 ```
 
-#### Edge Function 배포
+#### 스키마 관리
 ```bash
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy [function-name] --project-ref tflvicpgyycvhttctcek
-```
+# 원격 스키마 가져오기
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db pull --project-ref tflvicpgyycvhttctcek
 
----
-
-## 🤖 MCP 서버 연결
-
-### 1. 환경 변수 설정 (.env 파일에서)
-```bash
-MCP_AUTH_TOKEN=sb_secret_6gi2ZmG0XtspzcWuGVUkFw_OLfPWItH
-```
-
-### 2. Claude Code에서 MCP 서버 사용
-
-#### 프로젝트 목록 확인
-```
-mcp__supabase__list_projects
-```
-
-#### 데이터베이스 쿼리 실행
-```
-mcp__supabase__execute_sql --project-id tflvicpgyycvhttctcek --query "SELECT * FROM member_profiles LIMIT 5;"
-```
-
-#### 테이블 목록 확인
-```
-mcp__supabase__list_tables --project-id tflvicpgyycvhttctcek
-```
-
-#### Edge Function 목록 확인
-```
-mcp__supabase__list_edge_functions --project-id tflvicpgyycvhttctcek
-```
-
----
-
-## 🔧 주요 명령어 모음
-
-### 데이터베이스 관련
-```bash
 # 스키마 덤프
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db dump --linked -f schema_dump.sql
 
 # SQL 파일 실행
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase sql --project-ref tflvicpgyycvhttctcek --file your_file.sql
-
-# 데이터베이스 리셋 (주의!)
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db reset --db-url "postgresql://postgres.tflvicpgyycvhttctcek:!@Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" --linked
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek --include-all
 ```
 
-### Edge Functions 관련
+#### Edge Functions 관리
 ```bash
 # Function 목록
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions list --project-ref tflvicpgyycvhttctcek
@@ -112,58 +95,87 @@ SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase func
 
 ---
 
+## 🛠️ 로컬 개발 환경
+
+### 로컬 Supabase 시작
+```bash
+# 로컬 서비스 시작
+supabase start
+
+# 로컬 서비스 상태 확인
+supabase status
+
+# 로컬 데이터베이스 접속
+PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+```
+
+### 로컬 테스트 쿼리
+```bash
+# roles 테이블 확인
+PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -c "SELECT * FROM public.roles ORDER BY id;"
+```
+
+---
+
 ## 🔍 문제해결
 
-### 1. "Unauthorized" 에러
-- 토큰 만료 확인
-- 환경 변수 제대로 설정되었는지 확인
-- CLI: `sbp_` 형식 토큰 사용
-- MCP: `sb_secret_` 형식 토큰 사용
+### 1. 패스워드 인증 실패
+```bash
+# 오류: password authentication failed
+# 해결: 패스워드를 URL 인코딩하여 사용
 
-### 2. "Invalid access token format" 에러
-- CLI에는 `sbp_` 형식만 사용 가능
-- Service role key (`sb_secret_`)는 CLI에서 사용 불가
+# 잘못된 예
+postgresql://postgres.tflvicpgyycvhttctcek:!@Wnrsmsek1@...
 
-### 3. 연결 테스트 방법
+# 올바른 예
+postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@...
+```
+
+### 2. "Unauthorized" 에러
+```bash
+# 토큰이 올바른지 확인
+echo $SUPABASE_ACCESS_TOKEN
+# 출력: sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
+```
+
+### 3. 연결 테스트
 ```bash
 # CLI 연결 테스트
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
 
-# MCP 연결 테스트 (Claude Code에서)
-mcp__supabase__list_projects
-```
-
-### 4. 자주 사용하는 디버깅 명령어
-```bash
-# 환경 변수 확인
-printenv | grep SUPABASE
-
-# 토큰 형식 확인
-echo $SUPABASE_ACCESS_TOKEN | head -c 10  # should show "sbp_b4e5bf"
-echo $MCP_AUTH_TOKEN | head -c 10         # should show "sb_secret_"
+# 데이터베이스 직접 연결 테스트
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT version();"
 ```
 
 ---
 
 ## 📝 빠른 참조
 
-### 한 줄로 실행하기
+### 자주 사용하는 명령어
 ```bash
 # 프로젝트 목록
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
 
-# member_profiles 테이블 확인 (MCP)
-mcp__supabase__execute_sql --project-id tflvicpgyycvhttctcek --query "SELECT user_id, real_name, profile_image_urls FROM member_profiles;"
+# roles 테이블 확인
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT * FROM public.roles ORDER BY id;"
+
+# users 테이블 확인
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT id, role_id, email FROM public.users LIMIT 10;"
 ```
 
-### 자주 사용하는 테이블
-- `member_profiles` - 사용자 기본 정보
-- `users` - Supabase Auth 사용자
-- `hashtag_*` - 해시태그 관련 테이블들
+### 현재 roles 테이블 구조
+```sql
+-- id | name  | kor_name
+-- 1  | GUEST | 게스트
+-- 2  | STAR  | 스타
+-- 3  | PLACE | 플레이스
+-- 4  | ADMIN | 관리자
+-- 6  | MEMBER| 멤버
+```
 
 ---
 
 **⚠️ 보안 주의사항**
 - 토큰을 공개 저장소에 커밋하지 마세요
-- Service role key는 서버사이드에서만 사용
-- 정기적으로 토큰을 갱신하세요
+- 패스워드는 반드시 환경 변수로 관리하세요
+- 프로덕션 환경에서는 더 강력한 패스워드를 사용하세요

@@ -746,13 +746,18 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
   Color _getRoleColor(BuildContext context) {
     final roleId = ref.watch(currentUserRoleIdProvider);
+    // DB: 1=GUEST, 2=STAR, 3=PLACE, 4=ADMIN, 6=MEMBER
     switch (roleId) {
-      case 1:
-        return const Color(0xFFDC2626); // Admin - Red
-      case 2:
-        return Theme.of(context).colorScheme.primary; // Product Owner - Primary
-      case 3:
-        return Theme.of(context).colorScheme.secondary; // Member - Secondary
+      case 1: // GUEST - Gray
+        return Theme.of(context).colorScheme.outline;
+      case 2: // STAR - Yellow/Gold
+        return const Color(0xFFFFC107);
+      case 3: // PLACE - Blue (플레이스 설정 페이지이므로 주로 이 색상)
+        return Theme.of(context).colorScheme.primary;
+      case 4: // ADMIN - Red
+        return const Color(0xFFDC2626);
+      case 6: // MEMBER - Green
+        return Theme.of(context).colorScheme.secondary;
       default:
         return Theme.of(context).colorScheme.primary;
     }

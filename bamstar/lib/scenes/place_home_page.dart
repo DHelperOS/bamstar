@@ -29,12 +29,17 @@ class _MainScreenState extends State<MainScreen> {
     final roleId = user?.data['role_id'] as int?;
     
     // Route based on role_id
+    // DB: 1=GUEST, 2=STAR, 3=PLACE, 4=ADMIN, 6=MEMBER
     switch (roleId) {
-      case 1: // Admin role -> UserSettingsPage
+      case 1: // GUEST -> UserSettingsPage
         return UserSettingsPage();
-      case 2: // Product Owner (Place) role -> PlaceSettingsPage
+      case 2: // STAR -> UserSettingsPage  
+        return UserSettingsPage();
+      case 3: // PLACE -> PlaceSettingsPage
         return PlaceSettingsPage();
-      case 3: // Member role -> UserSettingsPage
+      case 4: // ADMIN -> UserSettingsPage
+        return UserSettingsPage();
+      case 6: // MEMBER -> UserSettingsPage
         return UserSettingsPage();
       default: // Default to user settings
         return UserSettingsPage();

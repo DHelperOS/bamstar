@@ -154,26 +154,35 @@ final currentUserRoleProvider = FutureProvider<UserRole?>((ref) async {
 String _getRoleNameById(int roleId) {
   switch (roleId) {
     case 1:
-      return 'admin';
+      return 'guest';
     case 2:
-      return 'product_owner';
+      return 'star';  
     case 3:
+      return 'place';  
+    case 4:
+      return 'admin';
+    case 6:
       return 'member';
     default:
-      return 'member';
+      return 'star';
   }
 }
 
 String _getRoleKorNameById(int roleId) {
+  // 이 함수는 폴백용입니다. 실제 한글 이름은 DB의 roles.kor_name에서 가져옵니다
   switch (roleId) {
     case 1:
-      return '관리자';
+      return '게스트';
     case 2:
-      return '플레이스 오너';
+      return '스타';  
     case 3:
+      return '플레이스';  
+    case 4:
+      return '관리자';
+    case 6:
       return '멤버';
     default:
-      return '멤버';
+      return '스타';
   }
 }
 
