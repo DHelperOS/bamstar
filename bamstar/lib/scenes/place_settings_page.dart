@@ -6,7 +6,7 @@ import 'package:solar_icons/solar_icons.dart';
 // Removed unused imports for basic_info_sheet_flow and region_preference_sheet
 import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
-import 'package:bamstar/scenes/member_profile/business_verification_modal.dart';
+import 'package:bamstar/scenes/member_profile/business_verification_page.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
 // Removed unused import for matching_preferences_page
 // Removed unused service imports
@@ -591,8 +591,12 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
-            onTap: () async {
-              await showBusinessVerificationModal(context);
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const BusinessVerificationPage(),
+                ),
+              );
             },
           ),
 

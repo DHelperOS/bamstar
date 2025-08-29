@@ -314,10 +314,30 @@ class _BusinessVerificationPageState
         width: double.infinity,
         height: 48,
         child: _isLoading
-            ? ElevatedButton(
-                onPressed: null,
+            ? Container(
+                width: double.infinity,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -332,20 +352,42 @@ class _BusinessVerificationPageState
                     ),
                   ),
                 ),
-              )
-            : ElevatedButton(
-                onPressed: _getButtonAction(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              ),
+            : Container(
+                width: double.infinity,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                    ],
                   ),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  _getButtonText(),
-                  style: AppTextStyles.buttonText(context).copyWith(
-                    color: Theme.of(context).colorScheme.onPrimary,
+                child: ElevatedButton(
+                  onPressed: _getButtonAction(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    _getButtonText(),
+                    style: AppTextStyles.buttonText(context).copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -480,23 +522,30 @@ class _Step1FormWidget extends ConsumerWidget {
           // Info card
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                 width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.info_outline_rounded,
                   color: Theme.of(context).colorScheme.primary,
-                  size: 16,
+                  size: 20,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     '사업자 등록증에 기재된 정보를 정확히 입력해 주세요',
@@ -525,7 +574,7 @@ class _Step1FormWidget extends ConsumerWidget {
             fieldKey: 'business_number',
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           _buildFormField(
             context: context,
@@ -537,7 +586,7 @@ class _Step1FormWidget extends ConsumerWidget {
             fieldKey: 'representative_name',
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           _buildFormField(
             context: context,
@@ -611,21 +660,21 @@ class _Step1FormWidget extends ConsumerWidget {
             child: showOptionalFields 
                 ? Column(
                     children: [
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '대표자명2',
                         controller: representativeName2Controller,
                         hint: '공동대표자가 있을 경우 입력',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '상호명',
                         controller: businessNameController,
                         hint: '사업체 상호명 입력',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '법인등록번호',
@@ -633,21 +682,21 @@ class _Step1FormWidget extends ConsumerWidget {
                         hint: '법인인 경우 등록번호 입력',
                         keyboardType: TextInputType.number,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '주업태',
                         controller: mainBusinessTypeController,
                         hint: '주요 업태 입력',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '주종목',
                         controller: subBusinessTypeController,
                         hint: '주요 종목 입력',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       _buildOptionalFormField(
                         context: context,
                         label: '사업장소재지',
@@ -694,41 +743,37 @@ class _Step1FormWidget extends ConsumerWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-              ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-              ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
                 width: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.error,
                 width: 2,
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             errorText: touchedFields.contains(fieldKey) 
                 ? ref.watch(validationProvider(controller.text))
                 : null,
@@ -765,27 +810,23 @@ class _Step1FormWidget extends ConsumerWidget {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-              ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-              ),
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
       ],
@@ -910,13 +951,13 @@ class _Step2FormWidget extends ConsumerWidget {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -1028,13 +1069,20 @@ class _Step3FormWidget extends StatelessWidget {
           
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               children: [
