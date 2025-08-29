@@ -471,7 +471,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         tabs: [
           Tab(
             child: SizedBox(
-              width: 60,
+              width: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
@@ -484,7 +484,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           ),
           Tab(
             child: SizedBox(
-              width: 60,
+              width: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
@@ -497,7 +497,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           ),
           Tab(
             child: SizedBox(
-              width: 60,
+              width: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
@@ -510,7 +510,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           ),
           Tab(
             child: SizedBox(
-              width: 60,
+              width: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
