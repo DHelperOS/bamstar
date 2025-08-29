@@ -37,6 +37,45 @@ class _BusinessVerificationPageState
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Load cached data after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCachedData();
+    });
+  }
+
+  void _loadCachedData() {
+    final state = ref.read(businessVerificationProvider);
+    if (state.input != null) {
+      final input = state.input!;
+      _businessNumberCtl.text = input.businessNumber;
+      _representativeNameCtl.text = input.representativeName;
+      _openingDateCtl.text = input.openingDate;
+      _representativeName2Ctl.text = input.representativeName2 ?? '';
+      _businessNameCtl.text = input.businessName ?? '';
+      _corporateNumberCtl.text = input.corporateNumber ?? '';
+      _mainBusinessTypeCtl.text = input.mainBusinessType ?? '';
+      _subBusinessTypeCtl.text = input.subBusinessType ?? '';
+      _businessAddressCtl.text = input.businessAddress ?? '';
+
+      // Show optional fields if any optional data exists
+      final hasOptionalData = (input.representativeName2?.isNotEmpty == true) ||
+                            (input.businessName?.isNotEmpty == true) ||
+                            (input.corporateNumber?.isNotEmpty == true) ||
+                            (input.mainBusinessType?.isNotEmpty == true) ||
+                            (input.subBusinessType?.isNotEmpty == true) ||
+                            (input.businessAddress?.isNotEmpty == true);
+      
+      if (hasOptionalData) {
+        setState(() {
+          _showOptionalFields = true;
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _businessNumberCtl.dispose();
     _representativeNameCtl.dispose();
