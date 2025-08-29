@@ -1348,15 +1348,15 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
           ),
           const SizedBox(height: 8),
           
-          // Upload section - Reduced size
+          // Upload section
           GestureDetector(
             onTap: _pickImage,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: _selectedImage != null 
                       ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
@@ -1378,49 +1378,67 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
                       borderRadius: BorderRadius.circular(8),
                       child: Image.file(
                         _selectedImage!,
-                        height: 120,
+                        height: 160,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
                           Icons.check_circle,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 16,
+                          size: 18,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Text(
                           '이미지가 선택되었습니다',
                           style: AppTextStyles.primaryText(context).copyWith(
                             color: Theme.of(context).colorScheme.primary,
-                            fontSize: 13,
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: _pickImage,
+                      icon: Icon(
+                        Icons.refresh,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: Text(
+                        '재검증',
+                        style: AppTextStyles.buttonText(context).copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
                   ] else ...[
                     Icon(
                       Icons.upload_file_outlined,
                       color: Theme.of(context).colorScheme.primary,
-                      size: 36,
+                      size: 42,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Text(
                       '사업자등록증을 업로드해주세요',
-                      style: AppTextStyles.primaryText(context).copyWith(
-                        fontSize: 14,
-                      ),
+                      style: AppTextStyles.primaryText(context),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
-                      '파일 형식: JPG, PNG (최대 10MB)',
+                      '파일 형식: JPG, PNG\n최대 크기: 10MB',
                       style: AppTextStyles.captionText(context).copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: 11,
                       ),
                       textAlign: TextAlign.center,
                     ),
