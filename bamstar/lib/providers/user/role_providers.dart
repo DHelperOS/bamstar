@@ -253,6 +253,7 @@ class UserRoleNotifier extends AsyncNotifier<UserRole?> {
       
       await supabase.from('users').update({
         'role_id': roleId,
+        'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', userId);
       
       return _fetchUserRole(userId);
@@ -270,6 +271,7 @@ class UserRoleNotifier extends AsyncNotifier<UserRole?> {
       
       await supabase.from('users').update({
         'is_adult': isAdult,
+        'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', userId);
       
       return _fetchUserRole(userId);
