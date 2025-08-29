@@ -1171,156 +1171,80 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
 
   Widget _buildProgressDialog() {
     return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 300),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        constraints: const BoxConstraints(maxWidth: 280),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // AI Header
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // AI Icon with animation effect
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.03),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.auto_awesome,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 28,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'AI 검증 중',
-                    style: AppTextStyles.sectionTitle(context).copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+            // AI Icon with animation
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                ],
+                ),
+                Icon(
+                  Icons.auto_awesome,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            Text(
+              'AI 검증 중',
+              style: AppTextStyles.sectionTitle(context).copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
               ),
             ),
+            const SizedBox(height: 12),
             
-            // Progress content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-              child: Column(
-                children: [
-                  // Progress message
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: Text(
-                      _progressMessage,
-                      key: ValueKey(_progressMessage),
-                      style: AppTextStyles.secondaryText(context).copyWith(
-                        fontSize: 13,
-                        height: 1.4,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Progress indicator dots
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildProgressDot(context, _progressMessage.contains('추출')),
-                      Container(
-                        width: 24,
-                        height: 2,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        decoration: BoxDecoration(
-                          color: _progressMessage.contains('비교')
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(1),
-                        ),
-                      ),
-                      _buildProgressDot(context, _progressMessage.contains('비교')),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  // AI powered label
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.verified_user,
-                        size: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Gemini AI로 안전하게 처리 중',
-                        style: AppTextStyles.captionText(context).copyWith(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            // Progress message
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Text(
+                _progressMessage,
+                key: ValueKey(_progressMessage),
+                style: AppTextStyles.secondaryText(context).copyWith(
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
               ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Progress dots
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildProgressDot(context, _progressMessage.contains('추출')),
+                Container(
+                  width: 24,
+                  height: 2,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: _progressMessage.contains('비교')
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+                _buildProgressDot(context, _progressMessage.contains('비교')),
+              ],
             ),
           ],
         ),
@@ -1420,9 +1344,7 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
           
           Text(
             '서류 제출',
-            style: AppTextStyles.sectionTitle(context).copyWith(
-              fontSize: 14,
-            ),
+            style: AppTextStyles.sectionTitle(context),
           ),
           const SizedBox(height: 8),
           
