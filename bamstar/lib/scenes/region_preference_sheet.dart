@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import '../theme/app_text_styles.dart';
 import 'member_profile/services/region_preference_service.dart';
 import '../utils/toast_helper.dart';
+import 'region_priority_widget.dart';
 
 // Data models
 class MainCategory {
@@ -281,53 +282,9 @@ WoltModalSheetPage _buildRegionPage(
                   ),
                   if (value.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: value.map((g) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                g.name,
-                                style: AppTextStyles.chipLabel(
-                                  context,
-                                ).copyWith(color: Colors.white),
-                              ),
-                              const SizedBox(width: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  final newList = List<AreaGroup>.from(value);
-                                  newList.removeWhere((e) => e.id == g.id);
-                                  selected.value = newList;
-                                },
-                                child: Icon(
-                                  Icons.close_rounded,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                    RegionPriorityWidget(
+                      selectedAreas: value,
+                      selected: selected,
                     ),
                   ],
                 ],

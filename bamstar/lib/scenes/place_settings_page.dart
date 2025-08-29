@@ -11,11 +11,12 @@ import 'package:bamstar/scenes/device_settings_page.dart';
 // Removed unused import for matching_preferences_page
 // Removed unused service imports
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/toast_helper.dart';
 import '../providers/user/role_providers.dart';
 import 'place_info_page.dart';
+import 'member_profile/place_matching_preferences_page.dart';
+import 'login_page.dart';
 
 // Enhanced place settings page with modern card design and tab navigation
 // - Clean white background with card-based layout
@@ -570,16 +571,20 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.heart,
-            title: '플레이스 홍보',
-            subtitle: '매력적인 플레이스를 소개해보세요.',
+            title: '매칭 조건 설정',
+            subtitle: '자세히 설정할 수록, 빨리 매칭될 수 있어요',
             trailing: Icon(
               SolarIconsOutline.altArrowRight,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
             onTap: () {
-              // TODO: Navigate to place promotion page
-              ToastHelper.info(context, '플레이스 홍보 페이지 준비중입니다.');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PlaceMatchingPreferencesPage(),
+                ),
+              );
             },
           ),
 
@@ -1045,10 +1050,12 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
       // Show success message
       ToastHelper.success(context, '로그아웃되었습니다');
 
-      // Navigate to login page using GoRouter
-      // Use pushReplacement to ensure navigation happens
+      // Navigate to login page and clear all previous routes
       if (context.mounted) {
-        context.go('/login');
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
       }
     } catch (error) {
       debugPrint('Logout error: $error');

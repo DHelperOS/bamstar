@@ -1,181 +1,224 @@
 # Supabase 연결 가이드
 
-이 가이드는 BamStar 프로젝트에서 Supabase CLI를 사용하여 데이터베이스에 연결하는 방법을 설명합니다.
+## 🔐 CLI 웹 로그인 (필수)
 
-## 🔑 인증 토큰 정보
-
-### CLI 접속용 토큰 (Project API Token)
 ```bash
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
+# Supabase CLI 웹 로그인 - 브라우저가 열리면 로그인
+supabase login
 ```
 
-### 프로젝트 정보
+## 🔑 프로젝트 정보
 - **Project Reference ID**: `tflvicpgyycvhttctcek`
-- **Organization ID**: `eqdgldtaktbmvuuqyygf`
 - **Database Password**: `!@Wnrsmsek1`
-- **Encoded Password (URL용)**: `%21%40Wnrsmsek1`
-- **Database URL**: `postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres`
-- **Supabase URL**: `https://tflvicpgyycvhttctcek.supabase.co`
+- **URL Encoded Password**: `%21%40Wnrsmsek1`
+- **Supabase CLI Token**: `sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b`
 
-## ⚠️ 중요: 패스워드 인코딩
-**데이터베이스 연결 시 오류가 발생하면 반드시 패스워드를 URL 인코딩하여 사용해야 합니다:**
-- 원본 패스워드: `!@Wnrsmsek1`
-- URL 인코딩된 패스워드: `%21%40Wnrsmsek1`
+## ✅ 작동 확인된 연결 방법 (2025-08-29)
 
+### 1. PostgreSQL URL 직접 연결 (가장 안정적)
 ```bash
-# 패스워드 인코딩 방법
-python3 -c "import urllib.parse; print(urllib.parse.quote('!@Wnrsmsek1'))"
-```
-
----
-
-## 🖥️ Supabase CLI 사용법 (필수)
-
-**⚠️ 모든 데이터베이스 작업은 반드시 Supabase CLI를 통해서만 수행합니다.**
-
-### 1. 환경 변수 설정
-```bash
-export SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
-```
-
-### 2. 프로젝트 연결
-```bash
-# 프로젝트 링크
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase link --project-ref tflvicpgyycvhttctcek
-
-# 패스워드 입력 시: !@Wnrsmsek1
-```
-
-### 3. 데이터베이스 작업
-
-#### 직접 SQL 실행 (psql 사용)
-```bash
-# 원본 패스워드 사용
-PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT * FROM public.roles;"
-
-# URL 인코딩된 패스워드 사용 (연결 문자열)
+# URL 인코딩된 패스워드 사용 - 가장 안정적
 psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+
+# 예시 명령어들
+# 테이블 목록 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\dt public.*"
+
+# 특정 테이블 구조 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\d member_profiles"
+
+# 데이터 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT * FROM users LIMIT 5;"
+
+# 함수 목록 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\df public.*"
+
+# Enum 타입 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\dT+ *_enum"
 ```
 
-#### 마이그레이션 관리
+### 2. 환경변수를 사용한 연결 (대안)
 ```bash
-# 마이그레이션 목록 확인
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration list --project-ref tflvicpgyycvhttctcek
+# 환경변수 설정 후 연결
+export PGPASSWORD='!@Wnrsmsek1'
+psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek
 
-# 새 마이그레이션 생성
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase migration new <migration_name>
-
-# 데이터베이스 푸시
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek
+# 단일 명령으로 실행
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT * FROM roles;"
 ```
 
-#### 스키마 관리
+## 📊 자주 사용하는 데이터베이스 조회 명령어
+
+### 테이블 관련
 ```bash
-# 원격 스키마 가져오기
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db pull --project-ref tflvicpgyycvhttctcek
+# 모든 테이블 목록
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\dt public.*"
 
-# 스키마 덤프
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db dump --linked -f schema_dump.sql
+# 테이블 구조 상세 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\d+ [테이블명]"
 
-# SQL 파일 실행
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase db push --project-ref tflvicpgyycvhttctcek --include-all
+# 테이블 컬럼 정보만 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT column_name, data_type, is_nullable, column_default FROM information_schema.columns WHERE table_name = '[테이블명]' ORDER BY ordinal_position;"
 ```
 
-#### Edge Functions 관리
+### Enum 타입 조회
 ```bash
-# Function 목록
+# 모든 Enum 타입과 값 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT t.typname as enum_name, e.enumlabel as enum_value FROM pg_type t JOIN pg_enum e ON t.oid = e.enumtypid WHERE t.typtype = 'e' ORDER BY t.typname, e.enumsortorder;"
+
+# 특정 Enum 타입 값 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT unnest(enum_range(NULL::[enum_name]));"
+```
+
+### 함수 및 트리거
+```bash
+# 모든 함수 목록
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\df public.*"
+
+# 트리거 목록
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT * FROM information_schema.triggers WHERE trigger_schema = 'public';"
+```
+
+### RLS 정책 조회
+```bash
+# 특정 테이블의 RLS 정책
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT * FROM pg_policies WHERE tablename = '[테이블명]';"
+```
+
+## 📝 실행했던 주요 명령어들 (히스토리)
+
+### 1. 프로젝트 연결 및 확인
+```bash
+# 프로젝트 목록 확인
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
+
+# 프로젝트 링크
+supabase link --project-ref tflvicpgyycvhttctcek
+```
+
+### 2. 데이터베이스 테이블 생성
+```bash
+# Place 테이블 생성
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -f sql/01_create_place_tables.sql
+
+# Interaction 테이블 생성
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -f sql/02_create_interaction_tables.sql
+
+# Matching 테이블 생성
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -f sql/03_create_matching_tables.sql
+
+# Helper 함수 생성
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -f sql/04_create_helper_functions.sql
+```
+
+### 3. Edge Functions 배포
+```bash
+# 디렉토리 복사 (경로 문제 해결)
+cp -r /Users/deneb/Desktop/Project/BamStar/bamstar/supabase /Users/deneb/Desktop/Project/BamStar/
+
+# Edge Function 배포
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy match-calculator --project-ref tflvicpgyycvhttctcek
+
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy match-finder --project-ref tflvicpgyycvhttctcek
+
+SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy hearts-manager --project-ref tflvicpgyycvhttctcek
+
+# Functions 목록 확인
 SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions list --project-ref tflvicpgyycvhttctcek
-
-# Function 배포
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy [function-name] --project-ref tflvicpgyycvhttctcek
-
-# JWT 검증 없이 배포 (개발용)
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase functions deploy [function-name] --project-ref tflvicpgyycvhttctcek --no-verify-jwt
 ```
 
----
-
-## 🛠️ 로컬 개발 환경
-
-### 로컬 Supabase 시작
+### 4. RLS 정책 적용
 ```bash
-# 로컬 서비스 시작
-supabase start
+# RLS 활성화 스크립트 실행
+chmod +x scripts/apply_rls.sh && ./scripts/apply_rls.sh
 
-# 로컬 서비스 상태 확인
-supabase status
+# 마이그레이션 생성
+supabase migration new add_rls_policies
 
-# 로컬 데이터베이스 접속
-PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres
+# 마이그레이션 파일 편집 후 대시보드에서 실행
 ```
 
-### 로컬 테스트 쿼리
+### 5. 데이터베이스 조회
 ```bash
-# roles 테이블 확인
-PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -c "SELECT * FROM public.roles ORDER BY id;"
+# 테이블 목록 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\dt public.*"
+
+# RLS 상태 확인
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = true;"
+
+# 함수 목록 조회
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "\df public.calculate*"
 ```
 
----
+## 🚫 작동하지 않는 방법들
 
-## 🔍 문제해결
-
-### 1. 패스워드 인증 실패
+### Supabase CLI (Docker 필요)
 ```bash
-# 오류: password authentication failed
-# 해결: 패스워드를 URL 인코딩하여 사용
-
-# 잘못된 예
-postgresql://postgres.tflvicpgyycvhttctcek:!@Wnrsmsek1@...
-
-# 올바른 예
-postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@...
+# ❌ Docker가 필요하여 실패
+supabase db dump --linked
+supabase link --project-ref tflvicpgyycvhttctcek
 ```
 
-### 2. "Unauthorized" 에러
+### MCP Supabase 서버
 ```bash
-# 토큰이 올바른지 확인
-echo $SUPABASE_ACCESS_TOKEN
-# 출력: sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b
+# ❌ 토큰 인증 문제로 실패
+mcp__supabase__execute_sql
+mcp__supabase__list_tables
 ```
 
-### 3. 연결 테스트
+### 잘못된 사용자명 형식
 ```bash
-# CLI 연결 테스트
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
+# ❌ 틀린 형식 - postgres 사용자명만 사용
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres
 
-# 데이터베이스 직접 연결 테스트
-PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT version();"
+# ✅ 올바른 형식 - postgres.프로젝트ID 사용
+PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek
 ```
 
----
+## 📝 현재 테이블 목록 (2025-08-29 조회)
 
-## 📝 빠른 참조
+```
+1. area_groups                  - 지역 그룹
+2. area_keywords                - 지역 키워드
+3. attributes                   - 속성 마스터 (업종, 직무, 스타일 등)
+4. community_comments           - 커뮤니티 댓글
+5. community_hashtags           - 해시태그
+6. community_likes              - 좋아요
+7. community_posts              - 게시물
+8. community_reports            - 신고
+9. community_subscriptions      - 구독
+10. daily_hashtag_curation      - 일일 해시태그 큐레이션
+11. devices                     - 디바이스 정보
+12. main_categories             - 메인 카테고리
+13. member_attributes_link      - 멤버 속성 연결
+14. member_preferences_link     - 멤버 선호도 연결
+15. member_preferred_area_groups- 멤버 선호 지역
+16. member_profiles             - 멤버 프로필
+17. post_hashtags               - 게시물-해시태그 연결
+18. push_tokens                 - 푸시 토큰
+19. roles                       - 역할
+20. terms                       - 약관
+21. trending_hashtags_cache     - 트렌딩 해시태그 캐시
+22. user_blocks                 - 사용자 차단
+23. user_term_agreements        - 약관 동의
+24. users                       - 사용자
+```
 
-### 자주 사용하는 명령어
+## 💡 팁
+
+1. **패스워드 인코딩**: `!@Wnrsmsek1` → `%21%40Wnrsmsek1`
+2. **사용자명 형식**: 반드시 `postgres.tflvicpgyycvhttctcek` 형식 사용
+3. **연결 URL**: postgresql://[사용자명]:[인코딩된패스워드]@[호스트]:[포트]/[DB명]
+4. **출력이 긴 경우**: 파이프로 `| less` 또는 `| head -n 50` 사용
+
+## 🔧 문제 해결
+
+### 패스워드 인증 실패
+- URL에서 패스워드가 제대로 인코딩되었는지 확인
+- 사용자명이 `postgres.tflvicpgyycvhttctcek` 형식인지 확인
+
+### 연결 테스트
 ```bash
-# 프로젝트 목록
-SUPABASE_ACCESS_TOKEN=sbp_b4e5bfac8a545b8a2f2eb75140e7cfdbfb98158b supabase projects list
-
-# roles 테이블 확인
-PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT * FROM public.roles ORDER BY id;"
-
-# users 테이블 확인
-PGPASSWORD='!@Wnrsmsek1' psql -h aws-1-ap-northeast-2.pooler.supabase.com -p 6543 -d postgres -U postgres.tflvicpgyycvhttctcek -c "SELECT id, role_id, email FROM public.users LIMIT 10;"
+# 간단한 연결 테스트
+psql "postgresql://postgres.tflvicpgyycvhttctcek:%21%40Wnrsmsek1@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres" -c "SELECT version();"
 ```
-
-### 현재 roles 테이블 구조
-```sql
--- id | name  | kor_name
--- 1  | GUEST | 게스트
--- 2  | STAR  | 스타
--- 3  | PLACE | 플레이스
--- 4  | ADMIN | 관리자
--- 6  | MEMBER| 멤버
-```
-
----
-
-**⚠️ 보안 주의사항**
-- 토큰을 공개 저장소에 커밋하지 마세요
-- 패스워드는 반드시 환경 변수로 관리하세요
-- 프로덕션 환경에서는 더 강력한 패스워드를 사용하세요

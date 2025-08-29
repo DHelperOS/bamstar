@@ -5,15 +5,15 @@ import '../../services/attribute_service.dart';
 import 'services/member_preferences_service.dart';
 import '../../utils/toast_helper.dart';
 
-class MatchingPreferencesPage extends StatefulWidget {
-  const MatchingPreferencesPage({super.key});
+class PlaceMatchingPreferencesPage extends StatefulWidget {
+  const PlaceMatchingPreferencesPage({super.key});
 
   @override
-  State<MatchingPreferencesPage> createState() =>
-      _MatchingPreferencesPageState();
+  State<PlaceMatchingPreferencesPage> createState() =>
+      _PlaceMatchingPreferencesPageState();
 }
 
-class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
+class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesPage>
     with TickerProviderStateMixin {
 
 
@@ -65,7 +65,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
 
   // Static data for working days and experience levels (not in database)
   final List<String> payTypes = ['TC', '일급', '월급', '협의'];
-  final List<String> experienceLevels = ['신입', '주니어', '시니어', '전문가'];
+  final List<String> experienceLevels = ['무관', '신입', '주니어', '시니어', '전문가'];
 
   final List<Map<String, String>> daysTop = [
     {'id': '전체', 'name': '전체'},
@@ -98,7 +98,8 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
       final placeFeatureData = AttributeService.instance.getAttributesForUI('PLACE_FEATURE');
       final benefitData = AttributeService.instance.getAttributesForUI('WELFARE');
 
-      // Load existing user preferences
+      // TODO: Load existing place preferences instead of member preferences
+      // For now, we'll use member preferences as a placeholder
       final existingPreferences = MemberPreferencesService.instance.loadMatchingPreferences();
 
       // Wait for all data to load
@@ -118,7 +119,9 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
         placeFeatures = results[3] as List<Map<String, dynamic>>;
         benefits = results[4] as List<Map<String, dynamic>>;
         
-        // Load existing preferences if available
+        // TODO: Replace with place preferences loading logic
+        // For now, commenting out member preferences loading
+        /*
         final prefs = results[5] as MatchingPreferencesData?;
         if (prefs != null) {
           selectedIndustries = prefs.selectedIndustryIds.map((id) => id.toString()).toSet();
@@ -136,6 +139,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
           selectedPlaceFeatures = prefs.selectedPlaceFeatureIds.map((id) => id.toString()).toSet();
           selectedBenefits = prefs.selectedWelfareIds.map((id) => id.toString()).toSet();
         }
+        */
         
         _isLoading = false;
       });
@@ -167,7 +171,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
       appBar: AppBar(
         scrolledUnderElevation: 0,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-        title: Text('매칭 스타일 설정', style: AppTextStyles.pageTitle(context)),
+        title: Text('매칭 조건 설정', style: AppTextStyles.pageTitle(context)),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
@@ -186,7 +190,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '매칭 스타일 정보를 불러오는 중...',
+                    '매칭 조건 정보를 불러오는 중...',
                     style: AppTextStyles.secondaryText(context),
                   ),
                 ],
@@ -205,6 +209,37 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                       child: Column(
                         children: [
                           const SizedBox(height: 24),
+                          
+                          // Subtitle explaining the benefits
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    '자세히 설정할 수록, 빨리 매칭될 수 있어요',
+                                    style: AppTextStyles.secondaryText(context).copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
                           // Individual cards for each section
                           _buildIndustryCard(),
@@ -222,7 +257,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                           _buildWorkingDaysCard(),
                           const SizedBox(height: 20),
 
-                          _buildPersonalStyleCard(),
+                          _buildMemberStyleCard(),
                           const SizedBox(height: 20),
 
                           _buildPlaceFeaturesCard(),
@@ -253,7 +288,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '🏢',
       title: '희망 업종',
-      subtitle: '관심 있는 업종을 모두 선택해주세요',
+      subtitle: '운영하시는 업종을 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: industries,
         selectedItems: selectedIndustries,
@@ -271,7 +306,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '💼',
       title: '희망 직무',
-      subtitle: '경험해보고 싶은 직무를 선택해주세요',
+      subtitle: '매칭이 필요한 직무를 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: jobs,
         selectedItems: selectedJobs,
@@ -289,7 +324,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '💰',
       title: '급여 조건',
-      subtitle: '원하시는 급여 조건을 설정해주세요',
+      subtitle: '제공 가능한 급여 조건을 설정해주세요',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -311,7 +346,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
               Expanded(
                 child: _buildEnhancedTextField(
                   controller: _payAmountController,
-                  hint: '희망 금액',
+                  hint: '제공 금액',
                   suffix: '만원',
                   keyboardType: TextInputType.number,
                 ),
@@ -327,7 +362,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '🏆',
       title: '경력 수준',
-      subtitle: '나의 경력 수준을 선택해주세요',
+      subtitle: '원하는 스타의 경력 수준을 선택해주세요',
       child: _buildCompactChipGroup(
         items: experienceLevels.map((level) => {'id': level, 'name': level}).toList(),
         selectedItems: selectedExperienceLevel != null ? {selectedExperienceLevel!} : {},
@@ -345,7 +380,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '📅',
       title: '근무 요일',
-      subtitle: '가능한 근무 요일을 선택해주세요',
+      subtitle: '필요한 근무 요일을 선택해주세요',
       child: Column(
         children: [
           // 간단한 전체/선택 방식 선택
@@ -419,11 +454,11 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     );
   }
 
-  Widget _buildPersonalStyleCard() {
+  Widget _buildMemberStyleCard() {
     return _buildCard(
       icon: '✨',
-      title: '나의 스타일',
-      subtitle: '스타님의 강점을 표현해주세요',
+      title: '희망 스타 스타일',
+      subtitle: '원하는 스타의 스타일을 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: styles,
         selectedItems: selectedStyles,
@@ -441,7 +476,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '🏪',
       title: '플레이스 특징',
-      subtitle: '이런 분위기의 플레이스가 좋아요',
+      subtitle: '우리 플레이스의 특징을 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: placeFeatures,
         selectedItems: selectedPlaceFeatures,
@@ -459,7 +494,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     return _buildCard(
       icon: '🎁',
       title: '복지 및 혜택',
-      subtitle: '중요하게 생각하는 복지를 선택해주세요',
+      subtitle: '제공 가능한 복지를 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: benefits,
         selectedItems: selectedBenefits,
@@ -941,7 +976,7 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '매칭 스타일 저장하기',
+                        '매칭 조건 저장하기',
                         style: AppTextStyles.buttonText(context).copyWith(
                           color: Theme.of(context).colorScheme.onPrimary,
                           fontWeight: FontWeight.w700,
@@ -955,22 +990,6 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     );
   }
 
-  /// Convert database experience level enum to UI display value
-  String _convertDatabaseExperienceLevelToUI(String dbValue) {
-    switch (dbValue) {
-      case 'NEWBIE':
-        return '신입';
-      case 'JUNIOR':
-        return '주니어';
-      case 'SENIOR':
-        return '시니어';
-      case 'PROFESSIONAL':
-        return '전문가';
-      default:
-        return '신입'; // Default to '신입' for unknown values
-    }
-  }
-
   Future<void> _savePreferences() async {
     // Add haptic feedback
     HapticFeedback.mediumImpact();
@@ -982,79 +1001,14 @@ class _MatchingPreferencesPageState extends State<MatchingPreferencesPage>
     });
 
     try {
-      // Parse selected IDs to integers
-      final selectedIndustryIds = selectedIndustries.map((id) => int.parse(id)).toSet();
-      final selectedJobIds = selectedJobs.map((id) => int.parse(id)).toSet();
-      final selectedStyleIds = selectedStyles.map((id) => int.parse(id)).toSet();
-      final selectedPlaceFeatureIds = selectedPlaceFeatures.map((id) => int.parse(id)).toSet();
-      final selectedWelfareIds = selectedBenefits.map((id) => int.parse(id)).toSet();
+      // TODO: Implement place-specific save logic
+      // For now, show a placeholder message
+      ToastHelper.info(context, '플레이스 매칭 조건 저장 기능은 준비중입니다');
       
-      // Parse pay amount
-      int? payAmount;
-      if (_payAmountController.text.isNotEmpty) {
-        payAmount = int.tryParse(_payAmountController.text);
-      }
-
-      // Convert UI pay type to database enum
-      String? dbPayType;
-      if (selectedPayType != null) {
-        switch (selectedPayType!) {
-          case 'TC':
-            dbPayType = 'TC';
-            break;
-          case '일급':
-            dbPayType = 'DAILY';
-            break;
-          case '월급':
-            dbPayType = 'MONTHLY';
-            break;
-          case '협의':
-            dbPayType = 'NEGOTIABLE';
-            break;
-        }
-      }
-
-      // Convert UI experience level to database enum
-      String? dbExperienceLevel;
-      if (selectedExperienceLevel != null) {
-        switch (selectedExperienceLevel!) {
-          case '신입':
-            dbExperienceLevel = 'NEWBIE';
-            break;
-          case '주니어':
-            dbExperienceLevel = 'JUNIOR';
-            break;
-          case '시니어':
-            dbExperienceLevel = 'SENIOR';
-            break;
-          case '전문가':
-            dbExperienceLevel = 'PROFESSIONAL';
-            break;
-        }
-      }
-
-      // Save to database directly (no Edge Function needed)
-      final success = await MemberPreferencesService.instance.saveMatchingPreferences(
-        MatchingPreferencesData(
-          selectedIndustryIds: selectedIndustryIds,
-          selectedJobIds: selectedJobIds,
-          selectedPayType: dbPayType,
-          payAmount: payAmount,
-          selectedDays: selectedDays,
-          experienceLevel: dbExperienceLevel,
-          selectedStyleIds: selectedStyleIds,
-          selectedPlaceFeatureIds: selectedPlaceFeatureIds,
-          selectedWelfareIds: selectedWelfareIds,
-        ),
-      );
-      
-      if (!mounted) return;
-      
-      if (success) {
-        ToastHelper.success(context, '매칭 스타일이 저장되었습니다');
+      // Navigate back after a short delay
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
         Navigator.of(context).pop();
-      } else {
-        throw Exception('Failed to save preferences');
       }
     } catch (e) {
       debugPrint('Error saving preferences: $e');
