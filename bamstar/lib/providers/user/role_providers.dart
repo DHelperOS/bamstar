@@ -110,9 +110,7 @@ final currentUserRoleProvider = FutureProvider<UserRole?>((ref) async {
         roles:role_id (
           id,
           name,
-          kor_name,
-          description,
-          created_at
+          kor_name
         )
       ''')
       .eq('id', userId)
@@ -255,7 +253,6 @@ class UserRoleNotifier extends AsyncNotifier<UserRole?> {
       
       await supabase.from('users').update({
         'role_id': roleId,
-        'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', userId);
       
       return _fetchUserRole(userId);
@@ -273,7 +270,6 @@ class UserRoleNotifier extends AsyncNotifier<UserRole?> {
       
       await supabase.from('users').update({
         'is_adult': isAdult,
-        'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', userId);
       
       return _fetchUserRole(userId);
