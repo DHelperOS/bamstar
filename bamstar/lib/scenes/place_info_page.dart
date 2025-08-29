@@ -39,7 +39,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   bool _isLoading = false;
 
   // Operating hours data - 운영시간 관련 데이터
-  List<String> _selectedOperatingDays = []; // 선택된 운영 요일들
+  List<String> _selectedOperatingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; // 선택된 운영 요일들 (기본값: 전체)
   double _operatingStartHour = 9.0; // 운영 시작 시간 (시간 단위, 0-24)  
   double _operatingEndHour = 18.0; // 운영 종료 시간 (시간 단위, 0-24)
   
@@ -107,7 +107,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       if (images.isEmpty) return;
 
       for (final image in images) {
-        if (_photos.length >= 10) break; // Limit to 10 images for places
+        if (_photos.length >= 5) break; // Limit to 5 images for places
 
         final bytes = await image.readAsBytes();
         setState(() => _photos.add(bytes));
@@ -126,7 +126,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       if (img == null) return;
 
       final bytes = await img.readAsBytes();
-      if (_photos.length < 10) {
+      if (_photos.length < 5) {
         setState(() => _photos.add(bytes));
       }
     } catch (e) {
@@ -406,7 +406,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           const SizedBox(height: 8),
 
           Text(
-            '최대 10장의 사진을 업로드할 수 있습니다. 대표 이미지를 선택하려면 사진의 왕관 아이콘을 탭하세요.',
+            '최대 5장의 사진을 업로드할 수 있습니다. 대표 이미지를 선택하려면 사진의 왕관 아이콘을 탭하세요.',
             style: AppTextStyles.captionText(
               context,
             ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -1090,6 +1090,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   ),
                 ),
                 selected: _selectedOperatingDays.length == _weekDays.length,
+                selectedColor: Theme.of(context).colorScheme.primary,
                 checkmarkColor: _selectedOperatingDays.length == _weekDays.length
                     ? Theme.of(context).colorScheme.onPrimary
                     : Theme.of(context).colorScheme.primary,
@@ -1114,6 +1115,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   ),
                 ),
                 selected: _selectedOperatingDays.contains(day['value']),
+                selectedColor: Theme.of(context).colorScheme.primary,
                 checkmarkColor: _selectedOperatingDays.contains(day['value'])
                     ? Theme.of(context).colorScheme.onPrimary
                     : Theme.of(context).colorScheme.primary,
@@ -1136,47 +1138,19 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           Text('운영 시간', style: AppTextStyles.formLabel(context)),
           const SizedBox(height: 12),
           
-          // 시간 표시 - 선택된 시간을 항상 보여줌
-          Container(
-            padding: const EdgeInsets.all(12),
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
+          // 시간 슬라이더 (툴팁 항상 표시)
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
+              valueIndicatorColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              valueIndicatorTextStyle: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
+              showValueIndicator: ShowValueIndicator.onDrag,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${_operatingStartHour.round().toString().padLeft(2, '0')}:00',
-                  style: AppTextStyles.primaryText(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                Text(
-                  ' ~ ',
-                  style: AppTextStyles.primaryText(context).copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  '${_operatingEndHour.round().toString().padLeft(2, '0')}:00',
-                  style: AppTextStyles.primaryText(context).copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // 시간 슬라이더 (기본 설정)
-          RangeSlider(
+            child: RangeSlider(
             values: RangeValues(_operatingStartHour, _operatingEndHour),
             min: 0,
             max: 24,
@@ -1192,6 +1166,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               });
             },
           ),
+        ),
         ],
       ),
     );
@@ -1259,12 +1234,12 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                         _buildManagerInfoForm(),
                         const SizedBox(height: 24),
 
-                        // Place Description Form
-                        _buildPlaceDescriptionForm(),
-                        const SizedBox(height: 24),
-
                         // Operating Hours Form
                         _buildOperatingHoursForm(),
+                        const SizedBox(height: 24),
+
+                        // Place Description Form
+                        _buildPlaceDescriptionForm(),
                         const SizedBox(height: 32),
                       ],
                     ),

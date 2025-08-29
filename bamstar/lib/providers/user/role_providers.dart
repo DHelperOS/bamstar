@@ -59,11 +59,11 @@ class UserRole {
   factory UserRole.fromJson(Map<String, dynamic> json) {
     return UserRole(
       userId: json['id'],
-      roleId: json['role_id'] ?? 3, // default to member
+      roleId: json['role_id'] ?? 1, // default to GUEST
       role: Role.fromJson(json['roles'] ?? {
-        'id': json['role_id'] ?? 3,
-        'name': 'member',
-        'kor_name': '멤버',
+        'id': json['role_id'] ?? 1,
+        'name': 'GUEST',
+        'kor_name': '게스트',
       }),
       isAdult: json['is_adult'] ?? false,
       userData: json,
@@ -87,9 +87,9 @@ final rolesProvider = FutureProvider<List<Role>>((ref) async {
   } catch (e) {
     // 에러 시 기본 역할 목록 반환
     return [
-      const Role(id: 1, name: 'admin', korName: '관리자'),
-      const Role(id: 2, name: 'product_owner', korName: '플레이스 오너'),
-      const Role(id: 3, name: 'member', korName: '멤버'),
+      const Role(id: 1, name: 'GUEST', korName: '게스트'),
+      const Role(id: 2, name: 'STAR', korName: '스타'),
+      const Role(id: 3, name: 'PLACE', korName: '플레이스'),
     ];
   }
 });
@@ -151,17 +151,13 @@ final currentUserRoleProvider = FutureProvider<UserRole?>((ref) async {
 String _getRoleNameById(int roleId) {
   switch (roleId) {
     case 1:
-      return 'guest';
+      return 'GUEST';
     case 2:
-      return 'star';  
+      return 'STAR';  
     case 3:
-      return 'place';  
-    case 4:
-      return 'admin';
-    case 6:
-      return 'member';
+      return 'PLACE';  
     default:
-      return 'star';
+      return 'GUEST'; // 기본값을 게스트로 설정
   }
 }
 
@@ -174,31 +170,27 @@ String _getRoleKorNameById(int roleId) {
       return '스타';  
     case 3:
       return '플레이스';  
-    case 4:
-      return '관리자';
-    case 6:
-      return '멤버';
     default:
-      return '스타';
+      return '게스트'; // 기본값을 게스트로 설정
   }
 }
 
 /// 현재 사용자의 역할 ID Provider
 final currentUserRoleIdProvider = Provider<int>((ref) {
   final userRole = ref.watch(currentUserRoleProvider).value;
-  return userRole?.roleId ?? 3; // default to member
+  return userRole?.roleId ?? 1; // default to GUEST
 });
 
 /// 현재 사용자의 역할 이름 Provider (영문)
 final currentUserRoleNameProvider = Provider<String>((ref) {
   final userRole = ref.watch(currentUserRoleProvider).value;
-  return userRole?.role.name ?? 'member';
+  return userRole?.role.name ?? 'GUEST';
 });
 
 /// 현재 사용자의 역할 한글 이름 Provider
 final currentUserRoleKorNameProvider = Provider<String>((ref) {
   final userRole = ref.watch(currentUserRoleProvider).value;
-  return userRole?.role.korName ?? '멤버';
+  return userRole?.role.korName ?? '게스트';
 });
 
 /// 현재 사용자의 성인 인증 상태 Provider
