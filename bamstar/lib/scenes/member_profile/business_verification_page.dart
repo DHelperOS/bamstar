@@ -57,18 +57,29 @@ class _BusinessVerificationPageState
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.close_rounded,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: _currentStep > 1 
+            ? IconButton(
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                onPressed: () => setState(() => _currentStep--),
+              )
+            : null,
         title: Text(
           '사업자 인증',
           style: AppTextStyles.cardTitle(context),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.close_rounded,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
       ),
       body: Column(
         children: [
