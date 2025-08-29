@@ -365,20 +365,261 @@ class _Step1FormWidgetState extends ConsumerState<_Step1FormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isFormValid = ref.watch(businessVerificationInputValidProvider);
+    // 실시간 폼 유효성 검증 - TextEditingController 직접 확인
+    final isFormValid = _registrationNumberCtl.text.trim().isNotEmpty &&
+                       _representativeNameCtl.text.trim().isNotEmpty &&
+                       _openingDateCtl.text.trim().isNotEmpty;
     final isLoading = ref.watch(businessVerificationLoadingProvider);
     
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.75,
       child: Column(
         children: [
-          // Action bar with validation button
+          // Scrollable form content - moved to top
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Progress indicator
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '1',
+                                style: AppTextStyles.captionText(context).copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              '사업자 정보 입력',
+                              style: AppTextStyles.primaryText(context).copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    Text(
+                      '사업자등록증 정보',
+                      style: AppTextStyles.sectionTitle(context),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '사업자등록증에 기재된 정보를 정확히 입력해주세요.',
+                      style: AppTextStyles.secondaryText(context),
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // Business Registration Number
+                    _buildFormFieldWithError(
+                      context: context,
+                      label: '사업자등록번호',
+                      controller: _registrationNumberCtl,
+                      hint: '10자리 숫자 입력 (예: 1234567890)',
+                      errorText: ref.watch(businessNumberValidationProvider(_registrationNumberCtl.text)),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [_BusinessNumberFormatter()],
+                      onChanged: (value) => setState(() {}),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Representative Name
+                    _buildFormFieldWithError(
+                      context: context,
+                      label: '대표자명',
+                      controller: _representativeNameCtl,
+                      hint: '홍길동',
+                      errorText: ref.watch(representativeNameValidationProvider(_representativeNameCtl.text)),
+                      onChanged: (value) => setState(() {}),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    // Opening Date
+                    _buildFormFieldWithError(
+                      context: context,
+                      label: '개업일자',
+                      controller: _openingDateCtl,
+                      hint: '8자리 숫자 입력 (예: 20050302)',
+                      errorText: ref.watch(openingDateValidationProvider(_openingDateCtl.text)),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [_DateFormatter()],
+                      onChanged: (value) => setState(() {}),
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Optional fields toggle
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showOptionalFields = !_showOptionalFields;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _showOptionalFields 
+                                  ? Icons.expand_less_rounded 
+                                  : Icons.expand_more_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                '선택 입력 항목',
+                                style: AppTextStyles.primaryText(context).copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              _showOptionalFields ? '숨기기' : '보기',
+                              style: AppTextStyles.captionText(context).copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    // Optional fields (conditionally shown)
+                    if (_showOptionalFields) ...[
+                      const SizedBox(height: 20),
+                      
+                      Text(
+                        '선택 정보',
+                        style: AppTextStyles.sectionTitle(context).copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Additional Representative Name
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '대표자성명2',
+                        controller: _representativeNameCtl2,
+                        hint: '부대표자명',
+                        isRequired: false,
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Business Name
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '상호',
+                        controller: _businessNameCtl,
+                        hint: '상호명을 입력하세요',
+                        isRequired: false,
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Corporate Number
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '법인등록번호',
+                        controller: _corporateNumberCtl,
+                        hint: '000000-0000000',
+                        isRequired: false,
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Main Business
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '주업태명',
+                        controller: _mainBusinessCtl,
+                        hint: '주요 업태를 입력하세요',
+                        isRequired: false,
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Sub Business
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '주종목명',
+                        controller: _subBusinessCtl,
+                        hint: '주요 종목을 입력하세요',
+                        isRequired: false,
+                      ),
+                      
+                      const SizedBox(height: 20),
+                      
+                      // Business Address
+                      _buildFormFieldWithError(
+                        context: context,
+                        label: '사업장주소',
+                        controller: _businessAddressCtl,
+                        hint: '사업장 주소를 입력하세요',
+                        isRequired: false,
+                      ),
+                    ],
+                    
+                    // 하단 여백
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Action bar with validation button - moved to bottom with keyboard support
           Container(
-            padding: const EdgeInsets.fromLTRB(20.0, 16.0, 20.0, 16.0),
+            padding: EdgeInsets.fromLTRB(
+              20.0, 
+              16.0, 
+              20.0, 
+              16.0 + MediaQuery.of(context).viewInsets.bottom
+            ),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               border: Border(
-                bottom: BorderSide(
+                top: BorderSide(
                   color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                   width: 1,
                 ),
