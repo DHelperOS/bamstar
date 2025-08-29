@@ -23,6 +23,26 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Listen to UserService changes
+    UserService.instance.addListener(_onUserChanged);
+  }
+  
+  @override
+  void dispose() {
+    UserService.instance.removeListener(_onUserChanged);
+    super.dispose();
+  }
+  
+  void _onUserChanged() {
+    // Rebuild when user data changes
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   Widget _getSettingsPage() {
     final user = UserService.instance.user;
@@ -62,13 +82,13 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  late final List<Widget> _tabs = [
+  List<Widget> get _tabs => [
     HomeScreen(), // Place (Home)
     _SearchTab(),
     // Community tab is embedded so the bottom bar persists
     CommunityHomePage(),
     _ChatTab(),
-    _getSettingsPage(), // Settings - role-based routing
+    _getSettingsPage(), // Settings - role-based routing (dynamically evaluated)
   ];
 
   @override
