@@ -54,7 +54,7 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
     _loadProfileImage();
     _loadProfileCompletionStatus();
     UserService.instance.addListener(_onUserChanged);
-    UserService.instance.loadCurrentUser();
+    // Remove loadCurrentUser() to avoid triggering listener during build
   }
 
   @override
@@ -66,9 +66,14 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
 
   void _onUserChanged() {
     if (!mounted) return;
-    setState(() {});
-    _loadProfileImage();
-    _loadProfileCompletionStatus();
+    // Use addPostFrameCallback to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+        _loadProfileImage();
+        _loadProfileCompletionStatus();
+      }
+    });
   }
 
   Future<void> _loadProfileImage() async {
@@ -215,8 +220,8 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
                       height: 1,
                       color: Colors.white.withOpacity(0.5),
                     ),
-                    // Tab bar section
-                    _buildTabBar(context),
+                    // Tab bar section with horizontal scroll
+                    _buildScrollableTabBar(context),
                   ],
                 ),
               ),
@@ -490,12 +495,16 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
     );
   }
 
-  Widget _buildTabBar(BuildContext context) {
+  Widget _buildScrollableTabBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
+      height: 54,
       child: TabBar(
         controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
         indicatorSize: TabBarIndicatorSize.tab,
+        padding: EdgeInsets.zero,
         indicator: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -520,43 +529,55 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
         dividerColor: Colors.transparent,
         tabs: [
           Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.user, size: 16),
-                SizedBox(width: 4),
-                Text('프로필'),
-              ],
+            child: SizedBox(
+              width: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.user, size: 16),
+                  SizedBox(width: 6),
+                  Text('프로필'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.documentText, size: 16),
-                SizedBox(width: 4),
-                Text('지원'),
-              ],
+            child: SizedBox(
+              width: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.documentText, size: 16),
+                  SizedBox(width: 6),
+                  Text('지원'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.penNewSquare, size: 16),
-                SizedBox(width: 4),
-                Text('내글'),
-              ],
+            child: SizedBox(
+              width: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.penNewSquare, size: 16),
+                  SizedBox(width: 6),
+                  Text('내글'),
+                ],
+              ),
             ),
           ),
           Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.userBlock, size: 16),
-                SizedBox(width: 4),
-                Text('차단'),
-              ],
+            child: SizedBox(
+              width: 70,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(SolarIconsBold.userBlock, size: 16),
+                  SizedBox(width: 6),
+                  Text('차단'),
+                ],
+              ),
             ),
           ),
         ],

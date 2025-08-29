@@ -39,8 +39,13 @@ class _MainScreenState extends State<MainScreen> {
   
   void _onUserChanged() {
     // Rebuild when user data changes
+    // Use addPostFrameCallback to avoid setState during build
     if (mounted) {
-      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {});
+        }
+      });
     }
   }
 

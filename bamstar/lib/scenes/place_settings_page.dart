@@ -44,7 +44,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     _loadProfileImage();
     _loadProfileCompletionStatus();
     UserService.instance.addListener(_onUserChanged);
-    UserService.instance.loadCurrentUser();
+    // Remove loadCurrentUser() to avoid triggering listener during build
   }
 
   @override
@@ -56,9 +56,14 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
   void _onUserChanged() {
     if (!mounted) return;
-    setState(() {});
-    _loadProfileImage();
-    _loadProfileCompletionStatus();
+    // Use addPostFrameCallback to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+        _loadProfileImage();
+        _loadProfileCompletionStatus();
+      }
+    });
   }
 
   Future<void> _loadProfileImage() async {
@@ -1041,7 +1046,10 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
       ToastHelper.success(context, '로그아웃되었습니다');
 
       // Navigate to login page using GoRouter
-      context.go('/login');
+      // Use pushReplacement to ensure navigation happens
+      if (context.mounted) {
+        context.go('/login');
+      }
     } catch (error) {
       debugPrint('Logout error: $error');
 
