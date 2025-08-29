@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bamstar/theme/app_text_styles.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:badges/badges.dart' as badges;
@@ -11,17 +12,18 @@ import 'package:bamstar/services/user_service.dart';
 import 'package:bamstar/scenes/user_settings_page.dart';
 import 'package:bamstar/scenes/place_settings_page.dart';
 import 'package:bamstar/scenes/community/community_home_page.dart';
+import 'package:bamstar/providers/user/role_providers.dart';
 import '../utils/toast_helper.dart';
 
 // Main widget (UI only; no navigation routes)
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> {
   int _selectedIndex = 0;
   
   @override
@@ -87,6 +89,30 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  String _getSettingsText() {
+    final roleId = ref.watch(currentUserRoleIdProvider);
+    switch (roleId) {
+      case 2: // STAR
+        return '프로필';
+      case 3: // PLACE
+        return '나의 플레이스';
+      default:
+        return '설정';
+    }
+  }
+
+  IconData _getSettingsIcon(bool isActive) {
+    final roleId = ref.watch(currentUserRoleIdProvider);
+    switch (roleId) {
+      case 2: // STAR
+        return isActive ? SolarIconsBold.user : SolarIconsOutline.user;
+      case 3: // PLACE
+        return isActive ? SolarIconsBold.shop : SolarIconsOutline.shop;
+      default:
+        return isActive ? SolarIconsBold.settings : SolarIconsOutline.settings;
+    }
+  }
+
   List<Widget> get _tabs => [
     HomeScreen(), // Place (Home)
     _SearchTab(),
@@ -141,9 +167,9 @@ class _MainScreenState extends State<MainScreen> {
               title: Text('채팅'),
             ),
             SalomonBottomBarItem(
-              icon: Icon(SolarIconsOutline.settings),
-              activeIcon: Icon(SolarIconsBold.settings),
-              title: Text('설정'),
+              icon: Icon(_getSettingsIcon(false)),
+              activeIcon: Icon(_getSettingsIcon(true)),
+              title: Text(_getSettingsText()),
             ),
           ],
         ),

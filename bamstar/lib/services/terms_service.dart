@@ -69,8 +69,6 @@ class UserTermAgreement {
     final bool isAgreed;
     final DateTime? agreedAt;
     final String versionAgreed;
-    final String? ipAddress;
-    final String? userAgent;
     final DateTime createdAt;
     final DateTime updatedAt;
     
@@ -81,8 +79,6 @@ class UserTermAgreement {
       required this.isAgreed,
       this.agreedAt,
       required this.versionAgreed,
-      this.ipAddress,
-      this.userAgent,
       required this.createdAt,
       required this.updatedAt,
     });
@@ -95,8 +91,6 @@ class UserTermAgreement {
         isAgreed: json['is_agreed'],
         agreedAt: json['agreed_at'] != null ? DateTime.parse(json['agreed_at']) : null,
         versionAgreed: json['version_agreed'],
-        ipAddress: json['ip_address'],
-        userAgent: json['user_agent'],
         createdAt: DateTime.parse(json['created_at']),
         updatedAt: DateTime.parse(json['updated_at']),
       );
@@ -184,8 +178,6 @@ class TermsService {
     required String termId,
     required bool isAgreed,
     required String version,
-    String? ipAddress,
-    String? userAgent,
   }) async {
     try {
       final now = DateTime.now();
@@ -196,8 +188,6 @@ class TermsService {
         'is_agreed': isAgreed,
         'agreed_at': isAgreed ? now.toIso8601String() : null,
         'version_agreed': version,
-        'ip_address': ipAddress,
-        'user_agent': userAgent,
         'updated_at': now.toIso8601String(),
       });
       
@@ -212,8 +202,6 @@ class TermsService {
     required String userId,
     required Map<String, bool> agreements, // termId -> isAgreed
     required String version,
-    String? ipAddress,
-    String? userAgent,
   }) async {
     try {
       final now = DateTime.now();
@@ -226,8 +214,6 @@ class TermsService {
           'is_agreed': entry.value,
           'agreed_at': entry.value ? now.toIso8601String() : null,
           'version_agreed': version,
-          'ip_address': ipAddress,
-          'user_agent': userAgent,
           'updated_at': now.toIso8601String(),
         });
       }

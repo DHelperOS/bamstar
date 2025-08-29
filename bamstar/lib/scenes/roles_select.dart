@@ -3,6 +3,7 @@
 // Material 3 적용: 사용됨, Used icons: solar_icons
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:animated_emoji/animated_emoji.dart';
@@ -10,25 +11,118 @@ import 'package:animated_emoji/animated_emoji.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/toast_helper.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/user/role_providers.dart';
 
 typedef RoleSelectCallback = void Function(String role);
 
-class RoleSelectPage extends StatefulWidget {
+class RoleSelectPage extends ConsumerStatefulWidget {
   const RoleSelectPage({super.key, this.onSelected});
 
   final RoleSelectCallback? onSelected;
 
   @override
-  State<RoleSelectPage> createState() => _RoleSelectPageState();
+  ConsumerState<RoleSelectPage> createState() => _RoleSelectPageState();
 }
 
-class _RoleSelectPageState extends State<RoleSelectPage>
+class _RoleSelectPageState extends ConsumerState<RoleSelectPage>
     with TickerProviderStateMixin {
   
   // Multi-controller setup for better animation coordination
   late final AnimationController _pageController;
   late final AnimationController _cardsController;
   late final AnimationController _headerController;
+  
+  bool _isLoading = true;
+  bool _accessDenied = false;
+  
+  Future<void> _checkAccess() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        setState(() {
+          _accessDenied = true;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Check user role
+      final response = await Supabase.instance.client
+          .from('users')
+          .select('role_id')
+          .eq('id', user.id)
+          .single();
+
+      final roleId = response['role_id'] as int?;
+
+      // Only GUEST (role_id == 1) can access this page
+      if (roleId != null && roleId != 1) {
+        // Role is set, but check if terms are agreed
+        try {
+          final mandatoryTerms = await Supabase.instance.client
+              .from('terms')
+              .select('id')
+              .eq('type', 'mandatory')
+              .eq('is_active', true);
+          
+          if (mandatoryTerms.isNotEmpty) {
+            // Check if user agreed to all mandatory terms
+            final agreedTerms = await Supabase.instance.client
+                .from('user_term_agreements')
+                .select('term_id')
+                .eq('user_id', user.id)
+                .eq('is_agreed', true);
+            
+            final mandatoryTermIds = mandatoryTerms.map((term) => term['id']).toSet();
+            final agreedTermIds = agreedTerms.map((agreement) => agreement['term_id']).toSet();
+            
+            final allMandatoryAgreed = mandatoryTermIds.every((termId) => agreedTermIds.contains(termId));
+            
+            if (!allMandatoryAgreed) {
+              // Role is set but terms not agreed, go to terms
+              setState(() {
+                _isLoading = false;
+              });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.go('/terms');
+                }
+              });
+              return;
+            }
+          }
+        } catch (e) {
+          debugPrint('[DEBUG] Error checking terms: $e');
+        }
+        
+        // Role is set and terms are agreed (or no mandatory terms), go to home silently
+        setState(() {
+          _isLoading = false;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.go('/home');
+          }
+        });
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _accessDenied = true;
+        _isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ToastHelper.error(context, '접근 권한을 확인할 수 없습니다.');
+          context.go('/login');
+        }
+      });
+    }
+  }
   
   // Page-level animations
   late final Animation<double> _pageOpacity;
@@ -56,6 +150,7 @@ class _RoleSelectPageState extends State<RoleSelectPage>
   @override
   void initState() {
     super.initState();
+    _checkAccess();
     _initAnimations();
     _startEntranceAnimation();
   }
@@ -175,7 +270,13 @@ class _RoleSelectPageState extends State<RoleSelectPage>
 
     return Scaffold(
       backgroundColor: bg,
-      body: AnimatedBuilder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _accessDenied
+              ? const Center(
+                  child: Text('접근 권한이 없습니다.'),
+                )
+              : AnimatedBuilder(
         animation: Listenable.merge([_pageController, _headerController, _cardsController]),
         builder: (context, child) {
           return Opacity(
@@ -724,6 +825,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
           .update({'role_id': roleId})
           .eq('id', user.id);
 
+      // Invalidate role provider to refresh navigation bar
+      ref.invalidate(currentUserRoleProvider);
+
       if (!mounted) return;
 
       setState(() {
@@ -736,6 +840,9 @@ class _RoleSelectPageState extends State<RoleSelectPage>
 
       await Future.delayed(const Duration(milliseconds: 700));
       if (!mounted) return;
+      
+      // Always go to terms page first (safer approach)
+      // User can skip if they've already agreed in terms page itself
       context.go('/terms');
     } catch (e) {
       if (!mounted) return;

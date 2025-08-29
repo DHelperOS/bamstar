@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/notification_service.dart';
 import '../services/terms_service.dart';
 import '../utils/toast_helper.dart';
@@ -45,16 +46,15 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       final mandatoryTerms = await TermsService.getMandatoryTerms();
       final optionalTerms = await TermsService.getOptionalTerms();
       
+      // Check if user already agreed to terms
+      await _checkExistingAgreements(mandatoryTerms, optionalTerms);
+      
       setState(() {
         _mandatoryTerms = mandatoryTerms;
         _optionalTerms = optionalTerms;
         _isLoading = false;
         
-        // Initialize agreement states
-        for (final term in [...mandatoryTerms, ...optionalTerms]) {
-          _termsAgreements[term.id] = false;
-        }
-        
+        // Agreement states already set in _checkExistingAgreements
         _updateAllAgreed();
       });
     } catch (e) {
@@ -136,6 +136,85 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
       _mandatoryTerms.isNotEmpty &&
       _mandatoryTerms.every((term) => _termsAgreements[term.id] == true);
 
+  /// Check existing user agreements and redirect if already agreed
+  Future<void> _checkExistingAgreements(List<Term> mandatoryTerms, List<Term> optionalTerms) async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        // Initialize as false if no user
+        for (final term in [...mandatoryTerms, ...optionalTerms]) {
+          _termsAgreements[term.id] = false;
+        }
+        return;
+      }
+
+      // Get user's existing agreements
+      final userAgreements = await TermsService.getUserAgreements(user.id);
+      final agreedTermIds = userAgreements
+          .where((agreement) => agreement.isAgreed)
+          .map((agreement) => agreement.termId)
+          .toSet();
+
+      // Initialize agreement states
+      for (final term in [...mandatoryTerms, ...optionalTerms]) {
+        _termsAgreements[term.id] = agreedTermIds.contains(term.id);
+      }
+
+      // Check if all mandatory terms are already agreed
+      final allMandatoryAgreed = mandatoryTerms.every((term) => _termsAgreements[term.id] == true);
+      
+      if (allMandatoryAgreed && mandatoryTerms.isNotEmpty) {
+        // User already agreed to all mandatory terms, skip to home
+        debugPrint('[DEBUG] User already agreed to all mandatory terms, going to home');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.go('/home');
+          }
+        });
+        return;
+      }
+    } catch (e) {
+      debugPrint('[DEBUG] Error checking existing agreements: $e');
+      // Initialize as false on error
+      for (final term in [...mandatoryTerms, ...optionalTerms]) {
+        _termsAgreements[term.id] = false;
+      }
+    }
+  }
+
+  /// Save user term agreements to database
+  Future<void> _saveUserAgreements() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('사용자 정보를 찾을 수 없습니다');
+      }
+
+      // Get current version for all terms
+      final allTerms = [..._mandatoryTerms, ..._optionalTerms];
+      
+      // Only save agreements that are true
+      final agreementsToSave = <String, bool>{};
+      for (final term in allTerms) {
+        final isAgreed = _termsAgreements[term.id] ?? false;
+        if (isAgreed) {
+          agreementsToSave[term.id] = true;
+        }
+      }
+
+      if (agreementsToSave.isNotEmpty) {
+        await TermsService.saveMultipleAgreements(
+          userId: user.id,
+          agreements: agreementsToSave,
+          version: '1.0', // You might want to get actual version from terms
+          // IP 주소와 User-Agent는 개인정보보호를 위해 수집하지 않음
+        );
+      }
+    } catch (e) {
+      throw Exception('약관 동의 저장에 실패했습니다: $e');
+    }
+  }
+
   /// Handle agreement completion and notification setup
   Future<void> _handleAgreementAndProceed() async {
     bool isDialogOpen = false;
@@ -171,8 +250,8 @@ class _TermsPageState extends State<TermsPage> with TickerProviderStateMixin {
         isDialogOpen = false;
       }
 
-      // Save agreement states to shared preferences or other storage if needed
-      // TODO: Implement agreement state persistence
+      // Save agreement states to user_term_agreements table
+      await _saveUserAgreements();
 
       // Navigate to home
       if (mounted) {

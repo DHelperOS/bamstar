@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_providers.dart';
-import '../auth/auth_providers.dart';
 
 /// 역할 모델 (public.roles 테이블과 매핑)
 class Role {

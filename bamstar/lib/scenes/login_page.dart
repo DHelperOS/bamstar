@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import '../providers/auth/auth_providers.dart';
+import '../providers/user/role_providers.dart';
 import 'package:delightful_toast/delight_toast.dart';
 import 'package:solar_icons/solar_icons.dart';
 // auth_fields removed from this screen
@@ -68,6 +70,71 @@ class _LoginPageState extends ConsumerState<LoginPage>
     SystemChannels.textInput.invokeMethod('TextInput.hide');
   }
 
+  /// Navigate after login based on role and terms agreement status
+  Future<void> _navigateAfterLogin() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        context.go('/login');
+        return;
+      }
+
+      // Check user role - invalidate provider first to get fresh data
+      ref.invalidate(currentUserRoleProvider);
+      
+      final userResponse = await Supabase.instance.client
+          .from('users')
+          .select('role_id')
+          .eq('id', user.id)
+          .single();
+
+      final roleId = userResponse['role_id'] as int?;
+
+      // If GUEST (role_id == 1), go to roles selection
+      if (roleId == null || roleId == 1) {
+        context.go('/roles');
+        return;
+      }
+
+      // Role is set, check mandatory terms agreement
+      final mandatoryTerms = await Supabase.instance.client
+          .from('terms')
+          .select('id')
+          .eq('type', 'mandatory')
+          .eq('is_active', true);
+
+      if (mandatoryTerms.isEmpty) {
+        // No mandatory terms, go to home
+        context.go('/home');
+        return;
+      }
+
+      // Check if user agreed to all mandatory terms
+      final agreedTerms = await Supabase.instance.client
+          .from('user_term_agreements')
+          .select('term_id')
+          .eq('user_id', user.id)
+          .eq('is_agreed', true);
+
+      final mandatoryTermIds = mandatoryTerms.map((term) => term['id']).toSet();
+      final agreedTermIds = agreedTerms.map((agreement) => agreement['term_id']).toSet();
+
+      final allMandatoryAgreed = mandatoryTermIds.every((termId) => agreedTermIds.contains(termId));
+
+      if (allMandatoryAgreed) {
+        // All mandatory terms agreed, go to home
+        context.go('/home');
+      } else {
+        // Terms not agreed, go to terms page
+        context.go('/terms');
+      }
+    } catch (e) {
+      debugPrint('[DEBUG] Error in _navigateAfterLogin: $e');
+      // Default to roles page on error
+      context.go('/roles');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +162,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           }
         },
         data: (authState) {
-          // If we transitioned from no-session -> session, navigate to roles selection
+          // If we transitioned from no-session -> session, navigate based on role and terms
           final prevSession = previous?.maybeWhen(
             data: (v) => v.session,
             orElse: () => null,
@@ -103,7 +170,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
           if (authState.session != null && prevSession == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              context.go('/roles');
+              _navigateAfterLogin();
             });
           }
         },

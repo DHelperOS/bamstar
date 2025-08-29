@@ -16,13 +16,16 @@ class RegionPreferenceService {
         return false;
       }
 
-      // Start transaction by first deleting existing preferences
+      // REPLACE pattern: Delete all existing preferences, then insert new ones
+      // This ensures complete replacement of user's region preferences
+      
+      // Step 1: Always delete existing preferences for this user
       await client
           .from('member_preferred_area_groups')
           .delete()
           .eq('member_user_id', userId);
 
-      // Insert new preferences with priority order if any selected
+      // Step 2: Insert new preferences if any selected
       if (areaGroupIds.isNotEmpty) {
         final insertData = areaGroupIds.asMap().entries.map((entry) => {
           'member_user_id': userId,
