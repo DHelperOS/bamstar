@@ -71,7 +71,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     try {
       // Use role provider to check adult verification status
       final isAdult = ref.read(currentUserIsAdultProvider);
-      
+
       if (!mounted) return;
       setState(() {
         _isAdultVerified = isAdult;
@@ -153,10 +153,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                     // Profile section
                     _buildProfileHeader(context),
                     // Divider line (subtle)
-                    Container(
-                      height: 1,
-                      color: Colors.white.withOpacity(0.5),
-                    ),
+                    Container(height: 1, color: Colors.white.withOpacity(0.5)),
                     // Tab bar section
                     _buildTabBar(context),
                   ],
@@ -195,7 +192,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.08),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                       spreadRadius: 2,
@@ -208,7 +207,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                     shape: BoxShape.circle,
                     color: Colors.white,
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.1),
                       width: 1,
                     ),
                   ),
@@ -253,7 +254,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             ],
           ),
           const SizedBox(width: 16),
-          
+
           // Profile Info
           Expanded(
             child: Column(
@@ -275,11 +276,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            _getRoleIcon(),
-                            size: 12,
-                            color: Colors.white,
-                          ),
+                          Icon(_getRoleIcon(), size: 12, color: Colors.white),
                           const SizedBox(width: 4),
                           Text(
                             _getRoleName(),
@@ -301,14 +298,22 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: _isAdultVerified 
-                            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                            : Theme.of(context).colorScheme.error.withOpacity(0.1),
+                        color: _isAdultVerified
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.1)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.error.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: _isAdultVerified
-                              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                              : Theme.of(context).colorScheme.error.withOpacity(0.2),
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.2)
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.error.withOpacity(0.2),
                           width: 1,
                         ),
                       ),
@@ -316,7 +321,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            _isAdultVerified 
+                            _isAdultVerified
                                 ? SolarIconsBold.checkCircle
                                 : SolarIconsBold.closeCircle,
                             size: 12,
@@ -389,7 +394,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               ],
             ),
           ),
-          
+
           // Edit button with better integration
           Container(
             margin: const EdgeInsets.only(left: 8),
@@ -398,7 +403,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withOpacity(0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -451,56 +458,17 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         ),
         labelColor: Theme.of(context).colorScheme.primary,
         unselectedLabelColor: const Color(0xFF919EAB),
-        labelStyle: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
         dividerColor: Colors.transparent,
-        tabs: [
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.user, size: 16),
-                SizedBox(width: 4),
-                Text('프로필'),
-              ],
-            ),
-          ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.documentText, size: 16),
-                SizedBox(width: 4),
-                Text('지원'),
-              ],
-            ),
-          ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.penNewSquare, size: 16),
-                SizedBox(width: 4),
-                Text('내글'),
-              ],
-            ),
-          ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(SolarIconsBold.userBlock, size: 16),
-                SizedBox(width: 4),
-                Text('차단'),
-              ],
-            ),
-          ),
+        tabs: const [
+          Tab(text: '플레이스'),
+          Tab(text: '지원'),
+          Tab(text: '내글'),
+          Tab(text: '차단'),
         ],
       ),
     );
@@ -513,7 +481,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('플레이스 정보', style: AppTextStyles.sectionTitle(context)),
+          Text('플레이스', style: AppTextStyles.sectionTitle(context)),
           const SizedBox(height: 16),
 
           // 플레이스 정보 카드
@@ -555,7 +523,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
           const SizedBox(height: 12),
 
           // 성인 인증 카드
-
         ],
       ),
     );
@@ -838,15 +805,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     );
   }
 
-
-
-
-
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
   }
-
-
 
   Future<void> _handleLogout(BuildContext context) async {
     // Show confirmation dialog
