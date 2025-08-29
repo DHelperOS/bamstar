@@ -5,18 +5,16 @@
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
-        <!-- Add support for all local network ranges -->
-        <domain includeSubdomains="true">192.168.0.0/16</domain>
-        <domain includeSubdomains="true">172.16.0.0/12</domain>
-        <domain includeSubdomains="true">10.0.0.0/8</domain>
     </domain-config>
     
-    <!-- Allow cleartext for kpostal package assets -->
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">kpostal</domain>
+    <!-- Allow HTTPS traffic for Daum Postcode CDN -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">t1.daumcdn.net</domain>
+        <domain includeSubdomains="true">postcode.map.daum.net</domain>
+        <domain includeSubdomains="true">ssl.daumcdn.net</domain>
     </domain-config>
     
-    <!-- Base configuration for production - still allows local cleartext -->
+    <!-- Base configuration for production -->
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>
             <certificates src="system" />
@@ -24,7 +22,7 @@
         </trust-anchors>
     </base-config>
     
-    <!-- Debug override - allows all cleartext in debug builds -->
+    <!-- Debug override - allows cleartext in debug builds for testing -->
     <debug-overrides>
         <base-config cleartextTrafficPermitted="true">
             <trust-anchors>

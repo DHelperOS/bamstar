@@ -149,8 +149,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => KpostalView(
-            useLocalServer: true,
-            localPort: 8080, // Use default port for better compatibility
+            useLocalServer: false, // Use CDN for Daum Postcode API
             callback: (Kpostal result) {
               if (mounted) {
                 setState(() {
