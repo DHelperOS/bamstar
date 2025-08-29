@@ -490,7 +490,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                 children: const [
                   Icon(SolarIconsBold.documentText, size: 16),
                   SizedBox(width: 6),
-                  Text('지원목록'),
+                  Text('지원관리'),
                 ],
               ),
             ),
