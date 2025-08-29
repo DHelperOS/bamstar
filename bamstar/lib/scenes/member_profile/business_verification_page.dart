@@ -711,88 +711,130 @@ class _Step2FormWidget extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Success header
+          // Success header with beautiful design
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  const Color(0xFF4CAF50).withValues(alpha: 0.05),
+                ],
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    size: 16,
-                  ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '사업자 정보 조회 완료',
-                        style: AppTextStyles.cardTitle(context),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4CAF50),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '국세청 데이터베이스에서 확인되었습니다',
-                        style: AppTextStyles.captionText(context).copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      child: Icon(
+                        Icons.verified_rounded,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 20,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '국세청 인증 완료',
+                            style: AppTextStyles.cardTitle(context).copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2E7D32),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '사업자 정보가 국세청 데이터베이스에서 확인되었습니다',
+                            style: AppTextStyles.captionText(context).copyWith(
+                              color: const Color(0xFF388E3C),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
-          // Business information
+          // Business information with enhanced design
           Text(
-            '사업자 정보',
-            style: AppTextStyles.sectionTitle(context),
+            '조회된 사업자 정보',
+            style: AppTextStyles.sectionTitle(context).copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               children: [
-                _buildInfoRow(context, '사업자등록번호', result.bNo),
-                _buildInfoRow(context, '상호명', result.requestParam.bNm ?? '-'),
-                _buildInfoRow(context, '대표자명', result.requestParam.pNm),
-                _buildInfoRow(context, '개업일자', result.requestParam.startDt),
-                _buildInfoRow(context, '사업장소재지', result.requestParam.bAdr ?? '-'),
-                _buildInfoRow(context, '업태', result.requestParam.bSector ?? '-'),
-                _buildInfoRow(context, '종목', result.requestParam.bType ?? '-'),
+                _buildInfoRow(context, '사업자등록번호', result.bNo, icon: Icons.business_rounded),
+                if (result.requestParam.bNm?.isNotEmpty == true)
+                  _buildInfoRow(context, '상호명', result.requestParam.bNm!, icon: Icons.store_rounded),
+                _buildInfoRow(context, '대표자명', result.requestParam.pNm, icon: Icons.person_rounded),
+                _buildInfoRow(context, '개업일자', _formatDate(result.requestParam.startDt), icon: Icons.calendar_today_rounded),
+                if (result.requestParam.bAdr?.isNotEmpty == true)
+                  _buildInfoRow(context, '사업장소재지', result.requestParam.bAdr!, icon: Icons.location_on_rounded),
+                if (result.requestParam.bSector?.isNotEmpty == true)
+                  _buildInfoRow(context, '업태', result.requestParam.bSector!, icon: Icons.work_rounded),
+                if (result.requestParam.bType?.isNotEmpty == true)
+                  _buildInfoRow(context, '종목', result.requestParam.bType!, icon: Icons.category_rounded),
                 if (result.status != null) ...[
-                  _buildInfoRow(context, '과세유형', result.status!.taxType),
-                  _buildInfoRow(context, '납세자상태', result.status!.bStt),
-                  _buildInfoRow(context, '납세자상태변경일자', result.status!.bSttCd, isLast: true),
+                  _buildInfoRow(context, '과세유형', result.status!.taxType, icon: Icons.account_balance_rounded),
+                  _buildInfoRow(context, '납세자상태', result.status!.bStt, icon: Icons.check_circle_rounded),
+                  _buildInfoRow(context, '상태변경일자', _formatDate(result.status!.bSttCd), icon: Icons.update_rounded, isLast: true),
                 ] else
-                  _buildInfoRow(context, '상태', '정상', isLast: true),
+                  _buildInfoRow(context, '상태', '정상', icon: Icons.check_circle_rounded, isLast: true),
               ],
             ),
           ),
@@ -803,39 +845,72 @@ class _Step2FormWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value, {bool isLast = false}) {
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 100,
-              child: Text(
-                label,
-                style: AppTextStyles.captionText(context).copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.length != 8) return dateStr ?? '-';
+    
+    try {
+      final year = dateStr.substring(0, 4);
+      final month = dateStr.substring(4, 6);
+      final day = dateStr.substring(6, 8);
+      return '$year년 $month월 $day일';
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  Widget _buildInfoRow(BuildContext context, String label, String value, {IconData? icon, bool isLast = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        border: isLast ? null : Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (icon != null) ...[
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 16,
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                value,
-                style: AppTextStyles.primaryText(context),
+          ],
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: AppTextStyles.formLabel(context).copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 13,
               ),
             ),
-          ],
-        ),
-        if (!isLast) ...[
-          const SizedBox(height: 12),
-          Divider(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            height: 1,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: AppTextStyles.primaryText(context).copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
-      ],
+      ),
     );
   }
 }
