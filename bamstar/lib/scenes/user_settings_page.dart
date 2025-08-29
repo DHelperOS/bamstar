@@ -327,7 +327,7 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: _getRoleColor(context),
+                        color: _getRoleColor(context, ref),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -858,7 +858,7 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
     }
   }
 
-  Color _getRoleColor(BuildContext context) {
+  Color _getRoleColor(BuildContext context, WidgetRef ref) {
     final roleId = ref.watch(currentUserRoleIdProvider);
     switch (roleId) {
       case 1:
