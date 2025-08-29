@@ -96,6 +96,7 @@ class BusinessVerificationState {
   final bool isLoading;
   final String? error;
   final bool isSuccess;
+  final Map<String, String>? extractedData; // Gemini에서 추출한 데이터
 
   const BusinessVerificationState({
     this.input,
@@ -103,6 +104,7 @@ class BusinessVerificationState {
     this.isLoading = false,
     this.error,
     this.isSuccess = false,
+    this.extractedData,
   });
 
   BusinessVerificationState copyWith({
@@ -111,6 +113,7 @@ class BusinessVerificationState {
     bool? isLoading,
     String? error,
     bool? isSuccess,
+    Map<String, String>? extractedData,
   }) {
     return BusinessVerificationState(
       input: input ?? this.input,
@@ -118,6 +121,7 @@ class BusinessVerificationState {
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       isSuccess: isSuccess ?? this.isSuccess,
+      extractedData: extractedData ?? this.extractedData,
     );
   }
 
@@ -241,6 +245,11 @@ class BusinessVerificationNotifier extends StateNotifier<BusinessVerificationSta
   /// 성공한 입력값 가져오기 (캐싱용)
   BusinessVerificationInput? get successfulInput {
     return state.isSuccess ? state.input : null;
+  }
+
+  /// Gemini에서 추출한 데이터 저장
+  void setExtractedData(Map<String, String> extractedData) {
+    state = state.copyWith(extractedData: extractedData);
   }
 }
 

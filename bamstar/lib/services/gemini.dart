@@ -68,6 +68,113 @@ class GeminiService {
       rethrow;
     }
   }
+  
+  /// Extract structured business data from text
+  Future<Map<String, String>> extractBusinessDataFromText(String extractedText) async {
+    _ensureInit();
+    final client = _client;
+    if (client == null) {
+      throw Exception('Gemini API not initialized');
+    }
+
+    final prompt = '''
+다음 텍스트에서 사업자 정보를 추출해서 JSON 형식으로 반환해주세요.
+추출할 항목: businessNumber, representativeName, openingDate, businessName, corporateNumber, mainBusinessType, subBusinessType, businessAddress
+
+텍스트:
+$extractedText
+
+JSON 형식으로만 응답해주세요:
+{
+  "businessNumber": "123-45-67890",
+  "representativeName": "홍길동",
+  "openingDate": "20240101",
+  "businessName": "회사명",
+  "corporateNumber": "법인번호",
+  "mainBusinessType": "업태",
+  "subBusinessType": "종목",
+  "businessAddress": "주소"
+}
+    ''';
+
+    try {
+      final res = await client.prompt(parts: [gem.Part.text(prompt)]);
+      
+      String resultText = '';
+      try {
+        final dynamic any = res;
+        final candidates = (any as dynamic).candidates;
+        if (candidates is List && candidates.isNotEmpty) {
+          final first = candidates.first;
+          final content = (first as dynamic)?.content;
+          final parts = (content as dynamic)?.parts;
+          if (parts is List && parts.isNotEmpty) {
+            final t = (parts.first as dynamic)?.text;
+            if (t is String) resultText = t;
+          }
+        }
+      } catch (_) {
+        resultText = res?.output ?? '{}';
+      }
+      
+      // Parse JSON response
+      try {
+        // Extract JSON from response (sometimes wrapped in markdown code blocks)
+        final jsonMatch = RegExp(r'\{[^}]*\}').firstMatch(resultText);
+        final jsonStr = jsonMatch?.group(0) ?? resultText;
+        
+        final Map<String, dynamic> parsed = Map<String, dynamic>.from(
+          (jsonStr.contains('{') && jsonStr.contains('}')) 
+            ? Map<String, dynamic>.from({
+                'businessNumber': '',
+                'representativeName': '',
+                'openingDate': '',
+                'businessName': '',
+                'corporateNumber': '',
+                'mainBusinessType': '',
+                'subBusinessType': '',
+                'businessAddress': '',
+              })
+            : {}
+        );
+        
+        // Try to parse the actual JSON
+        try {
+          final actualData = Map<String, dynamic>.from(
+            RegExp(r'"(\w+)"\s*:\s*"([^"]*)"')
+                .allMatches(resultText)
+                .fold<Map<String, String>>({}, (map, match) {
+              map[match.group(1)!] = match.group(2)!;
+              return map;
+            })
+          );
+          
+          if (actualData.isNotEmpty) {
+            parsed.addAll(actualData);
+          }
+        } catch (_) {}
+        
+        return Map<String, String>.from(
+          parsed.map((key, value) => MapEntry(key, value?.toString() ?? ''))
+        );
+      } catch (_) {
+        // Return empty map if parsing fails
+        return {
+          'businessNumber': '',
+          'representativeName': '',
+          'openingDate': '',
+          'businessName': '',
+          'corporateNumber': '',
+          'mainBusinessType': '',
+          'subBusinessType': '',
+          'businessAddress': '',
+        };
+      }
+    } catch (e) {
+      Logger('GeminiService').severe('Failed to extract business data: $e');
+      return {};
+    }
+  }
 
   /// Compare business registration data and calculate match percentage
   Future<double> compareBusinessData({
@@ -82,6 +189,8 @@ class GeminiService {
 
     final prompt = '''
 다음 두 개의 사업자 정보를 비교해서 일치율을 계산해주세요.
+사업자등록번호, 대표자명, 개업일자 3개 항목만 비교합니다.
+각 항목이 완전히 일치하면 33.33점씩 부여합니다.
 
 API에서 받은 정보:
 $apiData
@@ -89,8 +198,13 @@ $apiData
 이미지에서 추출한 정보:
 $extractedText
 
-두 정보의 일치율을 0-100 사이의 숫자로만 응답해주세요. 
-예시: 85
+세 항목의 일치율을 0-100 사이의 숫자로만 응답해주세요.
+- 3개 모두 일치: 100
+- 2개 일치: 67
+- 1개 일치: 33
+- 모두 불일치: 0
+
+숫자만 응답: 
     ''';
 
     try {

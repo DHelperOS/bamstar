@@ -1139,21 +1139,29 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
 
   Future<double> _compareWithGemini(String extractedText, BusinessVerificationState businessData) async {
     try {
-      // Prepare API data string
+      // Extract structured data from text
+      final extractedDataMap = await _geminiService.extractBusinessDataFromText(extractedText);
+      
+      // Save extracted data to provider
+      ref.read(businessVerificationProvider.notifier).setExtractedData(extractedDataMap);
+      
+      // Prepare API data string - only 3 fields for comparison
       final apiData = '''
 사업자등록번호: ${businessData.input?.businessNumber ?? ''}
 대표자명: ${businessData.input?.representativeName ?? ''}
 개업일자: ${businessData.input?.openingDate ?? ''}
-상호명: ${businessData.input?.businessName ?? ''}
-법인등록번호: ${businessData.input?.corporateNumber ?? ''}
-업태: ${businessData.input?.mainBusinessType ?? ''}
-종목: ${businessData.input?.subBusinessType ?? ''}
-사업장소재지: ${businessData.input?.businessAddress ?? ''}
+      ''';
+      
+      // Prepare extracted data for comparison - only 3 fields
+      final extractedDataForComparison = '''
+사업자등록번호: ${extractedDataMap['businessNumber'] ?? ''}
+대표자명: ${extractedDataMap['representativeName'] ?? ''}
+개업일자: ${extractedDataMap['openingDate'] ?? ''}
       ''';
 
       return await _geminiService.compareBusinessData(
         apiData: apiData,
-        extractedText: extractedText,
+        extractedText: extractedDataForComparison,
       );
     } catch (e) {
       log('Error comparing with Gemini: $e');
