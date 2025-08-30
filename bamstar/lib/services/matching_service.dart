@@ -113,7 +113,7 @@ class MatchingService {
           profileData['latitude'],
           profileData['longitude'],
         ),
-        payInfo: '희망시급 ${_formatCurrency(profileData['desired_pay_amount'] ?? 0)}원',
+        payInfo: '${_formatPayType(profileData['desired_pay_type'])} ${_formatCurrency(profileData['desired_pay_amount'] ?? 0)}원',
         schedule: _formatMemberSchedule(profileData['desired_working_days']),
         tags: _generateMemberTagsFromProfile(profileData, profile),
         type: ProfileType.member,
@@ -265,8 +265,15 @@ class MatchingService {
   static List<String> _generateMemberTagsFromProfile(Map<String, dynamic> profileData, Map<String, dynamic> profile) {
     List<String> tags = [];
     
+    // DEBUG: 받은 데이터 확인
+    print('🏷️ [TAG DEBUG] profileData keys: ${profileData.keys.toList()}');
+    print('🏷️ [TAG DEBUG] profile keys: ${profile.keys.toList()}');
+    print('🏷️ [TAG DEBUG] member_attributes: ${profile['member_attributes']}');
+    print('🏷️ [TAG DEBUG] member_preferences: ${profile['member_preferences']}');
+    
     // 1. member_attributes_link에서 가져온 개인 특성/스타일 태그
     final memberAttributes = profile['member_attributes'] as List<dynamic>? ?? [];
+    print('🏷️ [TAG DEBUG] Found ${memberAttributes.length} member_attributes');
     for (final attr in memberAttributes.take(4)) { // 최대 4개 개인 특성
       if (attr['attributes'] != null) {
         final attributeData = attr['attributes'] as Map<String, dynamic>;
@@ -275,6 +282,7 @@ class MatchingService {
         
         // 개인 특성/스타일 관련 태그만 추가
         if (name != null && (type == 'MEMBER_STYLE' || type == 'JOB_ROLE')) {
+          print('🏷️ [TAG DEBUG] Adding attribute tag: $name ($type)');
           tags.add(name);
         }
       }
@@ -282,6 +290,7 @@ class MatchingService {
     
     // 2. member_preferences_link에서 가져온 선호 태그  
     final memberPreferences = profile['member_preferences'] as List<dynamic>? ?? [];
+    print('🏷️ [TAG DEBUG] Found ${memberPreferences.length} member_preferences');
     for (final pref in memberPreferences.take(3)) { // 최대 3개 선호 태그
       if (pref['attributes'] != null) {
         final attributeData = pref['attributes'] as Map<String, dynamic>;
@@ -290,6 +299,7 @@ class MatchingService {
         
         // 선호도 관련 태그만 추가
         if (name != null && (type == 'PLACE_FEATURE' || type == 'WELFARE')) {
+          print('🏷️ [TAG DEBUG] Adding preference tag: $name ($type)');
           tags.add(name);
         }
       }
@@ -297,12 +307,80 @@ class MatchingService {
     
     // 3. 업종 태그 (기존 로직 유지) - 최대 2개
     final industries = profile['member_industries'] as List<dynamic>? ?? [];
+    print('🏷️ [TAG DEBUG] Found ${industries.length} member_industries');
     for (final industry in industries.take(2)) {
       if (industry['attributes'] != null && 
           industry['attributes']['type'] == 'INDUSTRY') {
-        tags.add(industry['attributes']['name'] as String);
+        final industryName = industry['attributes']['name'] as String;
+        print('🏷️ [TAG DEBUG] Adding industry tag: $industryName');
+        tags.add(industryName);
       }
     }
+    
+    // 4. 데이터가 없을 때 기본 정보로 태그 생성
+    if (tags.isEmpty) {
+      final memberProfile = profileData['member_profile'] as Map<String, dynamic>? ?? {};
+      
+      // 나이 정보
+      final age = memberProfile['age'];
+      if (age != null) {
+        if (age >= 20 && age < 30) {
+          tags.add('20대');
+        } else if (age >= 30 && age < 40) {
+          tags.add('30대');
+        } else if (age >= 40) {
+          tags.add('40대+');
+        }
+      }
+      
+      // 경력 레벨 정보
+      final experienceLevel = memberProfile['experience_level'] as String?;
+      if (experienceLevel != null) {
+        switch (experienceLevel) {
+          case 'NEWCOMER':
+          case 'NEWBIE':
+            tags.add('신입');
+            break;
+          case 'JUNIOR':
+            tags.add('초급');
+            break;
+          case 'INTERMEDIATE':
+            tags.add('중급');
+            break;
+          case 'SENIOR':
+            tags.add('고급');
+            break;
+          case 'EXPERT':
+            tags.add('전문가');
+            break;
+        }
+      }
+      
+      // 성별 정보
+      final gender = memberProfile['gender'] as String?;
+      if (gender == 'MALE') {
+        tags.add('남성');
+      } else if (gender == 'FEMALE') {
+        tags.add('여성');
+      }
+      
+      // 태그가 없으면 프로필 없음으로 표시
+      if (tags.isEmpty) {
+        tags.add('프로필 없음');
+      }
+    }
+    
+    // fallback 태그도 제거 - 실제 데이터가 있을 때만 태그 표시
+    // if (tags.length < 3) {
+    //   final fallbackTags = ['바텐더', '서빙스탭', '긍정적', '팀워크', '책임감있는', '소통잘하는'];
+    //   for (final fallback in fallbackTags) {
+    //     if (!tags.contains(fallback) && tags.length < 8) {
+    //       tags.add(fallback);
+    //     }
+    //   }
+    // }
+    
+    print('🏷️ [TAG DEBUG] Final generated tags: $tags');
     
     // 태그가 너무 많으면 최대 8개로 제한
     return tags.take(8).toList();
@@ -489,7 +567,7 @@ class MatchingService {
         matchScore: _calculateMockScore(),
         location: '서울', // TODO: 실제 위치 정보
         distance: _calculateMockDistance(),
-        payInfo: '희망시급 ${_formatCurrency(data['desired_pay_amount'] ?? 0)}원',
+        payInfo: '${_formatPayType(data['desired_pay_type'])} ${_formatCurrency(data['desired_pay_amount'] ?? 0)}원',
         schedule: _formatMemberSchedule(data['desired_working_days']),
         tags: _generateMemberTagsSync(data),
         type: ProfileType.member,
@@ -566,6 +644,20 @@ class MatchingService {
       case 'EXPERT': return '전문가';
       case 'NEWBIE': return '신입';
       default: return '경력 미상';
+    }
+  }
+
+  /// Convert desired_pay_type to Korean
+  static String _formatPayType(String? payType) {
+    switch (payType) {
+      case 'HOURLY': return '희망시급';
+      case 'DAILY': return '희망일급';
+      case 'WEEKLY': return '희망주급';
+      case 'MONTHLY': return '희망월급';
+      case 'ANNUAL': return '희망연봉';
+      case 'TC': return '희망시급'; // TC (Time Contract)
+      case 'DC': return '희망일급'; // DC (Daily Contract)
+      default: return '희망시급'; // 기본값
     }
   }
 
