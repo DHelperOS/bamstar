@@ -1014,24 +1014,31 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
       
       debugPrint('DEBUG: Supabase signOut completed successfully');
 
-      if (!context.mounted) return;
-
       debugPrint('DEBUG: About to navigate to LoginPage, context.mounted: ${context.mounted}');
       
-      if (context.mounted) {
-        debugPrint('DEBUG: Executing navigation to LoginPage...');
+      // Small delay to ensure auth state change is processed
+      await Future.delayed(const Duration(milliseconds: 100));
+      
+      debugPrint('DEBUG: Executing navigation to LoginPage...');
+      try {
         await Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const LoginPage()),
           (route) => false,
         );
         debugPrint('DEBUG: Navigation to LoginPage completed');
         
+        
         // Show success message after navigation
         if (context.mounted) {
           ToastHelper.success(context, '로그아웃되었습니다');
         }
-      } else {
-        debugPrint('DEBUG: Context not mounted, skipping navigation');
+      } catch (navigationError) {
+        debugPrint('DEBUG: Navigation error: $navigationError');
+        // Force navigation using root navigator if normal navigation fails
+        Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
+        );
       }
     } catch (error) {
       debugPrint('Logout error: $error');
