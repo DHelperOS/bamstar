@@ -55,59 +55,18 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
       );
       
       setState(() {
-        if (profiles.isNotEmpty) {
-          _profiles.clear();
-          _profiles.addAll(profiles);
-        } else {
-          _profiles.addAll(_generateMockProfiles());
-        }
+        _profiles.clear();
+        _profiles.addAll(profiles);
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _profiles.addAll(_generateMockProfiles());
         _isLoading = false;
       });
       
       if (mounted) {
         ToastHelper.error(context, '데이터 로딩 중 오류가 발생했습니다');
       }
-    }
-  }
-
-  List<MatchProfile> _generateMockProfiles() {
-    if (widget.isMemberView) {
-      return [
-        MatchProfile(
-          id: '1',
-          name: '카페 델라루나',
-          subtitle: '강남점',
-          imageUrl: null,
-          matchScore: 92,
-          location: '강남구 역삼동',
-          distance: 2.3,
-          payInfo: '시급 13,000-15,000원',
-          schedule: '평일/주말 협의가능',
-          tags: ['라떼아트교육', '식사제공', '교통비지원', '친절한사장님'],
-          type: ProfileType.place,
-        ),
-      ];
-    } else {
-      return [
-        MatchProfile(
-          id: '1',
-          name: '김민수',
-          subtitle: '바리스타 3년차',
-          imageUrl: null,
-          matchScore: 94,
-          location: '강남구 거주',
-          distance: 2.0,
-          payInfo: '희망시급 15,000원',
-          schedule: '평일 오전 가능',
-          tags: ['라떼아트', '로스팅자격증', '친절', '성실'],
-          type: ProfileType.member,
-        ),
-      ];
     }
   }
 
