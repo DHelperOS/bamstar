@@ -25,7 +25,7 @@ class MatchingPage extends ConsumerStatefulWidget {
 class _MatchingPageState extends ConsumerState<MatchingPage> 
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _currentIndex = 0;
+
   
   // Track unread counts for badges
   int _unreadHearts = 3; // Example: 3 new likes received
@@ -48,7 +48,7 @@ class _MatchingPageState extends ConsumerState<MatchingPage>
 
   void _handleTabSelection() {
     setState(() {
-      _currentIndex = _tabController.index;
+      // Update state when tab changes
     });
   }
 
@@ -122,129 +122,141 @@ class _MatchingPageState extends ConsumerState<MatchingPage>
           const SizedBox(width: 8),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(54),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLowest,
-              border: Border(
-                bottom: BorderSide(
-                  color: colorScheme.outline.withValues(alpha: 0.15),
-                  width: 1,
-                ),
+          preferredSize: const Size.fromHeight(48),
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            labelColor: colorScheme.primary,
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(
+                color: colorScheme.primary,
+                width: 3.0,
               ),
             ),
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                splashColor: Colors.transparent,
-                highlightColor: Colors.transparent,
-              ),
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                labelColor: colorScheme.primary,
-                unselectedLabelColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: colorScheme.primaryContainer,
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                labelStyle: AppTextStyles.primaryText(context).copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-                unselectedLabelStyle: AppTextStyles.primaryText(context).copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                tabs: [
-                Tab(
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _currentIndex == 0 
-                          ? SolarIconsBold.stars 
-                          : SolarIconsOutline.stars,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('추천'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _currentIndex == 1 
-                          ? SolarIconsBold.magnifier 
-                          : SolarIconsOutline.magnifier,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('탐색'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _currentIndex == 2 
-                          ? SolarIconsBold.mapPoint 
-                          : SolarIconsOutline.mapPoint,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('지도'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  height: 40,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _currentIndex == 3 
-                          ? SolarIconsBold.heart 
-                          : SolarIconsOutline.heart,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('하트'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  height: 40,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _currentIndex == 4 
-                          ? SolarIconsBold.bookmark 
-                          : SolarIconsOutline.bookmark,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('즐겨찾기'),
-                    ],
-                  ),
-                ),
-                ],
-              ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: colorScheme.outline.withValues(alpha: 0.2),
+            dividerHeight: 1,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.zero,
+            indicatorPadding: EdgeInsets.zero,
+            labelStyle: AppTextStyles.primaryText(context).copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
             ),
-          ),
+            unselectedLabelStyle: AppTextStyles.primaryText(context).copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+              tabs: [
+                Tab(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      final isSelected = _tabController.index == 0;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSelected
+                              ? SolarIconsBold.stars 
+                              : SolarIconsOutline.stars,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('추천'),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Tab(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      final isSelected = _tabController.index == 1;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSelected
+                              ? SolarIconsBold.magnifier 
+                              : SolarIconsOutline.magnifier,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('탐색'),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Tab(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      final isSelected = _tabController.index == 2;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSelected
+                              ? SolarIconsBold.mapPoint 
+                              : SolarIconsOutline.mapPoint,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('지도'),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Tab(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      final isSelected = _tabController.index == 3;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isSelected
+                              ? SolarIconsBold.heart 
+                              : SolarIconsOutline.heart,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('좋아요'),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                Tab(
+                  child: AnimatedBuilder(
+                    animation: _tabController,
+                    builder: (context, child) {
+                      final isSelected = _tabController.index == 4;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isSelected
+                              ? SolarIconsBold.bookmark 
+                              : SolarIconsOutline.bookmark,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('즐겨찾기'),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
         ),
       ),
       body: TabBarView(

@@ -355,32 +355,34 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
                   ),
                 ),
                 
-                // Action buttons - Clean minimal design
+                // Action buttons - Clean minimal design with pastel colors
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 32, top: 20),
+                  padding: const EdgeInsets.only(bottom: 20, top: 40),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Cancel button
+                      // Cancel button - Pastel Red
                       _MinimalActionButton(
                         icon: SolarIconsOutline.closeCircle,
+                        buttonType: ButtonType.cancel,
                         onTap: () {
                           _swiperController.swipe(CardSwiperDirection.left);
                         },
                       ),
                       const SizedBox(width: 56),
-                      // Heart button (Primary)
+                      // Heart button - Pastel Pink
                       _MinimalActionButton(
                         icon: SolarIconsOutline.heart,
-                        isPrimary: true,
+                        buttonType: ButtonType.heart,
                         onTap: () {
                           _swiperController.swipe(CardSwiperDirection.right);
                         },
                       ),
                       const SizedBox(width: 56),
-                      // Bookmark button
+                      // Bookmark button - Pastel Yellow
                       _MinimalActionButton(
                         icon: SolarIconsOutline.bookmark,
+                        buttonType: ButtonType.bookmark,
                         onTap: () {
                           _swiperController.swipe(CardSwiperDirection.top);
                         },
@@ -397,47 +399,73 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
   }
 }
 
-// Minimal action button widget - Clean and modern
+// Button type enum for different colors
+enum ButtonType { cancel, heart, bookmark }
+
+// Minimal action button widget - Clean and modern with pastel colors
 class _MinimalActionButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  final bool isPrimary;
+  final ButtonType buttonType;
 
   const _MinimalActionButton({
     required this.icon,
     required this.onTap,
-    this.isPrimary = false,
+    required this.buttonType,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    
     // 통일된 크기 - 심플함 극대화
     const dimension = 56.0;
     const iconSize = 24.0;
     
+    // Pastel colors for each button type
+    Color iconColor;
+    
+    switch (buttonType) {
+      case ButtonType.cancel:
+        // Pastel red
+        iconColor = const Color(0xFFFF9999);
+        break;
+      case ButtonType.heart:
+        // Pastel pink
+        iconColor = const Color(0xFFFFB3D9);
+        break;
+      case ButtonType.bookmark:
+        // Pastel yellow
+        iconColor = const Color(0xFFFFD966);
+        break;
+    }
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: dimension,
         height: dimension,
         decoration: BoxDecoration(
-          // 배경 완전 투명 - 극도의 미니멀리즘
-          color: Colors.transparent,
+          // 흰색 배경
+          color: Colors.white,
           shape: BoxShape.circle,
-          // 매우 얇은 테두리만
+          // 얇은 테두리
           border: Border.all(
-            color: colorScheme.outline.withValues(alpha: 0.15),
+            color: Colors.grey.withValues(alpha: 0.1),
             width: 1.0,
           ),
+          // 그림자 추가로 배경 강조
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Icon(
           icon,
           size: iconSize,
-          // Primary 버튼만 색상, 나머지는 회색
-          color: isPrimary
-              ? colorScheme.primary
-              : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          color: iconColor,
         ),
       ),
     );
