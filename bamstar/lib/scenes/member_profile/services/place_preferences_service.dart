@@ -189,14 +189,14 @@ class PlacePreferencesService {
       providedAttributes.addAll(preferences.selectedWelfareIds);
       providedAttributes.addAll(preferences.selectedPlaceFeatureIds);
 
-      if (providedAttributes.isNotEmpty) {
-        // 기존 데이터 삭제
-        await _supabase
-            .from('place_attributes_link')
-            .delete()
-            .eq('place_user_id', currentUser.id);
+      // 먼저 기존 데이터 완전 삭제
+      await _supabase
+          .from('place_attributes_link')
+          .delete()
+          .eq('place_user_id', currentUser.id);
 
-        // 새 데이터 삽입
+      if (providedAttributes.isNotEmpty) {
+        // 새 데이터 삽입 (UPSERT 방식)
         final attributeInserts = providedAttributes.map((attributeId) => {
           'place_user_id': currentUser.id,
           'attribute_id': int.parse(attributeId),
@@ -204,7 +204,7 @@ class PlacePreferencesService {
 
         await _supabase
             .from('place_attributes_link')
-            .insert(attributeInserts);
+            .upsert(attributeInserts);
 
         print('✅ place_attributes_link 저장: ${attributeInserts.length}개');
       }
@@ -214,14 +214,14 @@ class PlacePreferencesService {
       preferredAttributes.addAll(preferences.selectedJobIds);
       preferredAttributes.addAll(preferences.selectedStyleIds);
 
-      if (preferredAttributes.isNotEmpty) {
-        // 기존 데이터 삭제
-        await _supabase
-            .from('place_preferences_link')
-            .delete()
-            .eq('place_user_id', currentUser.id);
+      // 먼저 기존 데이터 완전 삭제
+      await _supabase
+          .from('place_preferences_link')
+          .delete()
+          .eq('place_user_id', currentUser.id);
 
-        // 새 데이터 삽입 (preference_level 포함)
+      if (preferredAttributes.isNotEmpty) {
+        // 새 데이터 삽입 (preference_level 포함) - UPSERT 방식
         final preferenceInserts = preferredAttributes.map((attributeId) => {
           'place_user_id': currentUser.id,
           'attribute_id': int.parse(attributeId),
@@ -232,7 +232,7 @@ class PlacePreferencesService {
 
         await _supabase
             .from('place_preferences_link')
-            .insert(preferenceInserts);
+            .upsert(preferenceInserts);
 
         print('✅ place_preferences_link 저장: ${preferenceInserts.length}개');
       }
