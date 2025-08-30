@@ -9,6 +9,7 @@ import '../models/match_profile.dart';
 import '../../../services/matching_service.dart';
 import 'package:bamstar/utils/toast_helper.dart';
 import '../../../providers/user/role_providers.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 /// Recommendation Tab - AI-powered matching with swipe cards
 class RecommendationTab extends ConsumerStatefulWidget {
@@ -157,8 +158,149 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
     final colorScheme = Theme.of(context).colorScheme;
     
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Skeletonizer(
+        enabled: true,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Skeleton for header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '오늘의 매칭: 15/20',
+                  style: AppTextStyles.captionText(context).copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Skeleton card
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 60),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      // Skeleton image area
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Skeleton info area
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Name and badges row
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      height: 20,
+                                      color: colorScheme.surfaceContainerHighest,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    width: 60,
+                                    height: 20,
+                                    color: colorScheme.surfaceContainerHighest,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // Subtitle
+                              Container(
+                                width: 150,
+                                height: 16,
+                                color: colorScheme.surfaceContainerHighest,
+                              ),
+                              const SizedBox(height: 12),
+                              // Location row
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 14,
+                                    color: colorScheme.surfaceContainerHighest,
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Container(
+                                    width: 50,
+                                    height: 14,
+                                    color: colorScheme.surfaceContainerHighest,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              // Pay info
+                              Container(
+                                width: 120,
+                                height: 14,
+                                color: colorScheme.surfaceContainerHighest,
+                              ),
+                              const SizedBox(height: 12),
+                              // Tags
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    width: 50,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    width: 70,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
     
