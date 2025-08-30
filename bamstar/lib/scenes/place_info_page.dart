@@ -40,6 +40,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   String _selectedSns = '카카오톡';
   bool _isLoading = false;
 
+  // Validation error messages
+  String? _placeNameError;
+  String? _addressError;
+  String? _managerNameError;
+  String? _phoneError;
+  String? _introError;
+
   // Operating hours data - 운영시간 관련 데이터
   List<String> _selectedOperatingDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; // 선택된 운영 요일들 (기본값: 전체)
   double _operatingStartHour = 9.0; // 운영 시작 시간 (시간 단위, 0-24)  
@@ -162,6 +169,43 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     }
   }
 
+  void _validateFields() {
+    setState(() {
+      _placeNameError = _placeNameCtl.text.trim().isEmpty 
+          ? '플레이스명을 입력해주세요' 
+          : null;
+      
+      _addressError = _addressCtl.text.trim().isEmpty 
+          ? '주소를 입력해주세요' 
+          : null;
+      
+      _managerNameError = _managerNameCtl.text.trim().isEmpty 
+          ? '담당자명을 입력해주세요' 
+          : null;
+      
+      _phoneError = _phoneCtl.text.trim().isEmpty 
+          ? '연락처를 입력해주세요'
+          : _phoneCtl.text.replaceAll('-', '').length < 10
+              ? '올바른 연락처를 입력해주세요'
+              : null;
+      
+      _introError = _introCtl.text.trim().isEmpty 
+          ? '플레이스 소개를 입력해주세요'
+          : _introCtl.text.trim().length < 10
+              ? '10자 이상 입력해주세요'
+              : null;
+    });
+  }
+
+  bool _isFormValid() {
+    _validateFields();
+    return _placeNameError == null &&
+           _addressError == null &&
+           _managerNameError == null &&
+           _phoneError == null &&
+           _introError == null;
+  }
+
   Future<void> _searchAddress() async {
     try {
       await Navigator.of(context).push(
@@ -182,6 +226,11 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
 
                   // Update UI display
                   _addressCtl.text = result.address;
+                  
+                  // Clear address error if it exists
+                  if (_addressError != null) {
+                    _addressError = null;
+                  }
                 });
                 ToastHelper.success(context, '주소가 입력되었습니다');
               }
@@ -198,7 +247,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   }
 
   Future<void> _savePlaceInfo() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!_isFormValid()) return;
 
     if (_photos.isEmpty && _loadedImageUrls.isEmpty) {
       ToastHelper.warning(context, '플레이스 사진을 최소 1장 추가해주세요');
@@ -667,15 +716,22 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
+                color: _placeNameError != null 
+                    ? Theme.of(context).colorScheme.error.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
             child: TextFormField(
               controller: _placeNameCtl,
               style: AppTextStyles.primaryText(context),
+              onChanged: (value) {
+                if (_placeNameError != null) {
+                  setState(() {
+                    _placeNameError = value.trim().isEmpty ? '플레이스명을 입력해주세요' : null;
+                  });
+                }
+              },
               decoration: InputDecoration(
                 hintText: '플레이스 이름을 입력해주세요',
                 hintStyle: AppTextStyles.secondaryText(context),
@@ -690,14 +746,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '플레이스명을 입력해주세요';
-                }
-                return null;
-              },
             ),
           ),
+          _buildErrorMessage(_placeNameError),
           const SizedBox(height: 20),
 
           // Address field with search button
@@ -708,14 +759,12 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withValues(alpha: 0.1),
+                      color: _addressError != null 
+                          ? Theme.of(context).colorScheme.error.withValues(alpha: 0.5)
+                          : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),
@@ -737,12 +786,6 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '주소를 입력해주세요';
-                      }
-                      return null;
-                    },
                   ),
                 ),
               ),
@@ -764,6 +807,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               ),
             ],
           ),
+          _buildErrorMessage(_addressError),
           const SizedBox(height: 16),
 
           // Detail address field
@@ -836,15 +880,22 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
+                color: _managerNameError != null 
+                    ? Theme.of(context).colorScheme.error.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
             child: TextFormField(
               controller: _managerNameCtl,
               style: AppTextStyles.primaryText(context),
+              onChanged: (value) {
+                if (_managerNameError != null) {
+                  setState(() {
+                    _managerNameError = value.trim().isEmpty ? '담당자명을 입력해주세요' : null;
+                  });
+                }
+              },
               decoration: InputDecoration(
                 hintText: '담당자 이름을 입력해주세요',
                 hintStyle: AppTextStyles.secondaryText(context),
@@ -859,14 +910,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '담당자명을 입력해주세요';
-                }
-                return null;
-              },
             ),
           ),
+          _buildErrorMessage(_managerNameError),
           const SizedBox(height: 20),
 
           // Phone field
@@ -877,9 +923,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: Theme.of(
-                  context,
-                ).colorScheme.outline.withValues(alpha: 0.1),
+                color: _phoneError != null 
+                    ? Theme.of(context).colorScheme.error.withValues(alpha: 0.5)
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
@@ -888,6 +934,17 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               style: AppTextStyles.primaryText(context),
               keyboardType: TextInputType.phone,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (value) {
+                if (_phoneError != null) {
+                  setState(() {
+                    _phoneError = value.trim().isEmpty 
+                        ? '연락처를 입력해주세요'
+                        : value.replaceAll('-', '').length < 10
+                            ? '올바른 연락처를 입력해주세요'
+                            : null;
+                  });
+                }
+              },
               decoration: InputDecoration(
                 hintText: '010-1234-5678',
                 hintStyle: AppTextStyles.secondaryText(context),
@@ -902,17 +959,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '연락처를 입력해주세요';
-                }
-                if (value.replaceAll('-', '').length < 10) {
-                  return '올바른 연락처를 입력해주세요';
-                }
-                return null;
-              },
             ),
           ),
+          _buildErrorMessage(_phoneError),
           const SizedBox(height: 20),
 
           // Gender selection
@@ -1260,6 +1309,42 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         const SizedBox(width: 8),
         Expanded(child: Text(text, style: AppTextStyles.captionText(context))),
       ],
+    );
+  }
+
+  Widget _buildErrorMessage(String? errorMessage) {
+    if (errorMessage == null) return const SizedBox.shrink();
+    
+    return Container(
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 16,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              errorMessage,
+              style: AppTextStyles.captionText(context).copyWith(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
