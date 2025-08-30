@@ -50,6 +50,40 @@ class MatchingService {
     }
   }
 
+  /// Format industries from place_industries join data
+  static String _formatIndustries(List<dynamic>? industries) {
+    if (industries == null || industries.isEmpty) {
+      return '업종 정보 없음';
+    }
+    
+    final industryNames = industries
+        .where((industry) => 
+            industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY')
+        .map((industry) => industry['attributes']['name'] as String)
+        .toList();
+    
+    if (industryNames.isEmpty) {
+      return '업종 정보 없음';
+    }
+    
+    // Primary industry first, then others
+    industryNames.sort((a, b) {
+      final aIsPrimary = industries.any((industry) => 
+          industry['attributes']['name'] == a && 
+          industry['is_primary'] == true);
+      final bIsPrimary = industries.any((industry) => 
+          industry['attributes']['name'] == b && 
+          industry['is_primary'] == true);
+      
+      if (aIsPrimary && !bIsPrimary) return -1;
+      if (!aIsPrimary && bIsPrimary) return 1;
+      return a.compareTo(b);
+    });
+    
+    return industryNames.join(', ');
+  }
+
   /// Convert match data from Edge Function to MatchProfile
   static MatchProfile _convertToMatchProfile(Map<String, dynamic> matchData, bool isMemberView) {
     final profile = isMemberView 
@@ -67,7 +101,7 @@ class MatchingService {
       return MatchProfile(
         id: profile['id'] ?? '',
         name: profileData['place_name'] ?? '알 수 없는 업체',
-        subtitle: profileData['business_type'] ?? '',
+        subtitle: _formatIndustries(profile['place_industries']),
         imageUrl: _getFirstImageUrl(profileData['profile_image_urls']),
         matchScore: matchScore,
         location: _extractLocation(profileData['address']),
@@ -183,7 +217,6 @@ class MatchingService {
         .select('''
           user_id,
           place_name,
-          business_type,
           address,
           latitude,
           longitude,
@@ -194,7 +227,15 @@ class MatchingService {
           profile_image_urls,
           is_verified,
           is_premium,
-          users!inner(email)
+          users!inner(email),
+          place_industries(
+            attribute_id,
+            is_primary,
+            attributes:attributes(
+              name,
+              type
+            )
+          )
         ''')
         .limit(limit);
 
@@ -202,7 +243,7 @@ class MatchingService {
       return MatchProfile(
         id: data['user_id'],
         name: data['place_name'] ?? '알 수 없는 업체',
-        subtitle: data['business_type'] ?? '',
+        subtitle: _formatIndustries(data['place_industries']),
         imageUrl: _getFirstImageUrl(data['profile_image_urls']),
         matchScore: _calculateMockScore(),
         location: _extractLocation(data['address']),
@@ -399,8 +440,15 @@ class MatchingService {
   static List<String> _generatePlaceTagsSync(Map<String, dynamic> data) {
     List<String> tags = [];
     
-    if (data['business_type']?.isNotEmpty == true) {
-      tags.add(data['business_type']);
+    // Add industries as tags
+    final industries = data['place_industries'] as List<dynamic>?;
+    if (industries != null) {
+      for (final industry in industries) {
+        if (industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY') {
+          tags.add(industry['attributes']['name'] as String);
+        }
+      }
     }
     
     if (data['manager_gender'] == '여') {

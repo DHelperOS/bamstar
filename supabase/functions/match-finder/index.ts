@@ -44,15 +44,7 @@ serve(async (req) => {
         ),
         place:users!place_user_id(
           id, email,
-          place_profile:place_profiles(*),
-          place_industries:place_industries(
-            attribute_id,
-            is_primary,
-            attributes:attributes(
-              name,
-              type
-            )
-          )
+          place_profile:place_profiles(*)
         )
       `)
       .gte('expires_at', new Date().toISOString())

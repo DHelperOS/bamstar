@@ -62,6 +62,40 @@ class MatchProfile {
     return DateTime.now().difference(lastActive!).inHours < 1;
   }
 
+  /// Format industries from place_industries join data
+  static String _formatIndustriesFromJson(List<dynamic>? industries) {
+    if (industries == null || industries.isEmpty) {
+      return '업종 정보 없음';
+    }
+    
+    final industryNames = industries
+        .where((industry) => 
+            industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY')
+        .map((industry) => industry['attributes']['name'] as String)
+        .toList();
+    
+    if (industryNames.isEmpty) {
+      return '업종 정보 없음';
+    }
+    
+    // Primary industry first, then others
+    industryNames.sort((a, b) {
+      final aIsPrimary = industries.any((industry) => 
+          industry['attributes']['name'] == a && 
+          industry['is_primary'] == true);
+      final bIsPrimary = industries.any((industry) => 
+          industry['attributes']['name'] == b && 
+          industry['is_primary'] == true);
+      
+      if (aIsPrimary && !bIsPrimary) return -1;
+      if (!aIsPrimary && bIsPrimary) return 1;
+      return a.compareTo(b);
+    });
+    
+    return industryNames.join(', ');
+  }
+
   /// Create from Supabase JSON
   factory MatchProfile.fromJson(Map<String, dynamic> json, ProfileType type) {
     return MatchProfile(
@@ -70,7 +104,7 @@ class MatchProfile {
         ? json['place_name'] ?? json['name']
         : json['nickname'] ?? json['name'],
       subtitle: type == ProfileType.place
-        ? json['business_type'] ?? ''
+        ? _formatIndustriesFromJson(json['place_industries'])
         : '${json['experience_level'] ?? '신입'}',
       imageUrl: json['profile_image_url'],
       matchScore: (json['match_score'] ?? 0).toInt(),
