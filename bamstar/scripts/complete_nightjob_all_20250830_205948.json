@@ -1,0 +1,5152 @@
+{
+  "places": [
+    {
+      "user_id": "1b852ae5-0f85-427d-bda4-725885e74f27",
+      "place_name": "강남 프리미엄 라운지",
+      "business_type": "퍼블릭",
+      "address": "서울시 중구 충무로동 725-34",
+      "latitude": 37.557031,
+      "longitude": 127.050752,
+      "manager_gender": "남",
+      "offered_min_pay": 2065862,
+      "offered_max_pay": 3161904,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9064",
+        "https://picsum.photos/600/400?random=4758",
+        "https://picsum.photos/600/400?random=5417",
+        "https://picsum.photos/600/400?random=5874"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "실장",
+      "description": "퍼블릭에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "교통비지급",
+        "숙식제공",
+        "상여금"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-23T20:59:48.844610",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "a3a9fbcb-7c8d-40e5-9f85-047180ab0d6a",
+      "place_name": "홍대 클럽 에이스",
+      "business_type": "하이퍼블릭",
+      "address": "서울시 서초구 방배동 541-40",
+      "latitude": 37.443388,
+      "longitude": 126.966738,
+      "manager_gender": "여",
+      "offered_min_pay": 3496296,
+      "offered_max_pay": 5120779,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5563",
+        "https://picsum.photos/600/400?random=1503",
+        "https://picsum.photos/600/400?random=7693"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "웨이터",
+      "description": "하이퍼블릭에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "상여금",
+        "일당지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-10T20:59:48.844636",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "dc7387e1-f7f1-4b23-bf03-4f1d9860fd93",
+      "place_name": "압구정 로얄바",
+      "business_type": "쩜오",
+      "address": "서울시 강동구 암사동 186-33",
+      "latitude": 37.585853,
+      "longitude": 127.099773,
+      "manager_gender": "여",
+      "offered_min_pay": 2664529,
+      "offered_max_pay": 4406285,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=8731",
+        "https://picsum.photos/600/400?random=4337"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "바텐더",
+      "description": "쩜오에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "교통비지급"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "편안한",
+      "created_at": "2025-08-02T20:59:48.844655",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "8b68b9de-0f28-465a-b476-fff469abc85e",
+      "place_name": "이태원 VIP룸",
+      "business_type": "BAR",
+      "address": "서울시 종로구 종로동 158-40",
+      "latitude": 37.47044,
+      "longitude": 126.938824,
+      "manager_gender": "남",
+      "offered_min_pay": 3653403,
+      "offered_max_pay": 4682909,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5471",
+        "https://picsum.photos/600/400?random=2662",
+        "https://picsum.photos/600/400?random=4840",
+        "https://picsum.photos/600/400?random=6816"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "실장",
+      "description": "BAR에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "상여금",
+        "인센티브",
+        "숙식제공"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-12T20:59:48.844674",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "78b46045-8f55-46f2-8f25-f3da303e7ac5",
+      "place_name": "건대 골든클럽",
+      "business_type": "라운지",
+      "address": "서울시 용산구 이태원동 820-34",
+      "latitude": 37.401174,
+      "longitude": 127.009961,
+      "manager_gender": "여",
+      "offered_min_pay": 3171670,
+      "offered_max_pay": 4623797,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5240",
+        "https://picsum.photos/600/400?random=1662"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "매니저",
+      "description": "라운지에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "교통비지급"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-02T20:59:48.844689",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "3476e647-d00d-4bf3-b733-4257b2dcee57",
+      "place_name": "신촌 다이아몬드",
+      "business_type": "라운지",
+      "address": "서울시 중구 명동동 574-40",
+      "latitude": 37.573753,
+      "longitude": 126.97335,
+      "manager_gender": "남",
+      "offered_min_pay": 3160127,
+      "offered_max_pay": 4321291,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5732",
+        "https://picsum.photos/600/400?random=3519",
+        "https://picsum.photos/600/400?random=2267"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "서빙",
+      "description": "라운지에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "인센티브",
+        "팁별도지급"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-17T20:59:48.844706",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "28ab634e-253c-4c00-a62f-2eab9270f09d",
+      "place_name": "역삼 플래티넘",
+      "business_type": "라운지",
+      "address": "서울시 서초구 잠원동 432-29",
+      "latitude": 37.577212,
+      "longitude": 126.945182,
+      "manager_gender": "여",
+      "offered_min_pay": 2229799,
+      "offered_max_pay": 3771302,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1263",
+        "https://picsum.photos/600/400?random=3013"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이트리스",
+      "description": "라운지에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "인센티브"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-19T20:59:48.844720",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "773bb4aa-71d3-419b-ab22-eac2a05862e0",
+      "place_name": "논현 크라운",
+      "business_type": "나이트클럽",
+      "address": "서울시 중구 을지로동 101-45",
+      "latitude": 37.459511,
+      "longitude": 127.081762,
+      "manager_gender": "여",
+      "offered_min_pay": 3676328,
+      "offered_max_pay": 5348581,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1826",
+        "https://picsum.photos/600/400?random=5438"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "매니저",
+      "description": "나이트클럽에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "숙식제공",
+        "상여금"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-19T20:59:48.844736",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "b724a6db-e6f2-48e3-a712-cf2de0e3a978",
+      "place_name": "청담 임페리얼",
+      "business_type": "단란주점",
+      "address": "서울시 강남구 강남동 471-38",
+      "latitude": 37.490672,
+      "longitude": 126.981516,
+      "manager_gender": "남",
+      "offered_min_pay": 2378917,
+      "offered_max_pay": 3692109,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=4744",
+        "https://picsum.photos/600/400?random=5792",
+        "https://picsum.photos/600/400?random=1208"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "실장",
+      "description": "단란주점에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "일당지급",
+        "팁별도지급",
+        "교통비지급",
+        "숙식제공"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-22T20:59:48.844752",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "94e2f9f3-eff7-44bd-bff8-35c6dee6ee00",
+      "place_name": "서초 엘리트",
+      "business_type": "호스트바",
+      "address": "서울시 강남구 강남동 733-21",
+      "latitude": 37.526257,
+      "longitude": 126.985384,
+      "manager_gender": "남",
+      "offered_min_pay": 2999110,
+      "offered_max_pay": 4798179,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9937",
+        "https://picsum.photos/600/400?random=2112"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "캐셔",
+      "description": "호스트바에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "상여금",
+        "교통비지급",
+        "인센티브"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-15T20:59:48.844767",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "ca73971e-46c0-40b8-9573-256088707efe",
+      "place_name": "잠실 프라임",
+      "business_type": "카페",
+      "address": "서울시 강동구 천호동 433-5",
+      "latitude": 37.464548,
+      "longitude": 127.050919,
+      "manager_gender": "여",
+      "offered_min_pay": 2195296,
+      "offered_max_pay": 3501785,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9900",
+        "https://picsum.photos/600/400?random=8964"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "도우미",
+      "description": "카페에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "식사제공"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-27T20:59:48.844781",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "822956ea-6202-46db-b446-7d4eb3d2cc75",
+      "place_name": "강동 럭셔리",
+      "business_type": "단란주점",
+      "address": "서울시 용산구 용산동 586-16",
+      "latitude": 37.591812,
+      "longitude": 126.918933,
+      "manager_gender": "여",
+      "offered_min_pay": 2435724,
+      "offered_max_pay": 4097545,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2774",
+        "https://picsum.photos/600/400?random=8948",
+        "https://picsum.photos/600/400?random=7878",
+        "https://picsum.photos/600/400?random=6440"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "서빙",
+      "description": "단란주점에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "숙식제공"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-19T20:59:48.844797",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "a5f70747-c19e-45de-9ae3-3b28d43fe1c7",
+      "place_name": "명동 그랜드",
+      "business_type": "하이퍼블릭",
+      "address": "서울시 중구 명동동 460-36",
+      "latitude": 37.580637,
+      "longitude": 127.050834,
+      "manager_gender": "남",
+      "offered_min_pay": 2241186,
+      "offered_max_pay": 4225892,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1893",
+        "https://picsum.photos/600/400?random=6087"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "웨이터",
+      "description": "하이퍼블릭에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "상여금",
+        "팁별도지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-11T20:59:48.844813",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "e5eb42ca-ab69-4733-a95a-d41d268df338",
+      "place_name": "을지로 킹",
+      "business_type": "퍼블릭",
+      "address": "서울시 종로구 대학로동 871-45",
+      "latitude": 37.42393,
+      "longitude": 127.059654,
+      "manager_gender": "남",
+      "offered_min_pay": 2752139,
+      "offered_max_pay": 4239749,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=4998",
+        "https://picsum.photos/600/400?random=8755"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "실장",
+      "description": "퍼블릭에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "교통비지급",
+        "팁별도지급",
+        "상여금"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-20T20:59:48.844829",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "05d17118-bd2f-4e5a-b82e-dd9c4093cf63",
+      "place_name": "종로 퀸",
+      "business_type": "BAR",
+      "address": "서울시 중구 종로동 677-39",
+      "latitude": 37.425998,
+      "longitude": 127.092934,
+      "manager_gender": "여",
+      "offered_min_pay": 3046860,
+      "offered_max_pay": 4323001,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2548",
+        "https://picsum.photos/600/400?random=9097",
+        "https://picsum.photos/600/400?random=9996",
+        "https://picsum.photos/600/400?random=5424"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "실장",
+      "description": "BAR에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "상여금",
+        "식사제공"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-12T20:59:48.844846",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "66d0e630-4c9e-40eb-8bf8-44c1fc757410",
+      "place_name": "홍대 스타",
+      "business_type": "텐프로",
+      "address": "서울시 서초구 반포동 539-17",
+      "latitude": 37.535147,
+      "longitude": 127.056925,
+      "manager_gender": "여",
+      "offered_min_pay": 2071904,
+      "offered_max_pay": 3334192,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1213",
+        "https://picsum.photos/600/400?random=9488",
+        "https://picsum.photos/600/400?random=9739",
+        "https://picsum.photos/600/400?random=9481"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "웨이트리스",
+      "description": "텐프로에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "교통비지급",
+        "연차수당",
+        "숙식제공",
+        "인센티브"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-09T20:59:48.844862",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "8a52366c-5423-4121-b5b8-0fe691fbb587",
+      "place_name": "강남 에이스",
+      "business_type": "라운지",
+      "address": "서울시 영등포구 여의도동 654-45",
+      "latitude": 37.539184,
+      "longitude": 126.919561,
+      "manager_gender": "남",
+      "offered_min_pay": 2392261,
+      "offered_max_pay": 3466118,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2070",
+        "https://picsum.photos/600/400?random=6491",
+        "https://picsum.photos/600/400?random=7266",
+        "https://picsum.photos/600/400?random=7194"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "웨이터",
+      "description": "라운지에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "숙식제공",
+        "교통비지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-23T20:59:48.844943",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "d48f8107-1c70-438a-a2c4-d189bb933190",
+      "place_name": "압구정 킹덤",
+      "business_type": "퍼블릭",
+      "address": "서울시 강남구 역삼동 295-13",
+      "latitude": 37.558256,
+      "longitude": 127.076,
+      "manager_gender": "남",
+      "offered_min_pay": 3223894,
+      "offered_max_pay": 5121425,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=8308",
+        "https://picsum.photos/600/400?random=2789",
+        "https://picsum.photos/600/400?random=8243"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "웨이터",
+      "description": "퍼블릭에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "교통비지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-11T20:59:48.844961",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "2b663d06-1af8-4405-b18c-72fb3d3b5499",
+      "place_name": "이태원 글로벌",
+      "business_type": "텐프로",
+      "address": "서울시 강동구 암사동 904-2",
+      "latitude": 37.586493,
+      "longitude": 127.024356,
+      "manager_gender": "여",
+      "offered_min_pay": 3141548,
+      "offered_max_pay": 4309035,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9590",
+        "https://picsum.photos/600/400?random=6465",
+        "https://picsum.photos/600/400?random=8305"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "홀매니저",
+      "description": "텐프로에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "일당지급",
+        "교통비지급",
+        "상여금",
+        "인센티브"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-03T20:59:48.844978",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "ccd32b59-01cd-49af-82f0-b405729b0fe9",
+      "place_name": "건대 영",
+      "business_type": "클럽",
+      "address": "서울시 종로구 종로동 164-12",
+      "latitude": 37.440147,
+      "longitude": 127.069962,
+      "manager_gender": "여",
+      "offered_min_pay": 3888223,
+      "offered_max_pay": 5558588,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1360",
+        "https://picsum.photos/600/400?random=1471",
+        "https://picsum.photos/600/400?random=6194"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "서빙",
+      "description": "클럽에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "숙식제공"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-13T20:59:48.844994",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "628dc458-5767-420f-a817-3c5ce2b7b901",
+      "place_name": "신촌 블루",
+      "business_type": "마사지",
+      "address": "서울시 송파구 문정동 280-49",
+      "latitude": 37.43917,
+      "longitude": 126.963192,
+      "manager_gender": "여",
+      "offered_min_pay": 3037467,
+      "offered_max_pay": 4493476,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6756",
+        "https://picsum.photos/600/400?random=6134",
+        "https://picsum.photos/600/400?random=6782"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이터",
+      "description": "마사지에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "식사제공"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-14T20:59:48.845009",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "0cca31d3-cab7-4608-bfa7-4985f45df20d",
+      "place_name": "역삼 골드",
+      "business_type": "다방",
+      "address": "서울시 마포구 홍대동 120-38",
+      "latitude": 37.465848,
+      "longitude": 127.069657,
+      "manager_gender": "남",
+      "offered_min_pay": 2958664,
+      "offered_max_pay": 4846222,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9035",
+        "https://picsum.photos/600/400?random=3087",
+        "https://picsum.photos/600/400?random=6924"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이터",
+      "description": "다방에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "일당지급",
+        "상여금"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-07-31T20:59:48.845024",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "7b2741ce-61d2-4068-ae94-aed92d4d56f3",
+      "place_name": "논현 실버",
+      "business_type": "마사지",
+      "address": "서울시 마포구 상수동 81-33",
+      "latitude": 37.442568,
+      "longitude": 127.095875,
+      "manager_gender": "여",
+      "offered_min_pay": 2764753,
+      "offered_max_pay": 4373455,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7222",
+        "https://picsum.photos/600/400?random=1790"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "서빙",
+      "description": "마사지에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "팁별도지급",
+        "연차수당",
+        "상여금"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-18T20:59:48.845039",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "176ce3ad-be98-4563-8726-ca5cf174a53d",
+      "place_name": "청담 브론즈",
+      "business_type": "룸싸롱",
+      "address": "서울시 서초구 잠원동 894-39",
+      "latitude": 37.474089,
+      "longitude": 127.044328,
+      "manager_gender": "남",
+      "offered_min_pay": 5603611,
+      "offered_max_pay": 8748207,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1096",
+        "https://picsum.photos/600/400?random=6836"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이터",
+      "description": "룸싸롱에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "인센티브"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-16T20:59:48.845054",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "e8a2edfb-5857-4e4f-8659-df55cb250fa5",
+      "place_name": "서초 다이아",
+      "business_type": "다방",
+      "address": "서울시 영등포구 영등포동 806-17",
+      "latitude": 37.531731,
+      "longitude": 126.925095,
+      "manager_gender": "여",
+      "offered_min_pay": 2568825,
+      "offered_max_pay": 3631252,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9989",
+        "https://picsum.photos/600/400?random=7348",
+        "https://picsum.photos/600/400?random=7830"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "홀매니저",
+      "description": "다방에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "팁별도지급",
+        "상여금",
+        "인센티브",
+        "식사제공",
+        "교통비지급"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "편안한",
+      "created_at": "2025-08-04T20:59:48.845069",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "551de3e4-81bd-4294-8987-8b0f15809384",
+      "place_name": "잠실 루비",
+      "business_type": "라운지",
+      "address": "서울시 강동구 천호동 289-23",
+      "latitude": 37.401445,
+      "longitude": 127.031392,
+      "manager_gender": "여",
+      "offered_min_pay": 3138927,
+      "offered_max_pay": 4967620,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6951",
+        "https://picsum.photos/600/400?random=9424"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "도우미",
+      "description": "라운지에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "숙식제공",
+        "인센티브"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-01T20:59:48.845084",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "71e1c6ee-17f0-4616-a155-8f6da5bc4b25",
+      "place_name": "강동 사파이어",
+      "business_type": "노래주점",
+      "address": "서울시 중구 충무로동 647-33",
+      "latitude": 37.43936,
+      "longitude": 127.045403,
+      "manager_gender": "남",
+      "offered_min_pay": 2199104,
+      "offered_max_pay": 3602097,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=3126",
+        "https://picsum.photos/600/400?random=3351",
+        "https://picsum.photos/600/400?random=2513",
+        "https://picsum.photos/600/400?random=3779"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "바텐더",
+      "description": "노래주점에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "팁별도지급",
+        "상여금",
+        "인센티브"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "조용한",
+      "created_at": "2025-08-12T20:59:48.845100",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "f3aa0e65-f527-4778-abb4-d6c5a6dd87bb",
+      "place_name": "명동 에메랄드",
+      "business_type": "룸싸롱",
+      "address": "서울시 강남구 삼성동 756-39",
+      "latitude": 37.577627,
+      "longitude": 126.923036,
+      "manager_gender": "남",
+      "offered_min_pay": 4462603,
+      "offered_max_pay": 7534278,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1360",
+        "https://picsum.photos/600/400?random=9890",
+        "https://picsum.photos/600/400?random=6721"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이트리스",
+      "description": "룸싸롱에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "연차수당",
+        "팁별도지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "편안한",
+      "created_at": "2025-07-31T20:59:48.845115",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "9b621b5d-9f92-4f29-aa86-6a1fc88e0271",
+      "place_name": "을지로 토파즈",
+      "business_type": "요정",
+      "address": "서울시 영등포구 당산동 569-12",
+      "latitude": 37.450364,
+      "longitude": 126.918798,
+      "manager_gender": "여",
+      "offered_min_pay": 3210616,
+      "offered_max_pay": 5068739,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5235",
+        "https://picsum.photos/600/400?random=9119",
+        "https://picsum.photos/600/400?random=5504",
+        "https://picsum.photos/600/400?random=9740"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "웨이터",
+      "description": "요정에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "연차수당",
+        "상여금",
+        "교통비지급"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-04T20:59:48.845132",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "854001bf-a19c-4be0-99ba-9c6c6927fb60",
+      "place_name": "종로 자수정",
+      "business_type": "나이트클럽",
+      "address": "서울시 성동구 성수동 116-7",
+      "latitude": 37.405254,
+      "longitude": 127.049776,
+      "manager_gender": "남",
+      "offered_min_pay": 3052986,
+      "offered_max_pay": 5809821,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=8405",
+        "https://picsum.photos/600/400?random=6680",
+        "https://picsum.photos/600/400?random=3583"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "웨이트리스",
+      "description": "나이트클럽에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "식사제공",
+        "숙식제공",
+        "팁별도지급",
+        "인센티브"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-12T20:59:48.845148",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "eeeee413-ef3a-41f5-9c62-b7f50a15fc6a",
+      "place_name": "홍대 진주",
+      "business_type": "퍼블릭",
+      "address": "서울시 영등포구 여의도동 908-29",
+      "latitude": 37.427476,
+      "longitude": 126.900977,
+      "manager_gender": "남",
+      "offered_min_pay": 2710534,
+      "offered_max_pay": 4432047,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1714",
+        "https://picsum.photos/600/400?random=6880",
+        "https://picsum.photos/600/400?random=8730"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "매니저",
+      "description": "퍼블릭에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "인센티브",
+        "식사제공"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "조용한",
+      "created_at": "2025-07-31T20:59:48.845163",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "c701729c-65f8-4640-81e4-9d8e7e06a964",
+      "place_name": "강남 오팔",
+      "business_type": "하이퍼블릭",
+      "address": "서울시 서초구 잠원동 981-46",
+      "latitude": 37.494199,
+      "longitude": 126.984693,
+      "manager_gender": "여",
+      "offered_min_pay": 2140880,
+      "offered_max_pay": 3881510,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=8306",
+        "https://picsum.photos/600/400?random=9810",
+        "https://picsum.photos/600/400?random=9860"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "웨이터",
+      "description": "하이퍼블릭에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "인센티브"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-10T20:59:48.845178",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "cab188d9-1116-4e25-aaba-12ff3576d996",
+      "place_name": "압구정 크리스탈",
+      "business_type": "마사지",
+      "address": "서울시 영등포구 여의도동 135-14",
+      "latitude": 37.53054,
+      "longitude": 127.070067,
+      "manager_gender": "여",
+      "offered_min_pay": 2021221,
+      "offered_max_pay": 3040182,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=1707",
+        "https://picsum.photos/600/400?random=9416",
+        "https://picsum.photos/600/400?random=9982",
+        "https://picsum.photos/600/400?random=5687"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "홀매니저",
+      "description": "마사지에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "팁별도지급",
+        "인센티브",
+        "숙식제공",
+        "상여금"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-26T20:59:48.845194",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "12a9b3ac-ee74-4970-abb6-d39b09704d09",
+      "place_name": "이태원 레드",
+      "business_type": "마사지",
+      "address": "서울시 서초구 반포동 809-9",
+      "latitude": 37.578012,
+      "longitude": 127.067606,
+      "manager_gender": "남",
+      "offered_min_pay": 3448526,
+      "offered_max_pay": 5051060,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5547",
+        "https://picsum.photos/600/400?random=6887"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "실장",
+      "description": "마사지에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "팁별도지급",
+        "일당지급",
+        "연차수당",
+        "인센티브"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-24T20:59:48.845209",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "bf86314f-28e6-4a77-871e-de9948fdbf12",
+      "place_name": "건대 블랙",
+      "business_type": "셔츠룸",
+      "address": "서울시 강동구 암사동 936-38",
+      "latitude": 37.555014,
+      "longitude": 126.98571,
+      "manager_gender": "남",
+      "offered_min_pay": 2134776,
+      "offered_max_pay": 4011220,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2951",
+        "https://picsum.photos/600/400?random=2204",
+        "https://picsum.photos/600/400?random=7855",
+        "https://picsum.photos/600/400?random=9479"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "도우미",
+      "description": "셔츠룸에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "인센티브"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-29T20:59:48.845225",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "d6b492c8-b6f3-44e8-b52f-c049cf3e51f1",
+      "place_name": "신촌 화이트",
+      "business_type": "호스트바",
+      "address": "서울시 서초구 방배동 118-13",
+      "latitude": 37.406822,
+      "longitude": 127.056021,
+      "manager_gender": "남",
+      "offered_min_pay": 3019174,
+      "offered_max_pay": 5043338,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2807",
+        "https://picsum.photos/600/400?random=2650",
+        "https://picsum.photos/600/400?random=2543"
+      ],
+      "work_time": "오후 7시 ~ 오전 1시",
+      "position_required": "서빙",
+      "description": "호스트바에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "팁별도지급",
+        "교통비지급"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-29T20:59:48.845241",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "27b2fe77-1765-4679-abd9-4c3110736c45",
+      "place_name": "역삼 그린",
+      "business_type": "룸싸롱",
+      "address": "서울시 용산구 한남동 21-42",
+      "latitude": 37.428483,
+      "longitude": 127.063901,
+      "manager_gender": "여",
+      "offered_min_pay": 4617638,
+      "offered_max_pay": 6797018,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9081",
+        "https://picsum.photos/600/400?random=6518",
+        "https://picsum.photos/600/400?random=2595"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "매니저",
+      "description": "룸싸롱에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "상여금"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "편안한",
+      "created_at": "2025-08-22T20:59:48.845258",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "a80a331c-f377-416d-a03e-af2ec13dffb6",
+      "place_name": "논현 블루",
+      "business_type": "텐프로",
+      "address": "서울시 영등포구 여의도동 859-21",
+      "latitude": 37.417327,
+      "longitude": 127.071654,
+      "manager_gender": "남",
+      "offered_min_pay": 2916113,
+      "offered_max_pay": 4238769,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9049",
+        "https://picsum.photos/600/400?random=7942",
+        "https://picsum.photos/600/400?random=4749"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "웨이트리스",
+      "description": "텐프로에서 함께 일할 성실하고 책임감 있는 분을 찾습니다.",
+      "benefits": [
+        "연차수당",
+        "교통비지급",
+        "상여금",
+        "숙식제공",
+        "팁별도지급"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-24T20:59:48.845274",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "2d99c3c9-3d4a-4e9b-ab05-fec94fa56c25",
+      "place_name": "청담 옐로우",
+      "business_type": "하이퍼블릭",
+      "address": "서울시 종로구 종로동 380-32",
+      "latitude": 37.425058,
+      "longitude": 127.073067,
+      "manager_gender": "남",
+      "offered_min_pay": 2477949,
+      "offered_max_pay": 4016190,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5496",
+        "https://picsum.photos/600/400?random=1428"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "매니저",
+      "description": "하이퍼블릭에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "상여금",
+        "식사제공"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-07-31T20:59:48.845290",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "9e712a3d-389b-47d5-9fcc-a20bca924b54",
+      "place_name": "서초 핑크",
+      "business_type": "클럽",
+      "address": "서울시 용산구 한남동 170-5",
+      "latitude": 37.597359,
+      "longitude": 127.060444,
+      "manager_gender": "남",
+      "offered_min_pay": 3131365,
+      "offered_max_pay": 6123061,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7369",
+        "https://picsum.photos/600/400?random=9437"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "도우미",
+      "description": "클럽에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "식사제공",
+        "상여금",
+        "연차수당",
+        "팁별도지급"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-03T20:59:48.845306",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "32d21d86-2f6c-46a6-ac55-a80249a91d00",
+      "place_name": "잠실 퍼플",
+      "business_type": "룸싸롱",
+      "address": "서울시 강남구 역삼동 527-7",
+      "latitude": 37.469312,
+      "longitude": 126.946012,
+      "manager_gender": "여",
+      "offered_min_pay": 5678816,
+      "offered_max_pay": 9381600,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7770",
+        "https://picsum.photos/600/400?random=7227",
+        "https://picsum.photos/600/400?random=6160"
+      ],
+      "work_time": "오후 6시 ~ 오전 2시",
+      "position_required": "홀매니저",
+      "description": "룸싸롱에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "교통비지급",
+        "숙식제공",
+        "인센티브",
+        "상여금",
+        "일당지급"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-21T20:59:48.845322",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "542681b6-2fa0-475e-9d6a-7753aea08b4c",
+      "place_name": "강동 오렌지",
+      "business_type": "하이퍼블릭",
+      "address": "서울시 강동구 강동동 541-20",
+      "latitude": 37.44276,
+      "longitude": 127.050302,
+      "manager_gender": "남",
+      "offered_min_pay": 2508213,
+      "offered_max_pay": 3987384,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=4629",
+        "https://picsum.photos/600/400?random=9859",
+        "https://picsum.photos/600/400?random=4469",
+        "https://picsum.photos/600/400?random=9865"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "매니저",
+      "description": "하이퍼블릭에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "팁별도지급"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "편안한",
+      "created_at": "2025-08-21T20:59:48.845338",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "d113c463-fce8-4b2b-99fd-613e8d03fdde",
+      "place_name": "명동 네이비",
+      "business_type": "비즈니스클럽",
+      "address": "서울시 중구 동대문동 509-14",
+      "latitude": 37.588047,
+      "longitude": 127.013817,
+      "manager_gender": "여",
+      "offered_min_pay": 4217364,
+      "offered_max_pay": 5890970,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=4700",
+        "https://picsum.photos/600/400?random=2067",
+        "https://picsum.photos/600/400?random=4849"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "바텐더",
+      "description": "비즈니스클럽에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "교통비지급",
+        "상여금",
+        "인센티브",
+        "연차수당"
+      ],
+      "dress_code": "깔끔한복장",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-01T20:59:48.845354",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "a7c6b3e8-95b0-4f4c-8e40-648cd02d2e45",
+      "place_name": "을지로 브라운",
+      "business_type": "클럽",
+      "address": "서울시 종로구 대학로동 817-15",
+      "latitude": 37.409222,
+      "longitude": 126.921906,
+      "manager_gender": "남",
+      "offered_min_pay": 4166167,
+      "offered_max_pay": 6028847,
+      "desired_experience_level": "NEWCOMER",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6515",
+        "https://picsum.photos/600/400?random=8402",
+        "https://picsum.photos/600/400?random=3599"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "웨이터",
+      "description": "클럽에서 함께 일할 밝고 활발한 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "숙식제공",
+        "교통비지급",
+        "연차수당"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-19T20:59:48.845369",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "91ef0640-aaad-4781-93a7-05af27e7361f",
+      "place_name": "종로 그레이",
+      "business_type": "쩜오",
+      "address": "서울시 종로구 대학로동 352-15",
+      "latitude": 37.59466,
+      "longitude": 126.998436,
+      "manager_gender": "남",
+      "offered_min_pay": 2114619,
+      "offered_max_pay": 4096123,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9579",
+        "https://picsum.photos/600/400?random=8345"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "실장",
+      "description": "쩜오에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "연차수당",
+        "상여금",
+        "팁별도지급"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": true,
+      "vip_service": false,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "편안한",
+      "created_at": "2025-08-18T20:59:48.845384",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "300ef9ce-a11a-4604-8f3a-368f2ef36bcd",
+      "place_name": "홍대 민트",
+      "business_type": "BAR",
+      "address": "서울시 용산구 이태원동 313-9",
+      "latitude": 37.570727,
+      "longitude": 126.956801,
+      "manager_gender": "남",
+      "offered_min_pay": 2796472,
+      "offered_max_pay": 4143104,
+      "desired_experience_level": "SENIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=9834",
+        "https://picsum.photos/600/400?random=9265",
+        "https://picsum.photos/600/400?random=6904"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "서빙",
+      "description": "BAR에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "상여금",
+        "인센티브"
+      ],
+      "dress_code": "자유복장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-15T20:59:48.845399",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "c7670344-8b45-4bec-85ed-9cc714aa298f",
+      "place_name": "강남 코랄",
+      "business_type": "카페",
+      "address": "서울시 영등포구 당산동 491-22",
+      "latitude": 37.465105,
+      "longitude": 126.946807,
+      "manager_gender": "남",
+      "offered_min_pay": 2001116,
+      "offered_max_pay": 3111810,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5507",
+        "https://picsum.photos/600/400?random=1863",
+        "https://picsum.photos/600/400?random=3090",
+        "https://picsum.photos/600/400?random=5153"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "실장",
+      "description": "카페에서 함께 일할 경험 많은 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "상여금",
+        "연차수당"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 10시-2시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-05T20:59:48.845415",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "013dbea2-fc16-462f-bdb7-79fa1559715f",
+      "place_name": "압구정 베이지",
+      "business_type": "나이트클럽",
+      "address": "서울시 종로구 인사동동 147-4",
+      "latitude": 37.586632,
+      "longitude": 126.918833,
+      "manager_gender": "여",
+      "offered_min_pay": 3495415,
+      "offered_max_pay": 5907456,
+      "desired_experience_level": "JUNIOR",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=8902",
+        "https://picsum.photos/600/400?random=8230",
+        "https://picsum.photos/600/400?random=8720",
+        "https://picsum.photos/600/400?random=7435"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "매니저",
+      "description": "나이트클럽에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "일당지급",
+        "숙식제공",
+        "연차수당",
+        "인센티브",
+        "상여금"
+      ],
+      "dress_code": "정장",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "고급스러운",
+      "created_at": "2025-08-30T20:59:48.845431",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "dfbf7d17-527d-4070-8ab4-ae22016192a7",
+      "place_name": "이태원 터키석",
+      "business_type": "쩜오",
+      "address": "서울시 강남구 청담동 186-5",
+      "latitude": 37.488517,
+      "longitude": 126.913267,
+      "manager_gender": "남",
+      "offered_min_pay": 2841466,
+      "offered_max_pay": 4132867,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=4094",
+        "https://picsum.photos/600/400?random=9133"
+      ],
+      "work_time": "오후 8시 ~ 오전 3시",
+      "position_required": "웨이터",
+      "description": "쩜오에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "숙식제공",
+        "일당지급",
+        "식사제공",
+        "인센티브"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": false,
+      "vip_service": true,
+      "peak_hours": "오후 11시-3시",
+      "atmosphere": "활기찬",
+      "created_at": "2025-08-10T20:59:48.845446",
+      "is_recruiting": true
+    },
+    {
+      "user_id": "c46eb1d7-093f-4d51-9bb5-a8e985639e72",
+      "place_name": "건대 라벤더",
+      "business_type": "쩜오",
+      "address": "서울시 송파구 문정동 495-35",
+      "latitude": 37.568658,
+      "longitude": 127.098503,
+      "manager_gender": "여",
+      "offered_min_pay": 3259389,
+      "offered_max_pay": 4888152,
+      "desired_experience_level": "INTERMEDIATE",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=2282",
+        "https://picsum.photos/600/400?random=2376"
+      ],
+      "work_time": "오후 9시 ~ 오전 4시",
+      "position_required": "실장",
+      "description": "쩜오에서 함께 일할 친화력 좋은 분을 찾습니다.",
+      "benefits": [
+        "인센티브",
+        "연차수당"
+      ],
+      "dress_code": "업체복장제공",
+      "alcohol_service": true,
+      "vip_service": true,
+      "peak_hours": "오후 9시-12시",
+      "atmosphere": "트렌디한",
+      "created_at": "2025-08-06T20:59:48.845462",
+      "is_recruiting": true
+    }
+  ],
+  "members": [
+    {
+      "user_id": "11590216-95e5-4e5e-96e8-cf3ab0e0207d",
+      "nickname": "구직자001",
+      "real_name": "김건우",
+      "age": 35,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5486779,
+      "desired_business_types": [
+        "호스트바",
+        "하이퍼블릭",
+        "KTV"
+      ],
+      "desired_areas": [
+        "당산",
+        "신천",
+        "선릉"
+      ],
+      "desired_working_days": [
+        "토",
+        "월",
+        "수"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7585",
+        "https://picsum.photos/300/400?random=1047"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "전문적",
+      "special_skills": [],
+      "transportation": "자차",
+      "created_at": "2025-07-18T20:59:48.845489",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "476134e1-d1d4-42d9-a023-3d05312a4db5",
+      "nickname": "구직자002",
+      "real_name": "김주원",
+      "age": 20,
+      "gender": "MALE",
+      "experience_level": "NEWCOMER",
+      "desired_pay_amount": 5476216,
+      "desired_business_types": [
+        "퍼블릭",
+        "텐프로",
+        "라운지",
+        "KTV"
+      ],
+      "desired_areas": [
+        "서초",
+        "방배"
+      ],
+      "desired_working_days": [
+        "토",
+        "수",
+        "화"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=1334"
+      ],
+      "self_introduction": "경험은 없지만 배우려는 의지는 누구보다 강합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "전문적",
+      "special_skills": [
+        "사진"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-10T20:59:48.845507",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "24d7c6b4-cc7d-4e85-ac2e-f18ca9983fed",
+      "nickname": "구직자003",
+      "real_name": "김하은",
+      "age": 28,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 3245286,
+      "desired_business_types": [
+        "호스트바",
+        "텐프로",
+        "KTV"
+      ],
+      "desired_areas": [
+        "종로",
+        "잠원",
+        "삼성"
+      ],
+      "desired_working_days": [
+        "일",
+        "수",
+        "목",
+        "금",
+        "화",
+        "월"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=5637",
+        "https://picsum.photos/300/400?random=5372"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "중",
+      "work_style": "친근함",
+      "special_skills": [
+        "음악",
+        "칵테일",
+        "댄스"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-07-20T20:59:48.845528",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "95fbd7b4-833d-4ded-8166-14763a2b60ac",
+      "nickname": "구직자004",
+      "real_name": "김서윤",
+      "age": 35,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 4259359,
+      "desired_business_types": [
+        "호스트바",
+        "퍼블릭"
+      ],
+      "desired_areas": [
+        "합정",
+        "강동"
+      ],
+      "desired_working_days": [
+        "일",
+        "토",
+        "금",
+        "월",
+        "목",
+        "수"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7594",
+        "https://picsum.photos/300/400?random=6604"
+      ],
+      "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "차분함",
+      "special_skills": [
+        "칵테일",
+        "서비스"
+      ],
+      "transportation": "자차",
+      "created_at": "2025-08-03T20:59:48.845547",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "9e207a65-b53a-40dc-92ea-2a5566b40bf7",
+      "nickname": "구직자005",
+      "real_name": "김지유",
+      "age": 35,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5993260,
+      "desired_business_types": [
+        "클럽",
+        "다방"
+      ],
+      "desired_areas": [
+        "종로",
+        "잠원",
+        "청담"
+      ],
+      "desired_working_days": [
+        "금",
+        "토",
+        "목",
+        "월"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=6235",
+        "https://picsum.photos/300/400?random=3632",
+        "https://picsum.photos/300/400?random=8810"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "친근함",
+      "special_skills": [
+        "서비스",
+        "요리"
+      ],
+      "transportation": "택시",
+      "created_at": "2025-07-03T20:59:48.845565",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "a3f21f2b-b24c-4ce0-878e-723e38b5db82",
+      "nickname": "알바꿈나무",
+      "real_name": "김예은",
+      "age": 27,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 2615383,
+      "desired_business_types": [
+        "클럽",
+        "텐프로",
+        "KTV"
+      ],
+      "desired_areas": [
+        "천호",
+        "합정",
+        "방배"
+      ],
+      "desired_working_days": [
+        "월",
+        "토",
+        "일",
+        "화",
+        "수",
+        "금"
+      ],
+      "available_time": "오후 6시 ~ 오전 2시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=3641",
+        "https://picsum.photos/300/400?random=4335"
+      ],
+      "self_introduction": "2년 정도 경험으로 안정적인 서비스 제공 가능합니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "친근함",
+      "special_skills": [],
+      "transportation": "자차",
+      "created_at": "2025-08-18T20:59:48.845584",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "ac6cf33b-8800-4d49-b0fb-c4fa1cdab659",
+      "nickname": "야간전문가",
+      "real_name": "김하은",
+      "age": 24,
+      "gender": "MALE",
+      "experience_level": "JUNIOR",
+      "desired_pay_amount": 5786577,
+      "desired_business_types": [
+        "퍼블릭",
+        "텐프로",
+        "클럽",
+        "마사지"
+      ],
+      "desired_areas": [
+        "천호",
+        "종로",
+        "여의도",
+        "용산"
+      ],
+      "desired_working_days": [
+        "수",
+        "토",
+        "일",
+        "화",
+        "금",
+        "월"
+      ],
+      "available_time": "오후 6시 ~ 오전 2시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=2099",
+        "https://picsum.photos/300/400?random=9077"
+      ],
+      "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+      "alcohol_tolerance": "중",
+      "work_style": "적극적",
+      "special_skills": [
+        "서비스"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-08-25T20:59:48.845603",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "9aace6b5-9852-4f42-8446-b842d1165f49",
+      "nickname": "서비스킹",
+      "real_name": "김주원",
+      "age": 24,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 5323991,
+      "desired_business_types": [
+        "쩜오",
+        "셔츠룸",
+        "BAR",
+        "호스트바"
+      ],
+      "desired_areas": [
+        "을지로",
+        "연남",
+        "신사"
+      ],
+      "desired_working_days": [
+        "목",
+        "화",
+        "일",
+        "수",
+        "월",
+        "토"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=6128",
+        "https://picsum.photos/300/400?random=5114"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "전문적",
+      "special_skills": [
+        "사진",
+        "서비스",
+        "외국어"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-08-12T20:59:48.845621",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "2f496356-b67f-478b-aad2-8d85c99b521e",
+      "nickname": "친화력갑",
+      "real_name": "김하은",
+      "age": 30,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 4702642,
+      "desired_business_types": [
+        "클럽",
+        "셔츠룸",
+        "단란주점",
+        "룸싸롱",
+        "카페"
+      ],
+      "desired_areas": [
+        "홍대",
+        "연남",
+        "건대"
+      ],
+      "desired_working_days": [
+        "수",
+        "금",
+        "토"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9240",
+        "https://picsum.photos/300/400?random=9537",
+        "https://picsum.photos/300/400?random=6996"
+      ],
+      "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "차분함",
+      "special_skills": [
+        "서비스",
+        "댄스"
+      ],
+      "transportation": "택시",
+      "created_at": "2025-07-13T20:59:48.845640",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "2b446670-cf55-4b05-b06b-2ce615742183",
+      "nickname": "성실이",
+      "real_name": "김건우",
+      "age": 28,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 4843861,
+      "desired_business_types": [
+        "단란주점",
+        "클럽",
+        "텐프로",
+        "하이퍼블릭"
+      ],
+      "desired_areas": [
+        "성수",
+        "한남",
+        "청담"
+      ],
+      "desired_working_days": [
+        "금",
+        "일",
+        "화",
+        "월",
+        "목",
+        "토"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=5760",
+        "https://picsum.photos/300/400?random=7143",
+        "https://picsum.photos/300/400?random=1688"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "차분함",
+      "special_skills": [
+        "사진"
+      ],
+      "transportation": "버스",
+      "created_at": "2025-07-06T20:59:48.845658",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "ed061efa-35bd-4cd9-b118-30c2785e992b",
+      "nickname": "책임감짱",
+      "real_name": "김서현",
+      "age": 26,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 5542535,
+      "desired_business_types": [
+        "KTV",
+        "퍼블릭",
+        "쩜오",
+        "카페"
+      ],
+      "desired_areas": [
+        "명동",
+        "충무로"
+      ],
+      "desired_working_days": [
+        "일",
+        "화",
+        "금"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=8238",
+        "https://picsum.photos/300/400?random=3016"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "차분함",
+      "special_skills": [
+        "외국어"
+      ],
+      "transportation": "버스",
+      "created_at": "2025-08-01T20:59:48.845675",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "6947d857-bfb6-4082-98ee-775bee3a6785",
+      "nickname": "밝은미소",
+      "real_name": "김도윤",
+      "age": 31,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 5013234,
+      "desired_business_types": [
+        "비즈니스클럽",
+        "쩜오"
+      ],
+      "desired_areas": [
+        "을지로",
+        "역삼",
+        "천호",
+        "동대문"
+      ],
+      "desired_working_days": [
+        "일",
+        "금",
+        "수"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=1396"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "차분함",
+      "special_skills": [
+        "음악",
+        "요리"
+      ],
+      "transportation": "자차",
+      "created_at": "2025-08-14T20:59:48.845692",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "dc335d7f-5d00-47be-b024-1356acf905db",
+      "nickname": "활발한성격",
+      "real_name": "김서현",
+      "age": 28,
+      "gender": "FEMALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 2839104,
+      "desired_business_types": [
+        "라운지",
+        "하이퍼블릭"
+      ],
+      "desired_areas": [
+        "망원",
+        "영등포"
+      ],
+      "desired_working_days": [
+        "월",
+        "토",
+        "금"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=2275"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "적극적",
+      "special_skills": [
+        "서비스"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-07-28T20:59:48.845709",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "52c48719-7ebf-48b8-825f-137d3eb00af2",
+      "nickname": "차분한매력",
+      "real_name": "김시우",
+      "age": 20,
+      "gender": "MALE",
+      "experience_level": "JUNIOR",
+      "desired_pay_amount": 3957944,
+      "desired_business_types": [
+        "클럽",
+        "단란주점",
+        "하이퍼블릭",
+        "룸싸롱"
+      ],
+      "desired_areas": [
+        "홍대",
+        "반포",
+        "건대",
+        "여의도"
+      ],
+      "desired_working_days": [
+        "금",
+        "일",
+        "토",
+        "목"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7581",
+        "https://picsum.photos/300/400?random=9350"
+      ],
+      "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "전문적",
+      "special_skills": [
+        "서비스"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-18T20:59:48.845732",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "87a15ab6-0c1e-4fa3-b3fd-1c6bcaea1800",
+      "nickname": "프로워커",
+      "real_name": "김도윤",
+      "age": 34,
+      "gender": "FEMALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5189947,
+      "desired_business_types": [
+        "호스트바",
+        "KTV",
+        "비즈니스클럽"
+      ],
+      "desired_areas": [
+        "성수",
+        "을지로"
+      ],
+      "desired_working_days": [
+        "목",
+        "수",
+        "일",
+        "금",
+        "화",
+        "월"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=4467"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "적극적",
+      "special_skills": [],
+      "transportation": "버스",
+      "created_at": "2025-07-04T20:59:48.845750",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "2bad729f-d52c-491b-bef2-20d96d019ed0",
+      "nickname": "경험많아요",
+      "real_name": "김주원",
+      "age": 21,
+      "gender": "MALE",
+      "experience_level": "NEWCOMER",
+      "desired_pay_amount": 2568504,
+      "desired_business_types": [
+        "쩜오",
+        "퍼블릭",
+        "호스트바"
+      ],
+      "desired_areas": [
+        "종로",
+        "강남",
+        "인사동"
+      ],
+      "desired_working_days": [
+        "목",
+        "토",
+        "월"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9759",
+        "https://picsum.photos/300/400?random=2568"
+      ],
+      "self_introduction": "신입이지만 빠르게 적응할 자신 있습니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "전문적",
+      "special_skills": [
+        "외국어",
+        "서비스",
+        "사진"
+      ],
+      "transportation": "버스",
+      "created_at": "2025-08-17T20:59:48.845767",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "c2987dcb-6303-4c46-ac94-fe6b075b8164",
+      "nickname": "배우고싶어요",
+      "real_name": "김민준",
+      "age": 33,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 4446184,
+      "desired_business_types": [
+        "호스트바",
+        "노래주점",
+        "하이퍼블릭"
+      ],
+      "desired_areas": [
+        "이태원",
+        "역삼",
+        "강동",
+        "합정"
+      ],
+      "desired_working_days": [
+        "일",
+        "목",
+        "월",
+        "수",
+        "화",
+        "금"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=4298",
+        "https://picsum.photos/300/400?random=3978"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "친근함",
+      "special_skills": [
+        "사진",
+        "칵테일",
+        "음악"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-10T20:59:48.845785",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "22cb044c-b3b8-406c-a784-3fe1dda53577",
+      "nickname": "열심히할게요",
+      "real_name": "김건우",
+      "age": 32,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 3574268,
+      "desired_business_types": [
+        "하이퍼블릭",
+        "룸싸롱",
+        "노래주점",
+        "라운지"
+      ],
+      "desired_areas": [
+        "충무로",
+        "서초"
+      ],
+      "desired_working_days": [
+        "월",
+        "토",
+        "화",
+        "금",
+        "수"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=5194"
+      ],
+      "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "친근함",
+      "special_skills": [
+        "음악"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-07-15T20:59:48.845802",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "d48a6e05-998e-4659-8b73-be2e6254996f",
+      "nickname": "믿음직한",
+      "real_name": "김주원",
+      "age": 25,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 4772669,
+      "desired_business_types": [
+        "셔츠룸",
+        "단란주점"
+      ],
+      "desired_areas": [
+        "한남",
+        "상수",
+        "당산",
+        "논현"
+      ],
+      "desired_working_days": [
+        "일",
+        "수",
+        "월",
+        "목"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7325",
+        "https://picsum.photos/300/400?random=9582"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "적극적",
+      "special_skills": [],
+      "transportation": "도보",
+      "created_at": "2025-07-20T20:59:48.845818",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "2ce97bfb-5688-494e-b99f-88a0d30cb59b",
+      "nickname": "든든한동료",
+      "real_name": "김서현",
+      "age": 35,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5482134,
+      "desired_business_types": [
+        "BAR",
+        "호스트바",
+        "쩜오"
+      ],
+      "desired_areas": [
+        "성수",
+        "반포",
+        "용산"
+      ],
+      "desired_working_days": [
+        "수",
+        "금",
+        "월",
+        "토",
+        "화"
+      ],
+      "available_time": "오후 6시 ~ 오전 2시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9310",
+        "https://picsum.photos/300/400?random=2871"
+      ],
+      "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "적극적",
+      "special_skills": [
+        "외국어",
+        "사진"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-07-22T20:59:48.845836",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "8671bd50-234c-4595-8ece-4a12c3a97986",
+      "nickname": "소통왕",
+      "real_name": "김건우",
+      "age": 31,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 4395792,
+      "desired_business_types": [
+        "클럽",
+        "셔츠룸"
+      ],
+      "desired_areas": [
+        "논현",
+        "한남"
+      ],
+      "desired_working_days": [
+        "목",
+        "토",
+        "화",
+        "월"
+      ],
+      "available_time": "오후 8시 ~ 오전 3시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=2456"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "친근함",
+      "special_skills": [
+        "음악",
+        "댄스",
+        "칵테일"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-20T20:59:48.845852",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "dacd3b5c-9ceb-4ecd-90b9-ca247d754840",
+      "nickname": "팀워크좋아",
+      "real_name": "김지유",
+      "age": 32,
+      "gender": "FEMALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5947765,
+      "desired_business_types": [
+        "마사지",
+        "카페",
+        "셔츠룸",
+        "클럽"
+      ],
+      "desired_areas": [
+        "홍대",
+        "명동"
+      ],
+      "desired_working_days": [
+        "수",
+        "금",
+        "토",
+        "월"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9940",
+        "https://picsum.photos/300/400?random=9588"
+      ],
+      "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+      "alcohol_tolerance": "중",
+      "work_style": "친근함",
+      "special_skills": [
+        "요리",
+        "칵테일",
+        "댄스"
+      ],
+      "transportation": "자차",
+      "created_at": "2025-08-25T20:59:48.845869",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "b9205b44-4ef8-4576-bfd4-6d8813dd1ccb",
+      "nickname": "적응빨라",
+      "real_name": "김예은",
+      "age": 28,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 5485565,
+      "desired_business_types": [
+        "나이트클럽",
+        "텐프로"
+      ],
+      "desired_areas": [
+        "연남",
+        "종로"
+      ],
+      "desired_working_days": [
+        "목",
+        "화",
+        "수",
+        "월",
+        "금"
+      ],
+      "available_time": "오후 6시 ~ 오전 2시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7495",
+        "https://picsum.photos/300/400?random=9746",
+        "https://picsum.photos/300/400?random=8855"
+      ],
+      "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "친근함",
+      "special_skills": [
+        "서비스",
+        "외국어"
+      ],
+      "transportation": "택시",
+      "created_at": "2025-08-13T20:59:48.845887",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "a123a3b5-c733-4356-a8b6-3cfb0de583e8",
+      "nickname": "꼼꼼해요",
+      "real_name": "김지유",
+      "age": 23,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 4745537,
+      "desired_business_types": [
+        "나이트클럽",
+        "단란주점",
+        "비즈니스클럽",
+        "BAR",
+        "KTV"
+      ],
+      "desired_areas": [
+        "건대",
+        "압구정",
+        "망원",
+        "을지로"
+      ],
+      "desired_working_days": [
+        "일",
+        "금",
+        "토",
+        "화",
+        "월",
+        "목"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=7445"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "불가",
+      "work_style": "차분함",
+      "special_skills": [
+        "사진"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-21T20:59:48.845905",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "c866011d-a17b-454a-8406-98dfc2adfb21",
+      "nickname": "센스있어요",
+      "real_name": "김지유",
+      "age": 35,
+      "gender": "FEMALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5221909,
+      "desired_business_types": [
+        "텐프로",
+        "클럽",
+        "퍼블릭",
+        "다방"
+      ],
+      "desired_areas": [
+        "용산",
+        "잠실",
+        "연남",
+        "압구정"
+      ],
+      "desired_working_days": [
+        "화",
+        "월",
+        "토",
+        "금"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=3359",
+        "https://picsum.photos/300/400?random=3293"
+      ],
+      "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+      "alcohol_tolerance": "중",
+      "work_style": "차분함",
+      "special_skills": [],
+      "transportation": "버스",
+      "created_at": "2025-07-08T20:59:48.845922",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "4abbe0ff-3c25-4f5f-9847-8d022aa24fba",
+      "nickname": "유머있어요",
+      "real_name": "김하은",
+      "age": 30,
+      "gender": "MALE",
+      "experience_level": "SENIOR",
+      "desired_pay_amount": 5009199,
+      "desired_business_types": [
+        "노래주점",
+        "텐프로",
+        "마사지"
+      ],
+      "desired_areas": [
+        "선릉",
+        "성수",
+        "용산",
+        "상수"
+      ],
+      "desired_working_days": [
+        "일",
+        "목",
+        "금"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=2248",
+        "https://picsum.photos/300/400?random=3248"
+      ],
+      "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+      "alcohol_tolerance": "중",
+      "work_style": "차분함",
+      "special_skills": [
+        "요리"
+      ],
+      "transportation": "도보",
+      "created_at": "2025-07-01T20:59:48.845939",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "48ea8477-80e0-4cd1-9f73-55bfccb48ccb",
+      "nickname": "긍정적",
+      "real_name": "김서윤",
+      "age": 26,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 5752895,
+      "desired_business_types": [
+        "라운지",
+        "퍼블릭",
+        "요정"
+      ],
+      "desired_areas": [
+        "잠실",
+        "홍대"
+      ],
+      "desired_working_days": [
+        "목",
+        "금",
+        "화",
+        "토",
+        "일",
+        "수"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9468",
+        "https://picsum.photos/300/400?random=7708"
+      ],
+      "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "적극적",
+      "special_skills": [
+        "서비스"
+      ],
+      "transportation": "버스",
+      "created_at": "2025-07-28T20:59:48.845957",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "3afdc690-0c51-441e-8240-51fbd37afe4e",
+      "nickname": "도전정신",
+      "real_name": "김하은",
+      "age": 32,
+      "gender": "FEMALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 4143092,
+      "desired_business_types": [
+        "요정",
+        "호스트바",
+        "셔츠룸"
+      ],
+      "desired_areas": [
+        "선릉",
+        "인사동"
+      ],
+      "desired_working_days": [
+        "목",
+        "금",
+        "일",
+        "토"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9830",
+        "https://picsum.photos/300/400?random=4819",
+        "https://picsum.photos/300/400?random=4440"
+      ],
+      "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+      "alcohol_tolerance": "하",
+      "work_style": "적극적",
+      "special_skills": [
+        "칵테일",
+        "외국어",
+        "서비스"
+      ],
+      "transportation": "버스",
+      "created_at": "2025-08-29T20:59:48.845976",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "4364557b-5616-4df2-8ed1-62e50e5438a4",
+      "nickname": "성장지향",
+      "real_name": "김지유",
+      "age": 31,
+      "gender": "MALE",
+      "experience_level": "INTERMEDIATE",
+      "desired_pay_amount": 3273209,
+      "desired_business_types": [
+        "노래주점",
+        "쩜오",
+        "비즈니스클럽"
+      ],
+      "desired_areas": [
+        "충무로",
+        "대학로"
+      ],
+      "desired_working_days": [
+        "토",
+        "화",
+        "월",
+        "목"
+      ],
+      "available_time": "오후 9시 ~ 오전 4시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=9171"
+      ],
+      "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "적극적",
+      "special_skills": [
+        "사진",
+        "서비스"
+      ],
+      "transportation": "택시",
+      "created_at": "2025-08-29T20:59:48.845994",
+      "is_job_seeking": true
+    },
+    {
+      "user_id": "d5a2020a-aef1-43d2-9d11-d8ddff4cff0b",
+      "nickname": "안정추구",
+      "real_name": "김지유",
+      "age": 23,
+      "gender": "MALE",
+      "experience_level": "JUNIOR",
+      "desired_pay_amount": 5696831,
+      "desired_business_types": [
+        "다방",
+        "단란주점"
+      ],
+      "desired_areas": [
+        "방배",
+        "합정"
+      ],
+      "desired_working_days": [
+        "토",
+        "화",
+        "월",
+        "수",
+        "목"
+      ],
+      "available_time": "오후 7시 ~ 오전 1시",
+      "profile_image_urls": [
+        "https://picsum.photos/300/400?random=4352",
+        "https://picsum.photos/300/400?random=1550"
+      ],
+      "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+      "alcohol_tolerance": "상",
+      "work_style": "전문적",
+      "special_skills": [
+        "서비스",
+        "외국어"
+      ],
+      "transportation": "지하철",
+      "created_at": "2025-08-25T20:59:48.846011",
+      "is_job_seeking": true
+    }
+  ],
+  "stars": [
+    {
+      "user_id": "3f3f317e-f069-4f98-a53c-2783503bceea",
+      "stage_name": "김스타",
+      "real_name": "정현우",
+      "age": 24,
+      "gender": "FEMALE",
+      "category": "룸스타",
+      "star_level": "탑급",
+      "price_per_hour": 7267001,
+      "experience_years": 9,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2148",
+        "https://picsum.photos/400/500?random=9131",
+        "https://picsum.photos/400/500?random=1989"
+      ],
+      "specialties": [
+        "요리",
+        "영상편집",
+        "연기"
+      ],
+      "performance_areas": [
+        "잠실",
+        "잠원"
+      ],
+      "available_days": [
+        "토",
+        "수",
+        "금",
+        "목",
+        "일",
+        "화",
+        "월"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "탑급 룸스타로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=9012",
+        "https://picsum.photos/800/600?random=9625"
+      ],
+      "rating": 4.6,
+      "total_bookings": 184,
+      "created_at": "2025-06-06T20:59:48.846033",
+      "is_available": true
+    },
+    {
+      "user_id": "a10c30d7-6307-432f-8316-73f58a6af654",
+      "stage_name": "박프리미엄",
+      "real_name": "이지영",
+      "age": 26,
+      "gender": "MALE",
+      "category": "바텐더",
+      "star_level": "탑급",
+      "price_per_hour": 7346688,
+      "experience_years": 9,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7046",
+        "https://picsum.photos/400/500?random=2262",
+        "https://picsum.photos/400/500?random=4464",
+        "https://picsum.photos/400/500?random=4317",
+        "https://picsum.photos/400/500?random=8296",
+        "https://picsum.photos/400/500?random=4826"
+      ],
+      "specialties": [
+        "칵테일 제조",
+        "요리",
+        "춤"
+      ],
+      "performance_areas": [
+        "인사동",
+        "논현",
+        "종로",
+        "명동"
+      ],
+      "available_days": [
+        "수",
+        "토",
+        "금",
+        "화",
+        "일"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "탑급 바텐더로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6173",
+        "https://picsum.photos/800/600?random=9797"
+      ],
+      "rating": 3.7,
+      "total_bookings": 431,
+      "created_at": "2025-04-14T20:59:48.846056",
+      "is_available": true
+    },
+    {
+      "user_id": "d5658223-1a8d-4c74-afba-7e6f9d99ae96",
+      "stage_name": "이골든",
+      "real_name": "최태민",
+      "age": 38,
+      "gender": "FEMALE",
+      "category": "바텐더",
+      "star_level": "탑급",
+      "price_per_hour": 7531240,
+      "experience_years": 1,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7849",
+        "https://picsum.photos/400/500?random=6335",
+        "https://picsum.photos/400/500?random=5555",
+        "https://picsum.photos/400/500?random=3616",
+        "https://picsum.photos/400/500?random=4957",
+        "https://picsum.photos/400/500?random=5588"
+      ],
+      "specialties": [
+        "칵테일 제조",
+        "외국어",
+        "악기연주",
+        "노래"
+      ],
+      "performance_areas": [
+        "을지로",
+        "암사",
+        "당산"
+      ],
+      "available_days": [
+        "일",
+        "토",
+        "화",
+        "목"
+      ],
+      "performance_duration": "협의가능",
+      "introduction": "탑급 바텐더로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=5092",
+        "https://picsum.photos/800/600?random=9770"
+      ],
+      "rating": 4.1,
+      "total_bookings": 177,
+      "created_at": "2025-04-27T20:59:48.846076",
+      "is_available": true
+    },
+    {
+      "user_id": "586b9d44-7172-4914-99e9-a94c1a59b6a2",
+      "stage_name": "최다이아",
+      "real_name": "박지영",
+      "age": 35,
+      "gender": "MALE",
+      "category": "인플루언서",
+      "star_level": "일반",
+      "price_per_hour": 1854734,
+      "experience_years": 2,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7779",
+        "https://picsum.photos/400/500?random=4314",
+        "https://picsum.photos/400/500?random=6728",
+        "https://picsum.photos/400/500?random=4016",
+        "https://picsum.photos/400/500?random=4904"
+      ],
+      "specialties": [
+        "외국어",
+        "영상편집",
+        "악기연주"
+      ],
+      "performance_areas": [
+        "종로",
+        "압구정",
+        "성수",
+        "방배"
+      ],
+      "available_days": [
+        "화",
+        "일",
+        "월",
+        "목",
+        "토",
+        "수",
+        "금"
+      ],
+      "performance_duration": "3시간",
+      "introduction": "일반 인플루언서로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6591",
+        "https://picsum.photos/800/600?random=6047"
+      ],
+      "rating": 4.2,
+      "total_bookings": 471,
+      "created_at": "2025-03-29T20:59:48.846097",
+      "is_available": true
+    },
+    {
+      "user_id": "3b70af57-5a36-472f-9e66-448d1cf016da",
+      "stage_name": "정플래티넘",
+      "real_name": "정민수",
+      "age": 36,
+      "gender": "FEMALE",
+      "category": "룸스타",
+      "star_level": "일반",
+      "price_per_hour": 1148792,
+      "experience_years": 9,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4370",
+        "https://picsum.photos/400/500?random=4178",
+        "https://picsum.photos/400/500?random=5537",
+        "https://picsum.photos/400/500?random=2409"
+      ],
+      "specialties": [
+        "외국어",
+        "사진촬영",
+        "악기연주"
+      ],
+      "performance_areas": [
+        "신천",
+        "선릉",
+        "문정",
+        "삼성",
+        "논현"
+      ],
+      "available_days": [
+        "금",
+        "월",
+        "목",
+        "토",
+        "수"
+      ],
+      "performance_duration": "협의가능",
+      "introduction": "일반 룸스타로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6769",
+        "https://picsum.photos/800/600?random=7741"
+      ],
+      "rating": 4.8,
+      "total_bookings": 123,
+      "created_at": "2025-04-16T20:59:48.846117",
+      "is_available": true
+    },
+    {
+      "user_id": "e1720978-48ba-4078-8d1c-2541d7674160",
+      "stage_name": "장크라운",
+      "real_name": "정수진",
+      "age": 28,
+      "gender": "MALE",
+      "category": "클럽DJ",
+      "star_level": "탑급",
+      "price_per_hour": 7568882,
+      "experience_years": 12,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=1598",
+        "https://picsum.photos/400/500?random=4615",
+        "https://picsum.photos/400/500?random=8392"
+      ],
+      "specialties": [
+        "외국어",
+        "마술"
+      ],
+      "performance_areas": [
+        "암사",
+        "상수",
+        "반포",
+        "용산",
+        "잠실"
+      ],
+      "available_days": [
+        "일",
+        "목",
+        "월",
+        "화",
+        "수"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "탑급 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6435",
+        "https://picsum.photos/800/600?random=9014"
+      ],
+      "rating": 4.0,
+      "total_bookings": 403,
+      "created_at": "2025-07-28T20:59:48.846137",
+      "is_available": true
+    },
+    {
+      "user_id": "e1606989-f9d7-4792-9a62-e2f6d5264c11",
+      "stage_name": "윤킹",
+      "real_name": "이수진",
+      "age": 25,
+      "gender": "MALE",
+      "category": "댄서",
+      "star_level": "일반",
+      "price_per_hour": 1369975,
+      "experience_years": 14,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7999",
+        "https://picsum.photos/400/500?random=3331",
+        "https://picsum.photos/400/500?random=5376"
+      ],
+      "specialties": [
+        "연기",
+        "칵테일 제조"
+      ],
+      "performance_areas": [
+        "신천",
+        "동대문",
+        "삼성",
+        "망원"
+      ],
+      "available_days": [
+        "수",
+        "화",
+        "목",
+        "월",
+        "일",
+        "금",
+        "토"
+      ],
+      "performance_duration": "30분",
+      "introduction": "일반 댄서로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=5211",
+        "https://picsum.photos/800/600?random=5996"
+      ],
+      "rating": 4.4,
+      "total_bookings": 133,
+      "created_at": "2025-03-22T20:59:48.846156",
+      "is_available": true
+    },
+    {
+      "user_id": "7cab52dd-c277-4ef2-a75d-582d095e39d1",
+      "stage_name": "임퀸",
+      "real_name": "김예린",
+      "age": 36,
+      "gender": "MALE",
+      "category": "호스트",
+      "star_level": "일반",
+      "price_per_hour": 1553009,
+      "experience_years": 10,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8374",
+        "https://picsum.photos/400/500?random=4876",
+        "https://picsum.photos/400/500?random=9306"
+      ],
+      "specialties": [
+        "영상편집",
+        "외국어"
+      ],
+      "performance_areas": [
+        "반포",
+        "서초"
+      ],
+      "available_days": [
+        "금",
+        "토",
+        "월",
+        "일",
+        "화"
+      ],
+      "performance_duration": "협의가능",
+      "introduction": "일반 호스트로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=8114",
+        "https://picsum.photos/800/600?random=9062"
+      ],
+      "rating": 4.7,
+      "total_bookings": 48,
+      "created_at": "2025-04-30T20:59:48.846175",
+      "is_available": true
+    },
+    {
+      "user_id": "76f04415-cc6f-44b5-bd81-74730194a057",
+      "stage_name": "한에이스",
+      "real_name": "박현우",
+      "age": 22,
+      "gender": "MALE",
+      "category": "클럽DJ",
+      "star_level": "일반",
+      "price_per_hour": 1217270,
+      "experience_years": 3,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=6886",
+        "https://picsum.photos/400/500?random=3976",
+        "https://picsum.photos/400/500?random=4545",
+        "https://picsum.photos/400/500?random=1829"
+      ],
+      "specialties": [
+        "외국어",
+        "요리",
+        "칵테일 제조"
+      ],
+      "performance_areas": [
+        "암사",
+        "을지로"
+      ],
+      "available_days": [
+        "목",
+        "금",
+        "일",
+        "화",
+        "토",
+        "수"
+      ],
+      "performance_duration": "30분",
+      "introduction": "일반 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=8774",
+        "https://picsum.photos/800/600?random=5239"
+      ],
+      "rating": 3.8,
+      "total_bookings": 339,
+      "created_at": "2025-08-16T20:59:48.846195",
+      "is_available": true
+    },
+    {
+      "user_id": "15da38d2-2749-4485-b4ee-f2755776d5d7",
+      "stage_name": "강베스트",
+      "real_name": "김지영",
+      "age": 32,
+      "gender": "MALE",
+      "category": "클럽DJ",
+      "star_level": "인기",
+      "price_per_hour": 4601969,
+      "experience_years": 14,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=5284",
+        "https://picsum.photos/400/500?random=4984",
+        "https://picsum.photos/400/500?random=8214",
+        "https://picsum.photos/400/500?random=2336"
+      ],
+      "specialties": [
+        "노래",
+        "외국어",
+        "악기연주",
+        "연기"
+      ],
+      "performance_areas": [
+        "명동",
+        "서초",
+        "대학로"
+      ],
+      "available_days": [
+        "화",
+        "수",
+        "월",
+        "목",
+        "일",
+        "토",
+        "금"
+      ],
+      "performance_duration": "3시간",
+      "introduction": "인기 클럽DJ로 활동하고 있습니다. 프로페셜한 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=5887",
+        "https://picsum.photos/800/600?random=5786"
+      ],
+      "rating": 4.0,
+      "total_bookings": 406,
+      "created_at": "2025-08-28T20:59:48.846216",
+      "is_available": true
+    },
+    {
+      "user_id": "edb3e862-780c-49df-832f-03081f1d70fa",
+      "stage_name": "오마스터",
+      "real_name": "이예린",
+      "age": 38,
+      "gender": "FEMALE",
+      "category": "호스트",
+      "star_level": "인기",
+      "price_per_hour": 4399919,
+      "experience_years": 4,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=6390",
+        "https://picsum.photos/400/500?random=9934",
+        "https://picsum.photos/400/500?random=7550",
+        "https://picsum.photos/400/500?random=2532",
+        "https://picsum.photos/400/500?random=3368",
+        "https://picsum.photos/400/500?random=7791"
+      ],
+      "specialties": [
+        "노래",
+        "춤",
+        "DJ믹싱"
+      ],
+      "performance_areas": [
+        "한남",
+        "영등포",
+        "건대",
+        "역삼",
+        "강동"
+      ],
+      "available_days": [
+        "목",
+        "수",
+        "금",
+        "일",
+        "화",
+        "월",
+        "토"
+      ],
+      "performance_duration": "30분",
+      "introduction": "인기 호스트로 활동하고 있습니다. 프로페셜한 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=7545",
+        "https://picsum.photos/800/600?random=6655"
+      ],
+      "rating": 4.5,
+      "total_bookings": 139,
+      "created_at": "2025-08-20T20:59:48.846238",
+      "is_available": true
+    },
+    {
+      "user_id": "7884a28f-5472-4b16-a828-0a47e51b9256",
+      "stage_name": "서프로",
+      "real_name": "김지영",
+      "age": 22,
+      "gender": "FEMALE",
+      "category": "퍼포머",
+      "star_level": "신인",
+      "price_per_hour": 653096,
+      "experience_years": 8,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2070",
+        "https://picsum.photos/400/500?random=6071",
+        "https://picsum.photos/400/500?random=9250",
+        "https://picsum.photos/400/500?random=1996",
+        "https://picsum.photos/400/500?random=2574"
+      ],
+      "specialties": [
+        "연기",
+        "영상편집"
+      ],
+      "performance_areas": [
+        "건대",
+        "삼성",
+        "천호",
+        "암사",
+        "홍대"
+      ],
+      "available_days": [
+        "목",
+        "금",
+        "화",
+        "일",
+        "월",
+        "토"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "신인 퍼포머로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6558",
+        "https://picsum.photos/800/600?random=7055"
+      ],
+      "rating": 4.0,
+      "total_bookings": 493,
+      "created_at": "2025-07-30T20:59:48.846259",
+      "is_available": true
+    },
+    {
+      "user_id": "7aa76cb8-f964-4387-a160-58fed0f2b5a6",
+      "stage_name": "권엘리트",
+      "real_name": "박태민",
+      "age": 34,
+      "gender": "MALE",
+      "category": "클럽DJ",
+      "star_level": "신인",
+      "price_per_hour": 869198,
+      "experience_years": 13,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=1812",
+        "https://picsum.photos/400/500?random=4910",
+        "https://picsum.photos/400/500?random=4200",
+        "https://picsum.photos/400/500?random=6878",
+        "https://picsum.photos/400/500?random=4217",
+        "https://picsum.photos/400/500?random=1849"
+      ],
+      "specialties": [
+        "외국어",
+        "노래",
+        "마술",
+        "영상편집"
+      ],
+      "performance_areas": [
+        "삼성",
+        "홍대"
+      ],
+      "available_days": [
+        "목",
+        "수",
+        "월",
+        "화",
+        "일"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "신인 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=7724",
+        "https://picsum.photos/800/600?random=8820"
+      ],
+      "rating": 4.6,
+      "total_bookings": 52,
+      "created_at": "2025-08-11T20:59:48.846279",
+      "is_available": true
+    },
+    {
+      "user_id": "e3e0f00e-f7a6-420b-a5c3-0b710b6e22d2",
+      "stage_name": "조로얄",
+      "real_name": "이수진",
+      "age": 37,
+      "gender": "MALE",
+      "category": "모델",
+      "star_level": "신인",
+      "price_per_hour": 955907,
+      "experience_years": 5,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8463",
+        "https://picsum.photos/400/500?random=2366",
+        "https://picsum.photos/400/500?random=7822"
+      ],
+      "specialties": [
+        "외국어",
+        "춤",
+        "마술",
+        "칵테일 제조"
+      ],
+      "performance_areas": [
+        "천호",
+        "암사",
+        "삼성",
+        "동대문",
+        "잠실"
+      ],
+      "available_days": [
+        "목",
+        "수",
+        "일",
+        "월",
+        "화",
+        "금"
+      ],
+      "performance_duration": "30분",
+      "introduction": "신인 모델로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=5018",
+        "https://picsum.photos/800/600?random=5631"
+      ],
+      "rating": 4.0,
+      "total_bookings": 188,
+      "created_at": "2025-03-07T20:59:48.846299",
+      "is_available": true
+    },
+    {
+      "user_id": "048230cf-640f-4c48-bd79-e6868a4dda13",
+      "stage_name": "신그랜드",
+      "real_name": "박지영",
+      "age": 30,
+      "gender": "FEMALE",
+      "category": "가수",
+      "star_level": "탑급",
+      "price_per_hour": 8960341,
+      "experience_years": 10,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4375",
+        "https://picsum.photos/400/500?random=6069",
+        "https://picsum.photos/400/500?random=9986",
+        "https://picsum.photos/400/500?random=8496"
+      ],
+      "specialties": [
+        "영상편집",
+        "요리",
+        "춤"
+      ],
+      "performance_areas": [
+        "선릉",
+        "신사",
+        "압구정",
+        "논현"
+      ],
+      "available_days": [
+        "수",
+        "토",
+        "일",
+        "화"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "탑급 가수로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6227",
+        "https://picsum.photos/800/600?random=7893"
+      ],
+      "rating": 4.1,
+      "total_bookings": 443,
+      "created_at": "2025-05-25T20:59:48.846319",
+      "is_available": true
+    },
+    {
+      "user_id": "14f361c6-d9b7-471b-9f55-d8358665a5ab",
+      "stage_name": "황럭셔리",
+      "real_name": "최예린",
+      "age": 31,
+      "gender": "FEMALE",
+      "category": "모델",
+      "star_level": "탑급",
+      "price_per_hour": 9855345,
+      "experience_years": 9,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=9875",
+        "https://picsum.photos/400/500?random=5680",
+        "https://picsum.photos/400/500?random=3742",
+        "https://picsum.photos/400/500?random=7987",
+        "https://picsum.photos/400/500?random=7769",
+        "https://picsum.photos/400/500?random=5001"
+      ],
+      "specialties": [
+        "사진촬영",
+        "요리",
+        "외국어"
+      ],
+      "performance_areas": [
+        "천호",
+        "역삼",
+        "선릉"
+      ],
+      "available_days": [
+        "월",
+        "수",
+        "일",
+        "토",
+        "화",
+        "목"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "탑급 모델로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6591",
+        "https://picsum.photos/800/600?random=7006"
+      ],
+      "rating": 4.9,
+      "total_bookings": 108,
+      "created_at": "2025-04-23T20:59:48.846341",
+      "is_available": true
+    },
+    {
+      "user_id": "83c7add5-f15f-4bd1-bb27-3985a0d06cf7",
+      "stage_name": "문프라임",
+      "real_name": "최현우",
+      "age": 30,
+      "gender": "FEMALE",
+      "category": "모델",
+      "star_level": "신인",
+      "price_per_hour": 581891,
+      "experience_years": 12,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4863",
+        "https://picsum.photos/400/500?random=8999",
+        "https://picsum.photos/400/500?random=8051",
+        "https://picsum.photos/400/500?random=7813",
+        "https://picsum.photos/400/500?random=4537",
+        "https://picsum.photos/400/500?random=7602"
+      ],
+      "specialties": [
+        "요리",
+        "악기연주",
+        "칵테일 제조"
+      ],
+      "performance_areas": [
+        "동대문",
+        "종로",
+        "잠실"
+      ],
+      "available_days": [
+        "목",
+        "월",
+        "일",
+        "수",
+        "토",
+        "화",
+        "금"
+      ],
+      "performance_duration": "1시간",
+      "introduction": "신인 모델로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=7662",
+        "https://picsum.photos/800/600?random=5043"
+      ],
+      "rating": 4.5,
+      "total_bookings": 397,
+      "created_at": "2025-06-13T20:59:48.846361",
+      "is_available": true
+    },
+    {
+      "user_id": "d6d3ddae-fd38-4bbb-b599-b9849855c4b1",
+      "stage_name": "안슈퍼",
+      "real_name": "정예린",
+      "age": 25,
+      "gender": "FEMALE",
+      "category": "바텐더",
+      "star_level": "신인",
+      "price_per_hour": 848295,
+      "experience_years": 1,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=1217",
+        "https://picsum.photos/400/500?random=9492",
+        "https://picsum.photos/400/500?random=2602",
+        "https://picsum.photos/400/500?random=1228"
+      ],
+      "specialties": [
+        "연기",
+        "영상편집",
+        "노래"
+      ],
+      "performance_areas": [
+        "홍대",
+        "동대문"
+      ],
+      "available_days": [
+        "목",
+        "일",
+        "월",
+        "토",
+        "화",
+        "금"
+      ],
+      "performance_duration": "협의가능",
+      "introduction": "신인 바텐더로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=5598",
+        "https://picsum.photos/800/600?random=5089"
+      ],
+      "rating": 4.3,
+      "total_bookings": 132,
+      "created_at": "2025-04-18T20:59:48.846381",
+      "is_available": true
+    },
+    {
+      "user_id": "a11b603b-f50b-4444-b255-3bba72ad391c",
+      "stage_name": "유톱",
+      "real_name": "김민수",
+      "age": 23,
+      "gender": "MALE",
+      "category": "댄서",
+      "star_level": "신인",
+      "price_per_hour": 932605,
+      "experience_years": 9,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=3472",
+        "https://picsum.photos/400/500?random=1535",
+        "https://picsum.photos/400/500?random=8227"
+      ],
+      "specialties": [
+        "마술",
+        "외국어"
+      ],
+      "performance_areas": [
+        "왕십리",
+        "삼성",
+        "합정",
+        "강동",
+        "신사"
+      ],
+      "available_days": [
+        "일",
+        "토",
+        "화",
+        "금",
+        "수",
+        "목"
+      ],
+      "performance_duration": "30분",
+      "introduction": "신인 댄서로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6065",
+        "https://picsum.photos/800/600?random=8650"
+      ],
+      "rating": 4.0,
+      "total_bookings": 479,
+      "created_at": "2025-04-17T20:59:48.846400",
+      "is_available": true
+    },
+    {
+      "user_id": "e199b255-5e80-4620-be56-3d1c37822402",
+      "stage_name": "송VIP",
+      "real_name": "정태민",
+      "age": 33,
+      "gender": "FEMALE",
+      "category": "퍼포머",
+      "star_level": "탑급",
+      "price_per_hour": 9798583,
+      "experience_years": 7,
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7719",
+        "https://picsum.photos/400/500?random=7160",
+        "https://picsum.photos/400/500?random=4027",
+        "https://picsum.photos/400/500?random=5006"
+      ],
+      "specialties": [
+        "춤",
+        "마술"
+      ],
+      "performance_areas": [
+        "서초",
+        "논현",
+        "대학로",
+        "강동",
+        "당산"
+      ],
+      "available_days": [
+        "화",
+        "일",
+        "목",
+        "토",
+        "금"
+      ],
+      "performance_duration": "30분",
+      "introduction": "탑급 퍼포머로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+      "portfolio_urls": [
+        "https://picsum.photos/800/600?random=6050",
+        "https://picsum.photos/800/600?random=6277"
+      ],
+      "rating": 3.5,
+      "total_bookings": 477,
+      "created_at": "2025-06-01T20:59:48.846419",
+      "is_available": true
+    }
+  ],
+  "users": [
+    {
+      "user_id": "2aeb87e5-4878-4a90-85f4-1902dbe0ae60",
+      "nickname": "고객001",
+      "age": 44,
+      "gender": "FEMALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "건대",
+        "용산"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "룸싸롱",
+        "텐프로",
+        "비즈니스클럽",
+        "BAR",
+        "나이트클럽"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 7-9시",
+      "group_size": "2-3명",
+      "interests": [
+        "스트레스해소",
+        "문화체험",
+        "음악감상",
+        "친목도모"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=6029",
+        "https://picsum.photos/300/300?random=5072"
+      ],
+      "membership_level": "일반",
+      "total_visits": 178,
+      "average_spending": 1494718,
+      "created_at": "2025-03-21T20:59:48.846441",
+      "is_active": true
+    },
+    {
+      "user_id": "59e6e9a2-3c11-457b-b40f-555a22a96fee",
+      "nickname": "고객002",
+      "age": 33,
+      "gender": "FEMALE",
+      "user_type": "전문직",
+      "preferred_areas": [
+        "상수",
+        "왕십리",
+        "홍대",
+        "여의도"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "카페",
+        "라운지",
+        "쩜오",
+        "KTV"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 7-9시",
+      "group_size": "10명 이상",
+      "interests": [
+        "친목도모",
+        "댄스",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7452",
+        "https://picsum.photos/300/300?random=6305"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 194,
+      "average_spending": 899277,
+      "created_at": "2025-03-21T20:59:48.846459",
+      "is_active": true
+    },
+    {
+      "user_id": "c3b7e6e6-6261-4c1b-8305-13261f5f1049",
+      "nickname": "고객003",
+      "age": 42,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "논현",
+        "잠원",
+        "종로"
+      ],
+      "preferred_business_types": [
+        "단란주점",
+        "하이퍼블릭",
+        "카페",
+        "비즈니스클럽"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "10명 이상",
+      "interests": [
+        "음악감상",
+        "문화체험",
+        "스트레스해소",
+        "비즈니스미팅"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1635"
+      ],
+      "membership_level": "골드",
+      "total_visits": 22,
+      "average_spending": 814977,
+      "created_at": "2025-07-04T20:59:48.846475",
+      "is_active": true
+    },
+    {
+      "user_id": "22574a34-c023-42e8-b597-4c703efd50da",
+      "nickname": "즐거운밤",
+      "age": 35,
+      "gender": "FEMALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "이태원",
+        "건대",
+        "종로"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "룸싸롱",
+        "다방",
+        "KTV",
+        "카페"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 9-11시",
+      "group_size": "4-6명",
+      "interests": [
+        "음악감상",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=9250"
+      ],
+      "membership_level": "일반",
+      "total_visits": 38,
+      "average_spending": 218787,
+      "created_at": "2024-09-04T20:59:48.846492",
+      "is_active": true
+    },
+    {
+      "user_id": "26425f23-a4f1-4e17-a76e-db1002a553ae",
+      "nickname": "파티러버",
+      "age": 49,
+      "gender": "MALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "청담",
+        "용산",
+        "선릉"
+      ],
+      "preferred_business_types": [
+        "클럽",
+        "카페"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "7-10명",
+      "interests": [
+        "네트워킹",
+        "비즈니스미팅",
+        "새로운경험",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7967",
+        "https://picsum.photos/300/300?random=8905"
+      ],
+      "membership_level": "일반",
+      "total_visits": 70,
+      "average_spending": 879484,
+      "created_at": "2025-07-05T20:59:48.846512",
+      "is_active": true
+    },
+    {
+      "user_id": "ef09c543-34c1-4065-80e4-9a1869f6059a",
+      "nickname": "나이트킹",
+      "age": 41,
+      "gender": "MALE",
+      "user_type": "투자자",
+      "preferred_areas": [
+        "강남",
+        "서초",
+        "영등포"
+      ],
+      "preferred_business_types": [
+        "요정",
+        "클럽",
+        "셔츠룸"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "혼자",
+      "interests": [
+        "댄스",
+        "음악감상",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=9465"
+      ],
+      "membership_level": "실버",
+      "total_visits": 107,
+      "average_spending": 550475,
+      "created_at": "2025-03-09T20:59:48.846528",
+      "is_active": true
+    },
+    {
+      "user_id": "c6454bd5-4557-4de8-b318-42d9897871bd",
+      "nickname": "클럽마스터",
+      "age": 25,
+      "gender": "MALE",
+      "user_type": "학생",
+      "preferred_areas": [
+        "신천",
+        "반포"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "퍼블릭"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "2-3명",
+      "interests": [
+        "친목도모",
+        "비즈니스미팅",
+        "새로운경험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7282",
+        "https://picsum.photos/300/300?random=8600"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 73,
+      "average_spending": 492271,
+      "created_at": "2025-03-11T20:59:48.846543",
+      "is_active": true
+    },
+    {
+      "user_id": "b89e290a-94c2-425b-adf9-4035917163bc",
+      "nickname": "바호핑",
+      "age": 35,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "반포",
+        "잠실"
+      ],
+      "preferred_business_types": [
+        "단란주점",
+        "텐프로",
+        "BAR"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "7-10명",
+      "interests": [
+        "네트워킹",
+        "친목도모",
+        "비즈니스미팅",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1116",
+        "https://picsum.photos/300/300?random=9788"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 24,
+      "average_spending": 225783,
+      "created_at": "2025-01-31T20:59:48.846559",
+      "is_active": true
+    },
+    {
+      "user_id": "0c28ac47-3999-4d8f-b4cc-de45f12ff955",
+      "nickname": "소셜라이프",
+      "age": 45,
+      "gender": "FEMALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "천호",
+        "종로"
+      ],
+      "preferred_business_types": [
+        "다방",
+        "KTV",
+        "요정"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 1회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "2-3명",
+      "interests": [
+        "댄스",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=5121",
+        "https://picsum.photos/300/300?random=3625"
+      ],
+      "membership_level": "일반",
+      "total_visits": 192,
+      "average_spending": 1600770,
+      "created_at": "2025-07-08T20:59:48.846574",
+      "is_active": true
+    },
+    {
+      "user_id": "07d6eb54-5417-4f10-9282-348f33ec2e5b",
+      "nickname": "네트워커",
+      "age": 26,
+      "gender": "FEMALE",
+      "user_type": "학생",
+      "preferred_areas": [
+        "망원",
+        "압구정",
+        "강동",
+        "종로"
+      ],
+      "preferred_business_types": [
+        "쩜오",
+        "클럽"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "주 1회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "7-10명",
+      "interests": [
+        "새로운경험",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=4006",
+        "https://picsum.photos/300/300?random=4764"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 163,
+      "average_spending": 120264,
+      "created_at": "2025-04-13T20:59:48.846590",
+      "is_active": true
+    },
+    {
+      "user_id": "7b35b659-90d7-4b7d-a002-f4400b05c6a3",
+      "nickname": "엔터테이너",
+      "age": 50,
+      "gender": "FEMALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "삼성",
+        "성수",
+        "반포",
+        "당산"
+      ],
+      "preferred_business_types": [
+        "KTV",
+        "다방",
+        "나이트클럽",
+        "노래주점",
+        "클럽"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "혼자",
+      "interests": [
+        "새로운경험",
+        "네트워킹",
+        "친목도모"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=8311"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 30,
+      "average_spending": 1833288,
+      "created_at": "2024-10-20T20:59:48.846605",
+      "is_active": true
+    },
+    {
+      "user_id": "5fb44588-92bb-41a5-baa9-35c9872fb569",
+      "nickname": "비즈니스맨",
+      "age": 38,
+      "gender": "FEMALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "인사동",
+        "압구정"
+      ],
+      "preferred_business_types": [
+        "라운지",
+        "다방"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "4-6명",
+      "interests": [
+        "새로운경험",
+        "스트레스해소",
+        "문화체험",
+        "음악감상"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7655"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 180,
+      "average_spending": 885593,
+      "created_at": "2025-08-11T20:59:48.846621",
+      "is_active": true
+    },
+    {
+      "user_id": "fcab5a4a-98db-4645-96bf-abfea0fc2eac",
+      "nickname": "프리미엄고객",
+      "age": 38,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "합정",
+        "여의도"
+      ],
+      "preferred_business_types": [
+        "마사지",
+        "KTV",
+        "나이트클럽"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "혼자",
+      "interests": [
+        "댄스",
+        "음악감상",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=2010"
+      ],
+      "membership_level": "골드",
+      "total_visits": 189,
+      "average_spending": 489194,
+      "created_at": "2024-10-08T20:59:48.846635",
+      "is_active": true
+    },
+    {
+      "user_id": "e82a7ba1-0707-4832-bd8d-e1a4ecd1c37d",
+      "nickname": "VIP회원",
+      "age": 45,
+      "gender": "FEMALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "성수",
+        "합정"
+      ],
+      "preferred_business_types": [
+        "룸싸롱",
+        "라운지",
+        "퍼블릭",
+        "쩜오",
+        "다방"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "2-3명",
+      "interests": [
+        "비즈니스미팅",
+        "댄스",
+        "음악감상"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=3913",
+        "https://picsum.photos/300/300?random=8229"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 154,
+      "average_spending": 1068787,
+      "created_at": "2025-02-09T20:59:48.846651",
+      "is_active": true
+    },
+    {
+      "user_id": "0923ebf5-2545-4cfa-ad12-d5f4ab917c03",
+      "nickname": "단골손님",
+      "age": 34,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "왕십리",
+        "당산",
+        "청담"
+      ],
+      "preferred_business_types": [
+        "카페",
+        "셔츠룸",
+        "KTV",
+        "나이트클럽",
+        "노래주점",
+        "룸싸롱"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "4-6명",
+      "interests": [
+        "스트레스해소",
+        "비즈니스미팅",
+        "네트워킹",
+        "새로운경험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=2484"
+      ],
+      "membership_level": "일반",
+      "total_visits": 184,
+      "average_spending": 255844,
+      "created_at": "2024-10-12T20:59:48.846667",
+      "is_active": true
+    },
+    {
+      "user_id": "ca890f32-8e01-48d7-a8cc-732b826e9aa8",
+      "nickname": "야간활동가",
+      "age": 41,
+      "gender": "FEMALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "을지로",
+        "상수",
+        "당산"
+      ],
+      "preferred_business_types": [
+        "다방",
+        "하이퍼블릭",
+        "호스트바"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "2-3명",
+      "interests": [
+        "새로운경험",
+        "음악감상",
+        "비즈니스미팅",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7647"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 152,
+      "average_spending": 1463218,
+      "created_at": "2024-12-28T20:59:48.846683",
+      "is_active": true
+    },
+    {
+      "user_id": "aba12b7f-1525-4745-a689-d59222cef636",
+      "nickname": "문화생활러",
+      "age": 34,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "선릉",
+        "성수"
+      ],
+      "preferred_business_types": [
+        "요정",
+        "퍼블릭",
+        "BAR",
+        "마사지"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "10명 이상",
+      "interests": [
+        "친목도모",
+        "스트레스해소",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1663",
+        "https://picsum.photos/300/300?random=2597"
+      ],
+      "membership_level": "일반",
+      "total_visits": 25,
+      "average_spending": 250244,
+      "created_at": "2025-03-04T20:59:48.846699",
+      "is_active": true
+    },
+    {
+      "user_id": "cc68cb22-1f71-42ca-abfa-3875934a5e2d",
+      "nickname": "트렌드세터",
+      "age": 31,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "한남",
+        "합정"
+      ],
+      "preferred_business_types": [
+        "쩜오",
+        "BAR",
+        "비즈니스클럽",
+        "퍼블릭",
+        "마사지",
+        "룸싸롱"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "7-10명",
+      "interests": [
+        "비즈니스미팅",
+        "댄스",
+        "스트레스해소",
+        "친목도모"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=5454",
+        "https://picsum.photos/300/300?random=2453"
+      ],
+      "membership_level": "골드",
+      "total_visits": 110,
+      "average_spending": 852598,
+      "created_at": "2025-02-06T20:59:48.846717",
+      "is_active": true
+    },
+    {
+      "user_id": "00493de3-3996-49d0-84a5-a3adf26d6a15",
+      "nickname": "라이프스타일",
+      "age": 35,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "선릉",
+        "논현"
+      ],
+      "preferred_business_types": [
+        "퍼블릭",
+        "나이트클럽",
+        "노래주점",
+        "비즈니스클럽",
+        "카페"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "2-3명",
+      "interests": [
+        "친목도모",
+        "새로운경험",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=3231"
+      ],
+      "membership_level": "실버",
+      "total_visits": 92,
+      "average_spending": 573984,
+      "created_at": "2025-03-13T20:59:48.846733",
+      "is_active": true
+    },
+    {
+      "user_id": "a99b03a5-3ef1-4649-b7f4-edc19c3524fe",
+      "nickname": "익스피어런스",
+      "age": 40,
+      "gender": "MALE",
+      "user_type": "투자자",
+      "preferred_areas": [
+        "종로",
+        "대학로",
+        "선릉",
+        "동대문"
+      ],
+      "preferred_business_types": [
+        "텐프로",
+        "비즈니스클럽",
+        "셔츠룸"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "7-10명",
+      "interests": [
+        "문화체험",
+        "음악감상",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7730"
+      ],
+      "membership_level": "골드",
+      "total_visits": 86,
+      "average_spending": 1455829,
+      "created_at": "2025-08-10T20:59:48.846748",
+      "is_active": true
+    },
+    {
+      "user_id": "618a9753-b006-4d79-a216-c22dfa9c842a",
+      "nickname": "모임주최자",
+      "age": 32,
+      "gender": "FEMALE",
+      "user_type": "전문직",
+      "preferred_areas": [
+        "암사",
+        "종로",
+        "한남",
+        "잠실"
+      ],
+      "preferred_business_types": [
+        "셔츠룸",
+        "다방",
+        "하이퍼블릭"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "혼자",
+      "interests": [
+        "문화체험",
+        "댄스",
+        "스트레스해소"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7333",
+        "https://picsum.photos/300/300?random=9463"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 133,
+      "average_spending": 513646,
+      "created_at": "2025-01-20T20:59:48.846765",
+      "is_active": true
+    },
+    {
+      "user_id": "5126d7e1-d75e-49bd-b34a-b227f03cde1c",
+      "nickname": "이벤트러",
+      "age": 42,
+      "gender": "MALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "충무로",
+        "반포",
+        "삼성"
+      ],
+      "preferred_business_types": [
+        "룸싸롱",
+        "텐프로",
+        "카페",
+        "셔츠룸",
+        "비즈니스클럽",
+        "요정"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "2-3명",
+      "interests": [
+        "비즈니스미팅",
+        "스트레스해소",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=3060",
+        "https://picsum.photos/300/300?random=8364"
+      ],
+      "membership_level": "실버",
+      "total_visits": 188,
+      "average_spending": 1847925,
+      "created_at": "2025-04-22T20:59:48.846781",
+      "is_active": true
+    },
+    {
+      "user_id": "acb95eff-a7d5-4ad5-86f7-292cb7c00cfb",
+      "nickname": "셀럽워처",
+      "age": 42,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "을지로",
+        "반포",
+        "삼성",
+        "압구정"
+      ],
+      "preferred_business_types": [
+        "텐프로",
+        "하이퍼블릭"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "7-10명",
+      "interests": [
+        "친목도모",
+        "새로운경험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1812",
+        "https://picsum.photos/300/300?random=5494"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 90,
+      "average_spending": 946183,
+      "created_at": "2025-06-04T20:59:48.846796",
+      "is_active": true
+    },
+    {
+      "user_id": "5b9fdb6b-6d09-4d34-883c-f8846fe86602",
+      "nickname": "핫플레이스",
+      "age": 27,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "당산",
+        "명동",
+        "망원"
+      ],
+      "preferred_business_types": [
+        "나이트클럽",
+        "요정"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "7-10명",
+      "interests": [
+        "음악감상",
+        "비즈니스미팅"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=3841"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 190,
+      "average_spending": 254702,
+      "created_at": "2025-04-18T20:59:48.846811",
+      "is_active": true
+    },
+    {
+      "user_id": "c13ba36d-b3ad-4d18-b07a-c1b84d8ff0fd",
+      "nickname": "인사이더",
+      "age": 25,
+      "gender": "FEMALE",
+      "user_type": "학생",
+      "preferred_areas": [
+        "이태원",
+        "천호",
+        "홍대"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "단란주점"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "혼자",
+      "interests": [
+        "문화체험",
+        "비즈니스미팅"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7329"
+      ],
+      "membership_level": "실버",
+      "total_visits": 100,
+      "average_spending": 145319,
+      "created_at": "2025-04-28T20:59:48.846826",
+      "is_active": true
+    },
+    {
+      "user_id": "545ffa62-480e-4277-8d58-e1b720bdb3c5",
+      "nickname": "소셜미디어",
+      "age": 46,
+      "gender": "FEMALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "충무로",
+        "대학로",
+        "용산"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "퍼블릭",
+        "셔츠룸",
+        "다방",
+        "하이퍼블릭",
+        "BAR"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "4-6명",
+      "interests": [
+        "음악감상",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=5382"
+      ],
+      "membership_level": "실버",
+      "total_visits": 7,
+      "average_spending": 1352214,
+      "created_at": "2025-06-01T20:59:48.846842",
+      "is_active": true
+    },
+    {
+      "user_id": "0afe3dae-e7b4-4ea4-a2c9-c24a0f199a06",
+      "nickname": "인플루언서",
+      "age": 41,
+      "gender": "MALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "서초",
+        "종로"
+      ],
+      "preferred_business_types": [
+        "마사지",
+        "노래주점",
+        "나이트클럽",
+        "단란주점"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "7-10명",
+      "interests": [
+        "비즈니스미팅",
+        "새로운경험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=5267"
+      ],
+      "membership_level": "골드",
+      "total_visits": 179,
+      "average_spending": 1736357,
+      "created_at": "2025-01-25T20:59:48.846857",
+      "is_active": true
+    },
+    {
+      "user_id": "a4839a5b-fcf4-4e63-a471-264f22d75230",
+      "nickname": "크리에이터",
+      "age": 47,
+      "gender": "FEMALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "건대",
+        "당산"
+      ],
+      "preferred_business_types": [
+        "셔츠룸",
+        "카페",
+        "라운지"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 1회",
+      "preferred_time": "오후 9-11시",
+      "group_size": "7-10명",
+      "interests": [
+        "문화체험",
+        "댄스",
+        "음악감상"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7492",
+        "https://picsum.photos/300/300?random=4682"
+      ],
+      "membership_level": "일반",
+      "total_visits": 189,
+      "average_spending": 598864,
+      "created_at": "2025-03-04T20:59:48.846872",
+      "is_active": true
+    },
+    {
+      "user_id": "27c10f2a-c716-445b-b889-ad5ceeba4339",
+      "nickname": "비지니스오너",
+      "age": 35,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "건대",
+        "종로",
+        "용산",
+        "삼성"
+      ],
+      "preferred_business_types": [
+        "퍼블릭",
+        "다방"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "주 1회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "7-10명",
+      "interests": [
+        "새로운경험",
+        "친목도모",
+        "네트워킹",
+        "비즈니스미팅"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=4620"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 188,
+      "average_spending": 432246,
+      "created_at": "2024-11-22T20:59:48.846887",
+      "is_active": true
+    },
+    {
+      "user_id": "abdc4231-c5d8-4108-8d91-a4e2792260a3",
+      "nickname": "투자자",
+      "age": 49,
+      "gender": "MALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "신천",
+        "당산",
+        "이태원",
+        "대학로"
+      ],
+      "preferred_business_types": [
+        "라운지",
+        "퍼블릭"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "새벽 1시 이후",
+      "group_size": "2-3명",
+      "interests": [
+        "새로운경험",
+        "댄스",
+        "음악감상",
+        "네트워킹"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=2900"
+      ],
+      "membership_level": "실버",
+      "total_visits": 41,
+      "average_spending": 1285705,
+      "created_at": "2024-10-17T20:59:48.846902",
+      "is_active": true
+    },
+    {
+      "user_id": "22291569-1a1e-4f71-aaf9-7c28a3dbc52e",
+      "nickname": "스타트업",
+      "age": 50,
+      "gender": "FEMALE",
+      "user_type": "투자자",
+      "preferred_areas": [
+        "이태원",
+        "천호",
+        "선릉"
+      ],
+      "preferred_business_types": [
+        "마사지",
+        "비즈니스클럽",
+        "나이트클럽"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 1회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "4-6명",
+      "interests": [
+        "댄스",
+        "비즈니스미팅",
+        "음악감상",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=4900",
+        "https://picsum.photos/300/300?random=5206"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 44,
+      "average_spending": 1449901,
+      "created_at": "2025-07-07T20:59:48.846918",
+      "is_active": true
+    },
+    {
+      "user_id": "d6e72137-7b99-46a5-9341-b3d4681c574d",
+      "nickname": "프리랜서",
+      "age": 31,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "서초",
+        "반포",
+        "청담",
+        "충무로"
+      ],
+      "preferred_business_types": [
+        "셔츠룸",
+        "하이퍼블릭",
+        "KTV",
+        "마사지"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "혼자",
+      "interests": [
+        "스트레스해소",
+        "새로운경험",
+        "음악감상"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7633"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 165,
+      "average_spending": 465652,
+      "created_at": "2025-08-12T20:59:48.846933",
+      "is_active": true
+    },
+    {
+      "user_id": "41d85220-73a5-4432-a9d4-6465d021b151",
+      "nickname": "아티스트",
+      "age": 35,
+      "gender": "FEMALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "인사동",
+        "강남",
+        "이태원"
+      ],
+      "preferred_business_types": [
+        "라운지",
+        "텐프로",
+        "카페",
+        "다방",
+        "호스트바",
+        "단란주점"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "7-10명",
+      "interests": [
+        "네트워킹",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=7943"
+      ],
+      "membership_level": "VIP",
+      "total_visits": 19,
+      "average_spending": 833171,
+      "created_at": "2025-02-03T20:59:48.846950",
+      "is_active": true
+    },
+    {
+      "user_id": "6e8c5d3a-79a8-40f4-ae3e-104cbd34ce74",
+      "nickname": "디자이너",
+      "age": 36,
+      "gender": "FEMALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "인사동",
+        "잠원",
+        "동대문"
+      ],
+      "preferred_business_types": [
+        "요정",
+        "비즈니스클럽",
+        "하이퍼블릭",
+        "클럽"
+      ],
+      "budget_range": "200,000원 ~ 1,000,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "혼자",
+      "interests": [
+        "댄스",
+        "비즈니스미팅",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=2976"
+      ],
+      "membership_level": "골드",
+      "total_visits": 159,
+      "average_spending": 407239,
+      "created_at": "2025-03-24T20:59:48.846965",
+      "is_active": true
+    },
+    {
+      "user_id": "69cf66f8-8e01-4625-8ad1-c061d95fe292",
+      "nickname": "마케터",
+      "age": 49,
+      "gender": "MALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "대학로",
+        "방배",
+        "강남"
+      ],
+      "preferred_business_types": [
+        "텐프로",
+        "호스트바",
+        "셔츠룸",
+        "하이퍼블릭"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "월 2-3회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "혼자",
+      "interests": [
+        "스트레스해소",
+        "비즈니스미팅",
+        "댄스",
+        "친목도모"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=5379"
+      ],
+      "membership_level": "일반",
+      "total_visits": 190,
+      "average_spending": 1364945,
+      "created_at": "2025-01-03T20:59:48.846980",
+      "is_active": true
+    },
+    {
+      "user_id": "f611580d-8311-4e80-9918-4b76a3d0bace",
+      "nickname": "기획자",
+      "age": 40,
+      "gender": "MALE",
+      "user_type": "임원",
+      "preferred_areas": [
+        "신천",
+        "선릉"
+      ],
+      "preferred_business_types": [
+        "다방",
+        "클럽",
+        "단란주점"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "4-6명",
+      "interests": [
+        "스트레스해소",
+        "문화체험",
+        "새로운경험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1972",
+        "https://picsum.photos/300/300?random=8053"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 168,
+      "average_spending": 1358576,
+      "created_at": "2024-12-12T20:59:48.846995",
+      "is_active": true
+    },
+    {
+      "user_id": "e228d123-8496-4040-b881-3d55674cb750",
+      "nickname": "프로듀서",
+      "age": 26,
+      "gender": "MALE",
+      "user_type": "직장인",
+      "preferred_areas": [
+        "역삼",
+        "동대문",
+        "삼성",
+        "신천"
+      ],
+      "preferred_business_types": [
+        "KTV",
+        "요정",
+        "나이트클럽",
+        "노래주점"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "월 1회",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "7-10명",
+      "interests": [
+        "스트레스해소",
+        "네트워킹",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=6699",
+        "https://picsum.photos/300/300?random=4555"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 80,
+      "average_spending": 282944,
+      "created_at": "2025-06-16T20:59:48.847011",
+      "is_active": true
+    },
+    {
+      "user_id": "892bb1d2-19c9-4158-9472-3a7ffd32d9a1",
+      "nickname": "매니저",
+      "age": 26,
+      "gender": "FEMALE",
+      "user_type": "학생",
+      "preferred_areas": [
+        "청담",
+        "신천",
+        "천호"
+      ],
+      "preferred_business_types": [
+        "노래주점",
+        "텐프로",
+        "호스트바",
+        "룸싸롱",
+        "요정",
+        "하이퍼블릭"
+      ],
+      "budget_range": "100,000원 ~ 500,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "7-10명",
+      "interests": [
+        "음악감상",
+        "친목도모",
+        "스트레스해소",
+        "네트워킹"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=4780"
+      ],
+      "membership_level": "일반",
+      "total_visits": 83,
+      "average_spending": 101143,
+      "created_at": "2025-03-18T20:59:48.847027",
+      "is_active": true
+    },
+    {
+      "user_id": "f03b5661-d91c-4ce0-9ac7-7cc4702327ae",
+      "nickname": "컨설턴트",
+      "age": 40,
+      "gender": "FEMALE",
+      "user_type": "사업가",
+      "preferred_areas": [
+        "신사",
+        "강동",
+        "서초",
+        "을지로"
+      ],
+      "preferred_business_types": [
+        "단란주점",
+        "클럽",
+        "비즈니스클럽"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "주 2-3회",
+      "preferred_time": "오후 7-9시",
+      "group_size": "2-3명",
+      "interests": [
+        "스트레스해소",
+        "음악감상",
+        "네트워킹",
+        "댄스"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=4663",
+        "https://picsum.photos/300/300?random=8031"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 73,
+      "average_spending": 1192246,
+      "created_at": "2025-07-27T20:59:48.847043",
+      "is_active": true
+    },
+    {
+      "user_id": "d680d033-5f9c-401c-a700-439e9c6e9f34",
+      "nickname": "어드바이저",
+      "age": 41,
+      "gender": "MALE",
+      "user_type": "투자자",
+      "preferred_areas": [
+        "신사",
+        "삼성",
+        "문정"
+      ],
+      "preferred_business_types": [
+        "나이트클럽",
+        "셔츠룸",
+        "룸싸롱",
+        "마사지",
+        "쩜오"
+      ],
+      "budget_range": "500,000원 ~ 2,000,000원",
+      "visit_frequency": "비정기",
+      "preferred_time": "오후 11시-새벽 1시",
+      "group_size": "2-3명",
+      "interests": [
+        "댄스",
+        "네트워킹",
+        "문화체험"
+      ],
+      "profile_image_urls": [
+        "https://picsum.photos/300/300?random=1897",
+        "https://picsum.photos/300/300?random=5175"
+      ],
+      "membership_level": "VVIP",
+      "total_visits": 35,
+      "average_spending": 707031,
+      "created_at": "2024-10-08T20:59:48.847059",
+      "is_active": true
+    }
+  ],
+  "generated_at": "2025-08-30T20:59:48.849791",
+  "totals": {
+    "places": 50,
+    "members": 30,
+    "stars": 20,
+    "users": 40
+  },
+  "features": [
+    "picsum_images_only",
+    "star_profiles",
+    "user_profiles",
+    "realistic_scenarios",
+    "complete_nightjob_ecosystem"
+  ]
+}

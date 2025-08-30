@@ -281,57 +281,22 @@ class _SwipeCardState extends State<SwipeCard> with TickerProviderStateMixin {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Name and match score
-                          Row(
+                          // Name only (match score moved to top)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.profile.name,
-                                      style: AppTextStyles.sectionTitle(context),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      widget.profile.subtitle,
-                                      style: AppTextStyles.secondaryText(context),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
+                              Text(
+                                widget.profile.name,
+                                style: AppTextStyles.sectionTitle(context),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              // Match score badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.surface.withValues(alpha: 0.95),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      SolarIconsOutline.star,
-                                      size: 16,
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      '${widget.profile.matchScore}%',
-                                      style: AppTextStyles.captionText(context).copyWith(
-                                        color: colorScheme.onSurface,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              const SizedBox(height: 4),
+                              Text(
+                                widget.profile.subtitle,
+                                style: AppTextStyles.secondaryText(context),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -544,6 +509,41 @@ class _SwipeCardState extends State<SwipeCard> with TickerProviderStateMixin {
                   ),
                 ),
             ],
+            
+            // Match score badge positioned at top-right of image
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7), // Higher opacity for better visibility
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      SolarIconsOutline.star,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${widget.profile.matchScore}%',
+                      style: AppTextStyles.captionText(context).copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,0 +1,4773 @@
+{
+  "users": [
+    {
+      "id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar001@example.com",
+      "phone": "010-6325-3731",
+      "created_at": "2025-06-29T21:13:17.990500",
+      "profile_img": "https://picsum.photos/300/300?random=3947",
+      "nickname": "스타#1",
+      "last_sign_in": "2025-08-24T21:13:17.990508",
+      "updated_at": "2025-08-30T21:13:17.990511"
+    },
+    {
+      "id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar002@example.com",
+      "phone": "010-4154-6717",
+      "created_at": "2025-05-19T21:13:17.990521",
+      "profile_img": "https://picsum.photos/300/300?random=8251",
+      "nickname": "스타#2",
+      "last_sign_in": "2025-08-27T21:13:17.990524",
+      "updated_at": "2025-08-30T21:13:17.990525"
+    },
+    {
+      "id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar003@example.com",
+      "phone": "010-3357-6061",
+      "created_at": "2025-07-03T21:13:17.990533",
+      "profile_img": "https://picsum.photos/300/300?random=8338",
+      "nickname": "스타#3",
+      "last_sign_in": "2025-08-23T21:13:17.990536",
+      "updated_at": "2025-08-30T21:13:17.990538"
+    },
+    {
+      "id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar004@example.com",
+      "phone": "010-6122-9271",
+      "created_at": "2025-07-20T21:13:17.990544",
+      "profile_img": "https://picsum.photos/300/300?random=3937",
+      "nickname": "플레이스#4",
+      "last_sign_in": "2025-08-26T21:13:17.990547",
+      "updated_at": "2025-08-30T21:13:17.990549"
+    },
+    {
+      "id": "91660768-0205-40e3-be5e-f93d951eeb3b",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar005@example.com",
+      "phone": "010-1189-3510",
+      "created_at": "2025-03-11T21:13:17.990555",
+      "profile_img": "https://picsum.photos/300/300?random=7367",
+      "nickname": "게스트#5",
+      "last_sign_in": "2025-08-27T21:13:17.990558",
+      "updated_at": "2025-08-30T21:13:17.990559"
+    },
+    {
+      "id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar006@example.com",
+      "phone": "010-3476-3528",
+      "created_at": "2025-04-01T21:13:17.990566",
+      "profile_img": "https://picsum.photos/300/300?random=1162",
+      "nickname": "스타#6",
+      "last_sign_in": "2025-08-28T21:13:17.990568",
+      "updated_at": "2025-08-30T21:13:17.990570"
+    },
+    {
+      "id": "ae9d5047-3228-4d0f-80e1-7cd64f4c206b",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar007@example.com",
+      "phone": "010-7407-1136",
+      "created_at": "2025-05-06T21:13:17.990576",
+      "profile_img": "https://picsum.photos/300/300?random=9202",
+      "nickname": "게스트#7",
+      "last_sign_in": "2025-08-26T21:13:17.990578",
+      "updated_at": "2025-08-30T21:13:17.990580"
+    },
+    {
+      "id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar008@example.com",
+      "phone": "010-5833-7444",
+      "created_at": "2025-07-01T21:13:17.990586",
+      "profile_img": "https://picsum.photos/300/300?random=1672",
+      "nickname": "스타#8",
+      "last_sign_in": "2025-08-24T21:13:17.990589",
+      "updated_at": "2025-08-30T21:13:17.990590"
+    },
+    {
+      "id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar009@example.com",
+      "phone": "010-9148-9097",
+      "created_at": "2025-04-19T21:13:17.990596",
+      "profile_img": "https://picsum.photos/300/300?random=5316",
+      "nickname": "플레이스#9",
+      "last_sign_in": "2025-08-29T21:13:17.990599",
+      "updated_at": "2025-08-30T21:13:17.990600"
+    },
+    {
+      "id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar010@example.com",
+      "phone": "010-8909-5109",
+      "created_at": "2025-05-07T21:13:17.990606",
+      "profile_img": "https://picsum.photos/300/300?random=9163",
+      "nickname": "플레이스#10",
+      "last_sign_in": "2025-08-27T21:13:17.990609",
+      "updated_at": "2025-08-30T21:13:17.990610"
+    },
+    {
+      "id": "635b7186-720b-4379-850c-24cec47442c0",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar011@example.com",
+      "phone": "010-3152-4962",
+      "created_at": "2025-07-26T21:13:17.990616",
+      "profile_img": "https://picsum.photos/300/300?random=9071",
+      "nickname": "플레이스#11",
+      "last_sign_in": "2025-08-27T21:13:17.990619",
+      "updated_at": "2025-08-30T21:13:17.990620"
+    },
+    {
+      "id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar012@example.com",
+      "phone": "010-9754-2715",
+      "created_at": "2025-07-21T21:13:17.990627",
+      "profile_img": "https://picsum.photos/300/300?random=2646",
+      "nickname": "플레이스#12",
+      "last_sign_in": "2025-08-23T21:13:17.990629",
+      "updated_at": "2025-08-30T21:13:17.990631"
+    },
+    {
+      "id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar013@example.com",
+      "phone": "010-9315-8202",
+      "created_at": "2025-03-30T21:13:17.990637",
+      "profile_img": "https://picsum.photos/300/300?random=6312",
+      "nickname": "스타#13",
+      "last_sign_in": "2025-08-28T21:13:17.990639",
+      "updated_at": "2025-08-30T21:13:17.990641"
+    },
+    {
+      "id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar014@example.com",
+      "phone": "010-9380-2516",
+      "created_at": "2025-08-01T21:13:17.990646",
+      "profile_img": "https://picsum.photos/300/300?random=3604",
+      "nickname": "플레이스#14",
+      "last_sign_in": "2025-08-29T21:13:17.990649",
+      "updated_at": "2025-08-30T21:13:17.990650"
+    },
+    {
+      "id": "56eace97-e8d4-4515-b88a-067a1f78aa23",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar015@example.com",
+      "phone": "010-8674-4189",
+      "created_at": "2025-06-02T21:13:17.990656",
+      "profile_img": "https://picsum.photos/300/300?random=1195",
+      "nickname": "게스트#15",
+      "last_sign_in": "2025-08-24T21:13:17.990658",
+      "updated_at": "2025-08-30T21:13:17.990660"
+    },
+    {
+      "id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar016@example.com",
+      "phone": "010-6881-5076",
+      "created_at": "2025-05-28T21:13:17.990666",
+      "profile_img": "https://picsum.photos/300/300?random=7708",
+      "nickname": "플레이스#16",
+      "last_sign_in": "2025-08-27T21:13:17.990668",
+      "updated_at": "2025-08-30T21:13:17.990670"
+    },
+    {
+      "id": "3dfa81f4-ae21-445b-bdd3-7cc0a2cce82d",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar017@example.com",
+      "phone": "010-1192-3515",
+      "created_at": "2025-03-22T21:13:17.990676",
+      "profile_img": "https://picsum.photos/300/300?random=7413",
+      "nickname": "게스트#17",
+      "last_sign_in": "2025-08-25T21:13:17.990678",
+      "updated_at": "2025-08-30T21:13:17.990679"
+    },
+    {
+      "id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar018@example.com",
+      "phone": "010-1708-9460",
+      "created_at": "2025-03-04T21:13:17.990685",
+      "profile_img": "https://picsum.photos/300/300?random=5297",
+      "nickname": "스타#18",
+      "last_sign_in": "2025-08-27T21:13:17.990688",
+      "updated_at": "2025-08-30T21:13:17.990689"
+    },
+    {
+      "id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar019@example.com",
+      "phone": "010-1774-2198",
+      "created_at": "2025-07-24T21:13:17.990695",
+      "profile_img": "https://picsum.photos/300/300?random=6698",
+      "nickname": "플레이스#19",
+      "last_sign_in": "2025-08-27T21:13:17.990699",
+      "updated_at": "2025-08-30T21:13:17.990701"
+    },
+    {
+      "id": "1129d81f-3254-4396-9800-1968f796125e",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar020@example.com",
+      "phone": "010-3249-5955",
+      "created_at": "2025-04-18T21:13:17.990707",
+      "profile_img": "https://picsum.photos/300/300?random=3996",
+      "nickname": "스타#20",
+      "last_sign_in": "2025-08-25T21:13:17.990709",
+      "updated_at": "2025-08-30T21:13:17.990711"
+    },
+    {
+      "id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar021@example.com",
+      "phone": "010-7409-5685",
+      "created_at": "2025-04-23T21:13:17.990716",
+      "profile_img": "https://picsum.photos/300/300?random=8493",
+      "nickname": "플레이스#21",
+      "last_sign_in": "2025-08-26T21:13:17.990719",
+      "updated_at": "2025-08-30T21:13:17.990720"
+    },
+    {
+      "id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar022@example.com",
+      "phone": "010-8460-9697",
+      "created_at": "2025-05-27T21:13:17.990726",
+      "profile_img": "https://picsum.photos/300/300?random=9365",
+      "nickname": "스타#22",
+      "last_sign_in": "2025-08-28T21:13:17.990728",
+      "updated_at": "2025-08-30T21:13:17.990730"
+    },
+    {
+      "id": "b6403a81-db7f-4fdd-a375-b774c5c4ba93",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar023@example.com",
+      "phone": "010-2202-4793",
+      "created_at": "2025-08-13T21:13:17.990735",
+      "profile_img": "https://picsum.photos/300/300?random=8158",
+      "nickname": "게스트#23",
+      "last_sign_in": "2025-08-28T21:13:17.990738",
+      "updated_at": "2025-08-30T21:13:17.990739"
+    },
+    {
+      "id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar024@example.com",
+      "phone": "010-7670-3831",
+      "created_at": "2025-07-12T21:13:17.990745",
+      "profile_img": "https://picsum.photos/300/300?random=4999",
+      "nickname": "스타#24",
+      "last_sign_in": "2025-08-25T21:13:17.990747",
+      "updated_at": "2025-08-30T21:13:17.990749"
+    },
+    {
+      "id": "89382762-73d7-4b34-8374-4b01d1963610",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar025@example.com",
+      "phone": "010-2461-4202",
+      "created_at": "2025-06-20T21:13:17.990756",
+      "profile_img": "https://picsum.photos/300/300?random=4395",
+      "nickname": "게스트#25",
+      "last_sign_in": "2025-08-30T21:13:17.990758",
+      "updated_at": "2025-08-30T21:13:17.990760"
+    },
+    {
+      "id": "99703a13-d50d-431b-bf39-4cf3d303ec43",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar026@example.com",
+      "phone": "010-4300-2046",
+      "created_at": "2025-07-21T21:13:17.990766",
+      "profile_img": "https://picsum.photos/300/300?random=1135",
+      "nickname": "게스트#26",
+      "last_sign_in": "2025-08-24T21:13:17.990768",
+      "updated_at": "2025-08-30T21:13:17.990770"
+    },
+    {
+      "id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar027@example.com",
+      "phone": "010-8974-8050",
+      "created_at": "2025-05-13T21:13:17.990775",
+      "profile_img": "https://picsum.photos/300/300?random=3261",
+      "nickname": "플레이스#27",
+      "last_sign_in": "2025-08-26T21:13:17.990778",
+      "updated_at": "2025-08-30T21:13:17.990779"
+    },
+    {
+      "id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar028@example.com",
+      "phone": "010-5058-9377",
+      "created_at": "2025-05-24T21:13:17.990785",
+      "profile_img": "https://picsum.photos/300/300?random=1412",
+      "nickname": "스타#28",
+      "last_sign_in": "2025-08-28T21:13:17.990787",
+      "updated_at": "2025-08-30T21:13:17.990789"
+    },
+    {
+      "id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar029@example.com",
+      "phone": "010-1565-2284",
+      "created_at": "2025-05-19T21:13:17.990794",
+      "profile_img": "https://picsum.photos/300/300?random=4116",
+      "nickname": "스타#29",
+      "last_sign_in": "2025-08-27T21:13:17.990797",
+      "updated_at": "2025-08-30T21:13:17.990798"
+    },
+    {
+      "id": "49eb3f04-e1e7-4f14-8a91-ef998a43b1db",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar030@example.com",
+      "phone": "010-9250-9165",
+      "created_at": "2025-08-01T21:13:17.990804",
+      "profile_img": "https://picsum.photos/300/300?random=3931",
+      "nickname": "게스트#30",
+      "last_sign_in": "2025-08-27T21:13:17.990806",
+      "updated_at": "2025-08-30T21:13:17.990808"
+    },
+    {
+      "id": "cb12040a-e746-43bd-b7ed-57d52477a4c7",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar031@example.com",
+      "phone": "010-7268-4439",
+      "created_at": "2025-05-12T21:13:17.990813",
+      "profile_img": "https://picsum.photos/300/300?random=4813",
+      "nickname": "게스트#31",
+      "last_sign_in": "2025-08-25T21:13:17.990816",
+      "updated_at": "2025-08-30T21:13:17.990817"
+    },
+    {
+      "id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar032@example.com",
+      "phone": "010-3153-4420",
+      "created_at": "2025-08-11T21:13:17.990823",
+      "profile_img": "https://picsum.photos/300/300?random=4885",
+      "nickname": "플레이스#32",
+      "last_sign_in": "2025-08-25T21:13:17.990825",
+      "updated_at": "2025-08-30T21:13:17.990827"
+    },
+    {
+      "id": "939b6b2b-cf1c-4fbb-8e73-cd42e86f4d72",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar033@example.com",
+      "phone": "010-9317-1117",
+      "created_at": "2025-04-03T21:13:17.990832",
+      "profile_img": "https://picsum.photos/300/300?random=2445",
+      "nickname": "게스트#33",
+      "last_sign_in": "2025-08-23T21:13:17.990835",
+      "updated_at": "2025-08-30T21:13:17.990836"
+    },
+    {
+      "id": "09aabd19-21d8-4f90-8281-5dd998fbabc6",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar034@example.com",
+      "phone": "010-4769-2031",
+      "created_at": "2025-08-25T21:13:17.990842",
+      "profile_img": "https://picsum.photos/300/300?random=2480",
+      "nickname": "게스트#34",
+      "last_sign_in": "2025-08-27T21:13:17.990845",
+      "updated_at": "2025-08-30T21:13:17.990846"
+    },
+    {
+      "id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar035@example.com",
+      "phone": "010-9983-2947",
+      "created_at": "2025-04-02T21:13:17.990852",
+      "profile_img": "https://picsum.photos/300/300?random=7634",
+      "nickname": "스타#35",
+      "last_sign_in": "2025-08-24T21:13:17.990854",
+      "updated_at": "2025-08-30T21:13:17.990856"
+    },
+    {
+      "id": "fa860784-96b7-4ea2-9c5a-496d9941da9f",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar036@example.com",
+      "phone": "010-9404-5091",
+      "created_at": "2025-05-07T21:13:17.990863",
+      "profile_img": "https://picsum.photos/300/300?random=7025",
+      "nickname": "게스트#36",
+      "last_sign_in": "2025-08-28T21:13:17.990865",
+      "updated_at": "2025-08-30T21:13:17.990867"
+    },
+    {
+      "id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar037@example.com",
+      "phone": "010-7151-2167",
+      "created_at": "2025-04-18T21:13:17.990872",
+      "profile_img": "https://picsum.photos/300/300?random=8046",
+      "nickname": "스타#37",
+      "last_sign_in": "2025-08-25T21:13:17.990875",
+      "updated_at": "2025-08-30T21:13:17.990876"
+    },
+    {
+      "id": "4c9acfb4-d363-4581-a6bc-0cfa154273aa",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar038@example.com",
+      "phone": "010-3971-1604",
+      "created_at": "2025-04-22T21:13:17.990882",
+      "profile_img": "https://picsum.photos/300/300?random=6780",
+      "nickname": "게스트#38",
+      "last_sign_in": "2025-08-27T21:13:17.990884",
+      "updated_at": "2025-08-30T21:13:17.990886"
+    },
+    {
+      "id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar039@example.com",
+      "phone": "010-3372-3899",
+      "created_at": "2025-04-07T21:13:17.990892",
+      "profile_img": "https://picsum.photos/300/300?random=8184",
+      "nickname": "스타#39",
+      "last_sign_in": "2025-08-27T21:13:17.990894",
+      "updated_at": "2025-08-30T21:13:17.990896"
+    },
+    {
+      "id": "aa47b334-c3c2-43fd-a435-069771fed2aa",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar040@example.com",
+      "phone": "010-2320-2925",
+      "created_at": "2025-06-25T21:13:17.990901",
+      "profile_img": "https://picsum.photos/300/300?random=6559",
+      "nickname": "게스트#40",
+      "last_sign_in": "2025-08-27T21:13:17.990904",
+      "updated_at": "2025-08-30T21:13:17.990905"
+    },
+    {
+      "id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar041@example.com",
+      "phone": "010-4927-8536",
+      "created_at": "2025-06-30T21:13:17.990911",
+      "profile_img": "https://picsum.photos/300/300?random=8169",
+      "nickname": "플레이스#41",
+      "last_sign_in": "2025-08-27T21:13:17.990913",
+      "updated_at": "2025-08-30T21:13:17.990915"
+    },
+    {
+      "id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar042@example.com",
+      "phone": "010-6037-9302",
+      "created_at": "2025-08-14T21:13:17.990920",
+      "profile_img": "https://picsum.photos/300/300?random=4877",
+      "nickname": "스타#42",
+      "last_sign_in": "2025-08-26T21:13:17.990923",
+      "updated_at": "2025-08-30T21:13:17.990924"
+    },
+    {
+      "id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar043@example.com",
+      "phone": "010-4934-9862",
+      "created_at": "2025-07-21T21:13:17.990930",
+      "profile_img": "https://picsum.photos/300/300?random=4092",
+      "nickname": "플레이스#43",
+      "last_sign_in": "2025-08-29T21:13:17.990932",
+      "updated_at": "2025-08-30T21:13:17.990934"
+    },
+    {
+      "id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar044@example.com",
+      "phone": "010-1659-9547",
+      "created_at": "2025-07-17T21:13:17.990939",
+      "profile_img": "https://picsum.photos/300/300?random=3175",
+      "nickname": "플레이스#44",
+      "last_sign_in": "2025-08-27T21:13:17.990942",
+      "updated_at": "2025-08-30T21:13:17.990944"
+    },
+    {
+      "id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar045@example.com",
+      "phone": "010-4837-7730",
+      "created_at": "2025-08-18T21:13:17.990949",
+      "profile_img": "https://picsum.photos/300/300?random=2583",
+      "nickname": "플레이스#45",
+      "last_sign_in": "2025-08-24T21:13:17.990952",
+      "updated_at": "2025-08-30T21:13:17.990953"
+    },
+    {
+      "id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar046@example.com",
+      "phone": "010-1432-6171",
+      "created_at": "2025-04-27T21:13:17.990959",
+      "profile_img": "https://picsum.photos/300/300?random=6340",
+      "nickname": "스타#46",
+      "last_sign_in": "2025-08-24T21:13:17.990961",
+      "updated_at": "2025-08-30T21:13:17.990963"
+    },
+    {
+      "id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar047@example.com",
+      "phone": "010-2615-3467",
+      "created_at": "2025-06-12T21:13:17.990969",
+      "profile_img": "https://picsum.photos/300/300?random=9959",
+      "nickname": "스타#47",
+      "last_sign_in": "2025-08-24T21:13:17.990971",
+      "updated_at": "2025-08-30T21:13:17.990972"
+    },
+    {
+      "id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar048@example.com",
+      "phone": "010-7284-2831",
+      "created_at": "2025-05-01T21:13:17.990978",
+      "profile_img": "https://picsum.photos/300/300?random=5455",
+      "nickname": "플레이스#48",
+      "last_sign_in": "2025-08-28T21:13:17.990980",
+      "updated_at": "2025-08-30T21:13:17.990982"
+    },
+    {
+      "id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar049@example.com",
+      "phone": "010-6207-7595",
+      "created_at": "2025-04-13T21:13:17.990987",
+      "profile_img": "https://picsum.photos/300/300?random=4205",
+      "nickname": "플레이스#49",
+      "last_sign_in": "2025-08-28T21:13:17.990990",
+      "updated_at": "2025-08-30T21:13:17.990991"
+    },
+    {
+      "id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "role_id": 3,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar050@example.com",
+      "phone": "010-2925-6008",
+      "created_at": "2025-08-16T21:13:17.990997",
+      "profile_img": "https://picsum.photos/300/300?random=6718",
+      "nickname": "플레이스#50",
+      "last_sign_in": "2025-08-23T21:13:17.990999",
+      "updated_at": "2025-08-30T21:13:17.991001"
+    },
+    {
+      "id": "d3869655-7b5a-43ad-91a0-9a5bd9d9c9f3",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar051@example.com",
+      "phone": "010-4122-3766",
+      "created_at": "2025-08-04T21:13:17.991006",
+      "profile_img": "https://picsum.photos/300/300?random=6139",
+      "nickname": "게스트#51",
+      "last_sign_in": "2025-08-29T21:13:17.991009",
+      "updated_at": "2025-08-30T21:13:17.991010"
+    },
+    {
+      "id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar052@example.com",
+      "phone": "010-8625-4029",
+      "created_at": "2025-07-24T21:13:17.991016",
+      "profile_img": "https://picsum.photos/300/300?random=9963",
+      "nickname": "스타#52",
+      "last_sign_in": "2025-08-28T21:13:17.991018",
+      "updated_at": "2025-08-30T21:13:17.991020"
+    },
+    {
+      "id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar053@example.com",
+      "phone": "010-4059-4028",
+      "created_at": "2025-07-18T21:13:17.991030",
+      "profile_img": "https://picsum.photos/300/300?random=7829",
+      "nickname": "스타#53",
+      "last_sign_in": "2025-08-29T21:13:17.991032",
+      "updated_at": "2025-08-30T21:13:17.991034"
+    },
+    {
+      "id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar054@example.com",
+      "phone": "010-9103-6698",
+      "created_at": "2025-08-19T21:13:17.991039",
+      "profile_img": "https://picsum.photos/300/300?random=8165",
+      "nickname": "스타#54",
+      "last_sign_in": "2025-08-29T21:13:17.991042",
+      "updated_at": "2025-08-30T21:13:17.991043"
+    },
+    {
+      "id": "747d25a6-4627-4ce6-b7f1-0146c19ca171",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar055@example.com",
+      "phone": "010-2806-6495",
+      "created_at": "2025-03-31T21:13:17.991049",
+      "profile_img": "https://picsum.photos/300/300?random=8222",
+      "nickname": "게스트#55",
+      "last_sign_in": "2025-08-26T21:13:17.991051",
+      "updated_at": "2025-08-30T21:13:17.991053"
+    },
+    {
+      "id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar056@example.com",
+      "phone": "010-3089-8039",
+      "created_at": "2025-08-03T21:13:17.991059",
+      "profile_img": "https://picsum.photos/300/300?random=2590",
+      "nickname": "스타#56",
+      "last_sign_in": "2025-08-29T21:13:17.991061",
+      "updated_at": "2025-08-30T21:13:17.991062"
+    },
+    {
+      "id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar057@example.com",
+      "phone": "010-9788-2797",
+      "created_at": "2025-05-15T21:13:17.991068",
+      "profile_img": "https://picsum.photos/300/300?random=2419",
+      "nickname": "스타#57",
+      "last_sign_in": "2025-08-26T21:13:17.991070",
+      "updated_at": "2025-08-30T21:13:17.991072"
+    },
+    {
+      "id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "role_id": 2,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar058@example.com",
+      "phone": "010-7658-9748",
+      "created_at": "2025-03-24T21:13:17.991077",
+      "profile_img": "https://picsum.photos/300/300?random=1469",
+      "nickname": "스타#58",
+      "last_sign_in": "2025-08-28T21:13:17.991080",
+      "updated_at": "2025-08-30T21:13:17.991081"
+    },
+    {
+      "id": "840fb47a-e458-4145-bd3f-1e63208b189d",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar059@example.com",
+      "phone": "010-3713-4064",
+      "created_at": "2025-04-06T21:13:17.991087",
+      "profile_img": "https://picsum.photos/300/300?random=5325",
+      "nickname": "게스트#59",
+      "last_sign_in": "2025-08-29T21:13:17.991089",
+      "updated_at": "2025-08-30T21:13:17.991090"
+    },
+    {
+      "id": "9b8ce793-2ffe-47bb-a93f-ff5601aff2c1",
+      "role_id": 1,
+      "ci": null,
+      "is_adult": true,
+      "email": "bamstar060@example.com",
+      "phone": "010-9581-8152",
+      "created_at": "2025-05-28T21:13:17.991096",
+      "profile_img": "https://picsum.photos/300/300?random=1509",
+      "nickname": "게스트#60",
+      "last_sign_in": "2025-08-26T21:13:17.991098",
+      "updated_at": "2025-08-30T21:13:17.991100"
+    }
+  ],
+  "member_profiles": [
+    {
+      "user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "real_name": "최예은",
+      "gender": "MALE",
+      "contact_phone": "010-3910-4921",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2796",
+        "https://picsum.photos/400/500?random=7883"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star715"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 4896465,
+      "desired_working_days": [
+        "일",
+        "화",
+        "수",
+        "월"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 7,
+      "experience_points": 3138,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991152",
+      "age": 29,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "모던 바",
+          "토크 바",
+          "가드",
+          "매니저",
+          "BJ",
+          "페이: TC 6921906원",
+          "근무일: 월, 일, 금, 토, 목",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "대화리드",
+            "긍정적",
+            "차분함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "초보환영",
+            "텃세없음",
+            "가족같은",
+            "술강요없음",
+            "인센티브",
+            "의상/유니폼"
+          ],
+          "location_preferences": [
+            "잠실·송파·강동",
+            "강남·서초"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "real_name": "서지민",
+      "gender": "MALE",
+      "contact_phone": "010-5406-1561",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2761",
+        "https://picsum.photos/400/500?random=6284"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star590"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 6007560,
+      "desired_working_days": [
+        "월",
+        "목",
+        "토"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 4,
+      "experience_points": 3988,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991177",
+      "age": 28,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "이벤트",
+          "캐주얼 펍",
+          "가라오케",
+          "실장",
+          "페이: TC 6513137원",
+          "근무일: 금, 화, 일",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "대화리드"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "자유복장",
+            "파티분위기",
+            "퇴직금",
+            "숙소 제공"
+          ],
+          "location_preferences": [
+            "강남·서초",
+            "종로·중구"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "real_name": "김지유",
+      "gender": "MALE",
+      "contact_phone": "010-7720-1269",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=5639",
+        "https://picsum.photos/400/500?random=6032"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star785"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 4990021,
+      "desired_working_days": [
+        "일",
+        "월",
+        "금",
+        "화",
+        "목"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 8,
+      "experience_points": 1941,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991201",
+      "age": 30,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "라이브 방송",
+          "캐주얼 펍",
+          "테라피",
+          "실장",
+          "주방",
+          "매니저",
+          "페이: TC 4676501원",
+          "근무일: 금, 목, 월",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "차분함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "파티분위기",
+            "자유복장",
+            "텃세없음",
+            "헤어/메이크업",
+            "주차 지원"
+          ],
+          "location_preferences": [
+            "대학로·성북·동대문",
+            "잠실·송파·강동",
+            "홍대·합정·마포·서대문"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "real_name": "이민준",
+      "gender": "FEMALE",
+      "contact_phone": "010-4712-9302",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4183",
+        "https://picsum.photos/400/500?random=3558"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star364"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 4667564,
+      "desired_working_days": [
+        "일",
+        "월",
+        "토",
+        "목",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 7,
+      "experience_points": 1587,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991226",
+      "age": 29,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "테라피",
+          "모던 바",
+          "토크 바",
+          "가라오케",
+          "가드",
+          "페이: TC 6245797원",
+          "근무일: 화, 금, 수",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "활발함",
+            "긍정적"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "술강요없음",
+            "가족같은",
+            "성형 지원",
+            "숙소 제공"
+          ],
+          "location_preferences": [
+            "영등포·여의도·강서",
+            "홍대·합정·마포·서대문",
+            "잠실·송파·강동"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "real_name": "강윤서",
+      "gender": "FEMALE",
+      "contact_phone": "010-8268-2957",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=3685",
+        "https://picsum.photos/400/500?random=6974"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star901"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 3999244,
+      "desired_working_days": [
+        "수",
+        "월",
+        "일",
+        "목",
+        "금",
+        "토"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 2,
+      "experience_points": 4187,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991253",
+      "age": 26,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "토크 바",
+          "캐주얼 펍",
+          "실장",
+          "페이: TC 5437385원",
+          "근무일: 수, 금, 목",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "성실함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "초보환영",
+            "편안한",
+            "식사 제공",
+            "선불/마이킹"
+          ],
+          "location_preferences": [
+            "강남·서초"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "real_name": "강시우",
+      "gender": "MALE",
+      "contact_phone": "010-6018-1006",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8737",
+        "https://picsum.photos/400/500?random=2924"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star878"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 5095690,
+      "desired_working_days": [
+        "목",
+        "화",
+        "월",
+        "금",
+        "토",
+        "일"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 5,
+      "experience_points": 2471,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991278",
+      "age": 28,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "캐주얼 펍",
+          "가라오케",
+          "테라피",
+          "이벤트",
+          "바텐더",
+          "페이: TC 5142544원",
+          "근무일: 토, 수, 일, 금",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "리액션요정",
+            "긍정적",
+            "좋은비율"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "가족같은",
+            "텃세없음",
+            "의상/유니폼",
+            "퇴직금"
+          ],
+          "location_preferences": [
+            "구로·관악·동작",
+            "종로·중구"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "real_name": "장지유",
+      "gender": "MALE",
+      "contact_phone": "010-3327-2355",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2930",
+        "https://picsum.photos/400/500?random=5364"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star140"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 9176833,
+      "desired_working_days": [
+        "화",
+        "토",
+        "목"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 3,
+      "experience_points": 4031,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991359",
+      "age": 35,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "테라피",
+          "라이브 방송",
+          "가드",
+          "바텐더",
+          "실장",
+          "페이: TC 6934334원",
+          "근무일: 일, 수, 토",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "긍정적",
+            "대화리드",
+            "패션센스"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "자유복장",
+            "가족같은",
+            "친구랑같이",
+            "경력자우대",
+            "선불/마이킹",
+            "의상/유니폼"
+          ],
+          "location_preferences": [
+            "종로·중구",
+            "강남·서초"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "real_name": "오지호",
+      "gender": "MALE",
+      "contact_phone": "010-6338-3077",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8345",
+        "https://picsum.photos/400/500?random=8483"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star493"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 6434690,
+      "desired_working_days": [
+        "월",
+        "토",
+        "수",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 2,
+      "experience_points": 739,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991385",
+      "age": 31,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "이벤트",
+          "카페",
+          "라이브 방송",
+          "가라오케",
+          "바텐더",
+          "페이: TC 6270105원",
+          "근무일: 목, 수, 화",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "긍정적",
+            "차분함",
+            "활발함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "경력자우대",
+            "친구랑같이",
+            "초보환영",
+            "가족같은",
+            "4대보험",
+            "의상/유니폼"
+          ],
+          "location_preferences": [
+            "홍대·합정·마포·서대문",
+            "구로·관악·동작",
+            "대학로·성북·동대문"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "real_name": "신시우",
+      "gender": "FEMALE",
+      "contact_phone": "010-3378-7508",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=6987",
+        "https://picsum.photos/400/500?random=6598"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star287"
+      },
+      "bio": "newbie 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "NEWBIE",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 3963227,
+      "desired_working_days": [
+        "토",
+        "화",
+        "일",
+        "목",
+        "수",
+        "월"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 2,
+      "experience_points": 1041,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991411",
+      "age": 21,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "토크 바",
+          "가라오케",
+          "캐주얼 펍",
+          "모던 바",
+          "매니저",
+          "바텐더",
+          "페이: TC 3414202원",
+          "근무일: 일, 화, 수, 토, 월",
+          "경력: newbie"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "패션센스",
+            "좋은비율"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "자유복장",
+            "편안한",
+            "파티분위기",
+            "가족같은",
+            "당일지급",
+            "성형 지원",
+            "인센티브"
+          ],
+          "location_preferences": [
+            "잠실·송파·강동"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "real_name": "김준우",
+      "gender": "MALE",
+      "contact_phone": "010-1824-4673",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=3596",
+        "https://picsum.photos/400/500?random=2464"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star949"
+      },
+      "bio": "junior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "JUNIOR",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 5102512,
+      "desired_working_days": [
+        "토",
+        "목",
+        "월"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 8,
+      "experience_points": 860,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991434",
+      "age": 25,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "토크 바",
+          "모던 바",
+          "이벤트",
+          "카페",
+          "주방",
+          "페이: TC 4030012원",
+          "근무일: 목, 일, 화, 토",
+          "경력: junior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "긍정적"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "텃세없음",
+            "친구랑같이",
+            "자유복장",
+            "퇴직금",
+            "헤어/메이크업"
+          ],
+          "location_preferences": [
+            "영등포·여의도·강서",
+            "건대·성수·왕십리",
+            "홍대·합정·마포·서대문"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "real_name": "조예은",
+      "gender": "MALE",
+      "contact_phone": "010-1055-6047",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2227",
+        "https://picsum.photos/400/500?random=2452"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star434"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 4470170,
+      "desired_working_days": [
+        "화",
+        "목",
+        "일",
+        "금",
+        "토"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 8,
+      "experience_points": 144,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991458",
+      "age": 26,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "이벤트",
+          "테라피",
+          "BJ",
+          "페이: TC 4422697원",
+          "근무일: 일, 월, 목, 화, 수",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "성실함",
+            "리액션요정",
+            "패션센스"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "파티분위기",
+            "경력자우대",
+            "친구랑같이",
+            "휴가/월차",
+            "성형 지원"
+          ],
+          "location_preferences": [
+            "대학로·성북·동대문",
+            "강남·서초"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "real_name": "이준우",
+      "gender": "MALE",
+      "contact_phone": "010-4867-8395",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8795",
+        "https://picsum.photos/400/500?random=2648"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star517"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 6454868,
+      "desired_working_days": [
+        "수",
+        "토",
+        "월",
+        "금",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 9,
+      "experience_points": 645,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991481",
+      "age": 29,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "이벤트",
+          "모던 바",
+          "라이브 방송",
+          "스탭",
+          "매니저",
+          "페이: TC 4880206원",
+          "근무일: 목, 일, 수, 토",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "대화리드",
+            "활발함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "가족같은",
+            "파티분위기",
+            "텃세없음",
+            "퇴직금",
+            "헤어/메이크업"
+          ],
+          "location_preferences": [
+            "건대·성수·왕십리",
+            "노원·중랑·강북"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "real_name": "강시우",
+      "gender": "MALE",
+      "contact_phone": "010-9543-5125",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=3829",
+        "https://picsum.photos/400/500?random=5877"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star972"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 7520947,
+      "desired_working_days": [
+        "일",
+        "월",
+        "금",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 9,
+      "experience_points": 440,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991504",
+      "age": 33,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "라이브 방송",
+          "모던 바",
+          "토크 바",
+          "테라피",
+          "바텐더",
+          "페이: TC 6693370원",
+          "근무일: 화, 일, 토",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "패션센스",
+            "차분함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "경력자우대",
+            "초보환영",
+            "교통비 지원",
+            "자유 출퇴근"
+          ],
+          "location_preferences": [
+            "구로·관악·동작",
+            "건대·성수·왕십리"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "real_name": "오예준",
+      "gender": "MALE",
+      "contact_phone": "010-4863-4149",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4675",
+        "https://picsum.photos/400/500?random=3259"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star656"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 5376522,
+      "desired_working_days": [
+        "금",
+        "수",
+        "토",
+        "목",
+        "일",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 8,
+      "experience_points": 1938,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991529",
+      "age": 25,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "토크 바",
+          "이벤트",
+          "캐주얼 펍",
+          "스탭",
+          "주방",
+          "바텐더",
+          "페이: TC 5019249원",
+          "근무일: 일, 목, 금, 화, 토",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "좋은비율",
+            "성실함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "편안한",
+            "고급스러운",
+            "초보환영",
+            "4대보험",
+            "경조사비",
+            "성형 지원"
+          ],
+          "location_preferences": [
+            "대학로·성북·동대문",
+            "용산·이태원·한남"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "real_name": "조윤서",
+      "gender": "FEMALE",
+      "contact_phone": "010-9047-1678",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=5437",
+        "https://picsum.photos/400/500?random=8675"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star471"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 8040565,
+      "desired_working_days": [
+        "금",
+        "수",
+        "일",
+        "화",
+        "목"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 7,
+      "experience_points": 511,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991552",
+      "age": 34,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "라이브 방송",
+          "모던 바",
+          "캐주얼 펍",
+          "매니저",
+          "페이: TC 7503536원",
+          "근무일: 일, 금, 토, 화, 수",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "차분함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "가족같은",
+            "초보환영",
+            "4대보험",
+            "교통비 지원"
+          ],
+          "location_preferences": [
+            "노원·중랑·강북"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "real_name": "정예준",
+      "gender": "FEMALE",
+      "contact_phone": "010-9249-5499",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8861",
+        "https://picsum.photos/400/500?random=4755"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star301"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 5561670,
+      "desired_working_days": [
+        "일",
+        "수",
+        "토",
+        "월",
+        "화"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 4,
+      "experience_points": 1837,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991577",
+      "age": 30,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "카페",
+          "가라오케",
+          "테라피",
+          "실장",
+          "주방",
+          "가드",
+          "페이: TC 6864516원",
+          "근무일: 월, 수, 금, 목, 일",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "좋은비율"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "텃세없음",
+            "경력자우대",
+            "고급스러운",
+            "식사 제공",
+            "의상/유니폼"
+          ],
+          "location_preferences": [
+            "용산·이태원·한남",
+            "종로·중구",
+            "구로·관악·동작"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "real_name": "한채원",
+      "gender": "MALE",
+      "contact_phone": "010-4849-5114",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=7367",
+        "https://picsum.photos/400/500?random=5726"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star440"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 7153087,
+      "desired_working_days": [
+        "화",
+        "토",
+        "일",
+        "월"
+      ],
+      "available_from": null,
+      "can_relocate": true,
+      "level": 6,
+      "experience_points": 3210,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991601",
+      "age": 34,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "이벤트",
+          "라이브 방송",
+          "토크 바",
+          "가라오케",
+          "바텐더",
+          "실장",
+          "매니저",
+          "페이: TC 6374077원",
+          "근무일: 목, 금, 토",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "패션센스"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "초보환영",
+            "술강요없음",
+            "파티분위기",
+            "친구랑같이",
+            "식사 제공",
+            "숙소 제공",
+            "4대보험"
+          ],
+          "location_preferences": [
+            "건대·성수·왕십리",
+            "강남·서초",
+            "노원·중랑·강북"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "real_name": "한예은",
+      "gender": "FEMALE",
+      "contact_phone": "010-9656-9334",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=2285",
+        "https://picsum.photos/400/500?random=8263"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star164"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 9274482,
+      "desired_working_days": [
+        "토",
+        "화",
+        "일",
+        "수"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 8,
+      "experience_points": 2840,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991624",
+      "age": 33,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "라이브 방송",
+          "이벤트",
+          "매니저",
+          "실장",
+          "가드",
+          "페이: TC 7988751원",
+          "근무일: 수, 금, 토, 일",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "패션센스"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "텃세없음",
+            "술강요없음",
+            "식사 제공",
+            "헤어/메이크업",
+            "선불/마이킹"
+          ],
+          "location_preferences": [
+            "홍대·합정·마포·서대문"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "real_name": "임준우",
+      "gender": "FEMALE",
+      "contact_phone": "010-4246-8688",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8607",
+        "https://picsum.photos/400/500?random=3752"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star744"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 5920984,
+      "desired_working_days": [
+        "금",
+        "수",
+        "토",
+        "화",
+        "월",
+        "목"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 10,
+      "experience_points": 844,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991649",
+      "age": 30,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "모던 바",
+          "테라피",
+          "가드",
+          "페이: TC 5647454원",
+          "근무일: 토, 수, 일, 금, 화",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "좋은비율",
+            "패션센스",
+            "대화리드"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "술강요없음",
+            "텃세없음",
+            "초보환영",
+            "친구랑같이",
+            "주차 지원",
+            "당일지급",
+            "휴가/월차"
+          ],
+          "location_preferences": [
+            "대학로·성북·동대문",
+            "용산·이태원·한남",
+            "구로·관악·동작"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "real_name": "장채원",
+      "gender": "FEMALE",
+      "contact_phone": "010-7880-4300",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=3361",
+        "https://picsum.photos/400/500?random=3506"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star516"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "TC",
+      "desired_pay_amount": 6249984,
+      "desired_working_days": [
+        "목",
+        "월",
+        "수",
+        "화",
+        "일"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 1,
+      "experience_points": 629,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991673",
+      "age": 31,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "라이브 방송",
+          "카페",
+          "테라피",
+          "주방",
+          "페이: TC 4637760원",
+          "근무일: 수, 일, 화, 토",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "좋은비율"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "텃세없음",
+            "초보환영",
+            "편안한",
+            "선불/마이킹",
+            "교통비 지원"
+          ],
+          "location_preferences": [
+            "종로·중구"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "real_name": "윤윤서",
+      "gender": "MALE",
+      "contact_phone": "010-5456-9211",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=8144",
+        "https://picsum.photos/400/500?random=4003"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star502"
+      },
+      "bio": "junior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "JUNIOR",
+      "desired_pay_type": "DAILY",
+      "desired_pay_amount": 2789642,
+      "desired_working_days": [
+        "금",
+        "토",
+        "화",
+        "월",
+        "일",
+        "목"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 4,
+      "experience_points": 267,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991697",
+      "age": 20,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "토크 바",
+          "카페",
+          "캐주얼 펍",
+          "스탭",
+          "페이: TC 3376410원",
+          "근무일: 일, 월, 목",
+          "경력: junior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "패션센스"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "초보환영",
+            "고급스러운",
+            "교통비 지원",
+            "헤어/메이크업",
+            "식사 제공"
+          ],
+          "location_preferences": [
+            "대학로·성북·동대문",
+            "잠실·송파·강동",
+            "건대·성수·왕십리"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "real_name": "윤시우",
+      "gender": "FEMALE",
+      "contact_phone": "010-9862-7794",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4232",
+        "https://picsum.photos/400/500?random=4875"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star923"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 4681131,
+      "desired_working_days": [
+        "일",
+        "화",
+        "토"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 6,
+      "experience_points": 1470,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991719",
+      "age": 25,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "테라피",
+          "토크 바",
+          "캐주얼 펍",
+          "가드",
+          "페이: TC 3541743원",
+          "근무일: 일, 월, 목",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "활발함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "가족같은",
+            "경력자우대",
+            "헤어/메이크업",
+            "휴가/월차",
+            "성형 지원"
+          ],
+          "location_preferences": [
+            "잠실·송파·강동",
+            "강남·서초"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "real_name": "한서윤",
+      "gender": "MALE",
+      "contact_phone": "010-8130-2701",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=5245",
+        "https://picsum.photos/400/500?random=4821"
+      ],
+      "social_links": {
+        "service": "카카오톡",
+        "handle": "star984"
+      },
+      "bio": "senior 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "SENIOR",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 5055204,
+      "desired_working_days": [
+        "수",
+        "토",
+        "목",
+        "금",
+        "월"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 10,
+      "experience_points": 529,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991743",
+      "age": 25,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "모던 바",
+          "가라오케",
+          "테라피",
+          "라이브 방송",
+          "바텐더",
+          "BJ",
+          "페이: TC 4015341원",
+          "근무일: 목, 수, 토",
+          "경력: senior"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "좋은비율"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "초보환영",
+            "경력자우대",
+            "성형 지원",
+            "헤어/메이크업",
+            "식사 제공"
+          ],
+          "location_preferences": [
+            "용산·이태원·한남",
+            "건대·성수·왕십리",
+            "홍대·합정·마포·서대문"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    },
+    {
+      "user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "real_name": "황시은",
+      "gender": "MALE",
+      "contact_phone": "010-3288-5419",
+      "profile_image_urls": [
+        "https://picsum.photos/400/500?random=4246",
+        "https://picsum.photos/400/500?random=4316"
+      ],
+      "social_links": {
+        "service": "인스타그램",
+        "handle": "star998"
+      },
+      "bio": "professional 레벨의 전문 서비스를 제공합니다.",
+      "experience_level": "PROFESSIONAL",
+      "desired_pay_type": "MONTHLY",
+      "desired_pay_amount": 6940846,
+      "desired_working_days": [
+        "토",
+        "금",
+        "화",
+        "수"
+      ],
+      "available_from": null,
+      "can_relocate": false,
+      "level": 4,
+      "experience_points": 2311,
+      "title": "새로운 스타",
+      "updated_at": "2025-08-30T21:13:17.991766",
+      "age": 34,
+      "matching_conditions": {
+        "MUST_HAVE": [
+          "테라피",
+          "카페",
+          "캐주얼 펍",
+          "매니저",
+          "실장",
+          "스탭",
+          "페이: TC 9135840원",
+          "근무일: 월, 일, 토, 화, 금",
+          "경력: professional"
+        ],
+        "PEOPLE": {
+          "team_dynamics": [],
+          "communication_style": [
+            "차분함"
+          ]
+        },
+        "ENVIRONMENT": {
+          "workplace_features": [
+            "경력자우대",
+            "초보환영",
+            "식사 제공",
+            "헤어/메이크업"
+          ],
+          "location_preferences": [
+            "건대·성수·왕십리",
+            "용산·이태원·한남"
+          ]
+        },
+        "AVOID": []
+      },
+      "business_verification_id": null,
+      "is_business_verified": false,
+      "business_verification_level": "none",
+      "business_verified_at": null
+    }
+  ],
+  "place_profiles": [
+    {
+      "user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "place_name": "건대 프리미엄 카페",
+      "business_type": "카페",
+      "business_number": "784-58-18186",
+      "business_verified": true,
+      "address": "서울시 대학로구 로 421",
+      "detail_address": null,
+      "postcode": "32587",
+      "road_address": "서울시 대학로구 대로 882",
+      "jibun_address": "서울시 대학로구 로 643-15",
+      "latitude": 37.4973375,
+      "longitude": 126.91718254,
+      "area_group_id": 9,
+      "manager_name": "권민준",
+      "manager_phone": "010-9315-7747",
+      "manager_gender": "여",
+      "sns_type": "인스타그램",
+      "sns_handle": "place482",
+      "intro": "카페 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7858",
+        "https://picsum.photos/600/400?random=6001"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 19.0,
+        "end_hour": 2.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "시니어",
+      "desired_working_days": [
+        "금",
+        "목",
+        "월",
+        "일",
+        "수",
+        "화"
+      ],
+      "created_at": "2025-08-29T21:13:17.991791",
+      "updated_at": "2025-08-30T21:13:17.991794"
+    },
+    {
+      "user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "place_name": "건대 VIP 가라오케",
+      "business_type": "가라오케",
+      "business_number": "920-21-13122",
+      "business_verified": true,
+      "address": "서울시 강남구 길 31",
+      "detail_address": "12층",
+      "postcode": "82238",
+      "road_address": "서울시 강남구 대로 769",
+      "jibun_address": "서울시 강남구 동 70-47",
+      "latitude": 37.468583,
+      "longitude": 127.06652651,
+      "area_group_id": 1,
+      "manager_name": "윤윤서",
+      "manager_phone": "010-6429-3925",
+      "manager_gender": "여",
+      "sns_type": "카카오톡",
+      "sns_handle": "place384",
+      "intro": "가라오케 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7802",
+        "https://picsum.photos/600/400?random=4216"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 2.0
+      },
+      "offered_pay_type": "일급",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "주니어",
+      "desired_working_days": [
+        "토",
+        "금",
+        "수",
+        "일",
+        "월"
+      ],
+      "created_at": "2025-06-14T21:13:17.991812",
+      "updated_at": "2025-08-30T21:13:17.991814"
+    },
+    {
+      "user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "place_name": "서초 임페리얼 라이브 방송",
+      "business_type": "라이브 방송",
+      "business_number": "950-32-47195",
+      "business_verified": false,
+      "address": "서울시 잠실구 로 863",
+      "detail_address": "17층",
+      "postcode": "43498",
+      "road_address": "서울시 잠실구 로 428",
+      "jibun_address": "서울시 잠실구 로 636-17",
+      "latitude": 37.49549745,
+      "longitude": 127.02876097,
+      "area_group_id": 2,
+      "manager_name": "최민서",
+      "manager_phone": "010-9716-2493",
+      "manager_gender": "남",
+      "sns_type": "기타",
+      "sns_handle": "place496",
+      "intro": "라이브 방송 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7353",
+        "https://picsum.photos/600/400?random=5706"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "일급",
+      "offered_min_pay": 3500000,
+      "offered_max_pay": 7000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "목",
+        "토",
+        "화",
+        "금"
+      ],
+      "created_at": "2025-08-30T21:13:17.991830",
+      "updated_at": "2025-08-30T21:13:17.991832"
+    },
+    {
+      "user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "place_name": "신촌 VIP 이벤트",
+      "business_type": "이벤트",
+      "business_number": "527-46-92810",
+      "business_verified": false,
+      "address": "서울시 잠실구 대로 783",
+      "detail_address": null,
+      "postcode": "60495",
+      "road_address": "서울시 잠실구 로 416",
+      "jibun_address": "서울시 잠실구 동 439-30",
+      "latitude": 37.57372206,
+      "longitude": 126.94439009,
+      "area_group_id": 2,
+      "manager_name": "황주원",
+      "manager_phone": "010-5028-7457",
+      "manager_gender": "남",
+      "sns_type": "기타",
+      "sns_handle": "place470",
+      "intro": "이벤트 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=3711",
+        "https://picsum.photos/600/400?random=4518"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "월급",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "시니어",
+      "desired_working_days": [
+        "화",
+        "월",
+        "금",
+        "토",
+        "수",
+        "일",
+        "목"
+      ],
+      "created_at": "2025-08-02T21:13:17.991849",
+      "updated_at": "2025-08-30T21:13:17.991850"
+    },
+    {
+      "user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "place_name": "역삼 임페리얼 테라피",
+      "business_type": "테라피",
+      "business_number": "464-25-46128",
+      "business_verified": true,
+      "address": "서울시 잠실구 대로 665",
+      "detail_address": null,
+      "postcode": "15422",
+      "road_address": "서울시 잠실구 대로 818",
+      "jibun_address": "서울시 잠실구 동 523-36",
+      "latitude": 37.56154058,
+      "longitude": 127.0482363,
+      "area_group_id": 2,
+      "manager_name": "임건우",
+      "manager_phone": "010-6223-7014",
+      "manager_gender": "남",
+      "sns_type": "인스타그램",
+      "sns_handle": "place559",
+      "intro": "테라피 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5375",
+        "https://picsum.photos/600/400?random=6263"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "월급",
+      "offered_min_pay": 4000000,
+      "offered_max_pay": 8000000,
+      "desired_experience_level": "무관",
+      "desired_working_days": [
+        "목",
+        "일",
+        "수",
+        "토"
+      ],
+      "created_at": "2025-06-03T21:13:17.991866",
+      "updated_at": "2025-08-30T21:13:17.991867"
+    },
+    {
+      "user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "place_name": "서초 VIP 라이브 방송",
+      "business_type": "라이브 방송",
+      "business_number": "261-97-17538",
+      "business_verified": false,
+      "address": "서울시 대학로구 로 444",
+      "detail_address": null,
+      "postcode": "64730",
+      "road_address": "서울시 대학로구 로 939",
+      "jibun_address": "서울시 대학로구 동 273-19",
+      "latitude": 37.50250376,
+      "longitude": 126.90503668,
+      "area_group_id": 9,
+      "manager_name": "서서윤",
+      "manager_phone": "010-2783-7687",
+      "manager_gender": "여",
+      "sns_type": "인스타그램",
+      "sns_handle": "place430",
+      "intro": "라이브 방송 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6092",
+        "https://picsum.photos/600/400?random=3118"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 18.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "월급",
+      "offered_min_pay": 3500000,
+      "offered_max_pay": 7000000,
+      "desired_experience_level": "무관",
+      "desired_working_days": [
+        "수",
+        "토",
+        "금",
+        "목",
+        "화",
+        "월"
+      ],
+      "created_at": "2025-07-22T21:13:17.991884",
+      "updated_at": "2025-08-30T21:13:17.991886"
+    },
+    {
+      "user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "place_name": "역삼 VIP 카페",
+      "business_type": "카페",
+      "business_number": "812-11-81204",
+      "business_verified": false,
+      "address": "서울시 잠실구 대로 438",
+      "detail_address": null,
+      "postcode": "44845",
+      "road_address": "서울시 잠실구 로 34",
+      "jibun_address": "서울시 잠실구 동 472-15",
+      "latitude": 37.51938455,
+      "longitude": 127.09274069,
+      "area_group_id": 2,
+      "manager_name": "박윤서",
+      "manager_phone": "010-3095-8749",
+      "manager_gender": "여",
+      "sns_type": "기타",
+      "sns_handle": "place425",
+      "intro": "카페 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7212",
+        "https://picsum.photos/600/400?random=5398"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "월",
+        "목",
+        "수",
+        "금"
+      ],
+      "created_at": "2025-08-22T21:13:17.991902",
+      "updated_at": "2025-08-30T21:13:17.991904"
+    },
+    {
+      "user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "place_name": "강남 골든 테라피",
+      "business_type": "테라피",
+      "business_number": "741-60-97859",
+      "business_verified": true,
+      "address": "서울시 노원구 로 337",
+      "detail_address": null,
+      "postcode": "64978",
+      "road_address": "서울시 노원구 로 716",
+      "jibun_address": "서울시 노원구 로 520-24",
+      "latitude": 37.51546873,
+      "longitude": 127.06343878,
+      "area_group_id": 10,
+      "manager_name": "임하린",
+      "manager_phone": "010-7335-5747",
+      "manager_gender": "남",
+      "sns_type": "카카오톡",
+      "sns_handle": "place810",
+      "intro": "테라피 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6762",
+        "https://picsum.photos/600/400?random=5441"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 19.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 4000000,
+      "offered_max_pay": 8000000,
+      "desired_experience_level": "주니어",
+      "desired_working_days": [
+        "금",
+        "목",
+        "화",
+        "토",
+        "월"
+      ],
+      "created_at": "2025-05-05T21:13:17.991920",
+      "updated_at": "2025-08-30T21:13:17.991921"
+    },
+    {
+      "user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "place_name": "강남 로얄 가라오케",
+      "business_type": "가라오케",
+      "business_number": "788-23-57784",
+      "business_verified": true,
+      "address": "서울시 건대구 로 437",
+      "detail_address": "11층",
+      "postcode": "74628",
+      "road_address": "서울시 건대구 대로 609",
+      "jibun_address": "서울시 건대구 로 127-19",
+      "latitude": 37.44182861,
+      "longitude": 127.0992522,
+      "area_group_id": 8,
+      "manager_name": "장예은",
+      "manager_phone": "010-3973-3556",
+      "manager_gender": "여",
+      "sns_type": "기타",
+      "sns_handle": "place174",
+      "intro": "가라오케 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6947",
+        "https://picsum.photos/600/400?random=3453"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 18.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "목",
+        "금",
+        "토",
+        "월",
+        "수"
+      ],
+      "created_at": "2025-05-24T21:13:17.991938",
+      "updated_at": "2025-08-30T21:13:17.991940"
+    },
+    {
+      "user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "place_name": "역삼 골든 캐주얼 펍",
+      "business_type": "캐주얼 펍",
+      "business_number": "276-68-92076",
+      "business_verified": false,
+      "address": "서울시 잠실구 로 894",
+      "detail_address": "19층",
+      "postcode": "27841",
+      "road_address": "서울시 잠실구 대로 335",
+      "jibun_address": "서울시 잠실구 동 677-14",
+      "latitude": 37.57652238,
+      "longitude": 126.90968157,
+      "area_group_id": 2,
+      "manager_name": "정하은",
+      "manager_phone": "010-4329-1520",
+      "manager_gender": "남",
+      "sns_type": "기타",
+      "sns_handle": "place443",
+      "intro": "캐주얼 펍 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=3450",
+        "https://picsum.photos/600/400?random=4270"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "일급",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "무관",
+      "desired_working_days": [
+        "목",
+        "수",
+        "월",
+        "토",
+        "화"
+      ],
+      "created_at": "2025-06-04T21:13:17.991956",
+      "updated_at": "2025-08-30T21:13:17.991957"
+    },
+    {
+      "user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "place_name": "신촌 임페리얼 라이브 방송",
+      "business_type": "라이브 방송",
+      "business_number": "407-21-28709",
+      "business_verified": true,
+      "address": "서울시 노원구 대로 458",
+      "detail_address": null,
+      "postcode": "63845",
+      "road_address": "서울시 노원구 로 345",
+      "jibun_address": "서울시 노원구 동 695-26",
+      "latitude": 37.50052374,
+      "longitude": 127.09771362,
+      "area_group_id": 10,
+      "manager_name": "이지민",
+      "manager_phone": "010-2394-8868",
+      "manager_gender": "여",
+      "sns_type": "기타",
+      "sns_handle": "place775",
+      "intro": "라이브 방송 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6345",
+        "https://picsum.photos/600/400?random=5312"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 19.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 3500000,
+      "offered_max_pay": 7000000,
+      "desired_experience_level": "시니어",
+      "desired_working_days": [
+        "금",
+        "수",
+        "토",
+        "목"
+      ],
+      "created_at": "2025-07-17T21:13:17.991973",
+      "updated_at": "2025-08-30T21:13:17.991974"
+    },
+    {
+      "user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "place_name": "이태원 크라운 테라피",
+      "business_type": "테라피",
+      "business_number": "324-84-37302",
+      "business_verified": false,
+      "address": "서울시 용산구 로 621",
+      "detail_address": "16층",
+      "postcode": "35584",
+      "road_address": "서울시 용산구 대로 199",
+      "jibun_address": "서울시 용산구 로 680-50",
+      "latitude": 37.43558237,
+      "longitude": 127.0737691,
+      "area_group_id": 4,
+      "manager_name": "정예준",
+      "manager_phone": "010-1601-8564",
+      "manager_gender": "남",
+      "sns_type": "카카오톡",
+      "sns_handle": "place690",
+      "intro": "테라피 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7624",
+        "https://picsum.photos/600/400?random=4281"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 18.0,
+        "end_hour": 2.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 4000000,
+      "offered_max_pay": 8000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "화",
+        "일",
+        "목",
+        "토",
+        "수",
+        "금"
+      ],
+      "created_at": "2025-05-06T21:13:17.991993",
+      "updated_at": "2025-08-30T21:13:17.991995"
+    },
+    {
+      "user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "place_name": "논현 플래티넘 카페",
+      "business_type": "카페",
+      "business_number": "700-57-40071",
+      "business_verified": false,
+      "address": "서울시 잠실구 로 871",
+      "detail_address": "6층",
+      "postcode": "33228",
+      "road_address": "서울시 잠실구 대로 578",
+      "jibun_address": "서울시 잠실구 로 376-26",
+      "latitude": 37.52111586,
+      "longitude": 126.90650967,
+      "area_group_id": 2,
+      "manager_name": "강윤서",
+      "manager_phone": "010-7958-9413",
+      "manager_gender": "여",
+      "sns_type": "인스타그램",
+      "sns_handle": "place249",
+      "intro": "카페 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=5527",
+        "https://picsum.photos/600/400?random=7007"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 18.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "일급",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "주니어",
+      "desired_working_days": [
+        "목",
+        "토",
+        "금",
+        "일",
+        "월",
+        "화"
+      ],
+      "created_at": "2025-07-15T21:13:17.992011",
+      "updated_at": "2025-08-30T21:13:17.992013"
+    },
+    {
+      "user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "place_name": "서초 플래티넘 모던 바",
+      "business_type": "모던 바",
+      "business_number": "679-98-23600",
+      "business_verified": true,
+      "address": "서울시 영등포구 로 767",
+      "detail_address": null,
+      "postcode": "81294",
+      "road_address": "서울시 영등포구 대로 532",
+      "jibun_address": "서울시 영등포구 동 974-18",
+      "latitude": 37.57868303,
+      "longitude": 126.90348739,
+      "area_group_id": 6,
+      "manager_name": "최채원",
+      "manager_phone": "010-6943-3344",
+      "manager_gender": "여",
+      "sns_type": "인스타그램",
+      "sns_handle": "place141",
+      "intro": "모던 바 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=3962",
+        "https://picsum.photos/600/400?random=5558"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 19.0,
+        "end_hour": 3.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 3000000,
+      "offered_max_pay": 6000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "금",
+        "일",
+        "화",
+        "수",
+        "토"
+      ],
+      "created_at": "2025-06-07T21:13:17.992028",
+      "updated_at": "2025-08-30T21:13:17.992030"
+    },
+    {
+      "user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "place_name": "역삼 다이아몬드 라이브 방송",
+      "business_type": "라이브 방송",
+      "business_number": "777-48-43433",
+      "business_verified": false,
+      "address": "서울시 종로구 대로 571",
+      "detail_address": "17층",
+      "postcode": "51362",
+      "road_address": "서울시 종로구 대로 791",
+      "jibun_address": "서울시 종로구 로 548-20",
+      "latitude": 37.59152406,
+      "longitude": 127.05687077,
+      "area_group_id": 3,
+      "manager_name": "오하린",
+      "manager_phone": "010-6543-9947",
+      "manager_gender": "남",
+      "sns_type": "기타",
+      "sns_handle": "place437",
+      "intro": "라이브 방송 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7860",
+        "https://picsum.photos/600/400?random=7383"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 2.0
+      },
+      "offered_pay_type": "일급",
+      "offered_min_pay": 3500000,
+      "offered_max_pay": 7000000,
+      "desired_experience_level": "무관",
+      "desired_working_days": [
+        "화",
+        "수",
+        "금",
+        "월",
+        "일",
+        "목",
+        "토"
+      ],
+      "created_at": "2025-08-26T21:13:17.992046",
+      "updated_at": "2025-08-30T21:13:17.992048"
+    },
+    {
+      "user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "place_name": "이태원 VIP 토크 바",
+      "business_type": "토크 바",
+      "business_number": "878-35-98013",
+      "business_verified": false,
+      "address": "서울시 영등포구 대로 783",
+      "detail_address": null,
+      "postcode": "11545",
+      "road_address": "서울시 영등포구 대로 246",
+      "jibun_address": "서울시 영등포구 동 311-12",
+      "latitude": 37.58163499,
+      "longitude": 127.0298169,
+      "area_group_id": 6,
+      "manager_name": "이민서",
+      "manager_phone": "010-6371-2365",
+      "manager_gender": "남",
+      "sns_type": "카카오톡",
+      "sns_handle": "place465",
+      "intro": "토크 바 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6532",
+        "https://picsum.photos/600/400?random=7534"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 19.0,
+        "end_hour": 2.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 3000000,
+      "offered_max_pay": 6000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "목",
+        "화",
+        "수",
+        "월",
+        "금",
+        "일"
+      ],
+      "created_at": "2025-08-24T21:13:17.992064",
+      "updated_at": "2025-08-30T21:13:17.992066"
+    },
+    {
+      "user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "place_name": "건대 플래티넘 가라오케",
+      "business_type": "가라오케",
+      "business_number": "940-34-98490",
+      "business_verified": false,
+      "address": "서울시 영등포구 로 725",
+      "detail_address": null,
+      "postcode": "80741",
+      "road_address": "서울시 영등포구 로 263",
+      "jibun_address": "서울시 영등포구 동 793-11",
+      "latitude": 37.4069125,
+      "longitude": 126.99930169,
+      "area_group_id": 6,
+      "manager_name": "서서윤",
+      "manager_phone": "010-3075-4159",
+      "manager_gender": "남",
+      "sns_type": "기타",
+      "sns_handle": "place629",
+      "intro": "가라오케 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=7353",
+        "https://picsum.photos/600/400?random=6020"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 18.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "신입",
+      "desired_working_days": [
+        "월",
+        "목",
+        "수",
+        "금",
+        "화",
+        "토"
+      ],
+      "created_at": "2025-05-11T21:13:17.992082",
+      "updated_at": "2025-08-30T21:13:17.992084"
+    },
+    {
+      "user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "place_name": "청담 프리미엄 가라오케",
+      "business_type": "가라오케",
+      "business_number": "901-63-62426",
+      "business_verified": true,
+      "address": "서울시 영등포구 대로 233",
+      "detail_address": null,
+      "postcode": "10279",
+      "road_address": "서울시 영등포구 대로 422",
+      "jibun_address": "서울시 영등포구 로 808-10",
+      "latitude": 37.59895622,
+      "longitude": 126.99535693,
+      "area_group_id": 6,
+      "manager_name": "한서윤",
+      "manager_phone": "010-1353-8852",
+      "manager_gender": "여",
+      "sns_type": "기타",
+      "sns_handle": "place347",
+      "intro": "가라오케 전문점으로 최고의 서비스를 제공합니다.",
+      "profile_image_urls": [
+        "https://picsum.photos/600/400?random=6446",
+        "https://picsum.photos/600/400?random=5921"
+      ],
+      "representative_image_index": 0,
+      "operating_hours": {
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ],
+        "start_hour": 20.0,
+        "end_hour": 4.0
+      },
+      "offered_pay_type": "TC",
+      "offered_min_pay": 2500000,
+      "offered_max_pay": 5000000,
+      "desired_experience_level": "시니어",
+      "desired_working_days": [
+        "토",
+        "수",
+        "월",
+        "일"
+      ],
+      "created_at": "2025-06-30T21:13:17.992099",
+      "updated_at": "2025-08-30T21:13:17.992101"
+    }
+  ],
+  "member_attributes_link": [
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 43
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 44
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 48
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 42
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 41
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 45
+    },
+    {
+      "member_user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "attribute_id": 46
+    },
+    {
+      "member_user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "attribute_id": 47
+    },
+    {
+      "member_user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "attribute_id": 42
+    }
+  ],
+  "member_preferences_link": [
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 9
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "attribute_id": 9
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "attribute_id": 9
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 9
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 13
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "attribute_id": 12
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 10
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "attribute_id": 15
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 11
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "attribute_id": 14
+    },
+    {
+      "member_user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "attribute_id": 15
+    }
+  ],
+  "place_attributes_link": [
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 40
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 40
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 33
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 38
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 38
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 35
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 40
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 32
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 38
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 40
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 32
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 40
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 35
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 38
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 38
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 33
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 35
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 32
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 31
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 35
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 33
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 39
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 35
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 32
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 33
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 34
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 36
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 37
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 31
+    }
+  ],
+  "place_preferences_link": [
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 29
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 17
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 20
+    },
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 16
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 20
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 22
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 25
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 16
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 22
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 25
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 18
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 18
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 20
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 29
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 29
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 25
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 17
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 29
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 18
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 17
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 27
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 25
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 20
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 18
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 16
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 22
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 16
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 22
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 28
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 18
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 16
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 26
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 17
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 22
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 20
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 24
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 21
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 25
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 30
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 19
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 23
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 16
+    }
+  ],
+  "place_industries": [
+    {
+      "place_user_id": "b068c20f-28cf-4574-9a1c-64bd38d6214a",
+      "attribute_id": 5
+    },
+    {
+      "place_user_id": "c2c8d86f-3076-4911-9947-e1aba3d0b08d",
+      "attribute_id": 4
+    },
+    {
+      "place_user_id": "971afbff-d848-4b52-a5fa-f168b2de46ac",
+      "attribute_id": 7
+    },
+    {
+      "place_user_id": "635b7186-720b-4379-850c-24cec47442c0",
+      "attribute_id": 8
+    },
+    {
+      "place_user_id": "070a2f35-e7c7-471a-8b5d-e6c4ea14bb47",
+      "attribute_id": 6
+    },
+    {
+      "place_user_id": "6b33fe78-258f-4f91-bf6b-cecfedd048ce",
+      "attribute_id": 7
+    },
+    {
+      "place_user_id": "592bae7c-9688-45ef-8ddb-0a8180c228f4",
+      "attribute_id": 5
+    },
+    {
+      "place_user_id": "61867788-1fc3-4487-a07e-c047a326a5f8",
+      "attribute_id": 6
+    },
+    {
+      "place_user_id": "351c5b29-4364-4822-aa7c-562d4048ddb6",
+      "attribute_id": 4
+    },
+    {
+      "place_user_id": "f3acc83e-528b-4171-a4ca-c3e904f9543b",
+      "attribute_id": 3
+    },
+    {
+      "place_user_id": "d3f256ca-8b81-4e86-a90a-4fd2eb4ba7f8",
+      "attribute_id": 7
+    },
+    {
+      "place_user_id": "3a5db46d-1f86-4311-8eb8-721574827e69",
+      "attribute_id": 6
+    },
+    {
+      "place_user_id": "92c7088a-b786-4b8f-ad81-fd856036060b",
+      "attribute_id": 5
+    },
+    {
+      "place_user_id": "cb919892-131a-43d3-8c00-c8d2b3ccb352",
+      "attribute_id": 1
+    },
+    {
+      "place_user_id": "c928443e-a395-45c3-8877-10a95fa3ca71",
+      "attribute_id": 7
+    },
+    {
+      "place_user_id": "42c408d7-1bfe-49cf-82aa-499945b28a2f",
+      "attribute_id": 2
+    },
+    {
+      "place_user_id": "2fc3562b-b3a8-41dd-ba73-7fc08a408082",
+      "attribute_id": 4
+    },
+    {
+      "place_user_id": "ea1d399f-5934-4b88-8d75-120ea5268270",
+      "attribute_id": 4
+    }
+  ],
+  "member_preferred_area_groups": [
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "group_id": 6
+    },
+    {
+      "member_user_id": "c3d068ec-9928-42e0-9d5d-b71949e873cc",
+      "group_id": 2
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "group_id": 2
+    },
+    {
+      "member_user_id": "3d832678-75d3-424f-b633-abd028f2070b",
+      "group_id": 6
+    },
+    {
+      "member_user_id": "5f3c0d83-8bbd-447e-87d3-251292a4d7ab",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "group_id": 7
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "group_id": 5
+    },
+    {
+      "member_user_id": "3968363d-6057-438f-8e7f-ce9305a31e64",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "group_id": 4
+    },
+    {
+      "member_user_id": "79781150-d2c0-4cba-afef-41ab5912b863",
+      "group_id": 5
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "group_id": 4
+    },
+    {
+      "member_user_id": "942dbc91-10ce-44b8-a8a2-732fdf6c5a99",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "d172fa27-9d81-47cb-823f-e05d4e75c0a0",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "group_id": 7
+    },
+    {
+      "member_user_id": "1129d81f-3254-4396-9800-1968f796125e",
+      "group_id": 1
+    },
+    {
+      "member_user_id": "6f6034cd-d7d4-4a34-8add-e0cfc5fa0687",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "25ebe5ba-a574-4227-bbd4-751c40f56f28",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "group_id": 2
+    },
+    {
+      "member_user_id": "009d86de-7f5b-45d8-bc69-6aa45eb20c52",
+      "group_id": 10
+    },
+    {
+      "member_user_id": "77ce7434-c2ee-4010-aa21-ed1c78e2555b",
+      "group_id": 10
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "group_id": 6
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "group_id": 2
+    },
+    {
+      "member_user_id": "cd994370-4179-47ae-9cf5-2fab7a0ef13f",
+      "group_id": 1
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "group_id": 9
+    },
+    {
+      "member_user_id": "cb55e42f-7a38-4095-ad86-2a8ac9a19827",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "group_id": 1
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "group_id": 10
+    },
+    {
+      "member_user_id": "57296b46-8e64-44d5-8667-13bf996aedd5",
+      "group_id": 9
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "group_id": 4
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "group_id": 2
+    },
+    {
+      "member_user_id": "625e6ee4-13bb-4588-be71-56c147ab420a",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "7fe47825-0733-4762-a2e3-5e7a73b1985c",
+      "group_id": 1
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "group_id": 10
+    },
+    {
+      "member_user_id": "d35f9776-7d20-4709-8338-3d7384f1c254",
+      "group_id": 7
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "group_id": 7
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "group_id": 9
+    },
+    {
+      "member_user_id": "967a8a5e-d7cd-42df-a69f-333a2f013910",
+      "group_id": 10
+    },
+    {
+      "member_user_id": "d4c705d8-9811-4439-a703-668fe20cdbea",
+      "group_id": 7
+    },
+    {
+      "member_user_id": "7ca318f6-f4dd-438e-a800-cbb3a260f4f4",
+      "group_id": 9
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "group_id": 8
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "group_id": 6
+    },
+    {
+      "member_user_id": "a8db94c5-0cbc-4730-9b52-a59fd83ee67f",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "group_id": 3
+    },
+    {
+      "member_user_id": "c5e9b06b-2309-4eb7-a440-8c1acd45ab1b",
+      "group_id": 1
+    },
+    {
+      "member_user_id": "87738c03-d57d-41ef-840a-7680bf53d21d",
+      "group_id": 8
+    }
+  ],
+  "summary": {
+    "total_users": 60,
+    "places": 18,
+    "stars": 24,
+    "guests": 18,
+    "total_profiles": 42
+  }
+}

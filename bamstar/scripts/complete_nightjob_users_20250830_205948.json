@@ -1,0 +1,1415 @@
+[
+  {
+    "user_id": "2aeb87e5-4878-4a90-85f4-1902dbe0ae60",
+    "nickname": "고객001",
+    "age": 44,
+    "gender": "FEMALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "건대",
+      "용산"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "룸싸롱",
+      "텐프로",
+      "비즈니스클럽",
+      "BAR",
+      "나이트클럽"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 7-9시",
+    "group_size": "2-3명",
+    "interests": [
+      "스트레스해소",
+      "문화체험",
+      "음악감상",
+      "친목도모"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=6029",
+      "https://picsum.photos/300/300?random=5072"
+    ],
+    "membership_level": "일반",
+    "total_visits": 178,
+    "average_spending": 1494718,
+    "created_at": "2025-03-21T20:59:48.846441",
+    "is_active": true
+  },
+  {
+    "user_id": "59e6e9a2-3c11-457b-b40f-555a22a96fee",
+    "nickname": "고객002",
+    "age": 33,
+    "gender": "FEMALE",
+    "user_type": "전문직",
+    "preferred_areas": [
+      "상수",
+      "왕십리",
+      "홍대",
+      "여의도"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "카페",
+      "라운지",
+      "쩜오",
+      "KTV"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 7-9시",
+    "group_size": "10명 이상",
+    "interests": [
+      "친목도모",
+      "댄스",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7452",
+      "https://picsum.photos/300/300?random=6305"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 194,
+    "average_spending": 899277,
+    "created_at": "2025-03-21T20:59:48.846459",
+    "is_active": true
+  },
+  {
+    "user_id": "c3b7e6e6-6261-4c1b-8305-13261f5f1049",
+    "nickname": "고객003",
+    "age": 42,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "논현",
+      "잠원",
+      "종로"
+    ],
+    "preferred_business_types": [
+      "단란주점",
+      "하이퍼블릭",
+      "카페",
+      "비즈니스클럽"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "10명 이상",
+    "interests": [
+      "음악감상",
+      "문화체험",
+      "스트레스해소",
+      "비즈니스미팅"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1635"
+    ],
+    "membership_level": "골드",
+    "total_visits": 22,
+    "average_spending": 814977,
+    "created_at": "2025-07-04T20:59:48.846475",
+    "is_active": true
+  },
+  {
+    "user_id": "22574a34-c023-42e8-b597-4c703efd50da",
+    "nickname": "즐거운밤",
+    "age": 35,
+    "gender": "FEMALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "이태원",
+      "건대",
+      "종로"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "룸싸롱",
+      "다방",
+      "KTV",
+      "카페"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 9-11시",
+    "group_size": "4-6명",
+    "interests": [
+      "음악감상",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=9250"
+    ],
+    "membership_level": "일반",
+    "total_visits": 38,
+    "average_spending": 218787,
+    "created_at": "2024-09-04T20:59:48.846492",
+    "is_active": true
+  },
+  {
+    "user_id": "26425f23-a4f1-4e17-a76e-db1002a553ae",
+    "nickname": "파티러버",
+    "age": 49,
+    "gender": "MALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "청담",
+      "용산",
+      "선릉"
+    ],
+    "preferred_business_types": [
+      "클럽",
+      "카페"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "7-10명",
+    "interests": [
+      "네트워킹",
+      "비즈니스미팅",
+      "새로운경험",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7967",
+      "https://picsum.photos/300/300?random=8905"
+    ],
+    "membership_level": "일반",
+    "total_visits": 70,
+    "average_spending": 879484,
+    "created_at": "2025-07-05T20:59:48.846512",
+    "is_active": true
+  },
+  {
+    "user_id": "ef09c543-34c1-4065-80e4-9a1869f6059a",
+    "nickname": "나이트킹",
+    "age": 41,
+    "gender": "MALE",
+    "user_type": "투자자",
+    "preferred_areas": [
+      "강남",
+      "서초",
+      "영등포"
+    ],
+    "preferred_business_types": [
+      "요정",
+      "클럽",
+      "셔츠룸"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "혼자",
+    "interests": [
+      "댄스",
+      "음악감상",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=9465"
+    ],
+    "membership_level": "실버",
+    "total_visits": 107,
+    "average_spending": 550475,
+    "created_at": "2025-03-09T20:59:48.846528",
+    "is_active": true
+  },
+  {
+    "user_id": "c6454bd5-4557-4de8-b318-42d9897871bd",
+    "nickname": "클럽마스터",
+    "age": 25,
+    "gender": "MALE",
+    "user_type": "학생",
+    "preferred_areas": [
+      "신천",
+      "반포"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "퍼블릭"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "2-3명",
+    "interests": [
+      "친목도모",
+      "비즈니스미팅",
+      "새로운경험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7282",
+      "https://picsum.photos/300/300?random=8600"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 73,
+    "average_spending": 492271,
+    "created_at": "2025-03-11T20:59:48.846543",
+    "is_active": true
+  },
+  {
+    "user_id": "b89e290a-94c2-425b-adf9-4035917163bc",
+    "nickname": "바호핑",
+    "age": 35,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "반포",
+      "잠실"
+    ],
+    "preferred_business_types": [
+      "단란주점",
+      "텐프로",
+      "BAR"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "7-10명",
+    "interests": [
+      "네트워킹",
+      "친목도모",
+      "비즈니스미팅",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1116",
+      "https://picsum.photos/300/300?random=9788"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 24,
+    "average_spending": 225783,
+    "created_at": "2025-01-31T20:59:48.846559",
+    "is_active": true
+  },
+  {
+    "user_id": "0c28ac47-3999-4d8f-b4cc-de45f12ff955",
+    "nickname": "소셜라이프",
+    "age": 45,
+    "gender": "FEMALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "천호",
+      "종로"
+    ],
+    "preferred_business_types": [
+      "다방",
+      "KTV",
+      "요정"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 1회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "2-3명",
+    "interests": [
+      "댄스",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=5121",
+      "https://picsum.photos/300/300?random=3625"
+    ],
+    "membership_level": "일반",
+    "total_visits": 192,
+    "average_spending": 1600770,
+    "created_at": "2025-07-08T20:59:48.846574",
+    "is_active": true
+  },
+  {
+    "user_id": "07d6eb54-5417-4f10-9282-348f33ec2e5b",
+    "nickname": "네트워커",
+    "age": 26,
+    "gender": "FEMALE",
+    "user_type": "학생",
+    "preferred_areas": [
+      "망원",
+      "압구정",
+      "강동",
+      "종로"
+    ],
+    "preferred_business_types": [
+      "쩜오",
+      "클럽"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "주 1회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "7-10명",
+    "interests": [
+      "새로운경험",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=4006",
+      "https://picsum.photos/300/300?random=4764"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 163,
+    "average_spending": 120264,
+    "created_at": "2025-04-13T20:59:48.846590",
+    "is_active": true
+  },
+  {
+    "user_id": "7b35b659-90d7-4b7d-a002-f4400b05c6a3",
+    "nickname": "엔터테이너",
+    "age": 50,
+    "gender": "FEMALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "삼성",
+      "성수",
+      "반포",
+      "당산"
+    ],
+    "preferred_business_types": [
+      "KTV",
+      "다방",
+      "나이트클럽",
+      "노래주점",
+      "클럽"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "혼자",
+    "interests": [
+      "새로운경험",
+      "네트워킹",
+      "친목도모"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=8311"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 30,
+    "average_spending": 1833288,
+    "created_at": "2024-10-20T20:59:48.846605",
+    "is_active": true
+  },
+  {
+    "user_id": "5fb44588-92bb-41a5-baa9-35c9872fb569",
+    "nickname": "비즈니스맨",
+    "age": 38,
+    "gender": "FEMALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "인사동",
+      "압구정"
+    ],
+    "preferred_business_types": [
+      "라운지",
+      "다방"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "4-6명",
+    "interests": [
+      "새로운경험",
+      "스트레스해소",
+      "문화체험",
+      "음악감상"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7655"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 180,
+    "average_spending": 885593,
+    "created_at": "2025-08-11T20:59:48.846621",
+    "is_active": true
+  },
+  {
+    "user_id": "fcab5a4a-98db-4645-96bf-abfea0fc2eac",
+    "nickname": "프리미엄고객",
+    "age": 38,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "합정",
+      "여의도"
+    ],
+    "preferred_business_types": [
+      "마사지",
+      "KTV",
+      "나이트클럽"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "혼자",
+    "interests": [
+      "댄스",
+      "음악감상",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=2010"
+    ],
+    "membership_level": "골드",
+    "total_visits": 189,
+    "average_spending": 489194,
+    "created_at": "2024-10-08T20:59:48.846635",
+    "is_active": true
+  },
+  {
+    "user_id": "e82a7ba1-0707-4832-bd8d-e1a4ecd1c37d",
+    "nickname": "VIP회원",
+    "age": 45,
+    "gender": "FEMALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "성수",
+      "합정"
+    ],
+    "preferred_business_types": [
+      "룸싸롱",
+      "라운지",
+      "퍼블릭",
+      "쩜오",
+      "다방"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "2-3명",
+    "interests": [
+      "비즈니스미팅",
+      "댄스",
+      "음악감상"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=3913",
+      "https://picsum.photos/300/300?random=8229"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 154,
+    "average_spending": 1068787,
+    "created_at": "2025-02-09T20:59:48.846651",
+    "is_active": true
+  },
+  {
+    "user_id": "0923ebf5-2545-4cfa-ad12-d5f4ab917c03",
+    "nickname": "단골손님",
+    "age": 34,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "왕십리",
+      "당산",
+      "청담"
+    ],
+    "preferred_business_types": [
+      "카페",
+      "셔츠룸",
+      "KTV",
+      "나이트클럽",
+      "노래주점",
+      "룸싸롱"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "4-6명",
+    "interests": [
+      "스트레스해소",
+      "비즈니스미팅",
+      "네트워킹",
+      "새로운경험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=2484"
+    ],
+    "membership_level": "일반",
+    "total_visits": 184,
+    "average_spending": 255844,
+    "created_at": "2024-10-12T20:59:48.846667",
+    "is_active": true
+  },
+  {
+    "user_id": "ca890f32-8e01-48d7-a8cc-732b826e9aa8",
+    "nickname": "야간활동가",
+    "age": 41,
+    "gender": "FEMALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "을지로",
+      "상수",
+      "당산"
+    ],
+    "preferred_business_types": [
+      "다방",
+      "하이퍼블릭",
+      "호스트바"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "2-3명",
+    "interests": [
+      "새로운경험",
+      "음악감상",
+      "비즈니스미팅",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7647"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 152,
+    "average_spending": 1463218,
+    "created_at": "2024-12-28T20:59:48.846683",
+    "is_active": true
+  },
+  {
+    "user_id": "aba12b7f-1525-4745-a689-d59222cef636",
+    "nickname": "문화생활러",
+    "age": 34,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "선릉",
+      "성수"
+    ],
+    "preferred_business_types": [
+      "요정",
+      "퍼블릭",
+      "BAR",
+      "마사지"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "10명 이상",
+    "interests": [
+      "친목도모",
+      "스트레스해소",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1663",
+      "https://picsum.photos/300/300?random=2597"
+    ],
+    "membership_level": "일반",
+    "total_visits": 25,
+    "average_spending": 250244,
+    "created_at": "2025-03-04T20:59:48.846699",
+    "is_active": true
+  },
+  {
+    "user_id": "cc68cb22-1f71-42ca-abfa-3875934a5e2d",
+    "nickname": "트렌드세터",
+    "age": 31,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "한남",
+      "합정"
+    ],
+    "preferred_business_types": [
+      "쩜오",
+      "BAR",
+      "비즈니스클럽",
+      "퍼블릭",
+      "마사지",
+      "룸싸롱"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "7-10명",
+    "interests": [
+      "비즈니스미팅",
+      "댄스",
+      "스트레스해소",
+      "친목도모"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=5454",
+      "https://picsum.photos/300/300?random=2453"
+    ],
+    "membership_level": "골드",
+    "total_visits": 110,
+    "average_spending": 852598,
+    "created_at": "2025-02-06T20:59:48.846717",
+    "is_active": true
+  },
+  {
+    "user_id": "00493de3-3996-49d0-84a5-a3adf26d6a15",
+    "nickname": "라이프스타일",
+    "age": 35,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "선릉",
+      "논현"
+    ],
+    "preferred_business_types": [
+      "퍼블릭",
+      "나이트클럽",
+      "노래주점",
+      "비즈니스클럽",
+      "카페"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "2-3명",
+    "interests": [
+      "친목도모",
+      "새로운경험",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=3231"
+    ],
+    "membership_level": "실버",
+    "total_visits": 92,
+    "average_spending": 573984,
+    "created_at": "2025-03-13T20:59:48.846733",
+    "is_active": true
+  },
+  {
+    "user_id": "a99b03a5-3ef1-4649-b7f4-edc19c3524fe",
+    "nickname": "익스피어런스",
+    "age": 40,
+    "gender": "MALE",
+    "user_type": "투자자",
+    "preferred_areas": [
+      "종로",
+      "대학로",
+      "선릉",
+      "동대문"
+    ],
+    "preferred_business_types": [
+      "텐프로",
+      "비즈니스클럽",
+      "셔츠룸"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "7-10명",
+    "interests": [
+      "문화체험",
+      "음악감상",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7730"
+    ],
+    "membership_level": "골드",
+    "total_visits": 86,
+    "average_spending": 1455829,
+    "created_at": "2025-08-10T20:59:48.846748",
+    "is_active": true
+  },
+  {
+    "user_id": "618a9753-b006-4d79-a216-c22dfa9c842a",
+    "nickname": "모임주최자",
+    "age": 32,
+    "gender": "FEMALE",
+    "user_type": "전문직",
+    "preferred_areas": [
+      "암사",
+      "종로",
+      "한남",
+      "잠실"
+    ],
+    "preferred_business_types": [
+      "셔츠룸",
+      "다방",
+      "하이퍼블릭"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "혼자",
+    "interests": [
+      "문화체험",
+      "댄스",
+      "스트레스해소"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7333",
+      "https://picsum.photos/300/300?random=9463"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 133,
+    "average_spending": 513646,
+    "created_at": "2025-01-20T20:59:48.846765",
+    "is_active": true
+  },
+  {
+    "user_id": "5126d7e1-d75e-49bd-b34a-b227f03cde1c",
+    "nickname": "이벤트러",
+    "age": 42,
+    "gender": "MALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "충무로",
+      "반포",
+      "삼성"
+    ],
+    "preferred_business_types": [
+      "룸싸롱",
+      "텐프로",
+      "카페",
+      "셔츠룸",
+      "비즈니스클럽",
+      "요정"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "2-3명",
+    "interests": [
+      "비즈니스미팅",
+      "스트레스해소",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=3060",
+      "https://picsum.photos/300/300?random=8364"
+    ],
+    "membership_level": "실버",
+    "total_visits": 188,
+    "average_spending": 1847925,
+    "created_at": "2025-04-22T20:59:48.846781",
+    "is_active": true
+  },
+  {
+    "user_id": "acb95eff-a7d5-4ad5-86f7-292cb7c00cfb",
+    "nickname": "셀럽워처",
+    "age": 42,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "을지로",
+      "반포",
+      "삼성",
+      "압구정"
+    ],
+    "preferred_business_types": [
+      "텐프로",
+      "하이퍼블릭"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "7-10명",
+    "interests": [
+      "친목도모",
+      "새로운경험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1812",
+      "https://picsum.photos/300/300?random=5494"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 90,
+    "average_spending": 946183,
+    "created_at": "2025-06-04T20:59:48.846796",
+    "is_active": true
+  },
+  {
+    "user_id": "5b9fdb6b-6d09-4d34-883c-f8846fe86602",
+    "nickname": "핫플레이스",
+    "age": 27,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "당산",
+      "명동",
+      "망원"
+    ],
+    "preferred_business_types": [
+      "나이트클럽",
+      "요정"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "7-10명",
+    "interests": [
+      "음악감상",
+      "비즈니스미팅"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=3841"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 190,
+    "average_spending": 254702,
+    "created_at": "2025-04-18T20:59:48.846811",
+    "is_active": true
+  },
+  {
+    "user_id": "c13ba36d-b3ad-4d18-b07a-c1b84d8ff0fd",
+    "nickname": "인사이더",
+    "age": 25,
+    "gender": "FEMALE",
+    "user_type": "학생",
+    "preferred_areas": [
+      "이태원",
+      "천호",
+      "홍대"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "단란주점"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "혼자",
+    "interests": [
+      "문화체험",
+      "비즈니스미팅"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7329"
+    ],
+    "membership_level": "실버",
+    "total_visits": 100,
+    "average_spending": 145319,
+    "created_at": "2025-04-28T20:59:48.846826",
+    "is_active": true
+  },
+  {
+    "user_id": "545ffa62-480e-4277-8d58-e1b720bdb3c5",
+    "nickname": "소셜미디어",
+    "age": 46,
+    "gender": "FEMALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "충무로",
+      "대학로",
+      "용산"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "퍼블릭",
+      "셔츠룸",
+      "다방",
+      "하이퍼블릭",
+      "BAR"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "4-6명",
+    "interests": [
+      "음악감상",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=5382"
+    ],
+    "membership_level": "실버",
+    "total_visits": 7,
+    "average_spending": 1352214,
+    "created_at": "2025-06-01T20:59:48.846842",
+    "is_active": true
+  },
+  {
+    "user_id": "0afe3dae-e7b4-4ea4-a2c9-c24a0f199a06",
+    "nickname": "인플루언서",
+    "age": 41,
+    "gender": "MALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "서초",
+      "종로"
+    ],
+    "preferred_business_types": [
+      "마사지",
+      "노래주점",
+      "나이트클럽",
+      "단란주점"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "7-10명",
+    "interests": [
+      "비즈니스미팅",
+      "새로운경험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=5267"
+    ],
+    "membership_level": "골드",
+    "total_visits": 179,
+    "average_spending": 1736357,
+    "created_at": "2025-01-25T20:59:48.846857",
+    "is_active": true
+  },
+  {
+    "user_id": "a4839a5b-fcf4-4e63-a471-264f22d75230",
+    "nickname": "크리에이터",
+    "age": 47,
+    "gender": "FEMALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "건대",
+      "당산"
+    ],
+    "preferred_business_types": [
+      "셔츠룸",
+      "카페",
+      "라운지"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 1회",
+    "preferred_time": "오후 9-11시",
+    "group_size": "7-10명",
+    "interests": [
+      "문화체험",
+      "댄스",
+      "음악감상"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7492",
+      "https://picsum.photos/300/300?random=4682"
+    ],
+    "membership_level": "일반",
+    "total_visits": 189,
+    "average_spending": 598864,
+    "created_at": "2025-03-04T20:59:48.846872",
+    "is_active": true
+  },
+  {
+    "user_id": "27c10f2a-c716-445b-b889-ad5ceeba4339",
+    "nickname": "비지니스오너",
+    "age": 35,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "건대",
+      "종로",
+      "용산",
+      "삼성"
+    ],
+    "preferred_business_types": [
+      "퍼블릭",
+      "다방"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "주 1회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "7-10명",
+    "interests": [
+      "새로운경험",
+      "친목도모",
+      "네트워킹",
+      "비즈니스미팅"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=4620"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 188,
+    "average_spending": 432246,
+    "created_at": "2024-11-22T20:59:48.846887",
+    "is_active": true
+  },
+  {
+    "user_id": "abdc4231-c5d8-4108-8d91-a4e2792260a3",
+    "nickname": "투자자",
+    "age": 49,
+    "gender": "MALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "신천",
+      "당산",
+      "이태원",
+      "대학로"
+    ],
+    "preferred_business_types": [
+      "라운지",
+      "퍼블릭"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "새벽 1시 이후",
+    "group_size": "2-3명",
+    "interests": [
+      "새로운경험",
+      "댄스",
+      "음악감상",
+      "네트워킹"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=2900"
+    ],
+    "membership_level": "실버",
+    "total_visits": 41,
+    "average_spending": 1285705,
+    "created_at": "2024-10-17T20:59:48.846902",
+    "is_active": true
+  },
+  {
+    "user_id": "22291569-1a1e-4f71-aaf9-7c28a3dbc52e",
+    "nickname": "스타트업",
+    "age": 50,
+    "gender": "FEMALE",
+    "user_type": "투자자",
+    "preferred_areas": [
+      "이태원",
+      "천호",
+      "선릉"
+    ],
+    "preferred_business_types": [
+      "마사지",
+      "비즈니스클럽",
+      "나이트클럽"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 1회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "4-6명",
+    "interests": [
+      "댄스",
+      "비즈니스미팅",
+      "음악감상",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=4900",
+      "https://picsum.photos/300/300?random=5206"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 44,
+    "average_spending": 1449901,
+    "created_at": "2025-07-07T20:59:48.846918",
+    "is_active": true
+  },
+  {
+    "user_id": "d6e72137-7b99-46a5-9341-b3d4681c574d",
+    "nickname": "프리랜서",
+    "age": 31,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "서초",
+      "반포",
+      "청담",
+      "충무로"
+    ],
+    "preferred_business_types": [
+      "셔츠룸",
+      "하이퍼블릭",
+      "KTV",
+      "마사지"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "혼자",
+    "interests": [
+      "스트레스해소",
+      "새로운경험",
+      "음악감상"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7633"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 165,
+    "average_spending": 465652,
+    "created_at": "2025-08-12T20:59:48.846933",
+    "is_active": true
+  },
+  {
+    "user_id": "41d85220-73a5-4432-a9d4-6465d021b151",
+    "nickname": "아티스트",
+    "age": 35,
+    "gender": "FEMALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "인사동",
+      "강남",
+      "이태원"
+    ],
+    "preferred_business_types": [
+      "라운지",
+      "텐프로",
+      "카페",
+      "다방",
+      "호스트바",
+      "단란주점"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "7-10명",
+    "interests": [
+      "네트워킹",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=7943"
+    ],
+    "membership_level": "VIP",
+    "total_visits": 19,
+    "average_spending": 833171,
+    "created_at": "2025-02-03T20:59:48.846950",
+    "is_active": true
+  },
+  {
+    "user_id": "6e8c5d3a-79a8-40f4-ae3e-104cbd34ce74",
+    "nickname": "디자이너",
+    "age": 36,
+    "gender": "FEMALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "인사동",
+      "잠원",
+      "동대문"
+    ],
+    "preferred_business_types": [
+      "요정",
+      "비즈니스클럽",
+      "하이퍼블릭",
+      "클럽"
+    ],
+    "budget_range": "200,000원 ~ 1,000,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "혼자",
+    "interests": [
+      "댄스",
+      "비즈니스미팅",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=2976"
+    ],
+    "membership_level": "골드",
+    "total_visits": 159,
+    "average_spending": 407239,
+    "created_at": "2025-03-24T20:59:48.846965",
+    "is_active": true
+  },
+  {
+    "user_id": "69cf66f8-8e01-4625-8ad1-c061d95fe292",
+    "nickname": "마케터",
+    "age": 49,
+    "gender": "MALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "대학로",
+      "방배",
+      "강남"
+    ],
+    "preferred_business_types": [
+      "텐프로",
+      "호스트바",
+      "셔츠룸",
+      "하이퍼블릭"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "월 2-3회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "혼자",
+    "interests": [
+      "스트레스해소",
+      "비즈니스미팅",
+      "댄스",
+      "친목도모"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=5379"
+    ],
+    "membership_level": "일반",
+    "total_visits": 190,
+    "average_spending": 1364945,
+    "created_at": "2025-01-03T20:59:48.846980",
+    "is_active": true
+  },
+  {
+    "user_id": "f611580d-8311-4e80-9918-4b76a3d0bace",
+    "nickname": "기획자",
+    "age": 40,
+    "gender": "MALE",
+    "user_type": "임원",
+    "preferred_areas": [
+      "신천",
+      "선릉"
+    ],
+    "preferred_business_types": [
+      "다방",
+      "클럽",
+      "단란주점"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "4-6명",
+    "interests": [
+      "스트레스해소",
+      "문화체험",
+      "새로운경험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1972",
+      "https://picsum.photos/300/300?random=8053"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 168,
+    "average_spending": 1358576,
+    "created_at": "2024-12-12T20:59:48.846995",
+    "is_active": true
+  },
+  {
+    "user_id": "e228d123-8496-4040-b881-3d55674cb750",
+    "nickname": "프로듀서",
+    "age": 26,
+    "gender": "MALE",
+    "user_type": "직장인",
+    "preferred_areas": [
+      "역삼",
+      "동대문",
+      "삼성",
+      "신천"
+    ],
+    "preferred_business_types": [
+      "KTV",
+      "요정",
+      "나이트클럽",
+      "노래주점"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "월 1회",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "7-10명",
+    "interests": [
+      "스트레스해소",
+      "네트워킹",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=6699",
+      "https://picsum.photos/300/300?random=4555"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 80,
+    "average_spending": 282944,
+    "created_at": "2025-06-16T20:59:48.847011",
+    "is_active": true
+  },
+  {
+    "user_id": "892bb1d2-19c9-4158-9472-3a7ffd32d9a1",
+    "nickname": "매니저",
+    "age": 26,
+    "gender": "FEMALE",
+    "user_type": "학생",
+    "preferred_areas": [
+      "청담",
+      "신천",
+      "천호"
+    ],
+    "preferred_business_types": [
+      "노래주점",
+      "텐프로",
+      "호스트바",
+      "룸싸롱",
+      "요정",
+      "하이퍼블릭"
+    ],
+    "budget_range": "100,000원 ~ 500,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "7-10명",
+    "interests": [
+      "음악감상",
+      "친목도모",
+      "스트레스해소",
+      "네트워킹"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=4780"
+    ],
+    "membership_level": "일반",
+    "total_visits": 83,
+    "average_spending": 101143,
+    "created_at": "2025-03-18T20:59:48.847027",
+    "is_active": true
+  },
+  {
+    "user_id": "f03b5661-d91c-4ce0-9ac7-7cc4702327ae",
+    "nickname": "컨설턴트",
+    "age": 40,
+    "gender": "FEMALE",
+    "user_type": "사업가",
+    "preferred_areas": [
+      "신사",
+      "강동",
+      "서초",
+      "을지로"
+    ],
+    "preferred_business_types": [
+      "단란주점",
+      "클럽",
+      "비즈니스클럽"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "주 2-3회",
+    "preferred_time": "오후 7-9시",
+    "group_size": "2-3명",
+    "interests": [
+      "스트레스해소",
+      "음악감상",
+      "네트워킹",
+      "댄스"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=4663",
+      "https://picsum.photos/300/300?random=8031"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 73,
+    "average_spending": 1192246,
+    "created_at": "2025-07-27T20:59:48.847043",
+    "is_active": true
+  },
+  {
+    "user_id": "d680d033-5f9c-401c-a700-439e9c6e9f34",
+    "nickname": "어드바이저",
+    "age": 41,
+    "gender": "MALE",
+    "user_type": "투자자",
+    "preferred_areas": [
+      "신사",
+      "삼성",
+      "문정"
+    ],
+    "preferred_business_types": [
+      "나이트클럽",
+      "셔츠룸",
+      "룸싸롱",
+      "마사지",
+      "쩜오"
+    ],
+    "budget_range": "500,000원 ~ 2,000,000원",
+    "visit_frequency": "비정기",
+    "preferred_time": "오후 11시-새벽 1시",
+    "group_size": "2-3명",
+    "interests": [
+      "댄스",
+      "네트워킹",
+      "문화체험"
+    ],
+    "profile_image_urls": [
+      "https://picsum.photos/300/300?random=1897",
+      "https://picsum.photos/300/300?random=5175"
+    ],
+    "membership_level": "VVIP",
+    "total_visits": 35,
+    "average_spending": 707031,
+    "created_at": "2024-10-08T20:59:48.847059",
+    "is_active": true
+  }
+]

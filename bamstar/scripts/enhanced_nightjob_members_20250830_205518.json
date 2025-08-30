@@ -1,0 +1,1646 @@
+[
+  {
+    "user_id": "0be5ea97-dbdf-4f3d-98a8-0a8757e90db0",
+    "nickname": "구직자001",
+    "age": 29,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5934805,
+    "desired_business_types": [
+      "텐프로",
+      "단란주점",
+      "KTV"
+    ],
+    "desired_areas": [
+      "충무로",
+      "합정",
+      "잠실"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "월"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "skills": [
+      "현금 관리",
+      "고객 응대"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-07-28T20:51:10.236959",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "정장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "30대",
+    "work_style": "전문적",
+    "special_skills": [
+      "요리",
+      "외국어"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-3060-8787"
+  },
+  {
+    "user_id": "3c3c4dc3-f51d-4ff9-9391-a1d1ae2b5830",
+    "nickname": "구직자002",
+    "age": 31,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 2517814,
+    "desired_business_types": [
+      "카페",
+      "라운지"
+    ],
+    "desired_areas": [
+      "왕십리",
+      "상수",
+      "인사동"
+    ],
+    "desired_working_days": [
+      "월",
+      "토",
+      "목",
+      "금"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=4894",
+      "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "skills": [
+      "고객 응대",
+      "체력 관리"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-04T20:51:10.236977",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://picsum.photos/300/400?random=4894",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "40대",
+    "work_style": "차분함",
+    "special_skills": [
+      "서비스",
+      "댄스",
+      "요리"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-3358-6489"
+  },
+  {
+    "user_id": "1db3513a-c4f2-4847-a5ec-4a503121937d",
+    "nickname": "구직자003",
+    "age": 21,
+    "gender": "MALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 4697888,
+    "desired_business_types": [
+      "클럽",
+      "퍼블릭",
+      "셔츠룸",
+      "나이트클럽"
+    ],
+    "desired_areas": [
+      "역삼",
+      "명동",
+      "강동",
+      "반포"
+    ],
+    "desired_working_days": [
+      "일",
+      "수",
+      "화",
+      "토"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?man,young"
+    ],
+    "self_introduction": "경험은 없지만 배우려는 의지는 누구보다 강합니다.",
+    "skills": [
+      "고객 응대",
+      "음향장비 조작"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-21T20:51:10.236993",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "자유복장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "40대",
+    "work_style": "전문적",
+    "special_skills": [
+      "음악",
+      "요리",
+      "댄스"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-1612-8078"
+  },
+  {
+    "user_id": "83abcaba-0071-4e58-825c-0c1db6f1a4ed",
+    "nickname": "구직자004",
+    "age": 23,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 2351484,
+    "desired_business_types": [
+      "셔츠룸",
+      "호스트바",
+      "텐프로",
+      "KTV"
+    ],
+    "desired_areas": [
+      "연남",
+      "동대문",
+      "문정",
+      "종로"
+    ],
+    "desired_working_days": [
+      "토",
+      "월",
+      "수",
+      "목",
+      "금",
+      "화"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+      "https://picsum.photos/300/400?random=2939",
+      "https://source.unsplash.com/300x400/?man,young"
+    ],
+    "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+    "skills": [
+      "고객 응대",
+      "칵테일 제조"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-07-19T20:51:10.237011",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "30대",
+    "work_style": "적극적",
+    "special_skills": [
+      "외국어",
+      "요리",
+      "댄스"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-1271-6948"
+  },
+  {
+    "user_id": "37003c5b-4ffd-4c37-8b0c-f6900507b927",
+    "nickname": "구직자005",
+    "age": 20,
+    "gender": "FEMALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 3855627,
+    "desired_business_types": [
+      "룸싸롱",
+      "호스트바",
+      "퍼블릭"
+    ],
+    "desired_areas": [
+      "종로",
+      "압구정",
+      "충무로"
+    ],
+    "desired_working_days": [
+      "금",
+      "수",
+      "토",
+      "일"
+    ],
+    "available_time": "오후 6시 ~ 오전 12시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?woman,young"
+    ],
+    "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+    "skills": [
+      "예약 관리",
+      "현금 관리"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-08-24T20:51:10.237027",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://source.unsplash.com/300x400/?woman,young",
+    "available_dress_codes": [
+      "자유복장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "무관",
+    "work_style": "차분함",
+    "special_skills": [
+      "음악",
+      "외국어",
+      "댄스"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-9749-9809"
+  },
+  {
+    "user_id": "69a1815c-a4cb-44d0-9c7a-17a0c974bb23",
+    "nickname": "구직자006",
+    "age": 23,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3253964,
+    "desired_business_types": [
+      "룸싸롱",
+      "요정",
+      "나이트클럽",
+      "KTV"
+    ],
+    "desired_areas": [
+      "문정",
+      "천호",
+      "이태원",
+      "삼성"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "화",
+      "월",
+      "토",
+      "일"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "2년 정도 경험으로 안정적인 서비스 제공 가능합니다.",
+    "skills": [
+      "다국어 가능",
+      "팀워크",
+      "빠른 학습력",
+      "스트레스 관리"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-16T20:51:10.237045",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "정장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "20대",
+    "work_style": "적극적",
+    "special_skills": [
+      "외국어"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-3599-7902"
+  },
+  {
+    "user_id": "947e03c2-2c76-4013-9945-5d95cf7adba8",
+    "nickname": "구직자007",
+    "age": 34,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 3869029,
+    "desired_business_types": [
+      "단란주점",
+      "비즈니스클럽",
+      "나이트클럽",
+      "클럽"
+    ],
+    "desired_areas": [
+      "천호",
+      "반포"
+    ],
+    "desired_working_days": [
+      "목",
+      "수",
+      "월",
+      "일"
+    ],
+    "available_time": "오후 6시 ~ 오전 12시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+      "https://picsum.photos/300/400?random=2469"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "skills": [
+      "체력 관리",
+      "빠른 학습력"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-08-27T20:51:10.237060",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "30대",
+    "work_style": "차분함",
+    "special_skills": [
+      "음악"
+    ],
+    "transportation": "지하철",
+    "emergency_contact": "010-7722-1924"
+  },
+  {
+    "user_id": "3550dc82-7c94-4d94-b139-3a7b1742d684",
+    "nickname": "구직자008",
+    "age": 32,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 2180724,
+    "desired_business_types": [
+      "KTV",
+      "셔츠룸",
+      "마사지",
+      "비즈니스클럽",
+      "룸싸롱"
+    ],
+    "desired_areas": [
+      "종로",
+      "대학로",
+      "논현",
+      "압구정"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "목",
+      "화"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?woman,mature",
+      "https://source.unsplash.com/300x400/?woman,mature"
+    ],
+    "self_introduction": "2년 정도 경험으로 안정적인 서비스 제공 가능합니다.",
+    "skills": [
+      "팀워크",
+      "음향장비 조작",
+      "체력 관리",
+      "칵테일 제조"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-17T20:51:10.237076",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "정장",
+      "자유복장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "30대",
+    "work_style": "차분함",
+    "special_skills": [
+      "외국어",
+      "요리"
+    ],
+    "transportation": "택시",
+    "emergency_contact": "010-8122-8582"
+  },
+  {
+    "user_id": "6f6c6211-9bc4-4a71-970c-f3882f578f5c",
+    "nickname": "구직자009",
+    "age": 28,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5252068,
+    "desired_business_types": [
+      "카페",
+      "하이퍼블릭",
+      "노래주점",
+      "텐프로"
+    ],
+    "desired_areas": [
+      "서초",
+      "종로"
+    ],
+    "desired_working_days": [
+      "토",
+      "월",
+      "일",
+      "목"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "skills": [
+      "음향장비 조작",
+      "현금 관리"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-26T20:51:10.237091",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "정장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "30대",
+    "work_style": "친근함",
+    "special_skills": [
+      "댄스"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-5843-4677"
+  },
+  {
+    "user_id": "84cf9453-eecb-4453-9b6a-fbf0500d7aec",
+    "nickname": "구직자010",
+    "age": 21,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 5284825,
+    "desired_business_types": [
+      "룸싸롱",
+      "BAR",
+      "텐프로"
+    ],
+    "desired_areas": [
+      "여의도",
+      "방배"
+    ],
+    "desired_working_days": [
+      "금",
+      "화",
+      "일"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+    "skills": [
+      "다국어 가능",
+      "음향장비 조작",
+      "빠른 학습력"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-13T20:51:10.237106",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://via.placeholder.com/300x400/FFD700/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "정장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "20대",
+    "work_style": "친근함",
+    "special_skills": [
+      "외국어",
+      "음악"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-3733-5946"
+  },
+  {
+    "user_id": "e4e34bae-3812-446e-a5ad-82a2a0b786b6",
+    "nickname": "구직자011",
+    "age": 24,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 4651961,
+    "desired_business_types": [
+      "BAR",
+      "룸싸롱",
+      "쩜오",
+      "다방",
+      "나이트클럽"
+    ],
+    "desired_areas": [
+      "용산",
+      "삼성"
+    ],
+    "desired_working_days": [
+      "목",
+      "월",
+      "수",
+      "토"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7737"
+    ],
+    "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+    "skills": [
+      "유연한 사고",
+      "체력 관리",
+      "음향장비 조작",
+      "고객 응대",
+      "서비스 마인드"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-08-09T20:51:10.237122",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://picsum.photos/300/400?random=7737",
+    "available_dress_codes": [
+      "정장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "40대",
+    "work_style": "전문적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "버스",
+    "emergency_contact": "010-5863-1756"
+  },
+  {
+    "user_id": "ecedeeec-9377-467c-8d8e-3bde2dcd7982",
+    "nickname": "구직자012",
+    "age": 25,
+    "gender": "FEMALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 4929054,
+    "desired_business_types": [
+      "마사지",
+      "셔츠룸",
+      "KTV",
+      "텐프로"
+    ],
+    "desired_areas": [
+      "연남",
+      "잠실",
+      "문정"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "목"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?woman"
+    ],
+    "self_introduction": "기본적인 서비스는 할 수 있습니다. 더 배우고 싶습니다.",
+    "skills": [
+      "팀워크",
+      "고객 응대"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-08T20:51:10.237137",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://source.unsplash.com/300x400/?woman",
+    "available_dress_codes": [
+      "자유복장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "30대",
+    "work_style": "차분함",
+    "special_skills": [
+      "댄스",
+      "음악",
+      "외국어"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-1936-5741"
+  },
+  {
+    "user_id": "56e5a307-a952-43f1-84e9-716b11b37b7c",
+    "nickname": "구직자013",
+    "age": 23,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4029310,
+    "desired_business_types": [
+      "비즈니스클럽",
+      "마사지",
+      "클럽",
+      "룸싸롱"
+    ],
+    "desired_areas": [
+      "동대문",
+      "청담",
+      "망원",
+      "용산"
+    ],
+    "desired_working_days": [
+      "금",
+      "토",
+      "수",
+      "화"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?woman,young",
+      "https://source.unsplash.com/300x400/?woman,young"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "skills": [
+      "다국어 가능",
+      "체력 관리"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-08-25T20:51:10.237153",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "자유복장",
+      "정장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "20대",
+    "work_style": "적극적",
+    "special_skills": [
+      "음악",
+      "외국어",
+      "댄스"
+    ],
+    "transportation": "택시",
+    "emergency_contact": "010-7870-9678"
+  },
+  {
+    "user_id": "976040eb-03da-4a14-b152-eceb2b5ac805",
+    "nickname": "구직자014",
+    "age": 28,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5687809,
+    "desired_business_types": [
+      "텐프로",
+      "KTV",
+      "셔츠룸",
+      "카페"
+    ],
+    "desired_areas": [
+      "논현",
+      "역삼",
+      "용산"
+    ],
+    "desired_working_days": [
+      "월",
+      "일",
+      "금",
+      "토",
+      "수"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?woman",
+      "https://picsum.photos/300/400?random=5743"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "skills": [
+      "유연한 사고",
+      "팀워크",
+      "빠른 학습력",
+      "예약 관리",
+      "서비스 마인드"
+    ],
+    "preferred_work_style": "개인플레이",
+    "created_at": "2025-07-31T20:51:10.237169",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "30대",
+    "work_style": "친근함",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-2160-5549"
+  },
+  {
+    "user_id": "7569e5ca-d12b-4109-9116-6225ea8b008f",
+    "nickname": "구직자015",
+    "age": 32,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3180859,
+    "desired_business_types": [
+      "요정",
+      "퍼블릭",
+      "단란주점",
+      "룸싸롱",
+      "쩜오"
+    ],
+    "desired_areas": [
+      "충무로",
+      "종로",
+      "합정",
+      "종로"
+    ],
+    "desired_working_days": [
+      "화",
+      "월",
+      "수"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?woman,mature"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "skills": [
+      "팀워크",
+      "음향장비 조작",
+      "예약 관리",
+      "체력 관리"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-07-16T20:51:10.237185",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "20대",
+    "work_style": "적극적",
+    "special_skills": [
+      "음악",
+      "서비스"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-3157-2671"
+  },
+  {
+    "user_id": "17d9466d-bf96-45a5-b5ba-ca9a2b268500",
+    "nickname": "구직자016",
+    "age": 25,
+    "gender": "FEMALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 5386984,
+    "desired_business_types": [
+      "텐프로",
+      "클럽",
+      "셔츠룸"
+    ],
+    "desired_areas": [
+      "선릉",
+      "청담"
+    ],
+    "desired_working_days": [
+      "목",
+      "월",
+      "금",
+      "화",
+      "일",
+      "수"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=8486",
+      "https://picsum.photos/300/400?random=1650"
+    ],
+    "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+    "skills": [
+      "팀워크",
+      "예약 관리",
+      "음향장비 조작",
+      "빠른 학습력"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-07-24T20:51:10.237201",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://picsum.photos/300/400?random=8486",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "20대",
+    "work_style": "전문적",
+    "special_skills": [],
+    "transportation": "택시",
+    "emergency_contact": "010-4284-1196"
+  },
+  {
+    "user_id": "0f4bb1c6-6668-4edb-a524-ca58e6934ddc",
+    "nickname": "구직자017",
+    "age": 29,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3923212,
+    "desired_business_types": [
+      "나이트클럽",
+      "클럽",
+      "다방",
+      "텐프로",
+      "쩜오"
+    ],
+    "desired_areas": [
+      "종로",
+      "충무로",
+      "용산"
+    ],
+    "desired_working_days": [
+      "금",
+      "목",
+      "토",
+      "수",
+      "일",
+      "월"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=2456",
+      "https://source.unsplash.com/300x400/?woman",
+      "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "2년 정도 경험으로 안정적인 서비스 제공 가능합니다.",
+    "skills": [
+      "칵테일 제조",
+      "예약 관리",
+      "서비스 마인드",
+      "유연한 사고"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-07-22T20:51:10.237218",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://picsum.photos/300/400?random=2456",
+    "available_dress_codes": [
+      "정장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "30대",
+    "work_style": "전문적",
+    "special_skills": [
+      "외국어",
+      "요리",
+      "서비스"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-9262-4198"
+  },
+  {
+    "user_id": "10336728-b821-437b-9355-8320812e96bc",
+    "nickname": "구직자018",
+    "age": 22,
+    "gender": "MALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 2364946,
+    "desired_business_types": [
+      "호스트바",
+      "라운지",
+      "비즈니스클럽"
+    ],
+    "desired_areas": [
+      "영등포",
+      "신사",
+      "종로",
+      "반포"
+    ],
+    "desired_working_days": [
+      "수",
+      "일",
+      "금",
+      "토"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=6021"
+    ],
+    "self_introduction": "신입이지만 빠르게 적응할 자신 있습니다. 잘 부탁드립니다.",
+    "skills": [
+      "예약 관리",
+      "음향장비 조작",
+      "현금 관리",
+      "팀워크",
+      "칵테일 제조"
+    ],
+    "preferred_work_style": "개인플레이",
+    "created_at": "2025-07-22T20:51:10.237236",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://picsum.photos/300/400?random=6021",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "40대",
+    "work_style": "적극적",
+    "special_skills": [
+      "댄스",
+      "서비스",
+      "요리"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-6159-6551"
+  },
+  {
+    "user_id": "e4b18b1c-bfa8-4d7e-9ae1-ecee3723240a",
+    "nickname": "구직자019",
+    "age": 29,
+    "gender": "FEMALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 4408709,
+    "desired_business_types": [
+      "셔츠룸",
+      "호스트바"
+    ],
+    "desired_areas": [
+      "연남",
+      "을지로"
+    ],
+    "desired_working_days": [
+      "수",
+      "화",
+      "일",
+      "토",
+      "금",
+      "목"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?woman"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "skills": [
+      "유연한 사고",
+      "스트레스 관리",
+      "다국어 가능",
+      "팀워크",
+      "체력 관리"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-07-10T20:51:10.237252",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "20대",
+    "work_style": "차분함",
+    "special_skills": [
+      "외국어"
+    ],
+    "transportation": "택시",
+    "emergency_contact": "010-6654-1233"
+  },
+  {
+    "user_id": "2b0926dc-e8cd-4e86-a398-d318cec3b68c",
+    "nickname": "구직자020",
+    "age": 25,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4394954,
+    "desired_business_types": [
+      "나이트클럽",
+      "KTV",
+      "카페",
+      "단란주점",
+      "요정"
+    ],
+    "desired_areas": [
+      "대학로",
+      "여의도",
+      "홍대",
+      "반포"
+    ],
+    "desired_working_days": [
+      "목",
+      "수",
+      "화"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?woman",
+      "https://via.placeholder.com/300x400/33C3FF/FFFFFF?text=Profile",
+      "https://picsum.photos/300/400?random=2664"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "skills": [
+      "칵테일 제조",
+      "현금 관리",
+      "서비스 마인드",
+      "팀워크",
+      "음향장비 조작"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-13T20:51:10.237268",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://source.unsplash.com/300x400/?woman",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "정장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "상",
+    "preferred_customer_age": "무관",
+    "work_style": "전문적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "버스",
+    "emergency_contact": "010-9224-9261"
+  },
+  {
+    "user_id": "d783f035-07ff-487e-be6c-fb6ddc91eb34",
+    "nickname": "구직자021",
+    "age": 22,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 4059900,
+    "desired_business_types": [
+      "BAR",
+      "퍼블릭",
+      "다방",
+      "셔츠룸"
+    ],
+    "desired_areas": [
+      "대학로",
+      "신천",
+      "홍대",
+      "망원"
+    ],
+    "desired_working_days": [
+      "일",
+      "월",
+      "토",
+      "목",
+      "수"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?man,young"
+    ],
+    "self_introduction": "기본적인 서비스는 할 수 있습니다. 더 배우고 싶습니다.",
+    "skills": [
+      "예약 관리",
+      "음향장비 조작",
+      "팀워크"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-08-15T20:51:10.237284",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://source.unsplash.com/300x400/?man,young",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "정장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "40대",
+    "work_style": "적극적",
+    "special_skills": [],
+    "transportation": "자차",
+    "emergency_contact": "010-9964-3330"
+  },
+  {
+    "user_id": "ef106842-5334-48c7-be64-40c7b4c6cde0",
+    "nickname": "구직자022",
+    "age": 31,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4583424,
+    "desired_business_types": [
+      "클럽",
+      "셔츠룸",
+      "하이퍼블릭",
+      "라운지",
+      "KTV"
+    ],
+    "desired_areas": [
+      "명동",
+      "문정",
+      "을지로"
+    ],
+    "desired_working_days": [
+      "금",
+      "토",
+      "수",
+      "목"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=6389",
+      "https://picsum.photos/300/400?random=5762"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "skills": [
+      "서비스 마인드",
+      "음향장비 조작"
+    ],
+    "preferred_work_style": "개인플레이",
+    "created_at": "2025-07-31T20:51:10.237299",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 2,
+    "main_image": "https://picsum.photos/300/400?random=6389",
+    "available_dress_codes": [
+      "정장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "30대",
+    "work_style": "적극적",
+    "special_skills": [
+      "서비스",
+      "외국어"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-8199-4287"
+  },
+  {
+    "user_id": "4057b3e6-6583-4d65-bcdd-b4fec825c246",
+    "nickname": "구직자023",
+    "age": 21,
+    "gender": "FEMALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 5562772,
+    "desired_business_types": [
+      "카페",
+      "마사지",
+      "노래주점",
+      "룸싸롱"
+    ],
+    "desired_areas": [
+      "명동",
+      "용산",
+      "동대문"
+    ],
+    "desired_working_days": [
+      "토",
+      "월",
+      "금",
+      "목"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=4091",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+      "https://picsum.photos/300/400?random=1254"
+    ],
+    "self_introduction": "경험은 없지만 배우려는 의지는 누구보다 강합니다.",
+    "skills": [
+      "고객 응대",
+      "스트레스 관리",
+      "예약 관리",
+      "팀워크",
+      "유연한 사고"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-01T20:51:10.237315",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://picsum.photos/300/400?random=4091",
+    "available_dress_codes": [
+      "자유복장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "20대",
+    "work_style": "전문적",
+    "special_skills": [
+      "음악",
+      "댄스"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-2817-9963"
+  },
+  {
+    "user_id": "8d7c182b-a685-4c8e-a5b4-8224c1588bcf",
+    "nickname": "구직자024",
+    "age": 22,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 5231054,
+    "desired_business_types": [
+      "요정",
+      "노래주점",
+      "라운지"
+    ],
+    "desired_areas": [
+      "상수",
+      "신사",
+      "강동",
+      "논현"
+    ],
+    "desired_working_days": [
+      "일",
+      "월",
+      "목"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?man,young"
+    ],
+    "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+    "skills": [
+      "현금 관리",
+      "예약 관리",
+      "서비스 마인드"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-24T20:51:10.237331",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://source.unsplash.com/300x400/?man,young",
+    "available_dress_codes": [
+      "자유복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "무관",
+    "work_style": "차분함",
+    "special_skills": [
+      "외국어"
+    ],
+    "transportation": "자차",
+    "emergency_contact": "010-9546-9480"
+  },
+  {
+    "user_id": "2e340bb1-da06-45b1-bbcc-b5477036f211",
+    "nickname": "구직자025",
+    "age": 21,
+    "gender": "FEMALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 4736654,
+    "desired_business_types": [
+      "요정",
+      "마사지",
+      "비즈니스클럽",
+      "텐프로",
+      "하이퍼블릭"
+    ],
+    "desired_areas": [
+      "이태원",
+      "강동"
+    ],
+    "desired_working_days": [
+      "토",
+      "월",
+      "수"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?woman,young"
+    ],
+    "self_introduction": "신입이지만 빠르게 적응할 자신 있습니다. 잘 부탁드립니다.",
+    "skills": [
+      "팀워크",
+      "고객 응대",
+      "칵테일 제조",
+      "스트레스 관리",
+      "체력 관리"
+    ],
+    "preferred_work_style": "전문적분위기",
+    "created_at": "2025-07-29T20:51:10.237346",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://source.unsplash.com/300x400/?woman,young",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "40대",
+    "work_style": "친근함",
+    "special_skills": [],
+    "transportation": "택시",
+    "emergency_contact": "010-5200-8466"
+  },
+  {
+    "user_id": "00192ca7-a4bd-48df-b7b4-27a676395f59",
+    "nickname": "구직자026",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 4457333,
+    "desired_business_types": [
+      "단란주점",
+      "퍼블릭",
+      "마사지"
+    ],
+    "desired_areas": [
+      "강동",
+      "영등포",
+      "잠원"
+    ],
+    "desired_working_days": [
+      "토",
+      "수",
+      "월",
+      "목"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?man,mature",
+      "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "skills": [
+      "빠른 학습력",
+      "다국어 가능",
+      "서비스 마인드",
+      "음향장비 조작"
+    ],
+    "preferred_work_style": "개인플레이",
+    "created_at": "2025-08-28T20:51:10.237361",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/33FF57/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "정장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "20대",
+    "work_style": "친근함",
+    "special_skills": [
+      "댄스",
+      "외국어"
+    ],
+    "transportation": "택시",
+    "emergency_contact": "010-9494-9565"
+  },
+  {
+    "user_id": "06eee1bd-46b2-4c6c-9334-9c908d6d6bed",
+    "nickname": "구직자027",
+    "age": 29,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4826284,
+    "desired_business_types": [
+      "쩜오",
+      "요정",
+      "비즈니스클럽"
+    ],
+    "desired_areas": [
+      "서초",
+      "합정"
+    ],
+    "desired_working_days": [
+      "목",
+      "수",
+      "토",
+      "화",
+      "월"
+    ],
+    "available_time": "오후 6시 ~ 오전 12시",
+    "profile_image_urls": [
+      "https://source.unsplash.com/300x400/?woman",
+      "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "skills": [
+      "팀워크",
+      "칵테일 제조"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-14T20:51:10.237377",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://source.unsplash.com/300x400/?woman",
+    "available_dress_codes": [
+      "정장",
+      "자유복장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "20대",
+    "work_style": "친근함",
+    "special_skills": [
+      "요리"
+    ],
+    "transportation": "버스",
+    "emergency_contact": "010-7446-2918"
+  },
+  {
+    "user_id": "0cc07850-f2eb-4fe2-b584-b48841dd2cd6",
+    "nickname": "구직자028",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 3097347,
+    "desired_business_types": [
+      "호스트바",
+      "마사지",
+      "노래주점",
+      "카페",
+      "KTV"
+    ],
+    "desired_areas": [
+      "상수",
+      "강동",
+      "서초"
+    ],
+    "desired_working_days": [
+      "화",
+      "목",
+      "월",
+      "일",
+      "수",
+      "토"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+      "https://source.unsplash.com/300x400/?man,mature",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "skills": [
+      "칵테일 제조",
+      "음향장비 조작",
+      "현금 관리",
+      "팀워크"
+    ],
+    "preferred_work_style": "자유로운분위기",
+    "created_at": "2025-07-24T20:51:10.237393",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://via.placeholder.com/300x400/FF5733/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "정장",
+      "깔끔한복장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "중",
+    "preferred_customer_age": "40대",
+    "work_style": "친근함",
+    "special_skills": [],
+    "transportation": "도보",
+    "emergency_contact": "010-1980-7029"
+  },
+  {
+    "user_id": "6cad64da-f4be-4374-bebf-847a31f70b02",
+    "nickname": "구직자029",
+    "age": 29,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3093713,
+    "desired_business_types": [
+      "호스트바",
+      "비즈니스클럽",
+      "마사지"
+    ],
+    "desired_areas": [
+      "신사",
+      "영등포"
+    ],
+    "desired_working_days": [
+      "일",
+      "금",
+      "월",
+      "수",
+      "화"
+    ],
+    "available_time": "오후 6시 ~ 오전 12시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=3341",
+      "https://picsum.photos/300/400?random=1494",
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "skills": [
+      "현금 관리",
+      "스트레스 관리",
+      "음향장비 조작",
+      "예약 관리"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-07-29T20:51:10.237408",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 3,
+    "main_image": "https://picsum.photos/300/400?random=3341",
+    "available_dress_codes": [
+      "자유복장",
+      "정장",
+      "깔끔한복장"
+    ],
+    "alcohol_tolerance": "하",
+    "preferred_customer_age": "40대",
+    "work_style": "차분함",
+    "special_skills": [
+      "서비스",
+      "요리"
+    ],
+    "transportation": "도보",
+    "emergency_contact": "010-5724-2452"
+  },
+  {
+    "user_id": "b29f47b6-781d-46aa-91f4-de03c4c7bd83",
+    "nickname": "구직자030",
+    "age": 27,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 2040426,
+    "desired_business_types": [
+      "텐프로",
+      "라운지",
+      "BAR"
+    ],
+    "desired_areas": [
+      "천호",
+      "연남"
+    ],
+    "desired_working_days": [
+      "목",
+      "월",
+      "금",
+      "일",
+      "화",
+      "수"
+    ],
+    "available_time": "오후 8시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile"
+    ],
+    "self_introduction": "기본적인 서비스는 할 수 있습니다. 더 배우고 싶습니다.",
+    "skills": [
+      "음향장비 조작",
+      "유연한 사고"
+    ],
+    "preferred_work_style": "팀워크",
+    "created_at": "2025-08-01T20:51:10.237424",
+    "is_job_seeking": true,
+    "has_images": true,
+    "image_count": 1,
+    "main_image": "https://via.placeholder.com/300x400/FF33F1/FFFFFF?text=Profile",
+    "available_dress_codes": [
+      "깔끔한복장",
+      "자유복장"
+    ],
+    "alcohol_tolerance": "불가",
+    "preferred_customer_age": "무관",
+    "work_style": "적극적",
+    "special_skills": [],
+    "transportation": "버스",
+    "emergency_contact": "010-4152-1564"
+  }
+]

@@ -37,27 +37,29 @@ class MatchCard extends StatelessWidget {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Profile image area
-              Expanded(
-                flex: 3,
-                child: Container(
-                  color: colorScheme.surfaceContainerHighest,
-                  child: Center(
-                    child: Icon(
-                      profile.type == ProfileType.place
-                          ? SolarIconsOutline.shop
-                          : SolarIconsOutline.user,
-                      size: 64,
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Profile image area
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      color: colorScheme.surfaceContainerHighest,
+                      child: Center(
+                        child: Icon(
+                          profile.type == ProfileType.place
+                              ? SolarIconsOutline.shop
+                              : SolarIconsOutline.user,
+                          size: 64,
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
               // Info section
               Expanded(
                 flex: 2,
@@ -66,18 +68,33 @@ class MatchCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name and match score
+                      // Name and profile badges
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Left side - Name and subtitle
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  profile.name,
-                                  style: AppTextStyles.sectionTitle(context),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                Row(
+                                  children: [
+                                    Text(
+                                      profile.name,
+                                      style: AppTextStyles.sectionTitle(context),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    // Gender icon right after name text
+                                    Icon(
+                                      profile.type == ProfileType.member ? SolarIconsOutline.men : SolarIconsOutline.women,
+                                      size: 16,
+                                      color: profile.type == ProfileType.member 
+                                        ? const Color(0xFF2196F3) // Blue for male
+                                        : const Color(0xFFF44336), // Red for female
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -89,38 +106,54 @@ class MatchCard extends StatelessWidget {
                               ],
                             ),
                           ),
-                          // Match score badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: _getScoreGradient(profile.matchScore, colorScheme),
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                          // Right side - Profile info badges
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Wrap(
+                                alignment: WrapAlignment.end,
+                                spacing: 4,
+                                runSpacing: 4,
+                                children: _getProfileBadges(profile, colorScheme).map((badge) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: colorScheme.primary,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (badge['icon'] != null) ...[
+                                          Icon(
+                                            badge['icon'],
+                                            size: 12,
+                                            color: colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 4),
+                                        ],
+                                        Text(
+                                          badge['text'],
+                                          style: AppTextStyles.captionText(context).copyWith(
+                                            color: colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  SolarIconsBold.star,
-                                  size: 16,
-                                  color: colorScheme.surface,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${profile.matchScore}%',
-                                  style: AppTextStyles.captionText(context).copyWith(
-                                    color: colorScheme.surface,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -178,35 +211,42 @@ class MatchCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      // Tags
+                      // Tags with scroll (no swipe interference)
                       SizedBox(
                         height: 28,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: profile.tags.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 6),
-                          itemBuilder: (context, index) {
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: colorScheme.outline.withValues(alpha: 0.1),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                profile.tags[index],
-                                style: AppTextStyles.captionText(context).copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            );
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (scrollNotification) {
+                            // Prevent scroll events from bubbling up to parent swiper
+                            return true;
                           },
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            physics: const ClampingScrollPhysics(), // Enable horizontal scroll
+                            itemCount: profile.tags.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 6),
+                            itemBuilder: (context, index) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: colorScheme.outline.withValues(alpha: 0.1),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  profile.tags[index],
+                                  style: AppTextStyles.captionText(context).copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],
@@ -216,26 +256,77 @@ class MatchCard extends StatelessWidget {
             ],
           ),
         ),
+        
+        // Match score badge positioned at top-right of image
+        Positioned(
+          top: 16,
+          right: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.5), // Primary color with alpha 0.5
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  SolarIconsOutline.star,
+                  size: 14,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${profile.matchScore}%',
+                  style: AppTextStyles.captionText(context).copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
       ),
     );
   }
 
-  List<Color> _getScoreGradient(int score, ColorScheme colorScheme) {
-    if (score >= 90) {
-      return [
-        colorScheme.primary,
-        colorScheme.primary.withValues(alpha: 0.8),
-      ];
-    } else if (score >= 70) {
-      return [
-        colorScheme.tertiary,
-        colorScheme.tertiary.withValues(alpha: 0.8),
-      ];
-    } else {
-      return [
-        colorScheme.secondary,
-        colorScheme.secondary.withValues(alpha: 0.8),
-      ];
+  /// Generate profile info badges based on available data
+  List<Map<String, dynamic>> _getProfileBadges(MatchProfile profile, ColorScheme colorScheme) {
+    List<Map<String, dynamic>> badges = [];
+    
+    // Age badge - Extract age from tags or use default
+    String ageText = '25세'; // Default
+    for (String tag in profile.tags) {
+      if (tag.contains('세') || tag.contains('20대') || tag.contains('30대')) {
+        if (tag.contains('20대')) {
+          ageText = '20대';
+        } else if (tag.contains('30대')) {
+          ageText = '30대';
+        } else if (tag.contains('세')) {
+          ageText = tag;
+        }
+        break;
+      }
     }
+    badges.add({
+      'text': ageText,
+      'icon': SolarIconsOutline.calendar,
+    });
+    
+    // Experience/Career badge (필수 - 기존 subtitle 활용)
+    badges.add({
+      'text': profile.subtitle.isNotEmpty ? profile.subtitle : '신입',
+      'icon': SolarIconsOutline.bagSmile,
+    });
+    
+    return badges;
   }
+
 }

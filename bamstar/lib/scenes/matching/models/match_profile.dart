@@ -18,6 +18,8 @@ class MatchProfile {
   final DateTime? lastActive;
   final bool isVerified;
   final bool isPremium;
+  final bool hasSentHeart;
+  final bool isFavorited;
 
   MatchProfile({
     required this.id,
@@ -34,6 +36,8 @@ class MatchProfile {
     this.lastActive,
     this.isVerified = false,
     this.isPremium = false,
+    this.hasSentHeart = false,
+    this.isFavorited = false,
   });
 
   /// Get score color based on match percentage
@@ -103,6 +107,8 @@ class MatchProfile {
       'last_active': lastActive?.toIso8601String(),
       'is_verified': isVerified,
       'is_premium': isPremium,
+      'has_sent_heart': hasSentHeart,
+      'is_favorited': isFavorited,
     };
   }
 }

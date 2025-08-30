@@ -1,0 +1,1197 @@
+[
+  {
+    "user_id": "11590216-95e5-4e5e-96e8-cf3ab0e0207d",
+    "nickname": "구직자001",
+    "real_name": "김건우",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5486779,
+    "desired_business_types": [
+      "호스트바",
+      "하이퍼블릭",
+      "KTV"
+    ],
+    "desired_areas": [
+      "당산",
+      "신천",
+      "선릉"
+    ],
+    "desired_working_days": [
+      "토",
+      "월",
+      "수"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7585",
+      "https://picsum.photos/300/400?random=1047"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "전문적",
+    "special_skills": [],
+    "transportation": "자차",
+    "created_at": "2025-07-18T20:59:48.845489",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "476134e1-d1d4-42d9-a023-3d05312a4db5",
+    "nickname": "구직자002",
+    "real_name": "김주원",
+    "age": 20,
+    "gender": "MALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 5476216,
+    "desired_business_types": [
+      "퍼블릭",
+      "텐프로",
+      "라운지",
+      "KTV"
+    ],
+    "desired_areas": [
+      "서초",
+      "방배"
+    ],
+    "desired_working_days": [
+      "토",
+      "수",
+      "화"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=1334"
+    ],
+    "self_introduction": "경험은 없지만 배우려는 의지는 누구보다 강합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "전문적",
+    "special_skills": [
+      "사진"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-10T20:59:48.845507",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "24d7c6b4-cc7d-4e85-ac2e-f18ca9983fed",
+    "nickname": "구직자003",
+    "real_name": "김하은",
+    "age": 28,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3245286,
+    "desired_business_types": [
+      "호스트바",
+      "텐프로",
+      "KTV"
+    ],
+    "desired_areas": [
+      "종로",
+      "잠원",
+      "삼성"
+    ],
+    "desired_working_days": [
+      "일",
+      "수",
+      "목",
+      "금",
+      "화",
+      "월"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=5637",
+      "https://picsum.photos/300/400?random=5372"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "중",
+    "work_style": "친근함",
+    "special_skills": [
+      "음악",
+      "칵테일",
+      "댄스"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-07-20T20:59:48.845528",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "95fbd7b4-833d-4ded-8166-14763a2b60ac",
+    "nickname": "구직자004",
+    "real_name": "김서윤",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 4259359,
+    "desired_business_types": [
+      "호스트바",
+      "퍼블릭"
+    ],
+    "desired_areas": [
+      "합정",
+      "강동"
+    ],
+    "desired_working_days": [
+      "일",
+      "토",
+      "금",
+      "월",
+      "목",
+      "수"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7594",
+      "https://picsum.photos/300/400?random=6604"
+    ],
+    "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "차분함",
+    "special_skills": [
+      "칵테일",
+      "서비스"
+    ],
+    "transportation": "자차",
+    "created_at": "2025-08-03T20:59:48.845547",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "9e207a65-b53a-40dc-92ea-2a5566b40bf7",
+    "nickname": "구직자005",
+    "real_name": "김지유",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5993260,
+    "desired_business_types": [
+      "클럽",
+      "다방"
+    ],
+    "desired_areas": [
+      "종로",
+      "잠원",
+      "청담"
+    ],
+    "desired_working_days": [
+      "금",
+      "토",
+      "목",
+      "월"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=6235",
+      "https://picsum.photos/300/400?random=3632",
+      "https://picsum.photos/300/400?random=8810"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "친근함",
+    "special_skills": [
+      "서비스",
+      "요리"
+    ],
+    "transportation": "택시",
+    "created_at": "2025-07-03T20:59:48.845565",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "a3f21f2b-b24c-4ce0-878e-723e38b5db82",
+    "nickname": "알바꿈나무",
+    "real_name": "김예은",
+    "age": 27,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 2615383,
+    "desired_business_types": [
+      "클럽",
+      "텐프로",
+      "KTV"
+    ],
+    "desired_areas": [
+      "천호",
+      "합정",
+      "방배"
+    ],
+    "desired_working_days": [
+      "월",
+      "토",
+      "일",
+      "화",
+      "수",
+      "금"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=3641",
+      "https://picsum.photos/300/400?random=4335"
+    ],
+    "self_introduction": "2년 정도 경험으로 안정적인 서비스 제공 가능합니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "친근함",
+    "special_skills": [],
+    "transportation": "자차",
+    "created_at": "2025-08-18T20:59:48.845584",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "ac6cf33b-8800-4d49-b0fb-c4fa1cdab659",
+    "nickname": "야간전문가",
+    "real_name": "김하은",
+    "age": 24,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 5786577,
+    "desired_business_types": [
+      "퍼블릭",
+      "텐프로",
+      "클럽",
+      "마사지"
+    ],
+    "desired_areas": [
+      "천호",
+      "종로",
+      "여의도",
+      "용산"
+    ],
+    "desired_working_days": [
+      "수",
+      "토",
+      "일",
+      "화",
+      "금",
+      "월"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=2099",
+      "https://picsum.photos/300/400?random=9077"
+    ],
+    "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+    "alcohol_tolerance": "중",
+    "work_style": "적극적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-08-25T20:59:48.845603",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "9aace6b5-9852-4f42-8446-b842d1165f49",
+    "nickname": "서비스킹",
+    "real_name": "김주원",
+    "age": 24,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5323991,
+    "desired_business_types": [
+      "쩜오",
+      "셔츠룸",
+      "BAR",
+      "호스트바"
+    ],
+    "desired_areas": [
+      "을지로",
+      "연남",
+      "신사"
+    ],
+    "desired_working_days": [
+      "목",
+      "화",
+      "일",
+      "수",
+      "월",
+      "토"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=6128",
+      "https://picsum.photos/300/400?random=5114"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "전문적",
+    "special_skills": [
+      "사진",
+      "서비스",
+      "외국어"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-08-12T20:59:48.845621",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "2f496356-b67f-478b-aad2-8d85c99b521e",
+    "nickname": "친화력갑",
+    "real_name": "김하은",
+    "age": 30,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 4702642,
+    "desired_business_types": [
+      "클럽",
+      "셔츠룸",
+      "단란주점",
+      "룸싸롱",
+      "카페"
+    ],
+    "desired_areas": [
+      "홍대",
+      "연남",
+      "건대"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "토"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9240",
+      "https://picsum.photos/300/400?random=9537",
+      "https://picsum.photos/300/400?random=6996"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "차분함",
+    "special_skills": [
+      "서비스",
+      "댄스"
+    ],
+    "transportation": "택시",
+    "created_at": "2025-07-13T20:59:48.845640",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "2b446670-cf55-4b05-b06b-2ce615742183",
+    "nickname": "성실이",
+    "real_name": "김건우",
+    "age": 28,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4843861,
+    "desired_business_types": [
+      "단란주점",
+      "클럽",
+      "텐프로",
+      "하이퍼블릭"
+    ],
+    "desired_areas": [
+      "성수",
+      "한남",
+      "청담"
+    ],
+    "desired_working_days": [
+      "금",
+      "일",
+      "화",
+      "월",
+      "목",
+      "토"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=5760",
+      "https://picsum.photos/300/400?random=7143",
+      "https://picsum.photos/300/400?random=1688"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "차분함",
+    "special_skills": [
+      "사진"
+    ],
+    "transportation": "버스",
+    "created_at": "2025-07-06T20:59:48.845658",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "ed061efa-35bd-4cd9-b118-30c2785e992b",
+    "nickname": "책임감짱",
+    "real_name": "김서현",
+    "age": 26,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5542535,
+    "desired_business_types": [
+      "KTV",
+      "퍼블릭",
+      "쩜오",
+      "카페"
+    ],
+    "desired_areas": [
+      "명동",
+      "충무로"
+    ],
+    "desired_working_days": [
+      "일",
+      "화",
+      "금"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=8238",
+      "https://picsum.photos/300/400?random=3016"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "차분함",
+    "special_skills": [
+      "외국어"
+    ],
+    "transportation": "버스",
+    "created_at": "2025-08-01T20:59:48.845675",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "6947d857-bfb6-4082-98ee-775bee3a6785",
+    "nickname": "밝은미소",
+    "real_name": "김도윤",
+    "age": 31,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5013234,
+    "desired_business_types": [
+      "비즈니스클럽",
+      "쩜오"
+    ],
+    "desired_areas": [
+      "을지로",
+      "역삼",
+      "천호",
+      "동대문"
+    ],
+    "desired_working_days": [
+      "일",
+      "금",
+      "수"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=1396"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "차분함",
+    "special_skills": [
+      "음악",
+      "요리"
+    ],
+    "transportation": "자차",
+    "created_at": "2025-08-14T20:59:48.845692",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "dc335d7f-5d00-47be-b024-1356acf905db",
+    "nickname": "활발한성격",
+    "real_name": "김서현",
+    "age": 28,
+    "gender": "FEMALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 2839104,
+    "desired_business_types": [
+      "라운지",
+      "하이퍼블릭"
+    ],
+    "desired_areas": [
+      "망원",
+      "영등포"
+    ],
+    "desired_working_days": [
+      "월",
+      "토",
+      "금"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=2275"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "적극적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-07-28T20:59:48.845709",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "52c48719-7ebf-48b8-825f-137d3eb00af2",
+    "nickname": "차분한매력",
+    "real_name": "김시우",
+    "age": 20,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 3957944,
+    "desired_business_types": [
+      "클럽",
+      "단란주점",
+      "하이퍼블릭",
+      "룸싸롱"
+    ],
+    "desired_areas": [
+      "홍대",
+      "반포",
+      "건대",
+      "여의도"
+    ],
+    "desired_working_days": [
+      "금",
+      "일",
+      "토",
+      "목"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7581",
+      "https://picsum.photos/300/400?random=9350"
+    ],
+    "self_introduction": "6개월 정도 경험 있습니다. 더 발전하고 싶어서 지원했습니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "전문적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-18T20:59:48.845732",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "87a15ab6-0c1e-4fa3-b3fd-1c6bcaea1800",
+    "nickname": "프로워커",
+    "real_name": "김도윤",
+    "age": 34,
+    "gender": "FEMALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5189947,
+    "desired_business_types": [
+      "호스트바",
+      "KTV",
+      "비즈니스클럽"
+    ],
+    "desired_areas": [
+      "성수",
+      "을지로"
+    ],
+    "desired_working_days": [
+      "목",
+      "수",
+      "일",
+      "금",
+      "화",
+      "월"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=4467"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "적극적",
+    "special_skills": [],
+    "transportation": "버스",
+    "created_at": "2025-07-04T20:59:48.845750",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "2bad729f-d52c-491b-bef2-20d96d019ed0",
+    "nickname": "경험많아요",
+    "real_name": "김주원",
+    "age": 21,
+    "gender": "MALE",
+    "experience_level": "NEWCOMER",
+    "desired_pay_amount": 2568504,
+    "desired_business_types": [
+      "쩜오",
+      "퍼블릭",
+      "호스트바"
+    ],
+    "desired_areas": [
+      "종로",
+      "강남",
+      "인사동"
+    ],
+    "desired_working_days": [
+      "목",
+      "토",
+      "월"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9759",
+      "https://picsum.photos/300/400?random=2568"
+    ],
+    "self_introduction": "신입이지만 빠르게 적응할 자신 있습니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "전문적",
+    "special_skills": [
+      "외국어",
+      "서비스",
+      "사진"
+    ],
+    "transportation": "버스",
+    "created_at": "2025-08-17T20:59:48.845767",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "c2987dcb-6303-4c46-ac94-fe6b075b8164",
+    "nickname": "배우고싶어요",
+    "real_name": "김민준",
+    "age": 33,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 4446184,
+    "desired_business_types": [
+      "호스트바",
+      "노래주점",
+      "하이퍼블릭"
+    ],
+    "desired_areas": [
+      "이태원",
+      "역삼",
+      "강동",
+      "합정"
+    ],
+    "desired_working_days": [
+      "일",
+      "목",
+      "월",
+      "수",
+      "화",
+      "금"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=4298",
+      "https://picsum.photos/300/400?random=3978"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "친근함",
+    "special_skills": [
+      "사진",
+      "칵테일",
+      "음악"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-10T20:59:48.845785",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "22cb044c-b3b8-406c-a784-3fe1dda53577",
+    "nickname": "열심히할게요",
+    "real_name": "김건우",
+    "age": 32,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 3574268,
+    "desired_business_types": [
+      "하이퍼블릭",
+      "룸싸롱",
+      "노래주점",
+      "라운지"
+    ],
+    "desired_areas": [
+      "충무로",
+      "서초"
+    ],
+    "desired_working_days": [
+      "월",
+      "토",
+      "화",
+      "금",
+      "수"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=5194"
+    ],
+    "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "친근함",
+    "special_skills": [
+      "음악"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-07-15T20:59:48.845802",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "d48a6e05-998e-4659-8b73-be2e6254996f",
+    "nickname": "믿음직한",
+    "real_name": "김주원",
+    "age": 25,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4772669,
+    "desired_business_types": [
+      "셔츠룸",
+      "단란주점"
+    ],
+    "desired_areas": [
+      "한남",
+      "상수",
+      "당산",
+      "논현"
+    ],
+    "desired_working_days": [
+      "일",
+      "수",
+      "월",
+      "목"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7325",
+      "https://picsum.photos/300/400?random=9582"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "적극적",
+    "special_skills": [],
+    "transportation": "도보",
+    "created_at": "2025-07-20T20:59:48.845818",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "2ce97bfb-5688-494e-b99f-88a0d30cb59b",
+    "nickname": "든든한동료",
+    "real_name": "김서현",
+    "age": 35,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5482134,
+    "desired_business_types": [
+      "BAR",
+      "호스트바",
+      "쩜오"
+    ],
+    "desired_areas": [
+      "성수",
+      "반포",
+      "용산"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "월",
+      "토",
+      "화"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9310",
+      "https://picsum.photos/300/400?random=2871"
+    ],
+    "self_introduction": "오랜 경험으로 안정적이고 전문적인 서비스 제공합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "적극적",
+    "special_skills": [
+      "외국어",
+      "사진"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-07-22T20:59:48.845836",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "8671bd50-234c-4595-8ece-4a12c3a97986",
+    "nickname": "소통왕",
+    "real_name": "김건우",
+    "age": 31,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4395792,
+    "desired_business_types": [
+      "클럽",
+      "셔츠룸"
+    ],
+    "desired_areas": [
+      "논현",
+      "한남"
+    ],
+    "desired_working_days": [
+      "목",
+      "토",
+      "화",
+      "월"
+    ],
+    "available_time": "오후 8시 ~ 오전 3시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=2456"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "친근함",
+    "special_skills": [
+      "음악",
+      "댄스",
+      "칵테일"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-20T20:59:48.845852",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "dacd3b5c-9ceb-4ecd-90b9-ca247d754840",
+    "nickname": "팀워크좋아",
+    "real_name": "김지유",
+    "age": 32,
+    "gender": "FEMALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5947765,
+    "desired_business_types": [
+      "마사지",
+      "카페",
+      "셔츠룸",
+      "클럽"
+    ],
+    "desired_areas": [
+      "홍대",
+      "명동"
+    ],
+    "desired_working_days": [
+      "수",
+      "금",
+      "토",
+      "월"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9940",
+      "https://picsum.photos/300/400?random=9588"
+    ],
+    "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+    "alcohol_tolerance": "중",
+    "work_style": "친근함",
+    "special_skills": [
+      "요리",
+      "칵테일",
+      "댄스"
+    ],
+    "transportation": "자차",
+    "created_at": "2025-08-25T20:59:48.845869",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "b9205b44-4ef8-4576-bfd4-6d8813dd1ccb",
+    "nickname": "적응빨라",
+    "real_name": "김예은",
+    "age": 28,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5485565,
+    "desired_business_types": [
+      "나이트클럽",
+      "텐프로"
+    ],
+    "desired_areas": [
+      "연남",
+      "종로"
+    ],
+    "desired_working_days": [
+      "목",
+      "화",
+      "수",
+      "월",
+      "금"
+    ],
+    "available_time": "오후 6시 ~ 오전 2시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7495",
+      "https://picsum.photos/300/400?random=9746",
+      "https://picsum.photos/300/400?random=8855"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "친근함",
+    "special_skills": [
+      "서비스",
+      "외국어"
+    ],
+    "transportation": "택시",
+    "created_at": "2025-08-13T20:59:48.845887",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "a123a3b5-c733-4356-a8b6-3cfb0de583e8",
+    "nickname": "꼼꼼해요",
+    "real_name": "김지유",
+    "age": 23,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4745537,
+    "desired_business_types": [
+      "나이트클럽",
+      "단란주점",
+      "비즈니스클럽",
+      "BAR",
+      "KTV"
+    ],
+    "desired_areas": [
+      "건대",
+      "압구정",
+      "망원",
+      "을지로"
+    ],
+    "desired_working_days": [
+      "일",
+      "금",
+      "토",
+      "화",
+      "월",
+      "목"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=7445"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "불가",
+    "work_style": "차분함",
+    "special_skills": [
+      "사진"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-21T20:59:48.845905",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "c866011d-a17b-454a-8406-98dfc2adfb21",
+    "nickname": "센스있어요",
+    "real_name": "김지유",
+    "age": 35,
+    "gender": "FEMALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5221909,
+    "desired_business_types": [
+      "텐프로",
+      "클럽",
+      "퍼블릭",
+      "다방"
+    ],
+    "desired_areas": [
+      "용산",
+      "잠실",
+      "연남",
+      "압구정"
+    ],
+    "desired_working_days": [
+      "화",
+      "월",
+      "토",
+      "금"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=3359",
+      "https://picsum.photos/300/400?random=3293"
+    ],
+    "self_introduction": "5년 이상 경험으로 매니지먼트도 가능합니다.",
+    "alcohol_tolerance": "중",
+    "work_style": "차분함",
+    "special_skills": [],
+    "transportation": "버스",
+    "created_at": "2025-07-08T20:59:48.845922",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "4abbe0ff-3c25-4f5f-9847-8d022aa24fba",
+    "nickname": "유머있어요",
+    "real_name": "김하은",
+    "age": 30,
+    "gender": "MALE",
+    "experience_level": "SENIOR",
+    "desired_pay_amount": 5009199,
+    "desired_business_types": [
+      "노래주점",
+      "텐프로",
+      "마사지"
+    ],
+    "desired_areas": [
+      "선릉",
+      "성수",
+      "용산",
+      "상수"
+    ],
+    "desired_working_days": [
+      "일",
+      "목",
+      "금"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=2248",
+      "https://picsum.photos/300/400?random=3248"
+    ],
+    "self_introduction": "신입 교육도 가능하며 팀을 이끌어 본 경험이 있습니다.",
+    "alcohol_tolerance": "중",
+    "work_style": "차분함",
+    "special_skills": [
+      "요리"
+    ],
+    "transportation": "도보",
+    "created_at": "2025-07-01T20:59:48.845939",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "48ea8477-80e0-4cd1-9f73-55bfccb48ccb",
+    "nickname": "긍정적",
+    "real_name": "김서윤",
+    "age": 26,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 5752895,
+    "desired_business_types": [
+      "라운지",
+      "퍼블릭",
+      "요정"
+    ],
+    "desired_areas": [
+      "잠실",
+      "홍대"
+    ],
+    "desired_working_days": [
+      "목",
+      "금",
+      "화",
+      "토",
+      "일",
+      "수"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9468",
+      "https://picsum.photos/300/400?random=7708"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "적극적",
+    "special_skills": [
+      "서비스"
+    ],
+    "transportation": "버스",
+    "created_at": "2025-07-28T20:59:48.845957",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "3afdc690-0c51-441e-8240-51fbd37afe4e",
+    "nickname": "도전정신",
+    "real_name": "김하은",
+    "age": 32,
+    "gender": "FEMALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 4143092,
+    "desired_business_types": [
+      "요정",
+      "호스트바",
+      "셔츠룸"
+    ],
+    "desired_areas": [
+      "선릉",
+      "인사동"
+    ],
+    "desired_working_days": [
+      "목",
+      "금",
+      "일",
+      "토"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9830",
+      "https://picsum.photos/300/400?random=4819",
+      "https://picsum.photos/300/400?random=4440"
+    ],
+    "self_introduction": "다양한 업종에서 일해본 경험으로 어떤 상황이든 대처 가능합니다.",
+    "alcohol_tolerance": "하",
+    "work_style": "적극적",
+    "special_skills": [
+      "칵테일",
+      "외국어",
+      "서비스"
+    ],
+    "transportation": "버스",
+    "created_at": "2025-08-29T20:59:48.845976",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "4364557b-5616-4df2-8ed1-62e50e5438a4",
+    "nickname": "성장지향",
+    "real_name": "김지유",
+    "age": 31,
+    "gender": "MALE",
+    "experience_level": "INTERMEDIATE",
+    "desired_pay_amount": 3273209,
+    "desired_business_types": [
+      "노래주점",
+      "쩜오",
+      "비즈니스클럽"
+    ],
+    "desired_areas": [
+      "충무로",
+      "대학로"
+    ],
+    "desired_working_days": [
+      "토",
+      "화",
+      "월",
+      "목"
+    ],
+    "available_time": "오후 9시 ~ 오전 4시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=9171"
+    ],
+    "self_introduction": "고객 응대와 서비스에 자신 있습니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "적극적",
+    "special_skills": [
+      "사진",
+      "서비스"
+    ],
+    "transportation": "택시",
+    "created_at": "2025-08-29T20:59:48.845994",
+    "is_job_seeking": true
+  },
+  {
+    "user_id": "d5a2020a-aef1-43d2-9d11-d8ddff4cff0b",
+    "nickname": "안정추구",
+    "real_name": "김지유",
+    "age": 23,
+    "gender": "MALE",
+    "experience_level": "JUNIOR",
+    "desired_pay_amount": 5696831,
+    "desired_business_types": [
+      "다방",
+      "단란주점"
+    ],
+    "desired_areas": [
+      "방배",
+      "합정"
+    ],
+    "desired_working_days": [
+      "토",
+      "화",
+      "월",
+      "수",
+      "목"
+    ],
+    "available_time": "오후 7시 ~ 오전 1시",
+    "profile_image_urls": [
+      "https://picsum.photos/300/400?random=4352",
+      "https://picsum.photos/300/400?random=1550"
+    ],
+    "self_introduction": "비슷한 업종에서 일해본 경험이 있어 빠르게 적응 가능합니다.",
+    "alcohol_tolerance": "상",
+    "work_style": "전문적",
+    "special_skills": [
+      "서비스",
+      "외국어"
+    ],
+    "transportation": "지하철",
+    "created_at": "2025-08-25T20:59:48.846011",
+    "is_job_seeking": true
+  }
+]

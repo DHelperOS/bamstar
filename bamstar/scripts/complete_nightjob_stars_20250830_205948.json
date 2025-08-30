@@ -1,0 +1,917 @@
+[
+  {
+    "user_id": "3f3f317e-f069-4f98-a53c-2783503bceea",
+    "stage_name": "김스타",
+    "real_name": "정현우",
+    "age": 24,
+    "gender": "FEMALE",
+    "category": "룸스타",
+    "star_level": "탑급",
+    "price_per_hour": 7267001,
+    "experience_years": 9,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=2148",
+      "https://picsum.photos/400/500?random=9131",
+      "https://picsum.photos/400/500?random=1989"
+    ],
+    "specialties": [
+      "요리",
+      "영상편집",
+      "연기"
+    ],
+    "performance_areas": [
+      "잠실",
+      "잠원"
+    ],
+    "available_days": [
+      "토",
+      "수",
+      "금",
+      "목",
+      "일",
+      "화",
+      "월"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "탑급 룸스타로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=9012",
+      "https://picsum.photos/800/600?random=9625"
+    ],
+    "rating": 4.6,
+    "total_bookings": 184,
+    "created_at": "2025-06-06T20:59:48.846033",
+    "is_available": true
+  },
+  {
+    "user_id": "a10c30d7-6307-432f-8316-73f58a6af654",
+    "stage_name": "박프리미엄",
+    "real_name": "이지영",
+    "age": 26,
+    "gender": "MALE",
+    "category": "바텐더",
+    "star_level": "탑급",
+    "price_per_hour": 7346688,
+    "experience_years": 9,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=7046",
+      "https://picsum.photos/400/500?random=2262",
+      "https://picsum.photos/400/500?random=4464",
+      "https://picsum.photos/400/500?random=4317",
+      "https://picsum.photos/400/500?random=8296",
+      "https://picsum.photos/400/500?random=4826"
+    ],
+    "specialties": [
+      "칵테일 제조",
+      "요리",
+      "춤"
+    ],
+    "performance_areas": [
+      "인사동",
+      "논현",
+      "종로",
+      "명동"
+    ],
+    "available_days": [
+      "수",
+      "토",
+      "금",
+      "화",
+      "일"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "탑급 바텐더로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6173",
+      "https://picsum.photos/800/600?random=9797"
+    ],
+    "rating": 3.7,
+    "total_bookings": 431,
+    "created_at": "2025-04-14T20:59:48.846056",
+    "is_available": true
+  },
+  {
+    "user_id": "d5658223-1a8d-4c74-afba-7e6f9d99ae96",
+    "stage_name": "이골든",
+    "real_name": "최태민",
+    "age": 38,
+    "gender": "FEMALE",
+    "category": "바텐더",
+    "star_level": "탑급",
+    "price_per_hour": 7531240,
+    "experience_years": 1,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=7849",
+      "https://picsum.photos/400/500?random=6335",
+      "https://picsum.photos/400/500?random=5555",
+      "https://picsum.photos/400/500?random=3616",
+      "https://picsum.photos/400/500?random=4957",
+      "https://picsum.photos/400/500?random=5588"
+    ],
+    "specialties": [
+      "칵테일 제조",
+      "외국어",
+      "악기연주",
+      "노래"
+    ],
+    "performance_areas": [
+      "을지로",
+      "암사",
+      "당산"
+    ],
+    "available_days": [
+      "일",
+      "토",
+      "화",
+      "목"
+    ],
+    "performance_duration": "협의가능",
+    "introduction": "탑급 바텐더로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=5092",
+      "https://picsum.photos/800/600?random=9770"
+    ],
+    "rating": 4.1,
+    "total_bookings": 177,
+    "created_at": "2025-04-27T20:59:48.846076",
+    "is_available": true
+  },
+  {
+    "user_id": "586b9d44-7172-4914-99e9-a94c1a59b6a2",
+    "stage_name": "최다이아",
+    "real_name": "박지영",
+    "age": 35,
+    "gender": "MALE",
+    "category": "인플루언서",
+    "star_level": "일반",
+    "price_per_hour": 1854734,
+    "experience_years": 2,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=7779",
+      "https://picsum.photos/400/500?random=4314",
+      "https://picsum.photos/400/500?random=6728",
+      "https://picsum.photos/400/500?random=4016",
+      "https://picsum.photos/400/500?random=4904"
+    ],
+    "specialties": [
+      "외국어",
+      "영상편집",
+      "악기연주"
+    ],
+    "performance_areas": [
+      "종로",
+      "압구정",
+      "성수",
+      "방배"
+    ],
+    "available_days": [
+      "화",
+      "일",
+      "월",
+      "목",
+      "토",
+      "수",
+      "금"
+    ],
+    "performance_duration": "3시간",
+    "introduction": "일반 인플루언서로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6591",
+      "https://picsum.photos/800/600?random=6047"
+    ],
+    "rating": 4.2,
+    "total_bookings": 471,
+    "created_at": "2025-03-29T20:59:48.846097",
+    "is_available": true
+  },
+  {
+    "user_id": "3b70af57-5a36-472f-9e66-448d1cf016da",
+    "stage_name": "정플래티넘",
+    "real_name": "정민수",
+    "age": 36,
+    "gender": "FEMALE",
+    "category": "룸스타",
+    "star_level": "일반",
+    "price_per_hour": 1148792,
+    "experience_years": 9,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=4370",
+      "https://picsum.photos/400/500?random=4178",
+      "https://picsum.photos/400/500?random=5537",
+      "https://picsum.photos/400/500?random=2409"
+    ],
+    "specialties": [
+      "외국어",
+      "사진촬영",
+      "악기연주"
+    ],
+    "performance_areas": [
+      "신천",
+      "선릉",
+      "문정",
+      "삼성",
+      "논현"
+    ],
+    "available_days": [
+      "금",
+      "월",
+      "목",
+      "토",
+      "수"
+    ],
+    "performance_duration": "협의가능",
+    "introduction": "일반 룸스타로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6769",
+      "https://picsum.photos/800/600?random=7741"
+    ],
+    "rating": 4.8,
+    "total_bookings": 123,
+    "created_at": "2025-04-16T20:59:48.846117",
+    "is_available": true
+  },
+  {
+    "user_id": "e1720978-48ba-4078-8d1c-2541d7674160",
+    "stage_name": "장크라운",
+    "real_name": "정수진",
+    "age": 28,
+    "gender": "MALE",
+    "category": "클럽DJ",
+    "star_level": "탑급",
+    "price_per_hour": 7568882,
+    "experience_years": 12,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=1598",
+      "https://picsum.photos/400/500?random=4615",
+      "https://picsum.photos/400/500?random=8392"
+    ],
+    "specialties": [
+      "외국어",
+      "마술"
+    ],
+    "performance_areas": [
+      "암사",
+      "상수",
+      "반포",
+      "용산",
+      "잠실"
+    ],
+    "available_days": [
+      "일",
+      "목",
+      "월",
+      "화",
+      "수"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "탑급 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6435",
+      "https://picsum.photos/800/600?random=9014"
+    ],
+    "rating": 4.0,
+    "total_bookings": 403,
+    "created_at": "2025-07-28T20:59:48.846137",
+    "is_available": true
+  },
+  {
+    "user_id": "e1606989-f9d7-4792-9a62-e2f6d5264c11",
+    "stage_name": "윤킹",
+    "real_name": "이수진",
+    "age": 25,
+    "gender": "MALE",
+    "category": "댄서",
+    "star_level": "일반",
+    "price_per_hour": 1369975,
+    "experience_years": 14,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=7999",
+      "https://picsum.photos/400/500?random=3331",
+      "https://picsum.photos/400/500?random=5376"
+    ],
+    "specialties": [
+      "연기",
+      "칵테일 제조"
+    ],
+    "performance_areas": [
+      "신천",
+      "동대문",
+      "삼성",
+      "망원"
+    ],
+    "available_days": [
+      "수",
+      "화",
+      "목",
+      "월",
+      "일",
+      "금",
+      "토"
+    ],
+    "performance_duration": "30분",
+    "introduction": "일반 댄서로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=5211",
+      "https://picsum.photos/800/600?random=5996"
+    ],
+    "rating": 4.4,
+    "total_bookings": 133,
+    "created_at": "2025-03-22T20:59:48.846156",
+    "is_available": true
+  },
+  {
+    "user_id": "7cab52dd-c277-4ef2-a75d-582d095e39d1",
+    "stage_name": "임퀸",
+    "real_name": "김예린",
+    "age": 36,
+    "gender": "MALE",
+    "category": "호스트",
+    "star_level": "일반",
+    "price_per_hour": 1553009,
+    "experience_years": 10,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=8374",
+      "https://picsum.photos/400/500?random=4876",
+      "https://picsum.photos/400/500?random=9306"
+    ],
+    "specialties": [
+      "영상편집",
+      "외국어"
+    ],
+    "performance_areas": [
+      "반포",
+      "서초"
+    ],
+    "available_days": [
+      "금",
+      "토",
+      "월",
+      "일",
+      "화"
+    ],
+    "performance_duration": "협의가능",
+    "introduction": "일반 호스트로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=8114",
+      "https://picsum.photos/800/600?random=9062"
+    ],
+    "rating": 4.7,
+    "total_bookings": 48,
+    "created_at": "2025-04-30T20:59:48.846175",
+    "is_available": true
+  },
+  {
+    "user_id": "76f04415-cc6f-44b5-bd81-74730194a057",
+    "stage_name": "한에이스",
+    "real_name": "박현우",
+    "age": 22,
+    "gender": "MALE",
+    "category": "클럽DJ",
+    "star_level": "일반",
+    "price_per_hour": 1217270,
+    "experience_years": 3,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=6886",
+      "https://picsum.photos/400/500?random=3976",
+      "https://picsum.photos/400/500?random=4545",
+      "https://picsum.photos/400/500?random=1829"
+    ],
+    "specialties": [
+      "외국어",
+      "요리",
+      "칵테일 제조"
+    ],
+    "performance_areas": [
+      "암사",
+      "을지로"
+    ],
+    "available_days": [
+      "목",
+      "금",
+      "일",
+      "화",
+      "토",
+      "수"
+    ],
+    "performance_duration": "30분",
+    "introduction": "일반 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=8774",
+      "https://picsum.photos/800/600?random=5239"
+    ],
+    "rating": 3.8,
+    "total_bookings": 339,
+    "created_at": "2025-08-16T20:59:48.846195",
+    "is_available": true
+  },
+  {
+    "user_id": "15da38d2-2749-4485-b4ee-f2755776d5d7",
+    "stage_name": "강베스트",
+    "real_name": "김지영",
+    "age": 32,
+    "gender": "MALE",
+    "category": "클럽DJ",
+    "star_level": "인기",
+    "price_per_hour": 4601969,
+    "experience_years": 14,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=5284",
+      "https://picsum.photos/400/500?random=4984",
+      "https://picsum.photos/400/500?random=8214",
+      "https://picsum.photos/400/500?random=2336"
+    ],
+    "specialties": [
+      "노래",
+      "외국어",
+      "악기연주",
+      "연기"
+    ],
+    "performance_areas": [
+      "명동",
+      "서초",
+      "대학로"
+    ],
+    "available_days": [
+      "화",
+      "수",
+      "월",
+      "목",
+      "일",
+      "토",
+      "금"
+    ],
+    "performance_duration": "3시간",
+    "introduction": "인기 클럽DJ로 활동하고 있습니다. 프로페셜한 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=5887",
+      "https://picsum.photos/800/600?random=5786"
+    ],
+    "rating": 4.0,
+    "total_bookings": 406,
+    "created_at": "2025-08-28T20:59:48.846216",
+    "is_available": true
+  },
+  {
+    "user_id": "edb3e862-780c-49df-832f-03081f1d70fa",
+    "stage_name": "오마스터",
+    "real_name": "이예린",
+    "age": 38,
+    "gender": "FEMALE",
+    "category": "호스트",
+    "star_level": "인기",
+    "price_per_hour": 4399919,
+    "experience_years": 4,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=6390",
+      "https://picsum.photos/400/500?random=9934",
+      "https://picsum.photos/400/500?random=7550",
+      "https://picsum.photos/400/500?random=2532",
+      "https://picsum.photos/400/500?random=3368",
+      "https://picsum.photos/400/500?random=7791"
+    ],
+    "specialties": [
+      "노래",
+      "춤",
+      "DJ믹싱"
+    ],
+    "performance_areas": [
+      "한남",
+      "영등포",
+      "건대",
+      "역삼",
+      "강동"
+    ],
+    "available_days": [
+      "목",
+      "수",
+      "금",
+      "일",
+      "화",
+      "월",
+      "토"
+    ],
+    "performance_duration": "30분",
+    "introduction": "인기 호스트로 활동하고 있습니다. 프로페셜한 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=7545",
+      "https://picsum.photos/800/600?random=6655"
+    ],
+    "rating": 4.5,
+    "total_bookings": 139,
+    "created_at": "2025-08-20T20:59:48.846238",
+    "is_available": true
+  },
+  {
+    "user_id": "7884a28f-5472-4b16-a828-0a47e51b9256",
+    "stage_name": "서프로",
+    "real_name": "김지영",
+    "age": 22,
+    "gender": "FEMALE",
+    "category": "퍼포머",
+    "star_level": "신인",
+    "price_per_hour": 653096,
+    "experience_years": 8,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=2070",
+      "https://picsum.photos/400/500?random=6071",
+      "https://picsum.photos/400/500?random=9250",
+      "https://picsum.photos/400/500?random=1996",
+      "https://picsum.photos/400/500?random=2574"
+    ],
+    "specialties": [
+      "연기",
+      "영상편집"
+    ],
+    "performance_areas": [
+      "건대",
+      "삼성",
+      "천호",
+      "암사",
+      "홍대"
+    ],
+    "available_days": [
+      "목",
+      "금",
+      "화",
+      "일",
+      "월",
+      "토"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "신인 퍼포머로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6558",
+      "https://picsum.photos/800/600?random=7055"
+    ],
+    "rating": 4.0,
+    "total_bookings": 493,
+    "created_at": "2025-07-30T20:59:48.846259",
+    "is_available": true
+  },
+  {
+    "user_id": "7aa76cb8-f964-4387-a160-58fed0f2b5a6",
+    "stage_name": "권엘리트",
+    "real_name": "박태민",
+    "age": 34,
+    "gender": "MALE",
+    "category": "클럽DJ",
+    "star_level": "신인",
+    "price_per_hour": 869198,
+    "experience_years": 13,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=1812",
+      "https://picsum.photos/400/500?random=4910",
+      "https://picsum.photos/400/500?random=4200",
+      "https://picsum.photos/400/500?random=6878",
+      "https://picsum.photos/400/500?random=4217",
+      "https://picsum.photos/400/500?random=1849"
+    ],
+    "specialties": [
+      "외국어",
+      "노래",
+      "마술",
+      "영상편집"
+    ],
+    "performance_areas": [
+      "삼성",
+      "홍대"
+    ],
+    "available_days": [
+      "목",
+      "수",
+      "월",
+      "화",
+      "일"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "신인 클럽DJ로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=7724",
+      "https://picsum.photos/800/600?random=8820"
+    ],
+    "rating": 4.6,
+    "total_bookings": 52,
+    "created_at": "2025-08-11T20:59:48.846279",
+    "is_available": true
+  },
+  {
+    "user_id": "e3e0f00e-f7a6-420b-a5c3-0b710b6e22d2",
+    "stage_name": "조로얄",
+    "real_name": "이수진",
+    "age": 37,
+    "gender": "MALE",
+    "category": "모델",
+    "star_level": "신인",
+    "price_per_hour": 955907,
+    "experience_years": 5,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=8463",
+      "https://picsum.photos/400/500?random=2366",
+      "https://picsum.photos/400/500?random=7822"
+    ],
+    "specialties": [
+      "외국어",
+      "춤",
+      "마술",
+      "칵테일 제조"
+    ],
+    "performance_areas": [
+      "천호",
+      "암사",
+      "삼성",
+      "동대문",
+      "잠실"
+    ],
+    "available_days": [
+      "목",
+      "수",
+      "일",
+      "월",
+      "화",
+      "금"
+    ],
+    "performance_duration": "30분",
+    "introduction": "신인 모델로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=5018",
+      "https://picsum.photos/800/600?random=5631"
+    ],
+    "rating": 4.0,
+    "total_bookings": 188,
+    "created_at": "2025-03-07T20:59:48.846299",
+    "is_available": true
+  },
+  {
+    "user_id": "048230cf-640f-4c48-bd79-e6868a4dda13",
+    "stage_name": "신그랜드",
+    "real_name": "박지영",
+    "age": 30,
+    "gender": "FEMALE",
+    "category": "가수",
+    "star_level": "탑급",
+    "price_per_hour": 8960341,
+    "experience_years": 10,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=4375",
+      "https://picsum.photos/400/500?random=6069",
+      "https://picsum.photos/400/500?random=9986",
+      "https://picsum.photos/400/500?random=8496"
+    ],
+    "specialties": [
+      "영상편집",
+      "요리",
+      "춤"
+    ],
+    "performance_areas": [
+      "선릉",
+      "신사",
+      "압구정",
+      "논현"
+    ],
+    "available_days": [
+      "수",
+      "토",
+      "일",
+      "화"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "탑급 가수로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6227",
+      "https://picsum.photos/800/600?random=7893"
+    ],
+    "rating": 4.1,
+    "total_bookings": 443,
+    "created_at": "2025-05-25T20:59:48.846319",
+    "is_available": true
+  },
+  {
+    "user_id": "14f361c6-d9b7-471b-9f55-d8358665a5ab",
+    "stage_name": "황럭셔리",
+    "real_name": "최예린",
+    "age": 31,
+    "gender": "FEMALE",
+    "category": "모델",
+    "star_level": "탑급",
+    "price_per_hour": 9855345,
+    "experience_years": 9,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=9875",
+      "https://picsum.photos/400/500?random=5680",
+      "https://picsum.photos/400/500?random=3742",
+      "https://picsum.photos/400/500?random=7987",
+      "https://picsum.photos/400/500?random=7769",
+      "https://picsum.photos/400/500?random=5001"
+    ],
+    "specialties": [
+      "사진촬영",
+      "요리",
+      "외국어"
+    ],
+    "performance_areas": [
+      "천호",
+      "역삼",
+      "선릉"
+    ],
+    "available_days": [
+      "월",
+      "수",
+      "일",
+      "토",
+      "화",
+      "목"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "탑급 모델로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6591",
+      "https://picsum.photos/800/600?random=7006"
+    ],
+    "rating": 4.9,
+    "total_bookings": 108,
+    "created_at": "2025-04-23T20:59:48.846341",
+    "is_available": true
+  },
+  {
+    "user_id": "83c7add5-f15f-4bd1-bb27-3985a0d06cf7",
+    "stage_name": "문프라임",
+    "real_name": "최현우",
+    "age": 30,
+    "gender": "FEMALE",
+    "category": "모델",
+    "star_level": "신인",
+    "price_per_hour": 581891,
+    "experience_years": 12,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=4863",
+      "https://picsum.photos/400/500?random=8999",
+      "https://picsum.photos/400/500?random=8051",
+      "https://picsum.photos/400/500?random=7813",
+      "https://picsum.photos/400/500?random=4537",
+      "https://picsum.photos/400/500?random=7602"
+    ],
+    "specialties": [
+      "요리",
+      "악기연주",
+      "칵테일 제조"
+    ],
+    "performance_areas": [
+      "동대문",
+      "종로",
+      "잠실"
+    ],
+    "available_days": [
+      "목",
+      "월",
+      "일",
+      "수",
+      "토",
+      "화",
+      "금"
+    ],
+    "performance_duration": "1시간",
+    "introduction": "신인 모델로 활동하고 있습니다. 매력적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=7662",
+      "https://picsum.photos/800/600?random=5043"
+    ],
+    "rating": 4.5,
+    "total_bookings": 397,
+    "created_at": "2025-06-13T20:59:48.846361",
+    "is_available": true
+  },
+  {
+    "user_id": "d6d3ddae-fd38-4bbb-b599-b9849855c4b1",
+    "stage_name": "안슈퍼",
+    "real_name": "정예린",
+    "age": 25,
+    "gender": "FEMALE",
+    "category": "바텐더",
+    "star_level": "신인",
+    "price_per_hour": 848295,
+    "experience_years": 1,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=1217",
+      "https://picsum.photos/400/500?random=9492",
+      "https://picsum.photos/400/500?random=2602",
+      "https://picsum.photos/400/500?random=1228"
+    ],
+    "specialties": [
+      "연기",
+      "영상편집",
+      "노래"
+    ],
+    "performance_areas": [
+      "홍대",
+      "동대문"
+    ],
+    "available_days": [
+      "목",
+      "일",
+      "월",
+      "토",
+      "화",
+      "금"
+    ],
+    "performance_duration": "협의가능",
+    "introduction": "신인 바텐더로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=5598",
+      "https://picsum.photos/800/600?random=5089"
+    ],
+    "rating": 4.3,
+    "total_bookings": 132,
+    "created_at": "2025-04-18T20:59:48.846381",
+    "is_available": true
+  },
+  {
+    "user_id": "a11b603b-f50b-4444-b255-3bba72ad391c",
+    "stage_name": "유톱",
+    "real_name": "김민수",
+    "age": 23,
+    "gender": "MALE",
+    "category": "댄서",
+    "star_level": "신인",
+    "price_per_hour": 932605,
+    "experience_years": 9,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=3472",
+      "https://picsum.photos/400/500?random=1535",
+      "https://picsum.photos/400/500?random=8227"
+    ],
+    "specialties": [
+      "마술",
+      "외국어"
+    ],
+    "performance_areas": [
+      "왕십리",
+      "삼성",
+      "합정",
+      "강동",
+      "신사"
+    ],
+    "available_days": [
+      "일",
+      "토",
+      "화",
+      "금",
+      "수",
+      "목"
+    ],
+    "performance_duration": "30분",
+    "introduction": "신인 댄서로 활동하고 있습니다. 창의적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6065",
+      "https://picsum.photos/800/600?random=8650"
+    ],
+    "rating": 4.0,
+    "total_bookings": 479,
+    "created_at": "2025-04-17T20:59:48.846400",
+    "is_available": true
+  },
+  {
+    "user_id": "e199b255-5e80-4620-be56-3d1c37822402",
+    "stage_name": "송VIP",
+    "real_name": "정태민",
+    "age": 33,
+    "gender": "FEMALE",
+    "category": "퍼포머",
+    "star_level": "탑급",
+    "price_per_hour": 9798583,
+    "experience_years": 7,
+    "profile_image_urls": [
+      "https://picsum.photos/400/500?random=7719",
+      "https://picsum.photos/400/500?random=7160",
+      "https://picsum.photos/400/500?random=4027",
+      "https://picsum.photos/400/500?random=5006"
+    ],
+    "specialties": [
+      "춤",
+      "마술"
+    ],
+    "performance_areas": [
+      "서초",
+      "논현",
+      "대학로",
+      "강동",
+      "당산"
+    ],
+    "available_days": [
+      "화",
+      "일",
+      "목",
+      "토",
+      "금"
+    ],
+    "performance_duration": "30분",
+    "introduction": "탑급 퍼포머로 활동하고 있습니다. 열정적인 퍼포먼스를 선보입니다.",
+    "portfolio_urls": [
+      "https://picsum.photos/800/600?random=6050",
+      "https://picsum.photos/800/600?random=6277"
+    ],
+    "rating": 3.5,
+    "total_bookings": 477,
+    "created_at": "2025-06-01T20:59:48.846419",
+    "is_available": true
+  }
+]

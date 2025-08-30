@@ -230,15 +230,106 @@ class PlacePreferencesService {
         print('✅ place_industries 저장: ${industryInserts.length}개');
       }
 
-      // 3. place_attributes_link 저장 (제공하는 복지/혜택)
+      // 3. 모집 직무를 place_preferences_link에 저장 (수정됨)
+      if (preferences.selectedJobIds.isNotEmpty) {
+        // 기존 JOB_ROLE 타입 데이터 삭제
+        final existingJobData = await _supabase
+            .from('place_preferences_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingJobData.isNotEmpty) {
+          final existingJobIds = existingJobData.map((e) => e['attribute_id']).toList();
+          final jobTypesQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingJobIds)
+              .eq('type', 'JOB_ROLE');
+          
+          final jobTypeIds = jobTypesQuery.map((e) => e['id']).toList();
+          
+          if (jobTypeIds.isNotEmpty) {
+            await _supabase
+                .from('place_preferences_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', jobTypeIds);
+          }
+        }
+
+        // 새 직무 데이터 삽입
+        final jobInserts = preferences.selectedJobIds.map((jobId) => {
+          'place_user_id': currentUser.id,
+          'attribute_id': int.parse(jobId),
+          'preference_level': 'required',
+        }).toList();
+
+        await _supabase
+            .from('place_preferences_link')
+            .insert(jobInserts);
+
+        print('✅ 모집 직무를 place_preferences_link에 저장: ${jobInserts.length}개');
+      } else {
+        // 선택한 직무가 없으면 기존 직무 데이터만 삭제
+        final existingJobData = await _supabase
+            .from('place_preferences_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingJobData.isNotEmpty) {
+          final existingJobIds = existingJobData.map((e) => e['attribute_id']).toList();
+          final jobTypesQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingJobIds)
+              .eq('type', 'JOB_ROLE');
+          
+          final jobTypeIds = jobTypesQuery.map((e) => e['id']).toList();
+          
+          if (jobTypeIds.isNotEmpty) {
+            await _supabase
+                .from('place_preferences_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', jobTypeIds);
+            
+            print('✅ 기존 모집 직무 데이터 삭제 완료');
+          }
+        }
+      }
+
+      // 4. place_attributes_link 저장 (제공하는 복지/혜택 + 플레이스 특징)
       final providedAttributes = <String>{};
       providedAttributes.addAll(preferences.selectedWelfareIds);
       providedAttributes.addAll(preferences.selectedPlaceFeatureIds);
 
-      // UPSERT로 직접 처리 - DELETE 불필요
-
       if (providedAttributes.isNotEmpty) {
-        // UPSERT로 데이터 저장 (중복 키 안전)
+        // 기존 복지/플레이스특징 데이터 삭제 (타입별로)
+        final existingAttrData = await _supabase
+            .from('place_attributes_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingAttrData.isNotEmpty) {
+          final existingAttrIds = existingAttrData.map((e) => e['attribute_id']).toList();
+          final welfareAndFeatureQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingAttrIds)
+              .inFilter('type', ['WELFARE', 'PLACE_FEATURE']);
+          
+          final welfareAndFeatureIds = welfareAndFeatureQuery.map((e) => e['id']).toList();
+          
+          if (welfareAndFeatureIds.isNotEmpty) {
+            await _supabase
+                .from('place_attributes_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', welfareAndFeatureIds);
+          }
+        }
+
+        // 새 복지/플레이스특징 데이터 삽입
         final attributeInserts = providedAttributes.map((attributeId) => {
           'place_user_id': currentUser.id,
           'attribute_id': int.parse(attributeId),
@@ -246,40 +337,107 @@ class PlacePreferencesService {
 
         await _supabase
             .from('place_attributes_link')
-            .upsert(attributeInserts, 
-              onConflict: 'place_user_id, attribute_id',
-              ignoreDuplicates: false);
+            .insert(attributeInserts);
 
         print('✅ place_attributes_link 저장: ${attributeInserts.length}개');
+      } else {
+        // 선택한 복지/특징이 없으면 기존 데이터만 삭제
+        final existingAttrData = await _supabase
+            .from('place_attributes_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingAttrData.isNotEmpty) {
+          final existingAttrIds = existingAttrData.map((e) => e['attribute_id']).toList();
+          final welfareAndFeatureQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingAttrIds)
+              .inFilter('type', ['WELFARE', 'PLACE_FEATURE']);
+          
+          final welfareAndFeatureIds = welfareAndFeatureQuery.map((e) => e['id']).toList();
+          
+          if (welfareAndFeatureIds.isNotEmpty) {
+            await _supabase
+                .from('place_attributes_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', welfareAndFeatureIds);
+            
+            print('✅ 기존 복지/플레이스특징 데이터 삭제 완료');
+          }
+        }
       }
 
-      // 4. place_preferences_link 저장 (원하는 직무/스타일)
-      final preferredAttributes = <String>{};
-      preferredAttributes.addAll(preferences.selectedJobIds);
-      preferredAttributes.addAll(preferences.selectedStyleIds);
+      // 5. 희망 스타 스타일을 place_preferences_link에 저장 (추가됨)
+      if (preferences.selectedStyleIds.isNotEmpty) {
+        // 기존 MEMBER_STYLE 타입 데이터 삭제
+        final existingStyleData = await _supabase
+            .from('place_preferences_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingStyleData.isNotEmpty) {
+          final existingStyleIds = existingStyleData.map((e) => e['attribute_id']).toList();
+          final styleTypesQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingStyleIds)
+              .eq('type', 'MEMBER_STYLE');
+          
+          final styleTypeIds = styleTypesQuery.map((e) => e['id']).toList();
+          
+          if (styleTypeIds.isNotEmpty) {
+            await _supabase
+                .from('place_preferences_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', styleTypeIds);
+          }
+        }
 
-      // UPSERT로 직접 처리 - DELETE 불필요
-
-      if (preferredAttributes.isNotEmpty) {
-        // UPSERT로 데이터 저장 (중복 키 안전)
-        final preferenceInserts = preferredAttributes.map((attributeId) => {
+        // 새 스타일 데이터 삽입
+        final styleInserts = preferences.selectedStyleIds.map((styleId) => {
           'place_user_id': currentUser.id,
-          'attribute_id': int.parse(attributeId),
-          'preference_level': preferences.selectedJobIds.contains(attributeId) 
-              ? 'required'  // 직무는 필수
-              : 'preferred', // 스타일은 선호
+          'attribute_id': int.parse(styleId),
+          'preference_level': 'preferred',
         }).toList();
 
         await _supabase
             .from('place_preferences_link')
-            .upsert(preferenceInserts,
-              onConflict: 'place_user_id, attribute_id',
-              ignoreDuplicates: false);
+            .insert(styleInserts);
 
-        print('✅ place_preferences_link 저장: ${preferenceInserts.length}개');
+        print('✅ 희망 스타 스타일을 place_preferences_link에 저장: ${styleInserts.length}개');
+      } else {
+        // 선택한 스타일이 없으면 기존 스타일 데이터만 삭제
+        final existingStyleData = await _supabase
+            .from('place_preferences_link')
+            .select('attribute_id')
+            .eq('place_user_id', currentUser.id);
+        
+        if (existingStyleData.isNotEmpty) {
+          final existingStyleIds = existingStyleData.map((e) => e['attribute_id']).toList();
+          final styleTypesQuery = await _supabase
+              .from('attributes')
+              .select('id')
+              .inFilter('id', existingStyleIds)
+              .eq('type', 'MEMBER_STYLE');
+          
+          final styleTypeIds = styleTypesQuery.map((e) => e['id']).toList();
+          
+          if (styleTypeIds.isNotEmpty) {
+            await _supabase
+                .from('place_preferences_link')
+                .delete()
+                .eq('place_user_id', currentUser.id)
+                .inFilter('attribute_id', styleTypeIds);
+            
+            print('✅ 기존 희망 스타 스타일 데이터 삭제 완료');
+          }
+        }
       }
 
-      // 5. 매칭 점수 캐시 무효화 (기존 점수들을 만료시킴)
+      // 6. 매칭 점수 캐시 무효화 (기존 점수들을 만료시킴)
       await _supabase
           .from('matching_scores')
           .update({
@@ -289,7 +447,7 @@ class PlacePreferencesService {
 
       print('✅ 기존 매칭 점수 캐시 무효화 완료');
 
-      // 6. 매칭 큐에 추가 (백그라운드 재계산)
+      // 7. 매칭 큐에 추가 (백그라운드 재계산)
       await _supabase
           .from('matching_queue')
           .insert({
@@ -301,7 +459,7 @@ class PlacePreferencesService {
 
       print('✅ 매칭 큐에 재계산 요청 추가');
 
-      // 7. 매칭 가중치 저장/업데이트 (기본값)
+      // 8. 매칭 가중치 저장/업데이트 (기본값)
       await _supabase
           .from('matching_weights')
           .upsert({
