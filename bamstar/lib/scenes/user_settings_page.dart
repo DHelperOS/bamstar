@@ -871,7 +871,7 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
     }
   }
 
-  Widget Widget _buildInfoCard(
+  Widget _buildInfoCard(
     BuildContext context, {
     required IconData icon,
     required String title,
@@ -953,86 +953,8 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
                   color: const Color(0xFF919EAB),
                   size: 20,
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x08000000),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: const Color(0x0F919EAB), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8F9FA),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 20, color: const Color(0xFF637381)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Color(0xFF1C252E),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            color: Color(0xFF919EAB),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (trailing != null) ...[const SizedBox(width: 8), trailing],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
+
 
   Widget _buildStatusIcon(bool isComplete, bool hasData) {
     if (isComplete) {

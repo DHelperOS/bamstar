@@ -634,10 +634,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '지원한 공고',
             subtitle: '총 0개의 공고에 지원하였습니다',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '지원한 공고'),
           ),
 
@@ -648,10 +645,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.eye,
             title: '조회한 공고',
             subtitle: '최근 조회한 공고를 확인하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '조회한 공고'),
           ),
 
@@ -662,10 +656,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.heart,
             title: '관심 공고',
             subtitle: '관심있는 공고를 저장하고 관리하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '관심 공고'),
           ),
         ],
@@ -688,10 +679,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '작성한 게시글',
             subtitle: '커뮤니티에 작성한 게시글을 확인하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '작성한 게시글'),
           ),
 
@@ -702,10 +690,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.chatRoundDots,
             title: '작성한 댓글',
             subtitle: '다른 게시글에 작성한 댓글을 확인하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '작성한 댓글'),
           ),
 
@@ -716,10 +701,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.heart,
             title: '좋아요한 게시글',
             subtitle: '좋아요를 누른 게시글을 확인하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '좋아요한 게시글'),
           ),
         ],
@@ -742,10 +724,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.forbiddenCircle,
             title: '차단한 사용자',
             subtitle: '차단한 사용자 목록을 관리하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '차단한 사용자'),
           ),
 
@@ -756,10 +735,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.shieldMinus,
             title: '신고한 게시글',
             subtitle: '신고한 게시글의 처리 현황을 확인하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '신고한 게시글'),
           ),
 
@@ -770,10 +746,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.settings,
             title: '프라이버시 설정',
             subtitle: '계정 보안 및 프라이버시 설정을 관리하세요',
-            trailing: const Icon(
-              SolarIconsOutline.arrowRight,
-              color: Color(0xFF919EAB),
-            ),
+            
             onTap: () => _showToast(context, '프라이버시 설정'),
           ),
         ],
@@ -821,7 +794,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     }
   }
 
-  Widget Widget _buildInfoCard(
+  Widget _buildInfoCard(
     BuildContext context, {
     required IconData icon,
     required String title,
@@ -903,86 +876,8 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                   color: const Color(0xFF919EAB),
                   size: 20,
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x08000000),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(color: const Color(0x0F919EAB), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8F9FA),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 20, color: const Color(0xFF637381)),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Color(0xFF1C252E),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            color: Color(0xFF919EAB),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (trailing != null) ...[const SizedBox(width: 8), trailing],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
+
 
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
@@ -1413,7 +1308,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
   }
 
   /// 플레이스 정보 진행률 아이콘 가져오기
-  Widget Widget _getPlaceInfoProgressIcon() {
+  Widget _getPlaceInfoProgressIcon() {
     if (_isCheckingPlaceInfo) {
       return SizedBox(
         width: 16,
@@ -1437,7 +1332,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     } else if (_placeInfoProgress < 1.0) {
       // 작성 부족 - clock (시계) 아이콘  
       return Icon(
-        SolarIconsOutline.clock,
+        SolarIconsOutline.clockCircle,
         size: 18,
         color: Theme.of(context).colorScheme.secondary,
       );
@@ -1480,7 +1375,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
   }
 
   /// 매칭 조건 설정 진행률 아이콘 가져오기
-  Widget Widget _getMatchingConditionsProgressIcon() {
+  Widget _getMatchingConditionsProgressIcon() {
     if (_isCheckingMatchingConditions) {
       return SizedBox(
         width: 16,
@@ -1504,7 +1399,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     } else if (_matchingConditionsProgress < 1.0) {
       // 작성 부족 - clock (시계) 아이콘  
       return Icon(
-        SolarIconsOutline.clock,
+        SolarIconsOutline.clockCircle,
         size: 18,
         color: Theme.of(context).colorScheme.secondary,
       );
