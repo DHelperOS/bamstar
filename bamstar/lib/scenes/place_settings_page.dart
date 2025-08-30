@@ -569,18 +569,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.buildings,
             title: '플레이스 정보',
             subtitle: '플레이스 기본 정보를 관리해요.',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _getPlaceInfoProgressIcon(),
-                const SizedBox(width: 8),
-                Icon(
-                  SolarIconsOutline.altArrowRight,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 20,
-                ),
-              ],
-            ),
+            statusIcon: _getPlaceInfoProgressIcon(),
             onTap: () {
               Navigator.push(
                 context,
@@ -599,18 +588,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.heart,
             title: '매칭 조건 설정',
             subtitle: '자세히 설정할 수록, 빨리 매칭될 수 있어요',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _getMatchingConditionsProgressIcon(),
-                const SizedBox(width: 8),
-                Icon(
-                  SolarIconsOutline.altArrowRight,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 20,
-                ),
-              ],
-            ),
+            statusIcon: _getMatchingConditionsProgressIcon(),
             onTap: () {
               Navigator.push(
                 context,
@@ -629,18 +607,7 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '사업자 정보',
             subtitle: '사업자 등록 정보를 관리해요.',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _getVerificationStatusIcon(),
-                const SizedBox(width: 8),
-                Icon(
-                  SolarIconsOutline.altArrowRight,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  size: 20,
-                ),
-              ],
-            ),
+            statusIcon: _getVerificationStatusIcon(),
             onTap: _onBusinessVerificationTap,
           ),
 
@@ -854,7 +821,95 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     }
   }
 
-  Widget _buildInfoCard(
+  Widget Widget _buildInfoCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Widget? statusIcon, // 진행상황 아이콘
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x08000000),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(color: const Color(0x0F919EAB), width: 1),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 20, color: const Color(0xFF637381)),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: const TextStyle(
+                                color: Color(0xFF1C252E),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          if (statusIcon != null) ...[
+                            const SizedBox(width: 8),
+                            statusIcon,
+                          ],
+                        ],
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            color: Color(0xFF919EAB),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  SolarIconsOutline.altArrowRight,
+                  color: const Color(0xFF919EAB),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }(
     BuildContext context, {
     required IconData icon,
     required String title,
@@ -1358,7 +1413,43 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
   }
 
   /// 플레이스 정보 진행률 아이콘 가져오기
-  Widget _getPlaceInfoProgressIcon() {
+  Widget Widget _getPlaceInfoProgressIcon() {
+    if (_isCheckingPlaceInfo) {
+      return SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      );
+    }
+
+    if (_placeInfoProgress == 0.0) {
+      // 작성 중 - edit (연필) 아이콘
+      return Icon(
+        SolarIconsOutline.pen,
+        size: 18,
+        color: Theme.of(context).colorScheme.outline,
+      );
+    } else if (_placeInfoProgress < 1.0) {
+      // 작성 부족 - clock (시계) 아이콘  
+      return Icon(
+        SolarIconsOutline.clock,
+        size: 18,
+        color: Theme.of(context).colorScheme.secondary,
+      );
+    } else {
+      // 작성 완료 - check circle (체크) 아이콘
+      return Icon(
+        SolarIconsOutline.checkCircle,
+        size: 18,
+        color: Colors.green,
+      );
+    }
+  }() {
     if (_isCheckingPlaceInfo) {
       return const SizedBox(
         width: 16,
@@ -1389,7 +1480,43 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
   }
 
   /// 매칭 조건 설정 진행률 아이콘 가져오기
-  Widget _getMatchingConditionsProgressIcon() {
+  Widget Widget _getMatchingConditionsProgressIcon() {
+    if (_isCheckingMatchingConditions) {
+      return SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      );
+    }
+
+    if (_matchingConditionsProgress == 0.0) {
+      // 작성 중 - edit (연필) 아이콘
+      return Icon(
+        SolarIconsOutline.pen,
+        size: 18,
+        color: Theme.of(context).colorScheme.outline,
+      );
+    } else if (_matchingConditionsProgress < 1.0) {
+      // 작성 부족 - clock (시계) 아이콘  
+      return Icon(
+        SolarIconsOutline.clock,
+        size: 18,
+        color: Theme.of(context).colorScheme.secondary,
+      );
+    } else {
+      // 작성 완료 - check circle (체크) 아이콘
+      return Icon(
+        SolarIconsOutline.checkCircle,
+        size: 18,
+        color: Colors.green,
+      );
+    }
+  }() {
     if (_isCheckingMatchingConditions) {
       return const SizedBox(
         width: 16,
