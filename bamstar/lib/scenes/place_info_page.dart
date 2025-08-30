@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/toast_helper.dart';
 import '../services/cloudinary.dart';
+import '../services/area_mapping_service.dart';
 
 /// Place information page with multi-image picker and address search
 class PlaceInfoPage extends StatefulWidget {
@@ -25,6 +26,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   final List<Uint8List> _photos = <Uint8List>[];
   final List<String> _loadedImageUrls = <String>[];
   int _representativeImageIndex = -1; // -1 means no representative selected
+  
+  // Original data for change detection
+  Map<String, dynamic>? _originalData;
 
   // Form controllers
   final TextEditingController _placeNameCtl = TextEditingController();
@@ -321,6 +325,9 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           if (representativeIndex != null && representativeIndex >= 0) {
             _representativeImageIndex = representativeIndex as int;
           }
+          
+          // Store original data for change detection
+          _originalData = Map<String, dynamic>.from(response);
         });
 
         debugPrint('Place info loaded successfully');
@@ -333,8 +340,83 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     }
   }
 
+  /// 현재 폼 데이터와 원본 데이터를 비교하여 변경 여부 확인
+  bool _hasDataChanged() {
+    if (_originalData == null) {
+      // 원본 데이터가 없으면 새로운 데이터로 간주 (저장 필요)
+      return true;
+    }
+
+    // 새로 추가된 사진이 있으면 변경됨
+    if (_photos.isNotEmpty) {
+      return true;
+    }
+
+    // 기존 이미지 목록 비교
+    final originalImages = List<String>.from(_originalData!['profile_image_urls'] ?? []);
+    if (originalImages.length != _loadedImageUrls.length || 
+        !_listEquals(originalImages, _loadedImageUrls)) {
+      return true;
+    }
+
+    // 대표 이미지 인덱스 비교
+    final originalRepIndex = _originalData!['representative_image_index'] ?? 0;
+    if (_representativeImageIndex != originalRepIndex) {
+      return true;
+    }
+
+    // 텍스트 필드 비교
+    if (_placeNameCtl.text.trim() != (_originalData!['place_name'] ?? '')) return true;
+    if ((_roadAddress ?? _addressCtl.text.trim()) != (_originalData!['address'] ?? '')) return true;
+    if (_detailAddressCtl.text.trim() != (_originalData!['detail_address'] ?? '')) return true;
+    if (_managerNameCtl.text.trim() != (_originalData!['manager_name'] ?? '')) return true;
+    if (_phoneCtl.text.trim() != (_originalData!['manager_phone'] ?? '')) return true;
+    if (_snsHandleCtl.text.trim() != (_originalData!['sns_handle'] ?? '')) return true;
+    if (_introCtl.text.trim() != (_originalData!['intro'] ?? '')) return true;
+
+    // 성별 비교
+    String originalGender = _originalData!['manager_gender'] ?? '';
+    String currentGender = _selectedGender == '남' ? 'MALE' : 'FEMALE';
+    if (currentGender != originalGender) return true;
+
+    // SNS 타입 비교
+    if (_selectedSns != (_originalData!['sns_type'] ?? '')) return true;
+
+    // 운영 시간 비교
+    final originalOperatingHours = _originalData!['operating_hours'] as Map<String, dynamic>?;
+    if (originalOperatingHours != null) {
+      final originalDays = List<String>.from(originalOperatingHours['days'] ?? []);
+      final originalStartHour = (originalOperatingHours['start_hour'] ?? 9.0).toDouble();
+      final originalEndHour = (originalOperatingHours['end_hour'] ?? 18.0).toDouble();
+      
+      if (!_listEquals(_selectedOperatingDays, originalDays)) return true;
+      if (_operatingStartHour != originalStartHour) return true;
+      if (_operatingEndHour != originalEndHour) return true;
+    } else if (_selectedOperatingDays.isNotEmpty || _operatingStartHour != 9.0 || _operatingEndHour != 18.0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// 리스트 비교를 위한 헬퍼 메서드
+  bool _listEquals<T>(List<T>? a, List<T>? b) {
+    if (a == null) return b == null;
+    if (b == null || a.length != b.length) return false;
+    for (int index = 0; index < a.length; index += 1) {
+      if (a[index] != b[index]) return false;
+    }
+    return true;
+  }
+
   Future<void> _savePlaceInfo() async {
     if (!_isFormValid()) return;
+    
+    // Check if there are any changes
+    if (!_hasDataChanged()) {
+      ToastHelper.info(context, '변경사항이 없습니다');
+      return;
+    }
 
     if (_photos.isEmpty && _loadedImageUrls.isEmpty) {
       ToastHelper.warning(context, '플레이스 사진을 최소 1장 추가해주세요');
@@ -387,7 +469,24 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         'end_hour': _operatingEndHour,
       };
 
-      // 4. Prepare place profile data
+      // 4. Map address to area group
+      int? areaGroupId;
+      try {
+        final addressToMap = _roadAddress ?? _addressCtl.text.trim();
+        if (addressToMap.isNotEmpty) {
+          areaGroupId = await AreaMappingService.instance.mapAddressToAreaGroup(addressToMap);
+          if (areaGroupId != null) {
+            final areaName = await AreaMappingService.instance.getAreaGroupName(areaGroupId);
+            debugPrint('Mapped address "$addressToMap" to area group: $areaName (ID: $areaGroupId)');
+          } else {
+            debugPrint('No area group found for address: $addressToMap');
+          }
+        }
+      } catch (e) {
+        debugPrint('Error mapping address to area group: $e');
+      }
+
+      // 5. Prepare place profile data
       final placeData = {
         'user_id': currentUser.id,
         'place_name': _placeNameCtl.text.trim(),
@@ -398,6 +497,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         'jibun_address': _jibunAddress,
         'latitude': _latitude,
         'longitude': _longitude,
+        'area_group_id': areaGroupId,
         'manager_name': _managerNameCtl.text.trim(),
         'manager_gender': _selectedGender,
         'manager_phone': _phoneCtl.text.trim(),
@@ -410,7 +510,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      // 5. Debug logging - 전송할 데이터 확인
+      // 6. Debug logging - 전송할 데이터 확인
       debugPrint('=== Place Profile Save Data ===');
       debugPrint('User ID: ${currentUser.id}');
       debugPrint('Place Name: ${_placeNameCtl.text.trim()}');
@@ -420,6 +520,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('Road Address: $_roadAddress');
       debugPrint('Jibun Address: $_jibunAddress');
       debugPrint('Coordinates: $_latitude, $_longitude');
+      debugPrint('Area Group ID: $areaGroupId');
       debugPrint('Manager: ${_managerNameCtl.text.trim()} ($_selectedGender)');
       debugPrint('Phone: ${_phoneCtl.text.trim()}');
       debugPrint('SNS: $_selectedSns - ${_snsHandleCtl.text.trim()}');
@@ -429,7 +530,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('Operating Hours: $operatingHours');
       debugPrint('Full Data Object: $placeData');
       
-      // 6. Save to Supabase (upsert to handle both create and update)
+      // 7. Save to Supabase (upsert to handle both create and update)
       debugPrint('Attempting to save to place_profiles table...');
       final response = await supabase
           .from('place_profiles')
@@ -437,7 +538,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
           .select()
           .single();
 
-      debugPrint('Place saved successfully: ${response['id']}');
+      debugPrint('Place saved successfully: ${response['user_id']}');
+      
+      // Update original data after successful save
+      _originalData = Map<String, dynamic>.from(response);
+      
+      // Clear new photos since they're now saved
+      _photos.clear();
 
       if (mounted) {
         ToastHelper.success(context, '플레이스 정보가 저장되었습니다');

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/attribute_service.dart';
 import 'services/member_preferences_service.dart';
+import 'services/place_preferences_service.dart';
 import '../../utils/toast_helper.dart';
 
 class PlaceMatchingPreferencesPage extends StatefulWidget {
@@ -98,9 +99,8 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
       final placeFeatureData = AttributeService.instance.getAttributesForUI('PLACE_FEATURE');
       final benefitData = AttributeService.instance.getAttributesForUI('WELFARE');
 
-      // TODO: Load existing place preferences instead of member preferences
-      // For now, we'll use member preferences as a placeholder
-      final existingPreferences = MemberPreferencesService.instance.loadMatchingPreferences();
+      // Load existing place preferences
+      final existingPreferences = PlacePreferencesService.instance.loadMatchingPreferences();
 
       // Wait for all data to load
       final results = await Future.wait([
@@ -119,27 +119,21 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
         placeFeatures = results[3] as List<Map<String, dynamic>>;
         benefits = results[4] as List<Map<String, dynamic>>;
         
-        // TODO: Replace with place preferences loading logic
-        // For now, commenting out member preferences loading
-        /*
-        final prefs = results[5] as MatchingPreferencesData?;
+        // Load existing place preferences
+        final prefs = results[5] as PlacePreferencesData?;
         if (prefs != null) {
-          selectedIndustries = prefs.selectedIndustryIds.map((id) => id.toString()).toSet();
-          selectedJobs = prefs.selectedJobIds.map((id) => id.toString()).toSet();
+          selectedIndustries = prefs.selectedIndustryIds;
+          selectedJobs = prefs.selectedJobIds;
           selectedPayType = prefs.selectedPayType;
           if (prefs.payAmount != null) {
             _payAmountController.text = prefs.payAmount.toString();
           }
           selectedDays = prefs.selectedDays;
-          // Convert database enum to UI display value
-          if (prefs.experienceLevel != null) {
-            selectedExperienceLevel = _convertDatabaseExperienceLevelToUI(prefs.experienceLevel!);
-          }
-          selectedStyles = prefs.selectedStyleIds.map((id) => id.toString()).toSet();
-          selectedPlaceFeatures = prefs.selectedPlaceFeatureIds.map((id) => id.toString()).toSet();
-          selectedBenefits = prefs.selectedWelfareIds.map((id) => id.toString()).toSet();
+          selectedExperienceLevel = prefs.experienceLevel;
+          selectedStyles = prefs.selectedStyleIds;
+          selectedPlaceFeatures = prefs.selectedPlaceFeatureIds;
+          selectedBenefits = prefs.selectedWelfareIds;
         }
-        */
         
         _isLoading = false;
       });
@@ -825,7 +819,58 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     );
   }
 
-  Widget _buildEnhancedDropdown({
+  Widget Widget _buildEnhancedDropdown({
+    required String hint,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          hint: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(hint, style: AppTextStyles.primaryText(context)),
+          ),
+          value: value,
+          isExpanded: true,
+          style: AppTextStyles.primaryText(context),
+          icon: Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
+            ),
+          ),
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  item,
+                  style: AppTextStyles.primaryText(context),
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }({
     required String hint,
     required String? value,
     required List<String> items,
@@ -874,7 +919,50 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     );
   }
 
-  Widget _buildEnhancedTextField({
+  Widget Widget _buildEnhancedTextField({
+    required TextEditingController controller,
+    required String hint,
+    String? suffix,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: AppTextStyles.primaryText(context),
+        inputFormatters: keyboardType == TextInputType.number
+            ? [FilteringTextInputFormatter.digitsOnly]
+            : null,
+        textAlign: TextAlign.start,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: AppTextStyles.primaryText(context).copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          suffixText: suffix,
+          suffixStyle: AppTextStyles.primaryText(context).copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+        ),
+      ),
+    );
+  }({
     required TextEditingController controller,
     required String hint,
     String? suffix,
@@ -1001,14 +1089,35 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     });
 
     try {
-      // TODO: Implement place-specific save logic
-      // For now, show a placeholder message
-      ToastHelper.info(context, '플레이스 매칭 조건 저장 기능은 준비중입니다');
-      
-      // Navigate back after a short delay
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted) {
-        Navigator.of(context).pop();
+      // Create PlacePreferencesData from current form state
+      final preferences = PlacePreferencesData(
+        selectedIndustryIds: selectedIndustries,
+        selectedJobIds: selectedJobs,
+        selectedPayType: selectedPayType,
+        payAmount: _payAmountController.text.isNotEmpty 
+            ? int.tryParse(_payAmountController.text) 
+            : null,
+        selectedDays: selectedDays,
+        experienceLevel: selectedExperienceLevel,
+        selectedStyleIds: selectedStyles,
+        selectedPlaceFeatureIds: selectedPlaceFeatures,
+        selectedWelfareIds: selectedBenefits,
+      );
+
+      // Save preferences using PlacePreferencesService
+      final success = await PlacePreferencesService.instance.saveMatchingPreferences(preferences);
+
+      if (!mounted) return;
+
+      if (success) {
+        ToastHelper.success(context, '매칭 조건이 저장되었습니다');
+        // Navigate back after a short delay
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      } else {
+        ToastHelper.error(context, '저장 중 오류가 발생했습니다');
       }
     } catch (e) {
       debugPrint('Error saving preferences: $e');
