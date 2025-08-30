@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_text_styles.dart';
 import '../../services/attribute_service.dart';
-import 'services/member_preferences_service.dart';
 import 'services/place_preferences_service.dart';
 import '../../utils/toast_helper.dart';
 
@@ -14,10 +14,9 @@ class PlaceMatchingPreferencesPage extends StatefulWidget {
       _PlaceMatchingPreferencesPageState();
 }
 
-class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesPage>
+class _PlaceMatchingPreferencesPageState
+    extends State<PlaceMatchingPreferencesPage>
     with TickerProviderStateMixin {
-
-
   // Form state variables
   Set<String> selectedIndustries = {};
   Set<String> selectedJobs = {};
@@ -93,14 +92,23 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
       AttributeService.instance.clearCache();
 
       // Load attributes data from service
-      final industryData = AttributeService.instance.getAttributesForUI('INDUSTRY');
+      final industryData = AttributeService.instance.getAttributesForUI(
+        'INDUSTRY',
+      );
       final jobData = AttributeService.instance.getAttributesForUI('JOB_ROLE');
-      final styleData = AttributeService.instance.getAttributesForUI('MEMBER_STYLE');
-      final placeFeatureData = AttributeService.instance.getAttributesForUI('PLACE_FEATURE');
-      final benefitData = AttributeService.instance.getAttributesForUI('WELFARE');
+      final styleData = AttributeService.instance.getAttributesForUI(
+        'MEMBER_STYLE',
+      );
+      final placeFeatureData = AttributeService.instance.getAttributesForUI(
+        'PLACE_FEATURE',
+      );
+      final benefitData = AttributeService.instance.getAttributesForUI(
+        'WELFARE',
+      );
 
       // Load existing place preferences
-      final existingPreferences = PlacePreferencesService.instance.loadMatchingPreferences();
+      final existingPreferences = PlacePreferencesService.instance
+          .loadMatchingPreferences();
 
       // Wait for all data to load
       final results = await Future.wait([
@@ -118,7 +126,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
         styles = results[2] as List<Map<String, dynamic>>;
         placeFeatures = results[3] as List<Map<String, dynamic>>;
         benefits = results[4] as List<Map<String, dynamic>>;
-        
+
         // Load existing place preferences
         final prefs = results[5] as PlacePreferencesData?;
         if (prefs != null) {
@@ -134,7 +142,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
           selectedPlaceFeatures = prefs.selectedPlaceFeatureIds;
           selectedBenefits = prefs.selectedWelfareIds;
         }
-        
+
         _isLoading = false;
       });
 
@@ -145,7 +153,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
       setState(() {
         _isLoading = false;
       });
-      
+
       // Show error message
       if (mounted) {
         ToastHelper.error(context, '데이터 로딩 중 오류가 발생했습니다');
@@ -161,119 +169,88 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
-        title: Text('매칭 조건 설정', style: AppTextStyles.pageTitle(context)),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.onSurface,
+        appBar: AppBar(
+          scrolledUnderElevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+          title: Text('매칭 조건 설정', style: AppTextStyles.pageTitle(context)),
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '매칭 조건 정보를 불러오는 중...',
-                    style: AppTextStyles.secondaryText(context),
-                  ),
-                ],
-              ),
-            )
-          : _fadeAnimation != null
-          ? FadeTransition(
-              opacity: _fadeAnimation!,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 600),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 24),
-                          
-                          // Subtitle explaining the benefits
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            margin: const EdgeInsets.only(bottom: 20),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                              ),
+        body: _isLoading
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '매칭 조건 정보를 불러오는 중...',
+                      style: AppTextStyles.secondaryText(context),
+                    ),
+                  ],
+                ),
+              )
+            : _fadeAnimation != null
+            ? FadeTransition(
+                opacity: _fadeAnimation!,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+
+                            // Individual cards for each section
+                            _buildIndustryCard(),
+                            const SizedBox(height: 20),
+
+                            _buildJobCard(),
+                            const SizedBox(height: 20),
+
+                            _buildPayConditionCard(),
+                            const SizedBox(height: 20),
+
+                            _buildExperienceLevelCard(),
+                            const SizedBox(height: 20),
+
+                            _buildWorkingDaysCard(),
+                            const SizedBox(height: 20),
+
+                            _buildMemberStyleCard(),
+                            const SizedBox(height: 20),
+
+                            _buildPlaceFeaturesCard(),
+                            const SizedBox(height: 20),
+
+                            _buildBenefitsCard(),
+                            const SizedBox(height: 32),
+
+                            // Save button
+                            _buildSaveButton(),
+
+                            SizedBox(
+                              height: 24 + MediaQuery.paddingOf(context).bottom,
                             ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    '자세히 설정할 수록, 빨리 매칭될 수 있어요',
-                                    style: AppTextStyles.secondaryText(context).copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Individual cards for each section
-                          _buildIndustryCard(),
-                          const SizedBox(height: 20),
-
-                          _buildJobCard(),
-                          const SizedBox(height: 20),
-
-                          _buildPayConditionCard(),
-                          const SizedBox(height: 20),
-
-                          _buildExperienceLevelCard(),
-                          const SizedBox(height: 20),
-
-                          _buildWorkingDaysCard(),
-                          const SizedBox(height: 20),
-
-                          _buildMemberStyleCard(),
-                          const SizedBox(height: 20),
-
-                          _buildPlaceFeaturesCard(),
-                          const SizedBox(height: 20),
-
-                          _buildBenefitsCard(),
-                          const SizedBox(height: 32),
-
-                          // Save button
-                          _buildSaveButton(),
-
-                          SizedBox(
-                            height: 24 + MediaQuery.paddingOf(context).bottom,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            )
-          : const SizedBox.shrink(),
+              )
+            : const SizedBox.shrink(),
       ), // Close Scaffold
     ); // Close GestureDetector
   }
@@ -281,7 +258,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
   Widget _buildIndustryCard() {
     return _buildCard(
       icon: '🏢',
-      title: '희망 업종',
+      title: '모집 업종',
       subtitle: '운영하시는 업종을 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: industries,
@@ -299,7 +276,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
   Widget _buildJobCard() {
     return _buildCard(
       icon: '💼',
-      title: '희망 직무',
+      title: '모집 직무',
       subtitle: '매칭이 필요한 직무를 선택해주세요',
       child: _buildEnhancedChipGroup(
         items: jobs,
@@ -358,11 +335,17 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
       title: '경력 수준',
       subtitle: '원하는 스타의 경력 수준을 선택해주세요',
       child: _buildCompactChipGroup(
-        items: experienceLevels.map((level) => {'id': level, 'name': level}).toList(),
-        selectedItems: selectedExperienceLevel != null ? {selectedExperienceLevel!} : {},
+        items: experienceLevels
+            .map((level) => {'id': level, 'name': level})
+            .toList(),
+        selectedItems: selectedExperienceLevel != null
+            ? {selectedExperienceLevel!}
+            : {},
         onChanged: (selected) {
           setState(() {
-            selectedExperienceLevel = selected.isNotEmpty ? selected.first : null;
+            selectedExperienceLevel = selected.isNotEmpty
+                ? selected.first
+                : null;
           });
         },
         multiSelect: false,
@@ -434,8 +417,15 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
           const SizedBox(height: 16),
           // 개별 요일 선택
           _buildCompactChipGroup(
-            items: ['월', '화', '수', '목', '금', '토', '일']
-                .map((day) => {'id': day, 'name': day}).toList(),
+            items: [
+              '월',
+              '화',
+              '수',
+              '목',
+              '금',
+              '토',
+              '일',
+            ].map((day) => {'id': day, 'name': day}).toList(),
             selectedItems: selectedDays,
             onChanged: (selected) {
               setState(() {
@@ -587,7 +577,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: items.map((item) {
+      children: items.map<Widget>((item) {
         final isSelected = selectedItems.contains(item['id']);
         return _buildEnhancedChip(
           label: item['name']!,
@@ -707,7 +697,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     return Wrap(
       spacing: 6,
       runSpacing: 6,
-      children: items.map((item) {
+      children: items.map<Widget>((item) {
         final isSelected = selectedItems.contains(item['id']);
         return _buildCompactChip(
           label: item['name']!,
@@ -751,13 +741,16 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
           decoration: BoxDecoration(
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.7),
+                : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -793,12 +786,16 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
           decoration: BoxDecoration(
             color: isSelected
                 ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.2),
               width: isSelected ? 1.5 : 1,
             ),
           ),
@@ -819,7 +816,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     );
   }
 
-  Widget Widget _buildEnhancedDropdown({
+  Widget _buildEnhancedDropdown({
     required String hint,
     required String? value,
     required List<String> items,
@@ -859,145 +856,11 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
               value: item,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  item,
-                  style: AppTextStyles.primaryText(context),
-                ),
+                child: Text(item, style: AppTextStyles.primaryText(context)),
               ),
             );
           }).toList(),
           onChanged: onChanged,
-        ),
-      ),
-    );
-  }({
-    required String hint,
-    required String? value,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Container(
-      height: 44,
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          hint: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(hint, style: AppTextStyles.secondaryText(context)),
-          ),
-          value: value,
-          isExpanded: true,
-          style: AppTextStyles.primaryText(context),
-          icon: Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          items: items.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(item),
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
-
-  Widget Widget _buildEnhancedTextField({
-    required TextEditingController controller,
-    required String hint,
-    String? suffix,
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: AppTextStyles.primaryText(context),
-        inputFormatters: keyboardType == TextInputType.number
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : null,
-        textAlign: TextAlign.start,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: AppTextStyles.primaryText(context).copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          suffixText: suffix,
-          suffixStyle: AppTextStyles.primaryText(context).copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-        ),
-      ),
-    );
-  }({
-    required TextEditingController controller,
-    required String hint,
-    String? suffix,
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      height: 44,
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: AppTextStyles.primaryText(context),
-        inputFormatters: keyboardType == TextInputType.number
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : null,
-        textAlign: TextAlign.center,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: AppTextStyles.secondaryText(context),
-          suffixText: suffix,
-          suffixStyle: AppTextStyles.captionText(context),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
         ),
       ),
     );
@@ -1094,8 +957,8 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
         selectedIndustryIds: selectedIndustries,
         selectedJobIds: selectedJobs,
         selectedPayType: selectedPayType,
-        payAmount: _payAmountController.text.isNotEmpty 
-            ? int.tryParse(_payAmountController.text) 
+        payAmount: _payAmountController.text.isNotEmpty
+            ? int.tryParse(_payAmountController.text)
             : null,
         selectedDays: selectedDays,
         experienceLevel: selectedExperienceLevel,
@@ -1105,7 +968,8 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
       );
 
       // Save preferences using PlacePreferencesService
-      final success = await PlacePreferencesService.instance.saveMatchingPreferences(preferences);
+      final success = await PlacePreferencesService.instance
+          .saveMatchingPreferences(preferences);
 
       if (!mounted) return;
 
@@ -1122,7 +986,7 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
     } catch (e) {
       debugPrint('Error saving preferences: $e');
       if (!mounted) return;
-      
+
       ToastHelper.error(context, '저장 중 오류가 발생했습니다');
     } finally {
       if (mounted) {
@@ -1131,5 +995,50 @@ class _PlaceMatchingPreferencesPageState extends State<PlaceMatchingPreferencesP
         });
       }
     }
+  }
+
+  Widget _buildEnhancedTextField({
+    required TextEditingController controller,
+    required String hint,
+    String? suffix,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: AppTextStyles.primaryText(context),
+        inputFormatters: keyboardType == TextInputType.number
+            ? [FilteringTextInputFormatter.digitsOnly]
+            : null,
+        textAlign: TextAlign.start,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: AppTextStyles.primaryText(
+            context,
+          ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          suffixText: suffix,
+          suffixStyle: AppTextStyles.primaryText(
+            context,
+          ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+        ),
+      ),
+    );
   }
 }
