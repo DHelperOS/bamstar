@@ -974,27 +974,37 @@ class _PlaceMatchingPreferencesPageState
       if (!mounted) return;
 
       if (success) {
+        // 즉시 프로그레스바 중단
+        setState(() {
+          _isSaving = false;
+        });
+        
         ToastHelper.success(context, '매칭 조건이 저장되었습니다');
         // Navigate back after a short delay
-        await Future.delayed(const Duration(milliseconds: 1500));
+        await Future.delayed(const Duration(milliseconds: 800));
         if (mounted) {
           Navigator.of(context).pop();
         }
       } else {
         ToastHelper.error(context, '저장 중 오류가 발생했습니다');
+        // 실패 시 프로그레스바 중단
+        setState(() {
+          _isSaving = false;
+        });
       }
     } catch (e) {
       debugPrint('Error saving preferences: $e');
       if (!mounted) return;
 
       ToastHelper.error(context, '저장 중 오류가 발생했습니다');
-    } finally {
+      // 오류 시 프로그레스바 중단
       if (mounted) {
         setState(() {
           _isSaving = false;
         });
       }
     }
+    // finally 블록 제거 - 각 케이스에서 직접 처리
   }
 
   Widget _buildEnhancedTextField({

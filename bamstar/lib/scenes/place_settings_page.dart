@@ -5,6 +5,7 @@ import 'package:solar_icons/solar_icons.dart';
 // Typography import removed as it's not used in current implementation
 // Removed unused imports for basic_info_sheet_flow and region_preference_sheet
 import 'package:bamstar/services/user_service.dart';
+import 'package:bamstar/services/business_verification_service_final.dart';
 import 'package:bamstar/scenes/member_profile/edit_profile_modal.dart';
 import 'package:bamstar/scenes/member_profile/business_verification_page.dart';
 import 'package:bamstar/scenes/device_settings_page.dart';
@@ -37,6 +38,18 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
   // Profile completion status
   bool _isAdultVerified = false;
+  
+  // Business verification status
+  bool _isCheckingVerification = false;
+  Map<String, dynamic>? _verificationData;
+  
+  // Place info progress status
+  bool _isCheckingPlaceInfo = false;
+  double _placeInfoProgress = 0.0;
+  
+  // Matching conditions progress status
+  bool _isCheckingMatchingConditions = false;
+  double _matchingConditionsProgress = 0.0;
 
   @override
   void initState() {
@@ -44,6 +57,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     _tabController = TabController(length: 4, vsync: this);
     _loadProfileImage();
     _loadProfileCompletionStatus();
+    _checkBusinessVerificationStatus();
+    _checkPlaceInfoProgress();
+    _checkMatchingConditionsProgress();
     UserService.instance.addListener(_onUserChanged);
     // Remove loadCurrentUser() to avoid triggering listener during build
   }
@@ -63,6 +79,9 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         setState(() {});
         _loadProfileImage();
         _loadProfileCompletionStatus();
+        _checkBusinessVerificationStatus();
+        _checkPlaceInfoProgress();
+        _checkMatchingConditionsProgress();
       }
     });
   }
@@ -550,10 +569,17 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.buildings,
             title: '플레이스 정보',
             subtitle: '플레이스 기본 정보를 관리해요.',
-            trailing: Icon(
-              SolarIconsOutline.altArrowRight,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 20,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _getPlaceInfoProgressIcon(),
+                const SizedBox(width: 8),
+                Icon(
+                  SolarIconsOutline.altArrowRight,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
+              ],
             ),
             onTap: () {
               Navigator.push(
@@ -567,16 +593,23 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
           const SizedBox(height: 12),
 
-          // 플레이스 홍보 카드
+          // 매칭 조건 설정 카드
           _buildInfoCard(
             context,
             icon: SolarIconsOutline.heart,
             title: '매칭 조건 설정',
             subtitle: '자세히 설정할 수록, 빨리 매칭될 수 있어요',
-            trailing: Icon(
-              SolarIconsOutline.altArrowRight,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 20,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _getMatchingConditionsProgressIcon(),
+                const SizedBox(width: 8),
+                Icon(
+                  SolarIconsOutline.altArrowRight,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
+                ),
+              ],
             ),
             onTap: () {
               Navigator.push(
@@ -596,18 +629,19 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '사업자 정보',
             subtitle: '사업자 등록 정보를 관리해요.',
-            trailing: Icon(
-              SolarIconsOutline.altArrowRight,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: 20,
-            ),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const BusinessVerificationPage(),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _getVerificationStatusIcon(),
+                const SizedBox(width: 8),
+                Icon(
+                  SolarIconsOutline.altArrowRight,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  size: 20,
                 ),
-              );
-            },
+              ],
+            ),
+            onTap: _onBusinessVerificationTap,
           ),
 
           const SizedBox(height: 12),
@@ -1049,6 +1083,339 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
 
       // Show error message
       ToastHelper.error(context, '로그아웃 중 오류가 발생했습니다');
+    }
+  }
+
+  /// 사업자 인증 상태 확인
+  Future<void> _checkBusinessVerificationStatus() async {
+    print('DEBUG: _checkBusinessVerificationStatus called');
+    if (!mounted) return;
+    
+    setState(() {
+      _isCheckingVerification = true;
+    });
+
+    try {
+      print('DEBUG: Calling BusinessVerificationServiceFinal.getUserLatestVerification()');
+      final verificationData = await BusinessVerificationServiceFinal.instance
+          .getUserLatestVerification();
+      
+      print('DEBUG: Got verification data: $verificationData');
+      
+      if (mounted) {
+        setState(() {
+          _verificationData = verificationData;
+          _isCheckingVerification = false;
+        });
+        print('DEBUG: State updated with verification data');
+      }
+    } catch (e) {
+      print('DEBUG: Error getting verification data: $e');
+      if (mounted) {
+        setState(() {
+          _isCheckingVerification = false;
+        });
+      }
+    }
+  }
+
+  /// 사업자 인증 탭 클릭 처리
+  Future<void> _onBusinessVerificationTap() async {
+    print('DEBUG: _onBusinessVerificationTap called');
+    
+    if (_verificationData == null) {
+      _navigateToBusinessVerification();
+      return;
+    }
+
+    final status = _verificationData!['overall_status'];
+    
+    switch (status) {
+      case 'auto_verified':
+      case 'admin_approved':
+        _showCompletedVerificationDialog();
+        break;
+      case 'pending_admin_review':
+        _showPendingReviewDialog();
+        break;
+      default:
+        _navigateToBusinessVerification();
+        break;
+    }
+  }
+
+  /// 사업자 인증 페이지로 이동 (새로운 인증)
+  void _navigateToBusinessVerification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BusinessVerificationPage(
+          initialStep: 1,
+          forceNew: true,
+        ),
+      ),
+    );
+  }
+
+  /// 완료된 인증 팝업 표시
+  Future<void> _showCompletedVerificationDialog() async {
+    final shouldRestart = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('사업자 인증 완료'),
+          content: const Text('이미 사업자 인증이 완료되어 있습니다.\n새로운 인증을 진행하시겠어요?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('새 인증 진행'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldRestart == true) {
+      _navigateToBusinessVerification();
+    }
+  }
+
+  /// 관리자 검토 대기 팝업 표시
+  Future<void> _showPendingReviewDialog() async {
+    final shouldRestart = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('인증 검토 중'),
+          content: const Text('현재 관리자가 사업자 인증을 검토하고 있어요.\n새로운 인증을 다시 진행하시겠어요?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('기다리기'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('새 인증 진행'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldRestart == true) {
+      _navigateToBusinessVerification();
+    }
+  }
+
+  /// 사업자 인증 상태 아이콘 가져오기
+  Widget _getVerificationStatusIcon() {
+    print('DEBUG: _getVerificationStatusIcon called');
+    print('DEBUG: _isCheckingVerification = $_isCheckingVerification');
+    print('DEBUG: _verificationData = $_verificationData');
+    
+    if (_isCheckingVerification) {
+      print('DEBUG: Showing loading indicator');
+      return const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (_verificationData == null) {
+      print('DEBUG: No verification data, showing empty');
+      return const SizedBox.shrink();
+    }
+
+    final status = _verificationData!['overall_status'];
+    print('DEBUG: Verification status = $status');
+    
+    switch (status) {
+      case 'auto_verified':
+      case 'admin_approved':
+        print('DEBUG: Showing verified icon');
+        return Icon(
+          Icons.verified,
+          color: Colors.green,
+          size: 20,
+        );
+      case 'pending_admin_review':
+        print('DEBUG: Showing pending icon');
+        return Icon(
+          Icons.schedule,
+          color: Colors.orange,
+          size: 20,
+        );
+      default:
+        print('DEBUG: Unknown status, showing empty');
+        return const SizedBox.shrink();
+    }
+  }
+
+  /// 플레이스 정보 진행 상태 확인
+  Future<void> _checkPlaceInfoProgress() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isCheckingPlaceInfo = true;
+    });
+
+    try {
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      if (currentUser == null) return;
+
+      // place_profiles 테이블에서 현재 사용자의 플레이스 정보 확인
+      final response = await Supabase.instance.client
+          .from('place_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+      if (!mounted) return;
+
+      double progress = 0.0;
+      if (response != null) {
+        // 필수 필드들이 얼마나 채워졌는지 계산
+        int filledFields = 0;
+        int totalFields = 5; // 예: place_name, description, location, etc.
+
+        if (response['place_name'] != null && response['place_name'].toString().isNotEmpty) filledFields++;
+        if (response['description'] != null && response['description'].toString().isNotEmpty) filledFields++;
+        if (response['address'] != null && response['address'].toString().isNotEmpty) filledFields++;
+        if (response['phone'] != null && response['phone'].toString().isNotEmpty) filledFields++;
+        if (response['website'] != null && response['website'].toString().isNotEmpty) filledFields++;
+
+        progress = filledFields / totalFields;
+      }
+
+      setState(() {
+        _placeInfoProgress = progress;
+        _isCheckingPlaceInfo = false;
+      });
+    } catch (e) {
+      print('DEBUG: Error checking place info progress: $e');
+      if (mounted) {
+        setState(() {
+          _isCheckingPlaceInfo = false;
+        });
+      }
+    }
+  }
+
+  /// 매칭 조건 설정 진행 상태 확인
+  Future<void> _checkMatchingConditionsProgress() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isCheckingMatchingConditions = true;
+    });
+
+    try {
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      if (currentUser == null) return;
+
+      // member_profiles 테이블에서 현재 사용자의 매칭 조건 정보 확인
+      final response = await Supabase.instance.client
+          .from('member_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+      if (!mounted) return;
+
+      double progress = 0.0;
+      if (response != null) {
+        // 매칭 조건 필드들이 얼마나 채워졌는지 계산
+        int filledFields = 0;
+        int totalFields = 6; // 예: age_range, experience_level, salary_range, etc.
+
+        if (response['age_range_min'] != null) filledFields++;
+        if (response['experience_level'] != null && response['experience_level'].toString().isNotEmpty) filledFields++;
+        if (response['salary_range_min'] != null) filledFields++;
+        if (response['preferred_work_days'] != null) filledFields++;
+        if (response['preferred_work_hours'] != null) filledFields++;
+        if (response['work_style_preferences'] != null) filledFields++;
+
+        progress = filledFields / totalFields;
+      }
+
+      setState(() {
+        _matchingConditionsProgress = progress;
+        _isCheckingMatchingConditions = false;
+      });
+    } catch (e) {
+      print('DEBUG: Error checking matching conditions progress: $e');
+      if (mounted) {
+        setState(() {
+          _isCheckingMatchingConditions = false;
+        });
+      }
+    }
+  }
+
+  /// 플레이스 정보 진행률 아이콘 가져오기
+  Widget _getPlaceInfoProgressIcon() {
+    if (_isCheckingPlaceInfo) {
+      return const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (_placeInfoProgress == 0.0) {
+      return Icon(
+        Icons.radio_button_unchecked,
+        color: Colors.grey,
+        size: 20,
+      );
+    } else if (_placeInfoProgress < 1.0) {
+      return Icon(
+        Icons.schedule,
+        color: Colors.orange,
+        size: 20,
+      );
+    } else {
+      return Icon(
+        Icons.verified,
+        color: Colors.green,
+        size: 20,
+      );
+    }
+  }
+
+  /// 매칭 조건 설정 진행률 아이콘 가져오기
+  Widget _getMatchingConditionsProgressIcon() {
+    if (_isCheckingMatchingConditions) {
+      return const SizedBox(
+        width: 16,
+        height: 16,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      );
+    }
+
+    if (_matchingConditionsProgress == 0.0) {
+      return Icon(
+        Icons.radio_button_unchecked,
+        color: Colors.grey,
+        size: 20,
+      );
+    } else if (_matchingConditionsProgress < 1.0) {
+      return Icon(
+        Icons.schedule,
+        color: Colors.orange,
+        size: 20,
+      );
+    } else {
+      return Icon(
+        Icons.verified,
+        color: Colors.green,
+        size: 20,
+      );
     }
   }
 }

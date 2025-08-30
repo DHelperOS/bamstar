@@ -9,20 +9,13 @@ import 'package:solar_icons/solar_icons.dart';
 
 import '../../models/business_verification_models.dart';
 import '../../providers/business_verification/business_verification_providers.dart';
-import '../../services/business_verification_service_final.dart';
+import '../../services/business_verification_service.dart';
 import '../../services/gemini.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/toast_helper.dart';
 
 class BusinessVerificationPage extends ConsumerStatefulWidget {
-  final int initialStep;
-  final bool forceNew;
-  
-  const BusinessVerificationPage({
-    super.key,
-    this.initialStep = 1,
-    this.forceNew = false,
-  });
+  const BusinessVerificationPage({super.key});
 
   @override
   ConsumerState<BusinessVerificationPage> createState() =>
@@ -52,73 +45,50 @@ class _BusinessVerificationPageState
   @override
   void initState() {
     super.initState();
-    _currentStep = widget.initialStep;
-    // Load cached data after providers are ready, unless forceNew is true
-    if (!widget.forceNew) {
-      Future.microtask(() {
-        _loadCachedData();
-      });
-    }
+    // Load cached data after providers are ready
+    Future.microtask(() {
+      _loadCachedData();
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Also try to load cached data when dependencies change, unless forceNew is true
-    if (!widget.forceNew) {
-      _loadCachedData();
-    }
+    // Also try to load cached data when dependencies change
+    _loadCachedData();
   }
 
-  Future<void> _loadCachedData() async {
+  void _loadCachedData() {
     if (!mounted) return;
 
-    try {
-      // 데이터베이스에서 최신 인증 정보 로드
-      final verificationData = await BusinessVerificationServiceFinal.instance
-          .getUserLatestVerification();
-      
-      if (verificationData != null && mounted) {
-        setState(() {
-          _businessNumberCtl.text = verificationData['business_number'] ?? '';
-          _representativeNameCtl.text = verificationData['representative_name'] ?? '';
-          _openingDateCtl.text = verificationData['opening_date'] ?? '';
-          _representativeName2Ctl.text = verificationData['representative_name2'] ?? '';
-          _businessNameCtl.text = verificationData['business_name'] ?? '';
-          _corporateNumberCtl.text = verificationData['corporate_number'] ?? '';
-          _mainBusinessTypeCtl.text = verificationData['main_business_type'] ?? '';
-          _subBusinessTypeCtl.text = verificationData['sub_business_type'] ?? '';
-          _businessAddressCtl.text = verificationData['business_address'] ?? '';
+    final state = ref.read(businessVerificationProvider);
+    if (state.input != null) {
+      final input = state.input!;
 
-          // Show optional fields if any optional data exists
-          final hasOptionalData =
-              (verificationData['representative_name2']?.toString().isNotEmpty == true) ||
-              (verificationData['business_name']?.toString().isNotEmpty == true) ||
-              (verificationData['corporate_number']?.toString().isNotEmpty == true) ||
-              (verificationData['main_business_type']?.toString().isNotEmpty == true) ||
-              (verificationData['sub_business_type']?.toString().isNotEmpty == true) ||
-              (verificationData['business_address']?.toString().isNotEmpty == true);
+      setState(() {
+        _businessNumberCtl.text = input.businessNumber;
+        _representativeNameCtl.text = input.representativeName;
+        _openingDateCtl.text = input.openingDate;
+        _representativeName2Ctl.text = input.representativeName2 ?? '';
+        _businessNameCtl.text = input.businessName ?? '';
+        _corporateNumberCtl.text = input.corporateNumber ?? '';
+        _mainBusinessTypeCtl.text = input.mainBusinessType ?? '';
+        _subBusinessTypeCtl.text = input.subBusinessType ?? '';
+        _businessAddressCtl.text = input.businessAddress ?? '';
 
-          if (hasOptionalData) {
-            _showOptionalFields = true;
-          }
+        // Show optional fields if any optional data exists
+        final hasOptionalData =
+            (input.representativeName2?.isNotEmpty == true) ||
+            (input.businessName?.isNotEmpty == true) ||
+            (input.corporateNumber?.isNotEmpty == true) ||
+            (input.mainBusinessType?.isNotEmpty == true) ||
+            (input.subBusinessType?.isNotEmpty == true) ||
+            (input.businessAddress?.isNotEmpty == true);
 
-          // 현재 단계 설정 (상태에 따라)
-          final status = verificationData['overall_status'];
-          if (status == 'draft') {
-            _currentStep = 1;
-          } else if (verificationData['nts_verification_status'] == 'success' && 
-                    verificationData['document_verification_status'] == 'pending') {
-            _currentStep = 2;
-          } else if (verificationData['document_verification_status'] == 'success' ||
-                    ['auto_verified', 'pending_admin_review', 'admin_approved', 'admin_rejected'].contains(status)) {
-            _currentStep = 3;
-          }
-        });
-      }
-    } catch (e) {
-      print('데이터 로드 실패: $e');
-      // 에러 시 기본 상태 유지
+        if (hasOptionalData) {
+          _showOptionalFields = true;
+        }
+      });
     }
   }
 
@@ -480,14 +450,14 @@ class _BusinessVerificationPageState
   Future<void> _submitStep1() async {
     // Validate required fields
     final businessNumberError =
-        BusinessVerificationServiceFinal.validateBusinessNumber(
+        BusinessVerificationService.validateBusinessNumber(
           _businessNumberCtl.text,
         );
     final representativeNameError =
-        BusinessVerificationServiceFinal.validateRepresentativeName(
+        BusinessVerificationService.validateRepresentativeName(
           _representativeNameCtl.text,
         );
-    final openingDateError = BusinessVerificationServiceFinal.validateOpeningDate(
+    final openingDateError = BusinessVerificationService.validateOpeningDate(
       _openingDateCtl.text,
     );
 
@@ -508,9 +478,8 @@ class _BusinessVerificationPageState
     setState(() => _isLoading = true);
 
     try {
-      // 1. 사업자 인증 기록 생성
-      final verificationId = await BusinessVerificationServiceFinal.instance
-          .createBusinessVerification(
+      // Update input data
+      final input = BusinessVerificationInput(
         businessNumber: _businessNumberCtl.text,
         representativeName: _representativeNameCtl.text,
         openingDate: _openingDateCtl.text,
@@ -534,29 +503,17 @@ class _BusinessVerificationPageState
             : null,
       );
 
-      if (verificationId == null) {
-        throw Exception('인증 기록 생성에 실패했습니다');
-      }
+      ref.read(businessVerificationProvider.notifier).updateInput(input);
+      await ref.read(businessVerificationProvider.notifier).verify();
 
-      // 2. 국세청 API 조회
-      final ntsSuccess = await BusinessVerificationServiceFinal.instance
-          .verifyWithNTS(
-        verificationId: verificationId,
-        businessData: {
-          'business_number': _businessNumberCtl.text,
-          'representative_name': _representativeNameCtl.text,
-          'opening_date': _openingDateCtl.text,
-        },
-      );
-
-      if (ntsSuccess) {
+      final state = ref.read(businessVerificationProvider);
+      if (state.isSuccess) {
         setState(() {
           _isNavigatingForward = true;
           _currentStep = 2;
         });
-
       } else {
-        ToastHelper.error(context, '국세청 조회에 실패했습니다. 고객센터로 문의해주세요');
+        ToastHelper.error(context, state.error ?? '사업자 정보 조회에 실패했습니다');
       }
     } catch (e) {
       ToastHelper.error(context, e.toString());
@@ -566,39 +523,8 @@ class _BusinessVerificationPageState
   }
 
   Future<void> _submitBusinessVerification() async {
-    try {
-      // 현재 인증 상태 확인
-      final verificationData = await BusinessVerificationServiceFinal.instance
-          .getUserLatestVerification();
-      
-      if (verificationData == null) {
-        ToastHelper.error(context, '인증 정보를 찾을 수 없습니다');
-        return;
-      }
-
-      final status = verificationData['overall_status'];
-      final statusMessage = BusinessVerificationServiceFinal.instance
-          .getStatusMessage(status);
-      
-      if (status == 'auto_verified' || status == 'admin_approved') {
-        ToastHelper.success(context, '사업자 인증이 완료되었습니다');
-      } else if (status == 'pending_admin_review') {
-        ToastHelper.info(context, '관리자 검토 요청이 제출되었습니다');
-      } else if (status == 'ai_low_score') {
-        ToastHelper.warning(context, '이미지를 다시 업로드해주세요');
-        return; // 페이지를 닫지 않음
-      } else {
-        ToastHelper.info(context, statusMessage);
-      }
-      
-      // 0.8초 후 페이지 닫기
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      ToastHelper.error(context, '오류가 발생했습니다: $e');
-    }
+    ToastHelper.info(context, '사업자 인증이 완료되었습니다');
+    Navigator.pop(context);
   }
 }
 
@@ -934,235 +860,184 @@ class _Step1FormWidget extends ConsumerWidget {
   }
 }
 
-class _Step2FormWidget extends ConsumerStatefulWidget {
+class _Step2FormWidget extends ConsumerWidget {
   const _Step2FormWidget({super.key});
 
   @override
-  ConsumerState<_Step2FormWidget> createState() => _Step2FormWidgetState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(businessVerificationProvider);
+    final result = state.result;
 
-class _Step2FormWidgetState extends ConsumerState<_Step2FormWidget> {
-  Map<String, dynamic>? _verificationData;
-  bool _isLoading = true;
-  String? _errorMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVerificationData();
-  }
-
-  Future<void> _loadVerificationData() async {
-    try {
-      final data = await BusinessVerificationServiceFinal.instance
-          .getUserLatestVerification();
-      
-      if (mounted) {
-        setState(() {
-          _verificationData = data;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    
-    if (_errorMessage != null) {
-      return Center(
-        child: Text('오류: $_errorMessage', style: AppTextStyles.primaryText(context)),
-      );
-    }
-    
-    if (_verificationData == null || _verificationData!['nts_response'] == null) {
+    if (result == null) {
       return Center(
         child: Text('조회 결과가 없습니다.', style: AppTextStyles.primaryText(context)),
       );
     }
 
-    final ntsResponse = _verificationData!['nts_response'] as Map<String, dynamic>;
-    
-    return _buildStep2Content(ntsResponse);
-  }
-
-  Widget _buildStep2Content(Map<String, dynamic> result) {
-    return Builder(
-      builder: (context) => SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Success header with beautiful design
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF4CAF50).withValues(alpha: 0.1),
-                    const Color(0xFF4CAF50).withValues(alpha: 0.05),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Success header with beautiful design
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  const Color(0xFF4CAF50).withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4CAF50),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF4CAF50,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.verified_rounded,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '국세청 인증 완료',
+                            style: AppTextStyles.cardTitle(context).copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2E7D32),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '사업자 정보가 국세청 데이터베이스에서 확인되었습니다',
+                            style: AppTextStyles.captionText(context).copyWith(
+                              color: const Color(0xFF388E3C),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF4CAF50,
-                              ).withValues(alpha: 0.3),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.verified_rounded,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '국세청 인증 완료',
-                              style: AppTextStyles.cardTitle(context).copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF2E7D32),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '사업자 정보가 국세청 데이터베이스에서 확인되었습니다',
-                              style: AppTextStyles.captionText(context).copyWith(
-                                color: const Color(0xFF388E3C),
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 32),
+          const SizedBox(height: 32),
 
-            // Business information with enhanced design
-            Text(
-              '조회된 사업자 정보',
-              style: AppTextStyles.sectionTitle(
-                context,
-              ).copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 16),
+          // Business information with enhanced design
+          Text(
+            '조회된 사업자 정보',
+            style: AppTextStyles.sectionTitle(
+              context,
+            ).copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 16),
 
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.1),
+              ),
+              boxShadow: [
+                BoxShadow(
                   color: Theme.of(
                     context,
-                  ).colorScheme.outline.withValues(alpha: 0.1),
+                  ).colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.shadow.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  _buildInfoRow(
-                    context,
-                    '사업자등록번호',
-                    result['bNo']?.toString() ?? '-',
-                    icon: Icons.business_rounded,
-                  ),
-                  _buildInfoRow(
-                    context,
-                    '대표자명',
-                    result['requestParam']?['pNm']?.toString() ?? '-',
-                    icon: Icons.person_rounded,
-                  ),
-                  _buildInfoRow(
-                    context,
-                    '개업일자',
-                    _formatDate(result['requestParam']?['startDt']?.toString()),
-                    icon: Icons.calendar_today_rounded,
-                  ),
-                  if (result['status'] != null) ...[
-                    _buildInfoRow(
-                      context,
-                      '과세유형',
-                      result['status']!['taxType']?.toString() ?? '-',
-                      icon: Icons.account_balance_rounded,
-                    ),
-                    _buildInfoRow(
-                      context,
-                      '납세자상태',
-                      result['status']!['bStt']?.toString() ?? '-',
-                      icon: Icons.check_circle_rounded,
-                      isLast: true,
-                    ),
-                  ] else
-                    _buildInfoRow(
-                      context,
-                      '상태',
-                      '정상',
-                      icon: Icons.check_circle_rounded,
-                      isLast: true,
-                    ),
-                ],
-              ),
+              ],
             ),
+            child: Column(
+              children: [
+                _buildInfoRow(
+                  context,
+                  '사업자등록번호',
+                  result.bNo,
+                  icon: Icons.business_rounded,
+                ),
+                _buildInfoRow(
+                  context,
+                  '대표자명',
+                  result.requestParam.pNm,
+                  icon: Icons.person_rounded,
+                ),
+                _buildInfoRow(
+                  context,
+                  '개업일자',
+                  _formatDate(result.requestParam.startDt),
+                  icon: Icons.calendar_today_rounded,
+                ),
+                if (result.status != null) ...[
+                  _buildInfoRow(
+                    context,
+                    '과세유형',
+                    result.status!.taxType,
+                    icon: Icons.account_balance_rounded,
+                  ),
+                  _buildInfoRow(
+                    context,
+                    '납세자상태',
+                    result.status!.bStt,
+                    icon: Icons.check_circle_rounded,
+                    isLast: true,
+                  ),
+                ] else
+                  _buildInfoRow(
+                    context,
+                    '상태',
+                    '정상',
+                    icon: Icons.check_circle_rounded,
+                    isLast: true,
+                  ),
+              ],
+            ),
+          ),
 
-            const SizedBox(height: 32),
-          ],
-        ),
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }
@@ -1174,7 +1049,7 @@ class _Step2FormWidgetState extends ConsumerState<_Step2FormWidget> {
       final year = dateStr.substring(0, 4);
       final month = dateStr.substring(4, 6);
       final day = dateStr.substring(6, 8);
-      return '$year년 ${month}월 ${day}일';
+      return '$year년 $month월 $day일';
     } catch (e) {
       return dateStr;
     }
@@ -1306,40 +1181,31 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
         );
       }
 
-      // 현재 사용자의 최신 인증 기록 조회
-      final verificationData = await BusinessVerificationServiceFinal.instance
-          .getUserLatestVerification();
-      
-      if (verificationData == null) {
-        throw Exception('인증 기록을 찾을 수 없습니다');
-      }
-
+      // Step 1: Extract text from image
       setState(() {
-        _progressMessage = '사업자 등록증을 검증하고 있습니다...';
+        _progressMessage = '사업자 등록증 텍스트를 추출하고 있습니다...';
       });
 
-      // AI 검증 수행
-      final success = await BusinessVerificationServiceFinal.instance
-          .uploadAndVerifyDocument(
-        verificationId: verificationData['id'],
-        imageFile: _selectedImage!,
+      final extractedText = await _extractTextFromImage(_selectedImage!);
+
+      // Step 2: Get business data from provider
+      setState(() {
+        _progressMessage = '정보를 비교하고 있습니다...';
+      });
+
+      final businessData = ref.read(businessVerificationProvider);
+
+      // Step 3: Compare with Gemini
+      final matchPercentage = await _compareWithGemini(
+        extractedText,
+        businessData,
       );
 
-      if (success) {
-        // 업데이트된 결과 조회
-        final updatedData = await BusinessVerificationServiceFinal.instance
-            .getUserLatestVerification();
-        
-        if (updatedData != null) {
-          setState(() {
-            _matchPercentage = (updatedData['ai_match_percentage'] as num?)?.toDouble() ?? 0.0;
-            _hasResult = true;
-            _isProcessing = false;
-          });
-        }
-      } else {
-        throw Exception('AI 검증에 실패했습니다');
-      }
+      setState(() {
+        _matchPercentage = matchPercentage;
+        _hasResult = true;
+        _isProcessing = false;
+      });
 
       // Close progress dialog
       if (mounted) {
@@ -1371,13 +1237,18 @@ class _Step3FormWidgetState extends ConsumerState<_Step3FormWidget> {
 
   Future<double> _compareWithGemini(
     String extractedText,
-    dynamic businessData,
+    BusinessVerificationState businessData,
   ) async {
     try {
       // Extract structured data from text
       final extractedDataMap = await _geminiService.extractBusinessDataFromText(
         extractedText,
       );
+
+      // Save extracted data to provider
+      ref
+          .read(businessVerificationProvider.notifier)
+          .setExtractedData(extractedDataMap);
 
       // Prepare API data string - only 3 fields for comparison
       final apiData =

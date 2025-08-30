@@ -64,17 +64,25 @@ class PlacePreferencesService {
           .select('attribute_id')
           .eq('place_user_id', currentUser.id);
 
+      final preferencesQuery = _supabase
+          .from('place_preferences_link')
+          .select('attribute_id, preference_level')
+          .eq('place_user_id', currentUser.id);
+
       // 모든 쿼리 실행
       final results = await Future.wait([
         industriesQuery,
         attributesQuery,
+        preferencesQuery,
       ]);
 
       final industries = results[0] as List<dynamic>;
       final attributes = results[1] as List<dynamic>;
+      final preferences = results[2] as List<dynamic>;
 
       print('Loaded industries: $industries');
       print('Loaded attributes: $attributes');
+      print('Loaded preferences: $preferences');
 
       // attributes에서 타입별로 분류하기 위해 attributes 테이블과 조인해서 타입 정보 가져오기
       final jobIds = <String>{};
@@ -112,7 +120,45 @@ class PlacePreferencesService {
         }
       }
 
-      final preferences = PlacePreferencesData(
+      // preferences에서 타입별로 분류 (직무/스타일)
+      if (preferences.isNotEmpty) {
+        final preferenceAttributeIds = preferences.map((pref) => pref['attribute_id']).toList();
+        final preferenceAttributeDetails = await _supabase
+            .from('attributes')
+            .select('id, type')
+            .inFilter('id', preferenceAttributeIds);
+
+        print('Preference attribute details: $preferenceAttributeDetails');
+
+        for (final pref in preferences) {
+          final prefAttrId = pref['attribute_id'].toString();
+          final prefLevel = pref['preference_level'];
+          
+          // attributes 테이블에서 타입 찾기
+          Map<String, dynamic>? attrDetail;
+          try {
+            attrDetail = preferenceAttributeDetails.firstWhere(
+              (detail) => detail['id'].toString() == prefAttrId,
+            );
+          } catch (e) {
+            attrDetail = null;
+          }
+          
+          if (attrDetail != null) {
+            final attrType = attrDetail['type'];
+            switch (attrType) {
+              case 'JOB_ROLE':
+                jobIds.add(prefAttrId);
+                break;
+              case 'MEMBER_STYLE':
+                styleIds.add(prefAttrId);
+                break;
+            }
+          }
+        }
+      }
+
+      final preferencesData = PlacePreferencesData(
         selectedIndustryIds: industries.map((i) => i['attribute_id'].toString()).toSet(),
         selectedJobIds: jobIds,
         selectedPayType: placeProfile['offered_pay_type'],
@@ -124,8 +170,8 @@ class PlacePreferencesService {
         selectedWelfareIds: welfareIds,
       );
 
-      print('Loaded preferences: $preferences');
-      return preferences;
+      print('Loaded preferences: $preferencesData');
+      return preferencesData;
     } catch (e) {
       print('Error loading place preferences: $e');
       return null;
@@ -189,14 +235,10 @@ class PlacePreferencesService {
       providedAttributes.addAll(preferences.selectedWelfareIds);
       providedAttributes.addAll(preferences.selectedPlaceFeatureIds);
 
-      // 먼저 기존 데이터 완전 삭제
-      await _supabase
-          .from('place_attributes_link')
-          .delete()
-          .eq('place_user_id', currentUser.id);
+      // UPSERT로 직접 처리 - DELETE 불필요
 
       if (providedAttributes.isNotEmpty) {
-        // 새 데이터 삽입 (UPSERT 방식)
+        // UPSERT로 데이터 저장 (중복 키 안전)
         final attributeInserts = providedAttributes.map((attributeId) => {
           'place_user_id': currentUser.id,
           'attribute_id': int.parse(attributeId),
@@ -204,7 +246,9 @@ class PlacePreferencesService {
 
         await _supabase
             .from('place_attributes_link')
-            .upsert(attributeInserts);
+            .upsert(attributeInserts, 
+              onConflict: 'place_user_id, attribute_id',
+              ignoreDuplicates: false);
 
         print('✅ place_attributes_link 저장: ${attributeInserts.length}개');
       }
@@ -214,14 +258,10 @@ class PlacePreferencesService {
       preferredAttributes.addAll(preferences.selectedJobIds);
       preferredAttributes.addAll(preferences.selectedStyleIds);
 
-      // 먼저 기존 데이터 완전 삭제
-      await _supabase
-          .from('place_preferences_link')
-          .delete()
-          .eq('place_user_id', currentUser.id);
+      // UPSERT로 직접 처리 - DELETE 불필요
 
       if (preferredAttributes.isNotEmpty) {
-        // 새 데이터 삽입 (preference_level 포함) - UPSERT 방식
+        // UPSERT로 데이터 저장 (중복 키 안전)
         final preferenceInserts = preferredAttributes.map((attributeId) => {
           'place_user_id': currentUser.id,
           'attribute_id': int.parse(attributeId),
@@ -232,7 +272,9 @@ class PlacePreferencesService {
 
         await _supabase
             .from('place_preferences_link')
-            .upsert(preferenceInserts);
+            .upsert(preferenceInserts,
+              onConflict: 'place_user_id, attribute_id',
+              ignoreDuplicates: false);
 
         print('✅ place_preferences_link 저장: ${preferenceInserts.length}개');
       }
@@ -265,14 +307,13 @@ class PlacePreferencesService {
           .upsert({
             'user_id': currentUser.id,
             'user_type': 'place',
-            'attribute_weight': 0.20,  // 스킬 매칭
-            'preference_weight': 0.20, // 직무 선호도  
-            'location_weight': 0.15,   // 지역
-            'pay_weight': 0.20,        // 급여
-            'schedule_weight': 0.15,   // 일정
-            'experience_weight': 0.10, // 경력
+            'job_role_weight': 0.25,    // 직무 매칭
+            'industry_weight': 0.25,    // 업종 매칭  
+            'style_weight': 0.20,       // 스타일 매칭
+            'location_weight': 0.15,    // 지역 매칭
+            'pay_weight': 0.15,         // 급여 매칭
             'updated_at': DateTime.now().toIso8601String(),
-          });
+          }, onConflict: 'user_id');
 
       print('✅ 매칭 가중치 설정 완료');
 

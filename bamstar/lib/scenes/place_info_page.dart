@@ -10,6 +10,7 @@ import '../utils/toast_helper.dart';
 import '../services/cloudinary.dart';
 import '../services/area_mapping_service.dart';
 
+
 /// Place information page with multi-image picker and address search
 class PlaceInfoPage extends StatefulWidget {
   const PlaceInfoPage({super.key});
@@ -43,6 +44,8 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   String _selectedGender = '남';
   String _selectedSns = '카카오톡';
   bool _isLoading = false;
+  
+
 
   // Validation error messages
   String? _placeNameError;
@@ -1646,4 +1649,5 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       ),
     );
   }
+
 }
