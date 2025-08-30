@@ -8,6 +8,7 @@ import '../widgets/match_card.dart';
 import '../models/match_profile.dart';
 import '../../../services/matching_service.dart';
 import 'package:bamstar/utils/toast_helper.dart';
+import '../../../providers/user/role_providers.dart';
 
 /// Recommendation Tab - AI-powered matching with swipe cards
 class RecommendationTab extends ConsumerStatefulWidget {
@@ -202,25 +203,34 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
                 Expanded(
                   child: _profiles.isEmpty 
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              SolarIconsOutline.document,
-                              size: 80,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              '현재 추천할 프로필이 없습니다',
-                              style: AppTextStyles.primaryText(context),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '잠시 후 다시 확인해주세요',
-                              style: AppTextStyles.secondaryText(context),
-                            ),
-                          ],
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final userRole = ref.watch(currentUserRoleIdProvider);
+                            final isPlaceUser = userRole == 3; // PLACE role_id = 3
+                            
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  SolarIconsOutline.document,
+                                  size: 80,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  isPlaceUser 
+                                    ? '현재 추천할 스타가 없습니다'
+                                    : '현재 추천할 플레이스가 없습니다',
+                                  style: AppTextStyles.primaryText(context),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '잠시 후 다시 확인해주세요',
+                                  style: AppTextStyles.secondaryText(context),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       )
                     : CardSwiper(

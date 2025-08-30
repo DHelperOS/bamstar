@@ -86,14 +86,17 @@ class MatchCard extends StatelessWidget {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(width: 4),
-                                    // Gender icon right after name text
-                                    Icon(
-                                      profile.type == ProfileType.member ? SolarIconsOutline.men : SolarIconsOutline.women,
-                                      size: 16,
-                                      color: profile.type == ProfileType.member 
-                                        ? const Color(0xFF2196F3) // Blue for male
-                                        : const Color(0xFFF44336), // Red for female
-                                    ),
+                                    // Gender icon based on actual gender data
+                                    if (profile.gender != null)
+                                      Icon(
+                                        profile.gender == 'MALE' 
+                                          ? SolarIconsOutline.men 
+                                          : SolarIconsOutline.women,
+                                        size: 16,
+                                        color: profile.gender == 'MALE'
+                                          ? const Color(0xFF2196F3) // Blue for male
+                                          : const Color(0xFFF44336), // Red for female
+                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
@@ -257,7 +260,7 @@ class MatchCard extends StatelessWidget {
           ),
         ),
         
-        // Match score badge positioned at top-right of image
+        // Match score badge positioned at top-right of image (아이콘 제거)
         Positioned(
           top: 16,
           right: 16,
@@ -267,28 +270,90 @@ class MatchCard extends StatelessWidget {
               vertical: 5,
             ),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.5), // Primary color with alpha 0.5
+              color: colorScheme.primary.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  SolarIconsOutline.star,
-                  size: 14,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${profile.matchScore}%',
-                  style: AppTextStyles.captionText(context).copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
+            child: Text(
+              '매칭률: ${profile.matchScore}%',
+              style: AppTextStyles.captionText(context).copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ),
+
+        // Hearts and Favorites count (좋아요/즐겨찾기 갯수)
+        Positioned(
+          top: 16,
+          left: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (profile.heartsCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF6B9D).withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        SolarIconsOutline.heart,
+                        size: 10,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${profile.heartsCount}',
+                        style: AppTextStyles.captionText(context).copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              if (profile.heartsCount > 0 && profile.favoritesCount > 0)
+                const SizedBox(height: 4),
+              if (profile.favoritesCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFD93D).withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        SolarIconsOutline.star,
+                        size: 10,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${profile.favoritesCount}',
+                        style: AppTextStyles.captionText(context).copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
       ],

@@ -40,7 +40,19 @@ serve(async (req) => {
         *,
         member:users!member_user_id(
           id, email,
-          member_profile:member_profiles(*)
+          member_profile:member_profiles(*),
+          member_industries:member_attributes_link(
+            attributes!inner(
+              name,
+              type
+            )
+          ),
+          member_areas:member_preferred_area_groups(
+            priority,
+            area_groups(
+              name
+            )
+          )
         ),
         place:users!place_user_id(
           id, email,

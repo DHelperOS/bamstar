@@ -1,11 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../scenes/matching/models/match_profile.dart';
 
-/// Enhanced matching service with full role-based UI support
+/// Real-time matching service with Supabase integration
 class MatchingService {
   static final _supabase = Supabase.instance.client;
   
-  /// Get matching profiles using Edge Functions (Enhanced)
+  /// Get matching profiles using Edge Functions
   static Future<List<MatchProfile>> getMatchingProfiles({
     required bool isMemberView,
     int limit = 20,
@@ -37,12 +37,9 @@ class MatchingService {
       final responseData = response.data as Map<String, dynamic>;
       final matches = responseData['matches'] as List<dynamic>? ?? [];
 
-      // Process matches with enhanced profile data
-      final profileFutures = matches.map<Future<MatchProfile>>((matchData) async {
-        return await _convertToMatchProfile(matchData, isMemberView);
-      });
-
-      return await Future.wait(profileFutures);
+      return matches.map<MatchProfile>((matchData) {
+        return _convertToMatchProfile(matchData, isMemberView);
+      }).toList();
 
     } catch (e) {
       // Fallback to direct database query if Edge Function fails
@@ -53,123 +50,7 @@ class MatchingService {
     }
   }
 
-  /// Convert match data from Edge Function to MatchProfile (Enhanced)
-  static Future<MatchProfile> _convertToMatchProfile(Map<String, dynamic> matchData, bool isMemberView) async {
-    final profile = isMemberView 
-        ? matchData['place'] as Map<String, dynamic>? ?? {}
-        : matchData['member'] as Map<String, dynamic>? ?? {};
-    
-    final profileData = isMemberView 
-        ? profile['place_profile'] as Map<String, dynamic>? ?? {}
-        : profile['member_profile'] as Map<String, dynamic>? ?? {};
-
-    final matchScore = (matchData['total_score'] as num?)?.round() ?? 0;
-    final userId = profile['id'] ?? '';
-    
-    if (isMemberView) {
-      // Member sees Place profiles
-      final heartsCount = await _getHeartsCount(userId, 'place');
-      final favoritesCount = await _getFavoritesCount(userId, 'place');
-      
-      return MatchProfile(
-        id: userId,
-        name: profileData['place_name'] ?? '알 수 없는 업체',
-        subtitle: _formatIndustries(profile['place_industries']),
-        imageUrl: _getFirstImageUrl(profileData['profile_image_urls']),
-        matchScore: matchScore,
-        location: _extractLocation(profileData['address']),
-        distance: _calculateDistanceFromCoords(
-          profileData['latitude'],
-          profileData['longitude'],
-        ),
-        payInfo: _formatPayInfo(
-          profileData['offered_min_pay'],
-          profileData['offered_max_pay'],
-        ),
-        schedule: _formatSchedule(profileData),
-        tags: _generatePlaceTagsFromProfile(profileData, profile),
-        type: ProfileType.place,
-        isVerified: profileData['is_verified'] == true,
-        isPremium: profileData['is_premium'] == true,
-        hasSentHeart: matchData['has_sent_heart'] == true,
-        isFavorited: matchData['is_favorited'] == true,
-        heartsCount: heartsCount,
-        favoritesCount: favoritesCount,
-        industries: _extractIndustriesList(profile['place_industries']),
-      );
-    } else {
-      // Place sees Member profiles (주요 수정 부분)
-      final heartsCount = await _getHeartsCount(userId, 'member');
-      final favoritesCount = await _getFavoritesCount(userId, 'member');
-      
-      return MatchProfile(
-        id: userId,
-        name: profileData['real_name'] ?? '알 수 없는 사용자',
-        subtitle: _formatMemberIndustries(profile['member_industries']), // 지원 업종으로 변경
-        imageUrl: _getFirstImageUrl(profileData['profile_image_urls']),
-        matchScore: matchScore,
-        location: _formatMemberAreas(profile['member_areas']), // 희망지역으로 변경
-        distance: _calculateDistanceFromCoords(
-          profileData['latitude'],
-          profileData['longitude'],
-        ),
-        payInfo: '희망시급 ${_formatCurrency(profileData['desired_pay_amount'] ?? 0)}원',
-        schedule: _formatMemberSchedule(profileData['desired_working_days']),
-        tags: _generateMemberTagsFromProfile(profileData, profile),
-        type: ProfileType.member,
-        isVerified: profileData['is_verified'] == true,
-        isPremium: profileData['is_premium'] == true,
-        hasSentHeart: matchData['has_sent_heart'] == true,
-        isFavorited: matchData['is_favorited'] == true,
-        gender: profileData['gender'], // 성별 정보 추가
-        heartsCount: heartsCount,
-        favoritesCount: favoritesCount,
-        industries: _extractIndustriesList(profile['member_industries']),
-        preferredAreas: _extractAreasList(profile['member_areas']),
-      );
-    }
-  }
-
-  /// Format member industries from join data
-  static String _formatMemberIndustries(List<dynamic>? industries) {
-    if (industries == null || industries.isEmpty) {
-      return '업종 미정';
-    }
-    
-    final industryNames = industries
-        .where((industry) => 
-            industry['attributes'] != null && 
-            industry['attributes']['type'] == 'INDUSTRY')
-        .map((industry) => industry['attributes']['name'] as String)
-        .toList();
-    
-    if (industryNames.isEmpty) {
-      return '업종 미정';
-    }
-    
-    return industryNames.join('•');
-  }
-
-  /// Format member preferred areas (top 2 priorities)
-  static String _formatMemberAreas(List<dynamic>? areas) {
-    if (areas == null || areas.isEmpty) {
-      return '지역 협의';
-    }
-    
-    final areaNames = areas
-        .where((area) => area['area_groups'] != null)
-        .map((area) => area['area_groups']['name'] as String)
-        .take(2) // Only show top 2 priorities
-        .toList();
-    
-    if (areaNames.isEmpty) {
-      return '지역 협의';
-    }
-    
-    return areaNames.join('•');
-  }
-
-  /// Format place industries from join data
+  /// Format industries from place_industries join data
   static String _formatIndustries(List<dynamic>? industries) {
     if (industries == null || industries.isEmpty) {
       return '업종 정보 없음';
@@ -200,131 +81,69 @@ class MatchingService {
       return a.compareTo(b);
     });
     
-    return industryNames.join('•');
+    return industryNames.join(', ');
   }
 
-  /// Extract industries list
-  static List<String> _extractIndustriesList(List<dynamic>? industries) {
-    if (industries == null) return [];
+  /// Convert match data from Edge Function to MatchProfile
+  static MatchProfile _convertToMatchProfile(Map<String, dynamic> matchData, bool isMemberView) {
+    final profile = isMemberView 
+        ? matchData['place'] as Map<String, dynamic>? ?? {}
+        : matchData['member'] as Map<String, dynamic>? ?? {};
     
-    return industries
-        .where((industry) => 
-            industry['attributes'] != null && 
-            industry['attributes']['type'] == 'INDUSTRY')
-        .map((industry) => industry['attributes']['name'] as String)
-        .toList();
-  }
+    final profileData = isMemberView 
+        ? profile['place_profile'] as Map<String, dynamic>? ?? {}
+        : profile['member_profile'] as Map<String, dynamic>? ?? {};
 
-  /// Extract member preferred areas list
-  static List<String> _extractAreasList(List<dynamic>? areas) {
-    if (areas == null) return [];
+    final matchScore = (matchData['total_score'] as num?)?.round() ?? 0;
     
-    return areas
-        .where((area) => area['area_groups'] != null)
-        .map((area) => area['area_groups']['name'] as String)
-        .take(2) // Only top 2 priorities
-        .toList();
-  }
-
-  /// Get hearts count for user
-  static Future<int> _getHeartsCount(String userId, String userType) async {
-    try {
-      final table = userType == 'member' ? 'member_hearts' : 'place_hearts';
-      final column = userType == 'member' ? 'member_user_id' : 'place_user_id';
-      
-      final response = await _supabase
-          .from(table)
-          .select('*')
-          .eq(column, userId);
-          
-      return response.length;
-    } catch (e) {
-      return 0;
+    if (isMemberView) {
+      // Member sees Place profiles
+      return MatchProfile(
+        id: profile['id'] ?? '',
+        name: profileData['place_name'] ?? '알 수 없는 업체',
+        subtitle: _formatIndustries(profile['place_industries']),
+        imageUrl: _getFirstImageUrl(profileData['profile_image_urls']),
+        matchScore: matchScore,
+        location: _extractLocation(profileData['address']),
+        distance: _calculateDistanceFromCoords(
+          profileData['latitude'],
+          profileData['longitude'],
+        ),
+        payInfo: _formatPayInfo(
+          profileData['offered_min_pay'],
+          profileData['offered_max_pay'],
+        ),
+        schedule: _formatSchedule(profileData),
+        tags: [], // Tags will be loaded separately
+        type: ProfileType.place,
+        isVerified: profileData['is_verified'] == true,
+        isPremium: profileData['is_premium'] == true,
+        hasSentHeart: matchData['has_sent_heart'] == true,
+        isFavorited: matchData['is_favorited'] == true,
+      );
+    } else {
+      // Place sees Member profiles
+      return MatchProfile(
+        id: profile['id'] ?? '',
+        name: profileData['real_name'] ?? '알 수 없는 사용자',
+        subtitle: _formatExperience(profileData['experience_level']),
+        imageUrl: _getFirstImageUrl(profileData['profile_image_urls']),
+        matchScore: matchScore,
+        location: _extractMemberLocation(profileData),
+        distance: _calculateDistanceFromCoords(
+          profileData['latitude'],
+          profileData['longitude'],
+        ),
+        payInfo: '희망시급 ${_formatCurrency(profileData['desired_pay_amount'] ?? 0)}원',
+        schedule: _formatMemberSchedule(profileData['desired_working_days']),
+        tags: [], // Tags will be loaded separately
+        type: ProfileType.member,
+        isVerified: profileData['is_verified'] == true,
+        isPremium: profileData['is_premium'] == true,
+        hasSentHeart: matchData['has_sent_heart'] == true,
+        isFavorited: matchData['is_favorited'] == true,
+      );
     }
-  }
-
-  /// Get favorites count for user
-  static Future<int> _getFavoritesCount(String userId, String userType) async {
-    try {
-      final table = userType == 'member' ? 'member_favorites' : 'place_favorites';
-      final column = userType == 'member' ? 'member_user_id' : 'place_user_id';
-      
-      final response = await _supabase
-          .from(table)
-          .select('*')
-          .eq(column, userId);
-          
-      return response.length;
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  /// Generate member tags from profile data
-  static List<String> _generateMemberTagsFromProfile(Map<String, dynamic> profileData, Map<String, dynamic> profile) {
-    List<String> tags = [];
-    
-    // Add experience level
-    if (profileData['experience_level'] != null) {
-      tags.add(_formatExperience(profileData['experience_level']));
-    }
-    
-    // Add gender tag
-    if (profileData['gender'] == 'FEMALE') {
-      tags.add('여성');
-    } else if (profileData['gender'] == 'MALE') {
-      tags.add('남성');
-    }
-    
-    // Add age tag if available
-    if (profileData['age'] != null) {
-      final age = profileData['age'] as int;
-      tags.add('${age}세');
-      if (age >= 20 && age < 30) {
-        tags.add('20대');
-      } else if (age >= 30 && age < 40) {
-        tags.add('30대');
-      }
-    }
-    
-    // Add industry preferences from member_industries
-    final industries = profile['member_industries'] as List<dynamic>? ?? [];
-    for (final industry in industries.take(3)) { // Max 3 industry tags
-      if (industry['attributes'] != null && 
-          industry['attributes']['type'] == 'INDUSTRY') {
-        tags.add(industry['attributes']['name'] as String);
-      }
-    }
-    
-    return tags;
-  }
-
-  /// Generate place tags from profile data
-  static List<String> _generatePlaceTagsFromProfile(Map<String, dynamic> profileData, Map<String, dynamic> profile) {
-    List<String> tags = [];
-    
-    // Add place industries
-    final industries = profile['place_industries'] as List<dynamic>? ?? [];
-    for (final industry in industries.take(3)) {
-      if (industry['attributes'] != null && 
-          industry['attributes']['type'] == 'INDUSTRY') {
-        tags.add(industry['attributes']['name'] as String);
-      }
-    }
-    
-    // Add manager gender
-    if (profileData['manager_gender'] == '여') {
-      tags.add('여성사장');
-    } else if (profileData['manager_gender'] == '남') {
-      tags.add('남성사장');  
-    }
-    
-    // Add experience preference
-    if (profileData['desired_experience_level']?.isNotEmpty == true) {
-      tags.add('${_formatExperience(profileData['desired_experience_level'])} 선호');
-    }
-    
-    return tags;
   }
 
   /// Send heart to a profile
@@ -420,13 +239,9 @@ class MatchingService {
         ''')
         .limit(limit);
 
-    final profileFutures = response.map<Future<MatchProfile>>((data) async {
-      final userId = data['user_id'];
-      final heartsCount = await _getHeartsCount(userId, 'place');
-      final favoritesCount = await _getFavoritesCount(userId, 'place');
-      
+    return response.map<MatchProfile>((data) {
       return MatchProfile(
-        id: userId,
+        id: data['user_id'],
         name: data['place_name'] ?? '알 수 없는 업체',
         subtitle: _formatIndustries(data['place_industries']),
         imageUrl: _getFirstImageUrl(data['profile_image_urls']),
@@ -439,13 +254,8 @@ class MatchingService {
         type: ProfileType.place,
         isVerified: data['is_verified'] == true,
         isPremium: data['is_premium'] == true,
-        heartsCount: heartsCount,
-        favoritesCount: favoritesCount,
-        industries: _extractIndustriesList(data['place_industries']),
       );
-    });
-
-    return await Future.wait(profileFutures);
+    }).toList();
   }
 
   /// Get member profiles directly from database
@@ -467,13 +277,9 @@ class MatchingService {
         ''')
         .limit(limit);
 
-    final profileFutures = response.map<Future<MatchProfile>>((data) async {
-      final userId = data['user_id'];
-      final heartsCount = await _getHeartsCount(userId, 'member');
-      final favoritesCount = await _getFavoritesCount(userId, 'member');
-      
+    return response.map<MatchProfile>((data) {
       return MatchProfile(
-        id: userId,
+        id: data['user_id'],
         name: data['real_name'] ?? '알 수 없는 사용자',
         subtitle: _formatExperience(data['experience_level']),
         imageUrl: _getFirstImageUrl(data['profile_image_urls']),
@@ -486,17 +292,11 @@ class MatchingService {
         type: ProfileType.member,
         isVerified: data['is_verified'] == true,
         isPremium: data['is_premium'] == true,
-        gender: data['gender'],
-        heartsCount: heartsCount,
-        favoritesCount: favoritesCount,
       );
-    });
-
-    return await Future.wait(profileFutures);
+    }).toList();
   }
 
-  // Helper methods (unchanged from original)
-  
+  /// Get first image URL from array
   static String? _getFirstImageUrl(dynamic imageUrls) {
     if (imageUrls is List && imageUrls.isNotEmpty) {
       return imageUrls[0] as String?;
@@ -504,6 +304,7 @@ class MatchingService {
     return null;
   }
 
+  /// Extract location from address
   static String _extractLocation(String? address) {
     if (address == null || address.isEmpty) return '위치 정보 없음';
     
@@ -514,12 +315,22 @@ class MatchingService {
     return address.length > 20 ? '${address.substring(0, 20)}...' : address;
   }
 
+  /// Extract member location
+  static String _extractMemberLocation(Map<String, dynamic> profileData) {
+    // Try to get from address or use default
+    return _extractLocation(profileData['address']) != '위치 정보 없음' 
+        ? _extractLocation(profileData['address'])
+        : '서울';
+  }
+
+  /// Calculate distance from coordinates
   static double _calculateDistanceFromCoords(double? lat, double? lng) {
     // TODO: Implement real distance calculation using user's current location
     // For now return mock distance
     return _calculateMockDistance();
   }
 
+  /// Format pay information
   static String _formatPayInfo(int? minPay, int? maxPay) {
     if (minPay == null && maxPay == null) return '급여 협의';
     if (minPay != null && maxPay != null) {
@@ -530,10 +341,12 @@ class MatchingService {
     return '급여 협의';
   }
 
+  /// Format schedule for place profiles
   static String _formatSchedule(Map<String, dynamic> profileData) {
     return profileData['business_hours'] ?? '시간 협의';
   }
 
+  /// Format member schedule
   static String _formatMemberSchedule(dynamic workingDays) {
     if (workingDays is List && workingDays.isNotEmpty) {
       return workingDays.join(', ');
@@ -541,6 +354,7 @@ class MatchingService {
     return '협의 가능';
   }
 
+  /// Format currency with commas
   static String _formatCurrency(int amount) {
     return amount.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -548,6 +362,7 @@ class MatchingService {
     );
   }
 
+  /// Format experience level
   static String _formatExperience(String? experience) {
     switch (experience) {
       case 'NEWCOMER': return '신입';
@@ -555,17 +370,80 @@ class MatchingService {
       case 'INTERMEDIATE': return '중급';
       case 'SENIOR': return '고급';
       case 'EXPERT': return '전문가';
-      case 'NEWBIE': return '신입';
       default: return '경력 미상';
     }
   }
 
+  /// Get place tags from database
+  static Future<List<String>> _getPlaceTags(String placeUserId) async {
+    try {
+      // Get attributes associated with this place
+      final response = await _supabase
+          .from('place_attributes_link')
+          .select('''
+            attributes!inner(
+              name,
+              type
+            )
+          ''')
+          .eq('place_user_id', placeUserId);
+
+      final tags = <String>[];
+      for (final item in response) {
+        final attr = item['attributes'] as Map<String, dynamic>;
+        tags.add(attr['name'] as String);
+      }
+
+      // Add some default tags if none found
+      if (tags.isEmpty) {
+        tags.addAll(['신입환영', '교육지원', '복리후생']);
+      }
+
+      return tags;
+    } catch (e) {
+      return ['신입환영', '교육지원', '복리후생'];
+    }
+  }
+
+  /// Get member tags from database
+  static Future<List<String>> _getMemberTags(String memberUserId) async {
+    try {
+      // Get attributes associated with this member
+      final response = await _supabase
+          .from('member_attributes_link')
+          .select('''
+            attributes!inner(
+              name,
+              type
+            )
+          ''')
+          .eq('member_user_id', memberUserId);
+
+      final tags = <String>[];
+      for (final item in response) {
+        final attr = item['attributes'] as Map<String, dynamic>;
+        tags.add(attr['name'] as String);
+      }
+
+      // Add some default tags if none found
+      if (tags.isEmpty) {
+        tags.addAll(['성실함', '책임감', '팀워크']);
+      }
+
+      return tags;
+    } catch (e) {
+      return ['성실함', '책임감', '팀워크'];
+    }
+  }
+
+  /// Generate tags for place profiles (sync version for fallback)
   static List<String> _generatePlaceTagsSync(Map<String, dynamic> data) {
     List<String> tags = [];
     
+    // Add industries as tags
     final industries = data['place_industries'] as List<dynamic>?;
     if (industries != null) {
-      for (final industry in industries.take(3)) {
+      for (final industry in industries) {
         if (industry['attributes'] != null && 
             industry['attributes']['type'] == 'INDUSTRY') {
           tags.add(industry['attributes']['name'] as String);
@@ -583,9 +461,11 @@ class MatchingService {
       tags.add('${_formatExperience(data['desired_experience_level'])} 선호');
     }
     
-    return tags.isEmpty ? ['신입환영', '교육지원', '복리후생'] : tags;
+    tags.addAll(['신입환영', '교육지원', '복리후생']);
+    return tags;
   }
 
+  /// Generate tags for member profiles (sync version for fallback)
   static List<String> _generateMemberTagsSync(Map<String, dynamic> data) {
     List<String> tags = [];
     
@@ -601,7 +481,7 @@ class MatchingService {
     
     if (data['age'] != null) {
       final age = data['age'] as int;
-      tags.add('${age}세');
+      tags.add('$age세');
       if (age >= 20 && age < 30) {
         tags.add('20대');
       } else if (age >= 30 && age < 40) {
@@ -609,13 +489,16 @@ class MatchingService {
       }
     }
     
-    return tags.isEmpty ? ['성실함', '책임감', '팀워크'] : tags;
+    tags.addAll(['성실함', '책임감', '팀워크']);
+    return tags;
   }
 
+  /// Calculate mock matching score (fallback)
   static int _calculateMockScore() {
     return 80 + (DateTime.now().millisecond % 20);
   }
 
+  /// Calculate mock distance (fallback)
   static double _calculateMockDistance() {
     return (DateTime.now().millisecond % 50) / 10.0;
   }

@@ -20,6 +20,11 @@ class MatchProfile {
   final bool isPremium;
   final bool hasSentHeart;
   final bool isFavorited;
+  final int heartsCount;
+  final int favoritesCount;
+  final String? gender;
+  final List<String> industries;
+  final List<String> preferredAreas;
 
   MatchProfile({
     required this.id,
@@ -38,6 +43,11 @@ class MatchProfile {
     this.isPremium = false,
     this.hasSentHeart = false,
     this.isFavorited = false,
+    this.heartsCount = 0,
+    this.favoritesCount = 0,
+    this.gender,
+    this.industries = const [],
+    this.preferredAreas = const [],
   });
 
   /// Get score color based on match percentage
@@ -96,7 +106,81 @@ class MatchProfile {
     return industryNames.join(', ');
   }
 
-  /// Create from Supabase JSON
+  /// Format member industries from join data
+  static String _formatMemberIndustries(List<dynamic>? industries) {
+    if (industries == null || industries.isEmpty) {
+      return '업종 미정';
+    }
+    
+    final industryNames = industries
+        .where((industry) => 
+            industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY')
+        .map((industry) => industry['attributes']['name'] as String)
+        .toList();
+    
+    if (industryNames.isEmpty) {
+      return '업종 미정';
+    }
+    
+    return industryNames.join('•');
+  }
+
+  /// Format member preferred areas
+  static String _formatMemberAreas(List<dynamic>? areas) {
+    if (areas == null || areas.isEmpty) {
+      return '지역 협의';
+    }
+    
+    final areaNames = areas
+        .where((area) => area['area_groups'] != null)
+        .map((area) => area['area_groups']['name'] as String)
+        .take(2) // Only show top 2 priorities
+        .toList();
+    
+    if (areaNames.isEmpty) {
+      return '지역 협의';
+    }
+    
+    return areaNames.join('•');
+  }
+
+  /// Extract member industries list
+  static List<String> _extractMemberIndustriesList(List<dynamic>? industries) {
+    if (industries == null) return [];
+    
+    return industries
+        .where((industry) => 
+            industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY')
+        .map((industry) => industry['attributes']['name'] as String)
+        .toList();
+  }
+
+  /// Extract place industries list
+  static List<String> _extractPlaceIndustriesList(List<dynamic>? industries) {
+    if (industries == null) return [];
+    
+    return industries
+        .where((industry) => 
+            industry['attributes'] != null && 
+            industry['attributes']['type'] == 'INDUSTRY')
+        .map((industry) => industry['attributes']['name'] as String)
+        .toList();
+  }
+
+  /// Extract member preferred areas list
+  static List<String> _extractMemberAreasList(List<dynamic>? areas) {
+    if (areas == null) return [];
+    
+    return areas
+        .where((area) => area['area_groups'] != null)
+        .map((area) => area['area_groups']['name'] as String)
+        .take(2) // Only top 2 priorities
+        .toList();
+  }
+
+  /// Create from Supabase JSON (Enhanced)
   factory MatchProfile.fromJson(Map<String, dynamic> json, ProfileType type) {
     return MatchProfile(
       id: json['user_id'] ?? json['id'],
@@ -105,10 +189,12 @@ class MatchProfile {
         : json['nickname'] ?? json['name'],
       subtitle: type == ProfileType.place
         ? _formatIndustriesFromJson(json['place_industries'])
-        : '${json['experience_level'] ?? '신입'}',
+        : _formatMemberIndustries(json['member_industries']),
       imageUrl: json['profile_image_url'],
       matchScore: (json['match_score'] ?? 0).toInt(),
-      location: json['location'] ?? json['address'] ?? '',
+      location: type == ProfileType.place
+        ? json['location'] ?? json['address'] ?? ''
+        : _formatMemberAreas(json['member_areas']),
       distance: (json['distance'] ?? 0.0).toDouble(),
       payInfo: type == ProfileType.place
         ? '시급 ${json['offered_min_pay']}-${json['offered_max_pay']}원'
@@ -121,6 +207,15 @@ class MatchProfile {
         : null,
       isVerified: json['is_verified'] ?? false,
       isPremium: json['is_premium'] ?? false,
+      gender: json['gender'],
+      industries: type == ProfileType.member
+        ? _extractMemberIndustriesList(json['member_industries'])
+        : _extractPlaceIndustriesList(json['place_industries']),
+      preferredAreas: type == ProfileType.member
+        ? _extractMemberAreasList(json['member_areas'])
+        : [],
+      heartsCount: json['hearts_count'] ?? 0,
+      favoritesCount: json['favorites_count'] ?? 0,
     );
   }
 
@@ -143,6 +238,11 @@ class MatchProfile {
       'is_premium': isPremium,
       'has_sent_heart': hasSentHeart,
       'is_favorited': isFavorited,
+      'hearts_count': heartsCount,
+      'favorites_count': favoritesCount,
+      'gender': gender,
+      'industries': industries,
+      'preferred_areas': preferredAreas,
     };
   }
 }
