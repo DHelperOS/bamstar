@@ -186,27 +186,13 @@ class MatchCard extends StatelessWidget {
                                 color: colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                profile.location,
-                                style: AppTextStyles.captionText(context),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                width: 4,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurfaceVariant,
-                                  shape: BoxShape.circle,
+                              Expanded(
+                                child: Text(
+                                  profile.location,
+                                  style: AppTextStyles.captionText(context),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                profile.formattedDistance,
-                                style: AppTextStyles.captionText(context)
-                                    .copyWith(
-                                      color: colorScheme.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
                               ),
                             ],
                           ),

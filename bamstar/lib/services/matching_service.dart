@@ -113,7 +113,9 @@ class MatchingService {
           profileData['latitude'],
           profileData['longitude'],
         ),
-        payInfo: '${_formatPayType(profileData['desired_pay_type'])} ${_formatCurrency(profileData['desired_pay_amount'] ?? 0)}원',
+        payInfo: (profileData['desired_pay_amount'] != null && profileData['desired_pay_amount'] > 0) 
+            ? '${_formatPayType(profileData['desired_pay_type'])} ${_formatCurrency(profileData['desired_pay_amount'])}원'
+            : '급여 협의',
         schedule: _formatMemberSchedule(profileData['desired_working_days']),
         tags: _generateMemberTagsFromProfile(profileData, profile),
         type: ProfileType.member,
@@ -154,7 +156,7 @@ class MatchingService {
   /// Format member preferred areas (top 2 priorities)
   static String _formatMemberAreas(List<dynamic>? areas) {
     if (areas == null || areas.isEmpty) {
-      return '지역 협의';
+      return '선호지역 없음';
     }
     
     final areaNames = areas
@@ -164,7 +166,7 @@ class MatchingService {
         .toList();
     
     if (areaNames.isEmpty) {
-      return '지역 협의';
+      return '선호지역 없음';
     }
     
     return areaNames.join('•');
@@ -567,7 +569,9 @@ class MatchingService {
         matchScore: _calculateMockScore(),
         location: '서울', // TODO: 실제 위치 정보
         distance: _calculateMockDistance(),
-        payInfo: '${_formatPayType(data['desired_pay_type'])} ${_formatCurrency(data['desired_pay_amount'] ?? 0)}원',
+        payInfo: (data['desired_pay_amount'] != null && data['desired_pay_amount'] > 0) 
+            ? '${_formatPayType(data['desired_pay_type'])} ${_formatCurrency(data['desired_pay_amount'])}원'
+            : '급여 협의',
         schedule: _formatMemberSchedule(data['desired_working_days']),
         tags: _generateMemberTagsSync(data),
         type: ProfileType.member,
