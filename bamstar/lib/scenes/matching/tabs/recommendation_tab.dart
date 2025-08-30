@@ -202,30 +202,7 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
       );
     }
     
-    if (_profiles.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              SolarIconsOutline.document,
-              size: 80,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '현재 추천할 프로필이 없습니다',
-              style: AppTextStyles.primaryText(context),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '잠시 후 다시 확인해주세요',
-              style: AppTextStyles.secondaryText(context),
-            ),
-          ],
-        ),
-      );
-    }
+
     
     return Stack(
       children: [
@@ -264,31 +241,54 @@ class _RecommendationTabState extends ConsumerState<RecommendationTab>
                 ),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: CardSwiper(
-                    controller: _swiperController,
-                    cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                      return Stack(
-                        children: [
-                          MatchCard(
-                            profile: _profiles[index],
-                            onTap: () => _showProfileDetail(_profiles[index]),
-                          ),
-                          _SwipeActionOverlay(
-                            percentThresholdX: percentThresholdX.toDouble(),
-                            percentThresholdY: percentThresholdY.toDouble(),
-                          ),
-                        ],
-                      );
-                    },
-                    onSwipe: _onSwipe,
-                    padding: const EdgeInsets.all(0),
-                    numberOfCardsDisplayed: 3,
-                    backCardOffset: const Offset(0, 30),
-                    cardsCount: _profiles.length,
-                    isLoop: false,
-                    allowedSwipeDirection: const AllowedSwipeDirection.all(),
-                    scale: 0.9,
-                  ),
+                  child: _profiles.isEmpty 
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              SolarIconsOutline.document,
+                              size: 80,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '현재 추천할 프로필이 없습니다',
+                              style: AppTextStyles.primaryText(context),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '잠시 후 다시 확인해주세요',
+                              style: AppTextStyles.secondaryText(context),
+                            ),
+                          ],
+                        ),
+                      )
+                    : CardSwiper(
+                        controller: _swiperController,
+                        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+                          return Stack(
+                            children: [
+                              MatchCard(
+                                profile: _profiles[index],
+                                onTap: () => _showProfileDetail(_profiles[index]),
+                              ),
+                              _SwipeActionOverlay(
+                                percentThresholdX: percentThresholdX.toDouble(),
+                                percentThresholdY: percentThresholdY.toDouble(),
+                              ),
+                            ],
+                          );
+                        },
+                        onSwipe: _onSwipe,
+                        padding: const EdgeInsets.all(0),
+                        numberOfCardsDisplayed: _profiles.length > 3 ? 3 : _profiles.length,
+                        backCardOffset: const Offset(0, 30),
+                        cardsCount: _profiles.length,
+                        isLoop: false,
+                        allowedSwipeDirection: const AllowedSwipeDirection.all(),
+                        scale: 0.9,
+                      ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20, top: 40),
