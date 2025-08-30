@@ -264,39 +264,47 @@ class MatchingService {
   static List<String> _generateMemberTagsFromProfile(Map<String, dynamic> profileData, Map<String, dynamic> profile) {
     List<String> tags = [];
     
-    // Add experience level
-    if (profileData['experience_level'] != null) {
-      tags.add(_formatExperience(profileData['experience_level']));
-    }
-    
-    // Add gender tag
-    if (profileData['gender'] == 'FEMALE') {
-      tags.add('여성');
-    } else if (profileData['gender'] == 'MALE') {
-      tags.add('남성');
-    }
-    
-    // Add age tag if available
-    if (profileData['age'] != null) {
-      final age = profileData['age'] as int;
-      tags.add('${age}세');
-      if (age >= 20 && age < 30) {
-        tags.add('20대');
-      } else if (age >= 30 && age < 40) {
-        tags.add('30대');
+    // 1. member_attributes_link에서 가져온 개인 특성/스타일 태그
+    final memberAttributes = profile['member_attributes'] as List<dynamic>? ?? [];
+    for (final attr in memberAttributes.take(4)) { // 최대 4개 개인 특성
+      if (attr['attributes'] != null) {
+        final attributeData = attr['attributes'] as Map<String, dynamic>;
+        final type = attributeData['type'] as String?;
+        final name = attributeData['name'] as String?;
+        
+        // 개인 특성/스타일 관련 태그만 추가
+        if (name != null && (type == 'MEMBER_STYLE' || type == 'JOB_ROLE')) {
+          tags.add(name);
+        }
       }
     }
     
-    // Add industry preferences from member_industries
+    // 2. member_preferences_link에서 가져온 선호 태그  
+    final memberPreferences = profile['member_preferences'] as List<dynamic>? ?? [];
+    for (final pref in memberPreferences.take(3)) { // 최대 3개 선호 태그
+      if (pref['attributes'] != null) {
+        final attributeData = pref['attributes'] as Map<String, dynamic>;
+        final name = attributeData['name'] as String?;
+        final type = attributeData['type'] as String?;
+        
+        // 선호도 관련 태그만 추가
+        if (name != null && (type == 'PLACE_FEATURE' || type == 'WELFARE')) {
+          tags.add(name);
+        }
+      }
+    }
+    
+    // 3. 업종 태그 (기존 로직 유지) - 최대 2개
     final industries = profile['member_industries'] as List<dynamic>? ?? [];
-    for (final industry in industries.take(3)) { // Max 3 industry tags
+    for (final industry in industries.take(2)) {
       if (industry['attributes'] != null && 
           industry['attributes']['type'] == 'INDUSTRY') {
         tags.add(industry['attributes']['name'] as String);
       }
     }
     
-    return tags;
+    // 태그가 너무 많으면 최대 8개로 제한
+    return tags.take(8).toList();
   }
 
   /// Generate place tags from profile data

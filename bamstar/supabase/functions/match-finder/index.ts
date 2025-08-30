@@ -41,12 +41,24 @@ serve(async (req) => {
         member:users!member_user_id(
           id, email,
           member_profile:member_profiles(*),
-          member_industries:member_attributes_link(
+          member_industries:member_attributes_link!member_user_id(
             attributes!inner(
               name,
               type
             )
-          ),
+          ).eq('attributes.type', 'INDUSTRY'),
+          member_attributes:member_attributes_link!member_user_id(
+            attributes!inner(
+              name,
+              type
+            )
+          ).in('attributes.type', ['MEMBER_STYLE', 'JOB_ROLE']),
+          member_preferences:member_preferences_link!member_user_id(
+            attributes!inner(
+              name,
+              type
+            )
+          ).in('attributes.type', ['PLACE_FEATURE', 'WELFARE']),
           member_areas:member_preferred_area_groups(
             priority,
             area_groups(
