@@ -916,15 +916,14 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                color: Color(0xFF1C252E),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Color(0xFF1C252E),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (statusIcon != null) ...[

@@ -14,6 +14,7 @@ import 'package:bamstar/scenes/place_settings_page.dart';
 import 'package:bamstar/scenes/community/community_home_page.dart';
 import 'package:bamstar/providers/user/role_providers.dart';
 import '../utils/toast_helper.dart';
+import 'package:bamstar/scenes/matching/matching_page.dart';
 
 // Main widget (UI only; no navigation routes)
 class MainScreen extends ConsumerStatefulWidget {
@@ -115,7 +116,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
   List<Widget> get _tabs => [
     HomeScreen(), // Place (Home)
-    _SearchTab(),
+    const MatchingPage(),
     // Community tab is embedded so the bottom bar persists
     CommunityHomePage(),
     _ChatTab(),
@@ -152,9 +153,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
               title: Text('플레이스'),
             ),
             SalomonBottomBarItem(
-              icon: Icon(SolarIconsOutline.magnifier),
-              activeIcon: Icon(SolarIconsBold.magnifier),
-              title: Text('검색'),
+              icon: Icon(SolarIconsOutline.hearts),
+              activeIcon: Icon(SolarIconsBold.hearts),
+              title: Text('매칭'),
             ),
             SalomonBottomBarItem(
               icon: Icon(SolarIconsOutline.usersGroupTwoRounded),
@@ -174,18 +175,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-// Placeholder tabs for Search/Community/Chat to complete the 5-menu spec
-class _SearchTab extends StatelessWidget {
-  const _SearchTab();
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(child: Text('검색')),
     );
   }
 }
@@ -244,10 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(SolarIconsOutline.magnifier, color: cs.onSurface),
-            tooltip: '검색',
+            icon: Icon(SolarIconsOutline.hearts, color: cs.onSurface),
+            tooltip: '매칭',
             onPressed: () {
-              ToastHelper.info(context, '검색을 실행합니다.');
+              ToastHelper.info(context, '매칭을 실행합니다.');
             },
           ),
           badges.Badge(

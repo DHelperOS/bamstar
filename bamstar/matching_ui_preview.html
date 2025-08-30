@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BamStar 매칭 시스템 UI Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            height: 844px;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .app-header {
+            height: 56px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .tab-container {
+            height: 48px;
+            background: white;
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .content-area {
+            height: calc(100% - 44px - 56px - 48px - 56px);
+            overflow-y: auto;
+            position: relative;
+            background: #f8f9fa;
+        }
+
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+        }
+
+        /* 추천 탭 - 카드 스타일 */
+        .card-stack {
+            position: relative;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .matching-card {
+            position: absolute;
+            width: calc(100% - 40px);
+            height: calc(100% - 40px);
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 55%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .image-dots {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .dot.active {
+            background: white;
+        }
+
+        .match-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-number {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .card-info {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .detail-item i {
+            width: 20px;
+            color: #667eea;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: #f1f3f5;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .action-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 24px;
+        }
+
+        .btn-pass {
+            background: #f1f3f5;
+            color: #999;
+        }
+
+        .btn-pass:hover {
+            background: #ff6b6b;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-star {
+            background: #f1f3f5;
+            color: #999;
+        }
+
+        .btn-star:hover {
+            background: #ffd93d;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-like {
+            background: #f1f3f5;
+            color: #999;
+        }
+
+        .btn-like:hover {
+            background: #ff6b6b;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-detail {
+            background: #f1f3f5;
+            color: #999;
+        }
+
+        .btn-detail:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* 탐색 탭 스타일 */
+        .search-container {
+            padding: 15px;
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 25px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .search-bar i {
+            color: #999;
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .filter-presets {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .preset-btn {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e9ecef;
+        }
+
+        .preset-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .grid-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .grid-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .grid-card-image {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            position: relative;
+        }
+
+        .grid-score {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .grid-card-info {
+            padding: 10px;
+        }
+
+        .grid-card-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .grid-card-detail {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 지도 탭 스타일 */
+        .map-container {
+            height: 100%;
+            position: relative;
+        }
+
+        .map-view {
+            width: 100%;
+            height: 60%;
+            background: #e5e5e5;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .map-content {
+            text-align: center;
+        }
+
+        .map-content i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .radius-selector {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 25px;
+            padding: 5px;
+            display: flex;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .radius-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radius-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nearby-list {
+            height: 40%;
+            background: white;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .nearby-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nearby-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .nearby-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 12px;
+        }
+
+        .nearby-info {
+            flex: 1;
+        }
+
+        .nearby-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .nearby-detail {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .nearby-distance {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 하트 탭 스타일 */
+        .hearts-container {
+            padding: 15px;
+        }
+
+        .hearts-tabs {
+            display: flex;
+            background: white;
+            border-radius: 25px;
+            padding: 4px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .heart-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .heart-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .badge {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .heart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .heart-item.new {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .heart-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .heart-info {
+            flex: 1;
+        }
+
+        .heart-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .heart-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .heart-score {
+            font-size: 12px;
+            color: #667eea;
+            margin-top: 4px;
+        }
+
+        .heart-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .heart-btn {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e9ecef;
+        }
+
+        .heart-btn.accept {
+            background: #51cf66;
+            color: white;
+            border: none;
+        }
+
+        .heart-btn.reject {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+        }
+
+        /* 즐겨찾기 탭 스타일 */
+        .favorites-container {
+            padding: 15px;
+        }
+
+        .folder-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .folder-tab {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .folder-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .folder-count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .add-folder {
+            background: #f1f3f5;
+            color: #666;
+            border: 2px dashed #dee2e6;
+        }
+
+        /* 탭 전환 애니메이션 */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 플로팅 액션 버튼 */
+        .fab {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 390px) {
+            .phone-container {
+                border-radius: 0;
+                height: 100vh;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <div style="display: flex; gap: 5px;">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-full"></i>
+                </div>
+            </div>
+
+            <!-- App Header -->
+            <div class="app-header">
+                BamStar 매칭
+            </div>
+
+            <!-- Tab Container -->
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('recommend')">
+                    <i class="fas fa-star" style="margin-right: 5px;"></i> 추천
+                </div>
+                <div class="tab" onclick="switchTab('search')">
+                    <i class="fas fa-search" style="margin-right: 5px;"></i> 탐색
+                </div>
+                <div class="tab" onclick="switchTab('map')">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i> 지도
+                </div>
+                <div class="tab" onclick="switchTab('hearts')">
+                    <i class="fas fa-heart" style="margin-right: 5px;"></i> 하트
+                    <span class="badge">3</span>
+                </div>
+                <div class="tab" onclick="switchTab('favorites')">
+                    <i class="fas fa-bookmark" style="margin-right: 5px;"></i> 즐겨찾기
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- 추천 탭 -->
+                <div id="recommend-content" class="tab-content active">
+                    <div class="card-stack">
+                        <div class="matching-card">
+                            <div class="card-image">
+                                <div class="image-dots">
+                                    <div class="dot active"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                                <div class="match-score">
+                                    <span class="score-number">92점</span>
+                                    <span>⭐⭐⭐⭐⭐</span>
+                                </div>
+                                <i class="fas fa-coffee" style="font-size: 48px;"></i>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">카페 델라루나 | 강남점</div>
+                                <div class="card-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>강남구 역삼동 (2.3km)</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-won-sign"></i>
+                                        <span>시급 13,000-15,000원</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>평일/주말 협의가능</span>
+                                    </div>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">#라떼아트교육</span>
+                                    <span class="tag">#식사제공</span>
+                                    <span class="tag">#교통비지원</span>
+                                    <span class="tag">#친절한사장님</span>
+                                </div>
+                                <div class="card-actions">
+                                    <div class="action-btn btn-pass">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                    <div class="action-btn btn-star">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="action-btn btn-like">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                    <div class="action-btn btn-detail">
+                                        <i class="fas fa-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 탐색 탭 -->
+                <div id="search-content" class="tab-content">
+                    <div class="search-container">
+                        <div class="search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="카페, 레스토랑, 매장 검색...">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <div class="filter-presets">
+                            <div class="preset-btn">🔥 오늘의 추천</div>
+                            <div class="preset-btn">📍 내 지역</div>
+                            <div class="preset-btn">💎 프리미엄</div>
+                            <div class="preset-btn">🚀 즉시 가능</div>
+                        </div>
+                        <div class="grid-view">
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">89점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">스타벅스 역삼점</div>
+                                    <div class="grid-card-detail">시급 12,000원</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">87점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">투썸플레이스</div>
+                                    <div class="grid-card-detail">시급 13,000원</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">85점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">블루보틀</div>
+                                    <div class="grid-card-detail">시급 14,000원</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">82점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">이디야커피</div>
+                                    <div class="grid-card-detail">시급 11,000원</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 지도 탭 -->
+                <div id="map-content" class="tab-content">
+                    <div class="map-container">
+                        <div class="map-view">
+                            <div class="map-content">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <p>내 주변 매칭 지도</p>
+                                <p style="font-size: 12px; margin-top: 10px;">실제 앱에서는 Google Maps가 표시됩니다</p>
+                            </div>
+                            <div class="radius-selector">
+                                <div class="radius-btn">1km</div>
+                                <div class="radius-btn active">3km</div>
+                                <div class="radius-btn">5km</div>
+                                <div class="radius-btn">10km</div>
+                            </div>
+                        </div>
+                        <div class="nearby-list">
+                            <div class="nearby-item">
+                                <div class="nearby-icon">
+                                    <i class="fas fa-coffee"></i>
+                                </div>
+                                <div class="nearby-info">
+                                    <div class="nearby-name">카페 델라루나</div>
+                                    <div class="nearby-detail">매칭도 92% | 시급 15,000원</div>
+                                </div>
+                                <div class="nearby-distance">0.5km</div>
+                            </div>
+                            <div class="nearby-item">
+                                <div class="nearby-icon">
+                                    <i class="fas fa-coffee"></i>
+                                </div>
+                                <div class="nearby-info">
+                                    <div class="nearby-name">스타벅스 역삼점</div>
+                                    <div class="nearby-detail">매칭도 85% | 시급 13,000원</div>
+                                </div>
+                                <div class="nearby-distance">0.8km</div>
+                            </div>
+                            <div class="nearby-item">
+                                <div class="nearby-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="nearby-info">
+                                    <div class="nearby-name">파스타 전문점</div>
+                                    <div class="nearby-detail">매칭도 78% | 시급 14,000원</div>
+                                </div>
+                                <div class="nearby-distance">1.2km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하트 탭 -->
+                <div id="hearts-content" class="tab-content">
+                    <div class="hearts-container">
+                        <div class="hearts-tabs">
+                            <div class="heart-tab active">
+                                받은 좋아요
+                                <span class="badge">3</span>
+                            </div>
+                            <div class="heart-tab">보낸 좋아요</div>
+                            <div class="heart-tab">
+                                매칭됨
+                                <span class="badge">2</span>
+                            </div>
+                        </div>
+                        <div class="heart-item new">
+                            <div class="heart-avatar">카페</div>
+                            <div class="heart-info">
+                                <div class="heart-name">카페 델라루나</div>
+                                <div class="heart-time">방금 전</div>
+                                <div class="heart-score">매칭도 92%</div>
+                            </div>
+                            <div class="heart-actions">
+                                <div class="heart-btn accept">수락</div>
+                                <div class="heart-btn reject">거절</div>
+                            </div>
+                        </div>
+                        <div class="heart-item">
+                            <div class="heart-avatar">SB</div>
+                            <div class="heart-info">
+                                <div class="heart-name">스타벅스 강남점</div>
+                                <div class="heart-time">2시간 전</div>
+                                <div class="heart-score">매칭도 87%</div>
+                            </div>
+                            <div class="heart-actions">
+                                <div class="heart-btn accept">수락</div>
+                                <div class="heart-btn reject">거절</div>
+                            </div>
+                        </div>
+                        <div class="heart-item">
+                            <div class="heart-avatar">TS</div>
+                            <div class="heart-info">
+                                <div class="heart-name">투썸플레이스</div>
+                                <div class="heart-time">1일 전</div>
+                                <div class="heart-score">매칭도 84%</div>
+                            </div>
+                            <div class="heart-actions">
+                                <div class="heart-btn accept">수락</div>
+                                <div class="heart-btn reject">거절</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 즐겨찾기 탭 -->
+                <div id="favorites-content" class="tab-content">
+                    <div class="favorites-container">
+                        <div class="folder-tabs">
+                            <div class="folder-tab active">
+                                📁 전체
+                                <span class="folder-count">12</span>
+                            </div>
+                            <div class="folder-tab">
+                                📁 관심있음
+                                <span class="folder-count">5</span>
+                            </div>
+                            <div class="folder-tab">
+                                📁 면접예정
+                                <span class="folder-count">3</span>
+                            </div>
+                            <div class="folder-tab">
+                                📁 보류
+                                <span class="folder-count">4</span>
+                            </div>
+                            <div class="folder-tab add-folder">
+                                <i class="fas fa-plus"></i> 새 폴더
+                            </div>
+                        </div>
+                        <div class="grid-view">
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">92점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">카페 델라루나</div>
+                                    <div class="grid-card-detail">강남구 역삼동</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">89점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">스타벅스</div>
+                                    <div class="grid-card-detail">강남구 삼성동</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">87점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">투썸플레이스</div>
+                                    <div class="grid-card-detail">서초구 서초동</div>
+                                </div>
+                            </div>
+                            <div class="grid-card">
+                                <div class="grid-card-image">
+                                    <div class="grid-score">85점</div>
+                                </div>
+                                <div class="grid-card-info">
+                                    <div class="grid-card-name">블루보틀</div>
+                                    <div class="grid-card-detail">강남구 청담동</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <div class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>홈</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-heart"></i>
+                    <span>매칭</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>채팅</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-user"></i>
+                    <span>프로필</span>
+                </div>
+            </div>
+
+            <!-- Floating Action Button (필터/설정) -->
+            <div class="fab" style="display: none;">
+                <i class="fas fa-filter"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // 모든 탭 콘텐츠 숨기기
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 모든 탭 비활성화
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 선택된 탭 활성화
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // 탭 버튼 활성화
+            const clickedTab = event.currentTarget;
+            clickedTab.classList.add('active');
+
+            // FAB 표시/숨기기
+            const fab = document.querySelector('.fab');
+            if (tabName === 'search' || tabName === 'map') {
+                fab.style.display = 'flex';
+            } else {
+                fab.style.display = 'none';
+            }
+        }
+
+        // 카드 스와이프 시뮬레이션
+        let startX = null;
+        let currentX = null;
+        let cardElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            cardElement = document.querySelector('.matching-card');
+            if (cardElement) {
+                cardElement.addEventListener('mousedown', handleStart);
+                cardElement.addEventListener('mousemove', handleMove);
+                cardElement.addEventListener('mouseup', handleEnd);
+                cardElement.addEventListener('touchstart', handleStart);
+                cardElement.addEventListener('touchmove', handleMove);
+                cardElement.addEventListener('touchend', handleEnd);
+            }
+        });
+
+        function handleStart(e) {
+            startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        }
+
+        function handleMove(e) {
+            if (!startX) return;
+            e.preventDefault();
+            currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const translateX = currentX - startX;
+            const rotate = translateX * 0.1;
+            
+            if (cardElement) {
+                cardElement.style.transform = `translateX(${translateX}px) rotate(${rotate}deg)`;
+                cardElement.style.opacity = 1 - Math.abs(translateX) / 300;
+            }
+        }
+
+        function handleEnd(e) {
+            if (!startX || !currentX) return;
+            
+            const translateX = currentX - startX;
+            const threshold = 100;
+            
+            if (Math.abs(translateX) > threshold) {
+                // 카드 날리기
+                const direction = translateX > 0 ? 1 : -1;
+                if (cardElement) {
+                    cardElement.style.transform = `translateX(${direction * window.innerWidth}px) rotate(${direction * 30}deg)`;
+                    cardElement.style.opacity = 0;
+                    
+                    // 애니메이션 후 리셋
+                    setTimeout(() => {
+                        cardElement.style.transition = 'none';
+                        cardElement.style.transform = '';
+                        cardElement.style.opacity = 1;
+                        setTimeout(() => {
+                            cardElement.style.transition = '';
+                        }, 50);
+                    }, 300);
+                }
+            } else {
+                // 원위치로 복귀
+                if (cardElement) {
+                    cardElement.style.transform = '';
+                    cardElement.style.opacity = 1;
+                }
+            }
+            
+            startX = null;
+            currentX = null;
+        }
+
+        // 하트 애니메이션
+        document.querySelectorAll('.btn-like').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.5s';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        });
+
+        // 펄스 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.3); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
