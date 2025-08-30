@@ -257,26 +257,44 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         'place_name': _placeNameCtl.text.trim(),
         'address': _roadAddress ?? _addressCtl.text.trim(),
         'detail_address': _detailAddressCtl.text.trim(),
-        'post_code': _postCode,
+        'postcode': _postCode,
         'road_address': _roadAddress,
         'jibun_address': _jibunAddress,
         'latitude': _latitude,
         'longitude': _longitude,
-        'kakao_latitude': _kakaoLatitude,
-        'kakao_longitude': _kakaoLongitude,
         'manager_name': _managerNameCtl.text.trim(),
         'manager_gender': _selectedGender,
         'manager_phone': _phoneCtl.text.trim(),
         'sns_type': _selectedSns.isNotEmpty ? _selectedSns : null,
         'sns_handle': _snsHandleCtl.text.trim().isNotEmpty ? _snsHandleCtl.text.trim() : null,
-        'description': _introCtl.text.trim(),
-        'images': imageUrls,
-        'representative_image': representativeImageUrl,
+        'intro': _introCtl.text.trim(),
+        'profile_image_urls': imageUrls,
+        'representative_image_index': _representativeImageIndex >= 0 ? _representativeImageIndex : 0,
         'operating_hours': operatingHours,
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      // 5. Save to Supabase (upsert to handle both create and update)
+      // 5. Debug logging - 전송할 데이터 확인
+      debugPrint('=== Place Profile Save Data ===');
+      debugPrint('User ID: ${currentUser.id}');
+      debugPrint('Place Name: ${_placeNameCtl.text.trim()}');
+      debugPrint('Address: ${_roadAddress ?? _addressCtl.text.trim()}');
+      debugPrint('Detail Address: ${_detailAddressCtl.text.trim()}');
+      debugPrint('Postcode: $_postCode');
+      debugPrint('Road Address: $_roadAddress');
+      debugPrint('Jibun Address: $_jibunAddress');
+      debugPrint('Coordinates: $_latitude, $_longitude');
+      debugPrint('Manager: ${_managerNameCtl.text.trim()} ($_selectedGender)');
+      debugPrint('Phone: ${_phoneCtl.text.trim()}');
+      debugPrint('SNS: $_selectedSns - ${_snsHandleCtl.text.trim()}');
+      debugPrint('Intro: ${_introCtl.text.trim()}');
+      debugPrint('Image URLs (${imageUrls.length}): $imageUrls');
+      debugPrint('Representative Image Index: $_representativeImageIndex');
+      debugPrint('Operating Hours: $operatingHours');
+      debugPrint('Full Data Object: $placeData');
+      
+      // 6. Save to Supabase (upsert to handle both create and update)
+      debugPrint('Attempting to save to place_profiles table...');
       final response = await supabase
           .from('place_profiles')
           .upsert(placeData, onConflict: 'user_id')
