@@ -76,6 +76,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   void initState() {
     super.initState();
     _phoneCtl.addListener(_formatPhoneNumber);
+    _loadPlaceInfo();
   }
 
   @override
@@ -202,13 +203,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
            // _introError removed - intro is now optional
   }
 
-  // Check if all required fields are filled (not just valid)
-  bool _areRequiredFieldsFilled() {
-    return _placeNameCtl.text.trim().isNotEmpty &&
-           _addressCtl.text.trim().isNotEmpty &&
-           _managerNameCtl.text.trim().isNotEmpty &&
-           _phoneCtl.text.trim().isNotEmpty;
-  }
+
 
   Future<void> _searchAddress() async {
     try {
@@ -246,6 +241,94 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('address search error: $e');
       if (mounted) {
         ToastHelper.error(context, '주소 검색 중 오류가 발생했습니다');
+      }
+    }
+  }
+
+  Future<void> _loadPlaceInfo() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final currentUser = supabase.auth.currentUser;
+      
+      if (currentUser == null) {
+        debugPrint('No authenticated user for loading place info');
+        return;
+      }
+
+      debugPrint('Loading place info for user: ${currentUser.id}');
+      
+      final response = await supabase
+          .from('place_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .maybeSingle();
+
+      if (response == null) {
+        debugPrint('No place profile found for user: ${currentUser.id}');
+        return;
+      }
+
+      debugPrint('Place profile loaded: ${response.toString()}');
+
+      if (mounted) {
+        setState(() {
+          // Basic info
+          _placeNameCtl.text = response['place_name'] ?? '';
+          _addressCtl.text = response['address'] ?? '';
+          _detailAddressCtl.text = response['detail_address'] ?? '';
+          _managerNameCtl.text = response['manager_name'] ?? '';
+          _phoneCtl.text = response['manager_phone'] ?? '';
+          _snsHandleCtl.text = response['sns_handle'] ?? '';
+          _introCtl.text = response['intro'] ?? '';
+
+          // Gender and SNS type
+          final managerGender = response['manager_gender'];
+          if (managerGender == 'MALE') {
+            _selectedGender = '남';
+          } else if (managerGender == 'FEMALE') {
+            _selectedGender = '여';
+          }
+
+          final snsType = response['sns_type'];
+          if (snsType != null && snsType.isNotEmpty) {
+            _selectedSns = snsType;
+          }
+
+          // Address data
+          _postCode = response['postcode'];
+          _roadAddress = response['road_address'];
+          _jibunAddress = response['jibun_address'];
+          _latitude = response['latitude']?.toDouble();
+          _longitude = response['longitude']?.toDouble();
+
+          // Operating hours
+          final operatingHours = response['operating_hours'];
+          if (operatingHours != null) {
+            final hours = operatingHours as Map<String, dynamic>;
+            _selectedOperatingDays = List<String>.from(hours['days'] ?? []);
+            _operatingStartHour = (hours['start_hour'] ?? 9.0).toDouble();
+            _operatingEndHour = (hours['end_hour'] ?? 18.0).toDouble();
+          }
+
+          // Profile images
+          final imageUrls = response['profile_image_urls'];
+          if (imageUrls != null) {
+            _loadedImageUrls.clear();
+            _loadedImageUrls.addAll(List<String>.from(imageUrls));
+          }
+
+          final representativeIndex = response['representative_image_index'];
+          if (representativeIndex != null && representativeIndex >= 0) {
+            _representativeImageIndex = representativeIndex as int;
+          }
+        });
+
+        debugPrint('Place info loaded successfully');
+      }
+    } catch (e) {
+      debugPrint('Error loading place info: $e');
+      if (mounted) {
+        ToastHelper.error(context, '정보 불러오기 중 오류가 발생했습니다');
       }
     }
   }
@@ -1402,34 +1485,25 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: _isLoading || !_areRequiredFieldsFilled()
-                          ? LinearGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                                Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                              ],
-                            )
-                          : LinearGradient(
-                              colors: [
-                                Theme.of(context).colorScheme.primary,
-                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                              ],
-                            ),
-                      boxShadow: _isLoading || !_areRequiredFieldsFilled()
-                          ? []
-                          : [
-                              BoxShadow(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: _isLoading || !_areRequiredFieldsFilled() ? null : _savePlaceInfo,
+                        onTap: _isLoading ? null : _savePlaceInfo,
                         child: SizedBox(
                           height: 52,
                           width: double.infinity,
@@ -1448,9 +1522,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                                 : Text(
                                     '저장하기',
                                     style: AppTextStyles.buttonText(context).copyWith(
-                                      color: _areRequiredFieldsFilled()
-                                          ? Theme.of(context).colorScheme.onPrimary
-                                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
