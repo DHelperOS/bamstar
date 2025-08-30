@@ -274,12 +274,28 @@ class _BasicInfoPageState extends State<BasicInfoPage> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
+        child: _isLoading
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '기본 정보를 불러오는 중...',
+                      style: AppTextStyles.secondaryText(context),
+                    ),
+                  ],
+                ),
+              )
+            : Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20.0,
                     vertical: 16.0,

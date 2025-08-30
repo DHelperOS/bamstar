@@ -253,6 +253,8 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   }
 
   Future<void> _loadPlaceInfo() async {
+    setState(() => _isLoading = true);
+    
     try {
       final supabase = Supabase.instance.client;
       final currentUser = supabase.auth.currentUser;
@@ -339,6 +341,10 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
       debugPrint('Error loading place info: $e');
       if (mounted) {
         ToastHelper.error(context, '정보 불러오기 중 오류가 발생했습니다');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -1537,12 +1543,28 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
         behavior: HitTestBehavior.opaque,
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
+          child: _isLoading
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '플레이스 정보를 불러오는 중...',
+                        style: AppTextStyles.secondaryText(context),
+                      ),
+                    ],
+                  ),
+                )
+              : Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20.0,
                       vertical: 16.0,

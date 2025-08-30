@@ -953,8 +953,13 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
                   color: const Color(0xFF919EAB),
                   size: 20,
                 ),
-
-
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildStatusIcon(bool isComplete, bool hasData) {
     if (isComplete) {

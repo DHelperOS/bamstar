@@ -634,7 +634,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '지원한 공고',
             subtitle: '총 0개의 공고에 지원하였습니다',
-            
             onTap: () => _showToast(context, '지원한 공고'),
           ),
 
@@ -645,7 +644,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.eye,
             title: '조회한 공고',
             subtitle: '최근 조회한 공고를 확인하세요',
-            
             onTap: () => _showToast(context, '조회한 공고'),
           ),
 
@@ -656,7 +654,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.heart,
             title: '관심 공고',
             subtitle: '관심있는 공고를 저장하고 관리하세요',
-            
             onTap: () => _showToast(context, '관심 공고'),
           ),
         ],
@@ -679,7 +676,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.documentText,
             title: '작성한 게시글',
             subtitle: '커뮤니티에 작성한 게시글을 확인하세요',
-            
             onTap: () => _showToast(context, '작성한 게시글'),
           ),
 
@@ -690,7 +686,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.chatRoundDots,
             title: '작성한 댓글',
             subtitle: '다른 게시글에 작성한 댓글을 확인하세요',
-            
             onTap: () => _showToast(context, '작성한 댓글'),
           ),
 
@@ -701,7 +696,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.heart,
             title: '좋아요한 게시글',
             subtitle: '좋아요를 누른 게시글을 확인하세요',
-            
             onTap: () => _showToast(context, '좋아요한 게시글'),
           ),
         ],
@@ -724,7 +718,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.forbiddenCircle,
             title: '차단한 사용자',
             subtitle: '차단한 사용자 목록을 관리하세요',
-            
             onTap: () => _showToast(context, '차단한 사용자'),
           ),
 
@@ -735,7 +728,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.shieldMinus,
             title: '신고한 게시글',
             subtitle: '신고한 게시글의 처리 현황을 확인하세요',
-            
             onTap: () => _showToast(context, '신고한 게시글'),
           ),
 
@@ -746,7 +738,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
             icon: SolarIconsOutline.settings,
             title: '프라이버시 설정',
             subtitle: '계정 보안 및 프라이버시 설정을 관리하세요',
-            
             onTap: () => _showToast(context, '프라이버시 설정'),
           ),
         ],
@@ -839,15 +830,14 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                color: Color(0xFF1C252E),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Color(0xFF1C252E),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           if (statusIcon != null) ...[
@@ -876,13 +866,19 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
                   color: const Color(0xFF919EAB),
                   size: 20,
                 ),
-
-
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void _showToast(BuildContext context, String message) {
     ToastHelper.info(context, message);
   }
 
+  // Removed duplicate method definition
   Future<void> _handleLogout(BuildContext context) async {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
@@ -1010,21 +1006,32 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     if (confirmed != true) return;
 
     try {
+      debugPrint('DEBUG: Starting logout process...');
+      
       // Sign out from Supabase - this will trigger the auth state listener
       // in UserService which will automatically clear the user data
       await Supabase.instance.client.auth.signOut();
+      
+      debugPrint('DEBUG: Supabase signOut completed successfully');
 
       if (!context.mounted) return;
 
-      // Show success message
-      ToastHelper.success(context, '로그아웃되었습니다');
-
-      // Navigate to login page and clear all previous routes
+      debugPrint('DEBUG: About to navigate to LoginPage, context.mounted: ${context.mounted}');
+      
       if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
+        debugPrint('DEBUG: Executing navigation to LoginPage...');
+        await Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const LoginPage()),
           (route) => false,
         );
+        debugPrint('DEBUG: Navigation to LoginPage completed');
+        
+        // Show success message after navigation
+        if (context.mounted) {
+          ToastHelper.success(context, '로그아웃되었습니다');
+        }
+      } else {
+        debugPrint('DEBUG: Context not mounted, skipping navigation');
       }
     } catch (error) {
       debugPrint('Logout error: $error');
@@ -1323,18 +1330,18 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     }
 
     if (_placeInfoProgress == 0.0) {
-      // 작성 중 - edit (연필) 아이콘
+      // 아무것도 안한 상태 - error 아이콘 (사용자 동기부여)
       return Icon(
-        SolarIconsOutline.pen,
+        SolarIconsOutline.dangerTriangle,
         size: 18,
-        color: Theme.of(context).colorScheme.outline,
+        color: Colors.red,
       );
     } else if (_placeInfoProgress < 1.0) {
-      // 작성 부족 - clock (시계) 아이콘  
+      // 작성 중 - warning 아이콘
       return Icon(
-        SolarIconsOutline.clockCircle,
+        SolarIconsOutline.infoCircle,
         size: 18,
-        color: Theme.of(context).colorScheme.secondary,
+        color: Colors.orange,
       );
     } else {
       // 작성 완료 - check circle (체크) 아이콘
@@ -1342,34 +1349,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         SolarIconsOutline.checkCircle,
         size: 18,
         color: Colors.green,
-      );
-    }
-  }() {
-    if (_isCheckingPlaceInfo) {
-      return const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
-    }
-
-    if (_placeInfoProgress == 0.0) {
-      return Icon(
-        Icons.radio_button_unchecked,
-        color: Colors.grey,
-        size: 20,
-      );
-    } else if (_placeInfoProgress < 1.0) {
-      return Icon(
-        Icons.schedule,
-        color: Colors.orange,
-        size: 20,
-      );
-    } else {
-      return Icon(
-        Icons.verified,
-        color: Colors.green,
-        size: 20,
       );
     }
   }
@@ -1390,18 +1369,18 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
     }
 
     if (_matchingConditionsProgress == 0.0) {
-      // 작성 중 - edit (연필) 아이콘
+      // 아무것도 안한 상태 - error 아이콘 (사용자 동기부여)
       return Icon(
-        SolarIconsOutline.pen,
+        SolarIconsOutline.dangerTriangle,
         size: 18,
-        color: Theme.of(context).colorScheme.outline,
+        color: Colors.red,
       );
     } else if (_matchingConditionsProgress < 1.0) {
-      // 작성 부족 - clock (시계) 아이콘  
+      // 작성 중 - warning 아이콘
       return Icon(
-        SolarIconsOutline.clockCircle,
+        SolarIconsOutline.infoCircle,
         size: 18,
-        color: Theme.of(context).colorScheme.secondary,
+        color: Colors.orange,
       );
     } else {
       // 작성 완료 - check circle (체크) 아이콘
@@ -1409,34 +1388,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
         SolarIconsOutline.checkCircle,
         size: 18,
         color: Colors.green,
-      );
-    }
-  }() {
-    if (_isCheckingMatchingConditions) {
-      return const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(strokeWidth: 2),
-      );
-    }
-
-    if (_matchingConditionsProgress == 0.0) {
-      return Icon(
-        Icons.radio_button_unchecked,
-        color: Colors.grey,
-        size: 20,
-      );
-    } else if (_matchingConditionsProgress < 1.0) {
-      return Icon(
-        Icons.schedule,
-        color: Colors.orange,
-        size: 20,
-      );
-    } else {
-      return Icon(
-        Icons.verified,
-        color: Colors.green,
-        size: 20,
       );
     }
   }
