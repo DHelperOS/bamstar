@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:kpostal/kpostal.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../theme/app_text_styles.dart';
 import '../utils/toast_helper.dart';
+import '../services/cloudinary.dart';
 
 /// Place information page with multi-image picker and address search
 class PlaceInfoPage extends StatefulWidget {
@@ -206,37 +208,97 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Implement place info save logic
-      // Log all collected address data for database storage
-      debugPrint('=== Place Info Save Data ===');
-      debugPrint('Place Name: ${_placeNameCtl.text}');
-      debugPrint('Post Code: $_postCode');
-      debugPrint('Road Address: $_roadAddress');
-      debugPrint('Jibun Address: $_jibunAddress');
-      debugPrint('Detail Address: ${_detailAddressCtl.text}');
-      debugPrint('Latitude: $_latitude');
-      debugPrint('Longitude: $_longitude');
-      debugPrint('Kakao Latitude: $_kakaoLatitude');
-      debugPrint('Kakao Longitude: $_kakaoLongitude');
-      debugPrint('Manager: ${_managerNameCtl.text} ($_selectedGender)');
-      debugPrint('Phone: ${_phoneCtl.text}');
-      debugPrint('SNS: $_selectedSns - ${_snsHandleCtl.text}');
-      debugPrint('Description: ${_introCtl.text}');
-      debugPrint(
-        'Photos: ${_photos.length} new, ${_loadedImageUrls.length} existing',
-      );
-      debugPrint('Representative Image Index: $_representativeImageIndex');
+      final supabase = Supabase.instance.client;
+      final currentUser = supabase.auth.currentUser;
+      
+      if (currentUser == null) {
+        ToastHelper.error(context, '로그인이 필요합니다');
+        return;
+      }
 
-      await Future.delayed(const Duration(seconds: 2)); // Simulate save
+      // 1. Upload images to Cloudinary if new photos exist
+      List<String> imageUrls = List.from(_loadedImageUrls);
+      
+      if (_photos.isNotEmpty) {
+        for (int i = 0; i < _photos.length; i++) {
+          try {
+            final imageUrl = await CloudinaryService.instance.uploadPostImage(
+              _photos[i],
+              fileName: '${currentUser.id}_place_${DateTime.now().millisecondsSinceEpoch}_$i.jpg',
+              folder: 'places',
+              publicId: '${currentUser.id}_place_${DateTime.now().millisecondsSinceEpoch}_$i',
+            );
+            imageUrls.add(imageUrl);
+          } catch (e) {
+            debugPrint('Image upload error: $e');
+            // Continue with other images even if one fails
+          }
+        }
+      }
+
+      // 2. Determine representative image URL
+      String? representativeImageUrl;
+      if (_representativeImageIndex >= 0 && _representativeImageIndex < imageUrls.length) {
+        representativeImageUrl = imageUrls[_representativeImageIndex];
+      } else if (imageUrls.isNotEmpty) {
+        representativeImageUrl = imageUrls.first; // Default to first image
+      }
+
+      // 3. Format operating hours data
+      final operatingHours = {
+        'days': _selectedOperatingDays,
+        'start_hour': _operatingStartHour,
+        'end_hour': _operatingEndHour,
+      };
+
+      // 4. Prepare place profile data
+      final placeData = {
+        'user_id': currentUser.id,
+        'place_name': _placeNameCtl.text.trim(),
+        'address': _roadAddress ?? _addressCtl.text.trim(),
+        'detail_address': _detailAddressCtl.text.trim(),
+        'post_code': _postCode,
+        'road_address': _roadAddress,
+        'jibun_address': _jibunAddress,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'kakao_latitude': _kakaoLatitude,
+        'kakao_longitude': _kakaoLongitude,
+        'manager_name': _managerNameCtl.text.trim(),
+        'manager_gender': _selectedGender,
+        'manager_phone': _phoneCtl.text.trim(),
+        'sns_type': _selectedSns.isNotEmpty ? _selectedSns : null,
+        'sns_handle': _snsHandleCtl.text.trim().isNotEmpty ? _snsHandleCtl.text.trim() : null,
+        'description': _introCtl.text.trim(),
+        'images': imageUrls,
+        'representative_image': representativeImageUrl,
+        'operating_hours': operatingHours,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      // 5. Save to Supabase (upsert to handle both create and update)
+      final response = await supabase
+          .from('place_profiles')
+          .upsert(placeData, onConflict: 'user_id')
+          .select()
+          .single();
+
+      debugPrint('Place saved successfully: ${response['id']}');
 
       if (mounted) {
         ToastHelper.success(context, '플레이스 정보가 저장되었습니다');
         Navigator.of(context).pop();
       }
     } catch (e) {
-      debugPrint('save place info error: $e');
+      debugPrint('Save place info error: $e');
       if (mounted) {
-        ToastHelper.error(context, '저장 중 오류가 발생했습니다');
+        String errorMessage = '저장 중 오류가 발생했습니다';
+        if (e.toString().contains('duplicate key')) {
+          errorMessage = '이미 등록된 플레이스입니다';
+        } else if (e.toString().contains('network')) {
+          errorMessage = '네트워크 연결을 확인해주세요';
+        }
+        ToastHelper.error(context, errorMessage);
       }
     } finally {
       if (mounted) {
