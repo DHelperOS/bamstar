@@ -25,6 +25,7 @@ class MatchProfile {
   final String? gender;
   final List<String> industries;
   final List<String> preferredAreas;
+  final String? experienceLevel;
 
   MatchProfile({
     required this.id,
@@ -48,6 +49,7 @@ class MatchProfile {
     this.gender,
     this.industries = const [],
     this.preferredAreas = const [],
+    this.experienceLevel,
   });
 
   /// Get score color based on match percentage
@@ -216,6 +218,7 @@ class MatchProfile {
         : [],
       heartsCount: json['hearts_count'] ?? 0,
       favoritesCount: json['favorites_count'] ?? 0,
+      experienceLevel: json['experience_level'],
     );
   }
 
@@ -243,6 +246,7 @@ class MatchProfile {
       'gender': gender,
       'industries': industries,
       'preferred_areas': preferredAreas,
+      'experience_level': experienceLevel,
     };
   }
 }

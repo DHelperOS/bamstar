@@ -385,9 +385,33 @@ class MatchCard extends StatelessWidget {
       'icon': SolarIconsOutline.calendar,
     });
     
-    // Experience/Career badge (필수 - 기존 subtitle 활용)
+    // Experience/Career badge (경력 레벨 표시)
+    String experienceText = '신입'; // Default
+    if (profile.experienceLevel != null && profile.experienceLevel!.isNotEmpty) {
+      switch (profile.experienceLevel) {
+        case 'NEWCOMER':
+        case 'NEWBIE':
+          experienceText = '신입';
+          break;
+        case 'JUNIOR':
+          experienceText = '초급';
+          break;
+        case 'INTERMEDIATE':
+          experienceText = '중급';
+          break;
+        case 'SENIOR':
+          experienceText = '고급';
+          break;
+        case 'EXPERT':
+          experienceText = '전문가';
+          break;
+        default:
+          experienceText = '경력 미상';
+      }
+    }
+    
     badges.add({
-      'text': profile.subtitle.isNotEmpty ? profile.subtitle : '신입',
+      'text': experienceText,
       'icon': SolarIconsOutline.bagSmile,
     });
     

@@ -126,6 +126,7 @@ class MatchingService {
         favoritesCount: favoritesCount,
         industries: _extractIndustriesList(profile['member_industries']),
         preferredAreas: _extractAreasList(profile['member_areas']),
+        experienceLevel: profileData['experience_level'], // 경력 레벨 추가
       );
     }
   }
