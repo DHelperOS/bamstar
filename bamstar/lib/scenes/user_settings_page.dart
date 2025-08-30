@@ -1075,21 +1075,6 @@ class _UserSettingsPageState extends ConsumerState<UserSettingsPage>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: colorScheme.errorContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      SolarIconsBold.power,
-                      color: colorScheme.error,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
                   
                   // Title
                   Text(

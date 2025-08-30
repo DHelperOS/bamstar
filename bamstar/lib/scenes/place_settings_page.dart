@@ -927,21 +927,6 @@ class _PlaceSettingsPageState extends ConsumerState<PlaceSettingsPage>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: colorScheme.error.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      SolarIconsBold.power,
-                      color: colorScheme.error,
-                      size: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
 
                   // Title
                   Text(

@@ -189,11 +189,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
               ? '올바른 연락처를 입력해주세요'
               : null;
       
-      _introError = _introCtl.text.trim().isEmpty 
-          ? '플레이스 소개를 입력해주세요'
-          : _introCtl.text.trim().length < 10
-              ? '10자 이상 입력해주세요'
-              : null;
+      _introError = null; // Place intro is now optional
     });
   }
 
@@ -202,8 +198,16 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
     return _placeNameError == null &&
            _addressError == null &&
            _managerNameError == null &&
-           _phoneError == null &&
-           _introError == null;
+           _phoneError == null;
+           // _introError removed - intro is now optional
+  }
+
+  // Check if all required fields are filled (not just valid)
+  bool _areRequiredFieldsFilled() {
+    return _placeNameCtl.text.trim().isNotEmpty &&
+           _addressCtl.text.trim().isNotEmpty &&
+           _managerNameCtl.text.trim().isNotEmpty &&
+           _phoneCtl.text.trim().isNotEmpty;
   }
 
   Future<void> _searchAddress() async {
@@ -1159,15 +1163,7 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.all(16),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '플레이스 소개를 입력해주세요';
-                }
-                if (value.trim().length < 10) {
-                  return '10자 이상 입력해주세요';
-                }
-                return null;
-              },
+              // No validator - intro is now optional
             ),
           ),
         ],
@@ -1315,35 +1311,13 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
   Widget _buildErrorMessage(String? errorMessage) {
     if (errorMessage == null) return const SizedBox.shrink();
     
-    return Container(
-      margin: const EdgeInsets.only(top: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-          width: 1,
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Text(
+        errorMessage,
+        style: AppTextStyles.captionText(context).copyWith(
+          color: Theme.of(context).colorScheme.error,
         ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 16,
-            color: Theme.of(context).colorScheme.error,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              errorMessage,
-              style: AppTextStyles.captionText(context).copyWith(
-                color: Theme.of(context).colorScheme.error,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1428,29 +1402,34 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.8),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      gradient: _isLoading || !_areRequiredFieldsFilled()
+                          ? LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                                Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                              ],
+                            )
+                          : LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                              ],
+                            ),
+                      boxShadow: _isLoading || !_areRequiredFieldsFilled()
+                          ? []
+                          : [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                     ),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: _isLoading ? null : _savePlaceInfo,
+                        onTap: _isLoading || !_areRequiredFieldsFilled() ? null : _savePlaceInfo,
                         child: SizedBox(
                           height: 52,
                           width: double.infinity,
@@ -1468,13 +1447,12 @@ class _PlaceInfoPageState extends State<PlaceInfoPage> {
                                   )
                                 : Text(
                                     '저장하기',
-                                    style: AppTextStyles.buttonText(context)
-                                        .copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimary,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                    style: AppTextStyles.buttonText(context).copyWith(
+                                      color: _areRequiredFieldsFilled()
+                                          ? Theme.of(context).colorScheme.onPrimary
+                                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                           ),
                         ),
